@@ -1,3 +1,7 @@
+1999-08-14  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c: Added about box.
+
 1999-08-05  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* menu.c

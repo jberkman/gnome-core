@@ -3,6 +3,7 @@
 #include "unknown.xpm"
 
 /* Prototypes */
+static void cb_about (void);
 gchar *fixup_task_label (TasklistTask *task);
 gboolean is_task_visible (TasklistTask *task);
 void draw_task (TasklistTask *task);
@@ -55,7 +56,7 @@ fixup_task_label (TasklistTask *task)
 	return str;
 }
 
-/* Check what task (if any) that is at position x,y on the tasklist */
+/* Check what task (if any) is at position x,y on the tasklist */
 TasklistTask *
 task_get_xy (gint x, gint y)
 {
@@ -381,6 +382,27 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
+/* This routine gets called when the user selects "about" */
+static void
+cb_about (void)
+{
+	GtkWidget *dialog;
+
+	const char *authors[] = {
+		"Anders Carlsson (anders.carlsson@tordata.se)",
+		NULL
+	};
+	
+	dialog = gnome_about_new ("Gnome Tasklist",
+				  "0.1",
+				  "Copyright (C) 1999 Anders Carlsson",
+				  authors,
+				  "A tasklist for the GNOME desktop environment",
+				  NULL);
+	gtk_widget_show (dialog);
+	gdk_window_raise (dialog->window);
+}
+
 /* Create the applet */
 void
 create_applet (void)
@@ -410,7 +432,7 @@ create_applet (void)
 					       "about",
 					       GNOME_STOCK_MENU_ABOUT,
 					       _("About..."),
-					       NULL,
+					       (AppletCallbackFunc) cb_about,
 					       NULL);
 	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "properties",
