@@ -16,10 +16,10 @@ screensaver_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 	$(GNOMEUI_LIBS) $(INTLLIBS) \
 	-lImlib
 
-EXTRA_DIST = \
-	screensaver-properties.desktop 
+EXTRA_DIST =
+	#screensaver-properties.desktop 
 
 SUBDIRS=screensaver-desktops
 
 sysdir = $(datadir)/control-center/Workspace
-sys_DATA = screensaver-properties.desktop
+sys_DATA = #screensaver-properties.desktop
