@@ -1,3 +1,9 @@
+Thu Nov 30 15:06:33 2000  George Lebl <jirka@5z.com>
+
+	* gnome-terminal.c: actually make the background dropping work
+	  (finally on a machine where nautilus works).  Also add the
+	  filename from uri extraction routine stolen from panel.
+
 Thu Nov 30 11:40:59 2000  George Lebl <jirka@5z.com>
 
 	* gnome-terminal.[ch], corba.c:  Warning fixes.  Support bgimage

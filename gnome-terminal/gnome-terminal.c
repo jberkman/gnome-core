@@ -1782,6 +1782,61 @@ title_changed(ZvtTerm *term, VTTITLE_TYPE type, char *newtitle)
 	}
 }
 
+static gchar *
+extract_filename (const gchar* uri)
+{
+	/* file uri with a hostname */
+	if (strncmp (uri, "file://", strlen ("file://")) == 0) {
+		char *hostname = g_strdup (&uri[strlen("file://")]);
+		char *p = strchr (hostname, '/');
+		char *path;
+		char localhostname[1024];
+		/* if we can't find the '/' this uri is bad */
+		if(p == NULL) {
+			g_free (hostname);
+			return NULL;
+		}
+		/* if no hostname */
+		if(p == hostname)
+			return hostname;
+
+		path = g_strdup (p);
+		*p = '\0';
+
+		/* if really local */
+		if (g_strcasecmp (hostname, "localhost") == 0 ||
+		    g_strcasecmp (hostname, "localhost.localdomain") == 0) {
+			g_free (hostname);
+			return path;
+		}
+
+		/* ok get the hostname */
+		if (gethostname (localhostname,
+				 sizeof (localhostname)) < 0) {
+			strcpy (localhostname, "");
+		}
+
+		/* if really local */
+		if (localhostname[0] &&
+		    g_strcasecmp (hostname, localhostname) == 0) {
+			g_free (hostname);
+			return path;
+		}
+		
+		g_free (hostname);
+		g_free (path);
+		return NULL;
+
+	/* if the file doesn't have the //, we take it containing 
+	   a local path */
+	} else if (strncmp(uri, "file:", strlen("file:"))==0) {
+		const char *path = &uri[strlen("file:")];
+		/* if empty bad */
+		if(!*path) return NULL;
+		return g_strdup(path);
+	}
+	return NULL;
+}
 
 static void  
 drag_data_received  (GtkWidget *widget, GdkDragContext *context, 
@@ -1858,6 +1913,7 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 						     cfg->color_set);
 			check_color_sensitivity (prefs);
 		}
+		break;
 	}
 	case TARGET_BGIMAGE:
 	{
@@ -1866,11 +1922,8 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 		gboolean back_set;
 		gboolean back_reset;
 
-		if (selection_data->length != 8)
-			return;
-
 		if (filename != NULL &&
-		    strstr (filename, RESET_IMAGE_NAME) == NULL) {
+		    strstr (filename, RESET_IMAGE_NAME) != NULL) {
 			zvt_term_set_background (term, NULL, 0, 0);
 
 			cfg->background_pixmap = FALSE;
@@ -1888,8 +1941,9 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 			int flags;
 
 			cfg->background_pixmap = TRUE;
+			cfg->transparent = FALSE;
 			g_free (cfg->pixmap_file);
-			cfg->pixmap_file = g_strdup (filename);
+			cfg->pixmap_file = extract_filename (filename);
 
 #ifdef ZVT_BACKGROUND_SCROLL
 			flags = cfg->shaded?ZVT_BACKGROUND_SHADED:0;
@@ -1924,6 +1978,9 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox), FALSE);
 			}
 		}
+
+		gtk_widget_queue_draw (GTK_WIDGET (term));
+		break;
 	}
 	}
 }
