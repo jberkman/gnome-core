@@ -1,0 +1,146 @@
+<HTML>
+<HEAD>
+<!-- Some simple instructions on how to use the help browser -->
+<TITLE> Dokumentation zum GNOME-Hilfebrowser </TITLE>
+</HEAD>
+<BODY BACKGROUND="bg.png">
+<a name="Top">
+<H2> Dokumentation zum GNOME-Hilfebrowser </H2>
+
+Der GNOME-Hilfebrowser ist eine Schnittstelle zu verschiedenen Arten
+von Information auf Ihrem Computer und auf anderen Computern, die
+durch das Internet erreichbar sind. Dieses kurze Dokument beschreibt
+die Hauptfunktionen des GNOME-Hilfebrowsers.
+
+<a name="Cmdline">
+<h3> Kommandozeilen-Optionen </h3>
+<ul><pre>
+  -d, --debug                Diagnoselevel, höhere Werte führen zu
+                             mehr Ausgabe
+  -h HÖHE                    Höhe des Fensters
+  -w BREITE                  Breite des Fensters
+  -x X                       X-Position des Fensters
+  -y Y                       Y-Position des Fensters
+      --display=DISPLAY      Zu verwendendes X-Display
+      --no-xshm              X-Erweiterung für gemeinsam nutzbaren
+                             Speicher nicht verwenden
+  -?, --help                 Diese Hilfeliste ausgeben
+      --usage                Eine kurze Hilfemeldung ausgeben
+  -V, --version              Programmversion ausgeben
+</pre></ul>
+
+
+<a name="Menus">
+<H3> Menüs </H3>
+Der GNOME-Hilfebrowser hat mehrere Menüeinträge am Kopf des
+Anwendungsfensters. Ihr Verhalten sollte selbsterklärend sein.
+
+<a name="Toolbar">
+<H3> Werkzeugleiste </H3>
+Die Werkzeugleiste hat mehrere Knöpfe, um die Verwendung des
+Hilfebrowsers komfortabler zu machen. Die Knöpfe <b>Vor</b> und
+<b>Zurück</b> lassen den Browser die Chronik von in dieser Sitzung
+bereits betrachteten Seiten vorwärts und rückwärts durchlaufen. Der
+Knopf <b>Hilfe</b> zeigt diese Hilfe. Der Knopf <b>Chronik</b> zeigt
+eine Chronik der bereits betrachteten Seiten, und der Knopf
+<b>Lesezeichen</b> eine Liste von Lesezeichen, die sie bisher angelegt haben.
+
+
+<a name="Entry">
+<H3> URL-Eintragsfeld </H3>
+Das Eintragsfeld erlaubt die direkte Eingabe von URLs. Der
+Hilfebrowser akzeptiert folgende normale und `magische' URL-Typen:
+
+<p>
+<dl>
+  <dt>http:
+   <dd> Über das HT-Transferprotokol auf eine Seite zugreifen.<br><br>
+        Beispiele:
+     <ul>
+         <li> http://www.gnome.org
+         <li> http://www.gnome.org/index.shtml
+         <li> http://www.gnome.org/index.shtml#majic
+     </ul>
+   </dd>
+  </dt>
+
+  <dt>file:
+   <dd> Auf eine Datei im lokalen Dateisystem zugreifen.<br><br>
+        Beispiele:
+     <ul>
+         <li> file:/home/msf/maji12.html
+         <li> file:/usr/man/man1/ls.1
+         <li> file:/usr/src/gogo/README
+     </ul>
+   </dd>
+  </dt>
+
+  <dt>whatis:
+   <dd> Eine Stichwortsuche in Dokumentnamen.<br><br>
+        Mögliche Formen sind:
+     <ul>
+        <li> whatis:ls
+        <li> whatis:xman
+     </ul>
+   </dd>
+  </dt>
+
+  <dt>toc:
+   <dd> Ein Inhaltsverzeichnis existierender Dokumente zeigen.<br><br>
+        Mögliche Formen sind:
+     <ul>
+        <li> toc:
+        <li> toc:man
+        <li> toc:info
+        <li> toc:ghelp
+     </ul>
+   </dd>
+  </dt>
+
+  <dt>man:
+   <dd> Eine Handbuchseite laden.<br><br>
+        Beispiele:
+     <ul>
+        <li> man:ls
+        <li> man:ls(1)
+     </ul>
+   </dd>
+  </dt>
+
+  <dt>info:
+   <dd> Eine GNU-Info-Seite laden.<br><br>
+        Beispiele:
+     <ul>
+        <li> info:emacs
+        <li> info:emacs#Top
+     </ul>
+   </dd>
+  </dt>
+
+  <dt>ghelp:
+   <dd> Die GNOME-Hilfe für ein Programm anzeigen. <br>
+         <b>HINWEIS</b>: Es existiert noch nicht viel Dokumentation in
+         diesem Format.<br><br>
+         Beispiele:
+      <ul>
+         <li> ghelp:help-browser
+      </ul>
+   </dd>
+  </dt>
+
+</dl>
+
+<a name="Bookmark">
+<H3> Lesezeichen-Fenster </H3>
+Das Lesezeichen-Fenster listet alle momentan verfügbaren Lesezeichen
+auf. Um ein Lesezeichen hinzuzufügen, benutzen Sie die Option
+<b>Lesezeichen hinzufügen</b> im Menü <b>Datei</b>.
+
+<a name="History">
+<H3> Chronikfenster </H3>
+Das Chronikfenster listet eine Chronik aller Seiten auf, die Sie nach
+und nach besucht haben. Sie hat eine maximale Länge, die Sie unter
+<b>Einstellungen</b> konfigurieren können.
+
+</BODY>
+</HTML>
