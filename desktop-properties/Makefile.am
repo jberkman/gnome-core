@@ -41,6 +41,7 @@ LDADD = \
 	$(top_builddir)/libgnomeui/libgnomeui.la 	\
 	$(GTK_LIBS)					\
         $(X_LIBS) $(x_libs)				\
+	$(DL_LIB)					\
         @XF86MISC_LIBS@					\
 	@LEXLIB@					\
 	$(INTLLIBS)
