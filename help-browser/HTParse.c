@@ -33,9 +33,6 @@ DOCUMENTATION.
 #define GHELP
 #if defined(GHELP)
 #include <string.h>
-#if !defined(__FreeBSD__)
-#include <malloc.h>
-#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
