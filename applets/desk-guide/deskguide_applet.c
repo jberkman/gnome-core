@@ -637,7 +637,7 @@ gp_about (void)
 				"Copyright (C) 1999 Tim Janik",
 				authors,
 				DESK_GUIDE_NAME,
-				NULL);
+				"gnome-deskguide-splash.png");
       gtk_widget_set (dialog,
 		      "signal::destroy", gtk_widget_destroyed, &dialog,
 		      NULL);

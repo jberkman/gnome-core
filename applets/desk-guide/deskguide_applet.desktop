@@ -10,6 +10,6 @@ Comment[ja]=GNOMEデスクトップガイド(ページャー)
 Comment[no]=GNOME Skrivebord-guide (pager)
 Comment[pl]=Pager dla GNOME
 Exec=deskguide_applet --activate-goad-server=deskguide_applet
-Icon=
+Icon=gnome-deskguide.png
 Terminal=0
 Type=Application

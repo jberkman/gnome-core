@@ -21,10 +21,15 @@ EXTRA_DIST = \
 	gwmdesktop.h \
 	deskguide_applet.h \
 	deskguide_applet.gnorba \
-	deskguide_applet.desktop
+	deskguide_applet.desktop \
+	gnome-deskguide-splash.png \
+	gnome-deskguide.png
 
 sysdir = $(datadir)/applets/Utility
 sys_DATA = deskguide_applet.desktop
+
+pixmapdir = $(datadir)/pixmaps
+pixmap_DATA = gnome-deskguide-splash.png gnome-deskguide.png
 
 gnorbadir  = $(sysconfdir)/CORBA/servers
 gnorba_DATA = deskguide_applet.gnorba 
