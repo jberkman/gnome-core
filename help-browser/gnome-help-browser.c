@@ -455,9 +455,6 @@ save_state (GnomeClient        *client,
         /* i.e. clone_command = restart_command - '--sm-client-id' */
         gnome_client_set_clone_command (client, 0, NULL);
 
-	if (shutdown)
-		gtk_main_quit();
-
         return TRUE;
 }
 
