@@ -1,3 +1,7 @@
+Mon Feb 23 00:17:18 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* gnome-desktop.h (property_main): Updated decl.
+
 1998-02-19  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* app-mouse.c (main): Added app_id "mouse_properties".

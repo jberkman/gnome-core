@@ -25,7 +25,7 @@ void property_changed (void);
 
 /* This is what an application's main() should call.  It isn't named
    main() since that doesn't always work well in libraries.  */
-int property_main (int argc, char *argv[]);
+int property_main (char *app_id, int argc, char *argv[]);
 
 /* This is supplied by the application.  It is called to register all
    the pages that make up the app.  FIXME: This will eventually go
