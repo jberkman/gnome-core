@@ -25,7 +25,7 @@
 #include "toc.h"
 #include "cache.h"
 
-#define VERSION "0.3"
+#define VERSION "0.4"
 
 static void about_cb(void);
 static void historyCallback(gchar *ref);
@@ -75,12 +75,14 @@ main(int argc, char *argv[])
 static void
 historyCallback (gchar *ref)
 {
+    g_message("HISTORY: %s", ref);
     helpWindowShowURL(currentHelpWindow, ref);
 }
 
 static void
 tocCallback(gchar *ref) 
 {
+    g_message("TOC: %s", ref);
     helpWindowShowURL(currentHelpWindow, ref);
 }
 

@@ -82,16 +82,16 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 
 	/* HACKHACKHACK for info support */
 	if (isRelative(obj->ref)) {
-	    g_message("got relative reference: %s", obj->ref);
+	    g_message("relative ref: %s", obj->ref);
 	    decomp = decomposeUrlRelative(obj->ref, currentRef,
 					  &(obj->absoluteRef));
         } else {
-	    g_message("got absolute reference: %s", obj->ref);
+	    g_message("absolute ref: %s", obj->ref);
 	    decomp = decomposeUrl(obj->ref);
 	    obj->absoluteRef = g_strdup(obj->ref);
 	}
 
-	g_message("decomposed to: %s %s %s %s", decomp->access, 
+	g_message("decomposed to: %s, %s, %s, %s", decomp->access, 
 		  decomp->host, decomp->path, decomp->anchor);
 
 	/* stupid test for transport types we currently understand */

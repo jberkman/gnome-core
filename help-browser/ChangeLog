@@ -1,3 +1,9 @@
+1998-02-25  Marc Ewing  <marc@tasmanian.redhat.com>
+
+	* cleaned up some messages
+
+	* ripped out some code that duplicates functionality
+
 1998-02-25  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* Makefile.am (LDADD): Remove $(ZLIB).

@@ -38,7 +38,7 @@ resolveMagicURL( docObj obj )
 		gchar buf2[1024];
 		gchar *convanchor=NULL;
 
-		gchar *eol, *cur, *s;
+		gchar *s;
 		GList *indirect=NULL, *listptr;
 	
 		
@@ -117,7 +117,7 @@ resolveMagicURL( docObj obj )
 			*eoln = '\0';
 			e->val = strtol(c, NULL, 10);
 			c = eoln+1;
-printf("Inserted entry ->%s<- val=%d\n",e->name, e->val);
+
                         indirect = g_list_append(indirect, e);
  		}
 
@@ -163,7 +163,7 @@ printf("Inserted entry ->%s<- val=%d\n",e->name, e->val);
 			}
 			*eoln = '\0';
 			val = strtol(c, NULL, 10);
-printf("Found entry ->%s<- val=%d\n",c, val);
+
 			break;
  		}
 
@@ -211,12 +211,12 @@ printf("Found entry ->%s<- val=%d\n",c, val);
 		}
 		
 		if (*buf2) {
+		        g_message("url magic: %s -> %s", ref, buf2);
 			docObjSetRef(obj, buf2);
 			docObjSetMimeType(obj, "application/x-info");
 		}
 
-/* MARC this doesnt work! */		
-/*		g_list_foreach(indirect, g_free, ); */
+		g_list_foreach(indirect, (GFunc)g_free, NULL);
 		g_free(data);
 		g_list_free(indirect);
 

@@ -8,7 +8,6 @@
     (add scrollbar position to docobj? and store in queue?)
  - fix error handling (back, etc)
  - Make a better scheme to reference files/section than using a real filename?
- - add caching code (its written, need to integrate)
  - work on DocBook output to generate topic.dat automatically (need to use
    special tags in DocBook to denote links which should go into the 'Help' 
    menu).
@@ -25,11 +24,10 @@
     save to file
     better date string
  - can back/forward buttons have dropdown history?
- - info
  - code cleanup
     rethink the url/docobj processing and callback entries to the
      docobj processing path
-    encapsulate all globals & allow for multiple windows
+ - mutiple windows
  - add "magic" urls (eg "man:ls")
  - man2html remove contents and man2html tags
    fix path (eg /usr/X11R6/man)

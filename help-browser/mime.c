@@ -110,13 +110,18 @@ convertMan( docObj obj )
 	/*          work with input from stdin                     */
 
         gchar *s;
+	char *argv[3];
 
 	if (! (s = docObjGetRawData(obj)))
 	    return;
+
+	argv[0] = "gnome-man2html";
+	argv[1] = docObjGetDecomposedUrl(obj)->path;
+	argv[2] = NULL;
+	    
+	g_message("filter: %s %s", argv[0], argv[1]);
 	
-	s = execfilter("gnome-man2html {}",
-		       docObjGetDecomposedUrl(obj)->path, NULL);
-	docObjSetConvData(obj, s, TRUE);
+	docObjSetConvData(obj, getOutputFrom(argv, "", 0), TRUE);
 }
 
 
@@ -162,46 +167,12 @@ convertINFO( docObj obj )
 	argv[4] = base;
 	argv[5] = NULL;
 
-printf("Running command %s %s %s %s %s\n",argv[0],argv[1],argv[2],argv[3], argv[4]);
+	g_message("filter: %s %s %s %s %s",
+		  argv[0],argv[1],argv[2],argv[3], argv[4]);
 
 	if (! (s = docObjGetRawData(obj)))
 	    return;
 
 	docObjSetConvData(obj, getOutputFrom(argv, s, strlen(s)), TRUE);
 	g_free(basepath);
-}
-
-
-/* routines to execute filters */
-gchar
-*execfilter(gchar *execpath, gchar *docpath, gchar *inbuf)
-{
-	gchar  *cmd;
-	gchar  *t;
-	gchar  *argv[3];
-
-	/* see if they need the document filename as a cmdline arg */
-	cmd = alloca(strlen(execpath)+10);
-	strcpy(cmd,execpath);
-	if ((t=strstr(cmd,"{}"))) {
-		*t = '\0';
-		argv[1] = docpath;
-	} else {
-		argv[1] = NULL;
-	}
-
-	for (t=cmd+strlen(cmd); (!(*t) || isspace(*t)) && t != cmd; t--);
-	*(t+1) = '\0';
-
-
-	argv[0] = cmd;
-	argv[2] = NULL;
-	
-	g_message("execfilter: %s %s %s",
-		  ((argv[0]) ? argv[0] : ""),
-		  ((argv[1]) ? argv[1] : ""),
-		  ((argv[2]) ? argv[2] : ""));
-
-
-	return getOutputFrom(argv, inbuf, (inbuf) ? strlen(inbuf): 0);
 }

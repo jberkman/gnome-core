@@ -93,7 +93,6 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft)
 				outbuflen += bytes;
 			}
 			strcat(outbuf, buf);
-			g_message("%8d bytes read\r", outbuflen);
 			bytes = read(fromProg[0], buf, sizeof(buf)-1);
 		}
 			
@@ -208,7 +207,6 @@ getOutputFromBin(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 
 			memcpy(tmpoutbuf+outpos, buf, bytes);
 			outpos += bytes;
-			g_message("%8d bytes read\r", outpos);
 			bytes = read(fromProg[0], buf, sizeof(buf)-1);
 		}
 			

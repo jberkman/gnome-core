@@ -1,10 +1,6 @@
 /* transport functions */
 
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
 
 #include <glib.h>
@@ -59,82 +55,10 @@ transportUnknown( docObj obj )
 void
 transportFile( docObj obj )
 {
-	gchar   *s=NULL, *out;
-	gchar   buf[8193];
-	gint    fd;
-	gint    bytes;
-	gint    total;
-	gchar   *pipecmd=NULL;
-	gchar   file[1024];
+    gchar *buf;
 
-	out = NULL;
-
-	strcpy(file, docObjGetDecomposedUrl(obj)->path);
-
-		/* test for existance */
-	printf("accessing ->%s<-\n",file);		
-	if (access(file, R_OK)) {
-		g_snprintf(buf, sizeof(buf), 
-			   "<BODY>Error: unable to open "
-			   "file %s</BODY>",file);
-		docObjSetRawData(obj, g_strdup(buf), TRUE);
-		return;
-	}
-			
-	/* is the file compressed? */
-	if (!strcmp(file+strlen(file)-2, ".Z"))
-		pipecmd = "/bin/zcat";
-	else if (!strcmp(file+strlen(file)-3, ".gz"))
-		pipecmd = "/bin/zcat";
-		
-	if (!pipecmd) {
-		fd = open(file, O_RDONLY);
-		if (fd < 0) {
-			g_snprintf(buf, sizeof(buf), 
-				   "<BODY>Error: unable to open "
-				   "file %s</BODY>",file);
-			docObjSetRawData(obj, g_strdup(buf), TRUE);
-			return;
-		}
-		total = 0;
-		while ((bytes=read(fd, buf, 8192))) {
-			if (s) {
-				s = g_realloc(s, total+bytes);
-				total += bytes;
-			} else {
-				s = g_malloc(bytes+1);
-				*s = '\0';
-				total = bytes+1;
-			}
-				
-			buf[bytes] = '\0';
-			strcat(s, buf);
-		}
-			
-		close(fd);
-	} else {
-		char *argv[3];
-			
-		argv[0] = pipecmd;
-		argv[1] = file;
-		argv[2] = NULL;
-			
-		s = getOutputFrom(argv, NULL, 0);
-	}
-		
-	if (out) {
-		out = g_realloc(out, strlen(out)+strlen(s)+1);
-		strcat(out, s);
-		g_free(s);
-		s = NULL;
-	} else {
-		out = g_strdup(s);
-		g_free(s);
-		s = NULL;
-	}
-
-	docObjSetRawData(obj, out, TRUE);
-	return;
+    buf = loadFileToBuf(docObjGetDecomposedUrl(obj)->path);
+    docObjSetRawData(obj, buf, TRUE);
 }
 
 void

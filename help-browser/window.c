@@ -179,7 +179,7 @@ quit_cb (void)
 static void
 xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
-        g_message("tag clicked: %s", cbs->href);
+        g_message("TAG CLICKED: %s", cbs->href);
 	visitURL(win, cbs->href);
 	update_toolbar(win);
 }
@@ -228,6 +228,7 @@ static void help_onhelp(GtkWidget *w, HelpWindow win) {
 static void
 entryChanged(GtkWidget *w, HelpWindow win)
 {
+    g_message("ENTRY BOX: %s", gtk_entry_get_text(GTK_ENTRY(w)));
     helpWindowShowURL(win, gtk_entry_get_text(GTK_ENTRY(w)));
 }
 
