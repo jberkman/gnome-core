@@ -1,3 +1,9 @@
+2001-10-17  Michael Meeks  <michael@ximian.com>
+
+	* gnome-terminal.c (new_terminal_cmd): allow preferences to be
+	sensitized. (preferences_cmd): upd. for safety.
+	(preferences_cmd): g_object_unref the gui, show the window.
+
 2001-10-10  Havoc Pennington  <hp@redhat.com>
 
 	* Makefile.am (INCLUDES): define a symbol for datadir

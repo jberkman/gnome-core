@@ -1249,10 +1249,10 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 	label = gtk_label_new (_("Browse..."));
 	gnome_font_picker_uw_set_widget(GNOME_FONT_PICKER(picker), GTK_WIDGET(label));
 	gtk_widget_show (label);
-#endif
 	
 	gtk_object_set_user_data(GTK_OBJECT(picker), GTK_OBJECT(prefs->font_entry)); 
 	gtk_object_set_user_data (GTK_OBJECT(prefs->font_entry), GTK_OBJECT(picker)); 
+#endif
 
 	prefs->class_box = glade_xml_get_widget (gui, "class-box");
 
@@ -1482,7 +1482,9 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "help",
 			    GTK_SIGNAL_FUNC (phelp_cb), NULL);
 
-	gtk_object_unref (GTK_OBJECT (gui));
+	gtk_widget_show (prefs->prop_win);
+
+	g_object_unref (G_OBJECT (gui));
 }
 
 #define NEED_UNUSED_FUNCTIONS
@@ -2326,9 +2328,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 				      "state",
 				      cfg->keyboard_secured
 				      ? "1" : "0", NULL);
-
-	bonobo_ui_component_set_prop (uic, "/commands/Preferences",
-				      "sensitive", "0", NULL);
 
 	/* 
 	 * we need to realize the term before it gets shown so that
