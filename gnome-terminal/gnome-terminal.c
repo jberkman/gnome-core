@@ -34,7 +34,7 @@ char *geometry = 0;
 gboolean update_utmp = TRUE;
 
 /* is there pixmap compiled into zvt */
-static gboolean zvt_pixmap_support = TRUE;
+static gboolean zvt_pixmap_support = FALSE;
 
 /* The color set */
 enum color_set_enum {
@@ -319,6 +319,7 @@ set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg)
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
 	c.pixel = term->colors [17];
+
 	gdk_window_set_background (GTK_WIDGET (term)->parent->window, &c);
 				   
 	gtk_widget_queue_draw (GTK_WIDGET (term));
@@ -480,9 +481,14 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	zvt_term_set_del_key_swap (term, cfg->swap_keys);
-	zvt_term_set_background (term,
-				 cfg->background_pixmap?cfg->pixmap_file:NULL,
-				 cfg->transparent, cfg->shaded);
+
+	if (zvt_pixmap_support && cfg->background_pixmap)
+		zvt_term_set_background (term,
+					 cfg->pixmap_file,
+					 cfg->transparent, cfg->shaded);
+	else
+		zvt_term_set_background (term, NULL, 0, 0);
+
 	if (cfg->scrollbar_position == SCROLLBAR_HIDDEN)
 		gtk_widget_hide (scrollbar);
 	else {
@@ -1468,7 +1474,11 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
-	zvt_pixmap_support = (zvt_term_get_capabilities(term)&ZVT_TERM_PIXMAP_SUPPORT)!=0;
+
+	if ((zvt_term_get_capabilities (term) & ZVT_TERM_PIXMAP_SUPPORT) != 0){
+		if (gdk_imlib_get_visual () == gtk_widget_get_default_visual ())
+			zvt_pixmap_support = TRUE;
+	}
 	gtk_object_set_data(GTK_OBJECT(app), "term", term);
 	gtk_widget_show (GTK_WIDGET (term));
 	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
@@ -1543,9 +1553,13 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		geometry = NULL;
 	}
 	configure_term_dnd (term);
-	zvt_term_set_background (term,
-				 cfg->background_pixmap?cfg->pixmap_file:NULL,
-				 cfg->transparent, cfg->shaded);
+
+	if (zvt_pixmap_support && cfg->background_pixmap)
+		zvt_term_set_background (term, cfg->pixmap_file,
+					 cfg->transparent, cfg->shaded);
+	else
+		zvt_term_set_background (term, NULL, 0, 0);
+
 	gtk_widget_show (app);
 	set_color_scheme (term, cfg);
 

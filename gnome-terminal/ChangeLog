@@ -1,6 +1,8 @@
 1998-12-09  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c: Preferences are now saved by default.
+	(new_terminal_cmd): Disable pixmap support if the Imlib visual is
+	different from the startup visual, as Imlib is lame.
 
 1998-12-02  Jeff Garzik  <jgarzik@pobox.com>
 
