@@ -17,7 +17,6 @@
 
 #include "capplet-widget.h"
 #include <gnome.h>
-#include "gnome-desktop.h"
 #include "imlib-misc.h"
 
 static GtkWidget *capplet=NULL;

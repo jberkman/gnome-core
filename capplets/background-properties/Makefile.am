@@ -9,7 +9,6 @@ bin_SCRIPTS =background-properties
 
 background_properties_capplet_SOURCES =	\
 	property-background.c	\
-	gnome-desktop.h		\
 	app-background.c	\
 	imlib-misc.c		\
 	imlib-misc.h		

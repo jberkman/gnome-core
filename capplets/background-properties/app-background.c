@@ -3,7 +3,6 @@
 #include <config.h>
 #include <strings.h>
 #include "capplet-widget.h"
-#include "gnome-desktop.h"
 
 extern void background_init(void);
 
