@@ -58,7 +58,7 @@
 #ifdef HAVE_GNOME_FONT_PICKER
 #include <libgnomeui/gnome-font-picker.h>
 #endif
-/* #include <libgnomeui/gnome-window-icon.h> */
+#include <libgnomeui/gnome-window-icon.h>
 
 #include <libzvt/libzvt.h>
 
@@ -2186,20 +2186,20 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
-#if 0
+
 	/* override the icon if it was in the config */
-	if (cfg->window_icon) {
+	if (cfg->window_icon)
 	  gnome_window_icon_set_from_file (GTK_WINDOW(app), cfg->window_icon);
- 	} else {
-	  gnome_window_icon_set_from_default (GTK_WINDOW (app));
-	}	
-#endif
+
 	g_snprintf (winclass, sizeof (winclass), "Terminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), winclass, "Terminal");
-	//gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
-	//gtk_widget_set_size_request (GTK_WIDGET (app), 0, 0);
-	//gtk_window_set_resizable (GTK_WINDOW (app), TRUE);
-	//gtk_window_resize (GTK_WINDOW (app), 1, 1);
+
+#if 0
+	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
+	gtk_widget_set_size_request (GTK_WIDGET (app), 0, 0);
+	gtk_window_set_resizable (GTK_WINDOW (app), TRUE);
+	gtk_window_resize (GTK_WINDOW (app), 1, 1);
+#endif
 
 	if (cmd != NULL)
 		initial_term = app;
@@ -3024,7 +3024,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 
 	env = environ;
 	
-	/* gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-terminal.png");*/
+	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-terminal.png");
 
 	/* since -x gets stripped out of the commands, this
 	   will make it override --use-factory */

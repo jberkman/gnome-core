@@ -1,5 +1,7 @@
 2001-09-12  jacob berkman  <jacob@ximian.com>
 
+	* gnome-terminal.c: enable window icons
+	
 	* gnome-terminal.c: fixup window icon stuff - leave out until it
 	gets re-added
 
