@@ -115,5 +115,5 @@ displayHTML( GnomeHelpWin *help, docObj *obj )
 	if (*(obj->url.u->anchor))
 		jump_to_anchor( help, obj->url.u->anchor);
 	else
-		jump_to_line( help, 0 );
+		jump_to_line( help, 1 );
 }

@@ -58,7 +58,7 @@ guint gnome_helpwin_close(GnomeHelpWin *help);
 void gnome_helpwin_goto(GnomeHelpWin *help,  const char *filename);
 
 void jump_to_anchor( GnomeHelpWin *w, gchar *a );
-void jimp_to_line( GnomeHelpWin *w, gint line );
+void jump_to_line( GnomeHelpWin *w, gint line );
 
 END_GNOME_DECLS
 
