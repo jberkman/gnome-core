@@ -35,7 +35,9 @@ bin_PROGRAMS = gnome-terminal
 
 gnome_terminal_src = \
 	gnome-terminal.c	\
-	gnome-terminal.h
+	gnome-terminal.h	\
+	gnome-x-font-selector.c	\
+	gnome-x-font-selector.h
 
 #	corba.c			\
 
@@ -70,7 +72,7 @@ EXTRA_DIST =				\
 	$(man_MANS)			\
 	$(ui_DATA)
 
-BUILT_SOURCES = $(CORBA_SOURCE)
+# BUILT_SOURCES = $(CORBA_SOURCE)
 CLEANFILES    = $(BUILT_SOURCES)
 
 dist-hook:
