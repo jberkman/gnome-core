@@ -289,6 +289,15 @@ ui_setup (void)
   gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
 
   button = 
+    gtk_check_button_new_with_label(_("Toolbars have text labels"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_preferences_get_toolbar_labels());
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(checkbutton_cb),
+                     gnome_preferences_set_toolbar_labels);
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  button = 
     gtk_check_button_new_with_label(_("Statusbar is interactive when possible"));
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_statusbar_interactive());
