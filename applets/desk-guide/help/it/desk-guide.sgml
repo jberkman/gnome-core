@@ -31,13 +31,13 @@
       L'applet <application>Desk Guide</application> vi aiuta a scorrere i
       desktop virtuali disponibili nel vostro sistema. Il sistema <application>X
       Window</application> funziona utilizzando un programma chiamato "gestore
-      di finestre", il quale vi permette di creare più scrivanie virtuali (dette anche
-      workspace) per organizzare il lavoro dividendo la varie applicazioni fra le
-      varie scrivanie; ognuna di queste scrivanie può ancora essere divisa
-      ulteriormente in spazi di lavoro, detti "desk areas". Questa applet è
-      un'applicazione che vi permette di scorrere le varie scrivanie e desk areas
-      visualizzandoli in una piccola mappa nel Pannello di GNOME e di cambiare
-      quello attuale facilmente.
+      di finestre", il quale vi permette di creare più scrivanie virtuali (dette
+      anche workspace) per organizzare il lavoro dividendo la varie applicazioni
+      fra le varie scrivanie; ognuna di queste scrivanie può ancora essere
+      divisa ulteriormente in spazi di lavoro, detti "desk areas". Questa applet
+      è un'applicazione che vi permette di scorrere le varie scrivanie e desk
+      areas visualizzandoli in una piccola mappa nel Pannello di GNOME e di
+      cambiare quello attuale facilmente.
     </para>
 
     <para>
@@ -268,7 +268,7 @@
 	  </graphic>
 	</screenshot>
       </figure>
-      <para>Le opzioni dispononibili sono:</para>
+      <para>Le opzioni disponibili sono:</para>
       <itemizedlist>
 	<listitem>
 	  <para>
@@ -533,14 +533,14 @@
 
     <para>
       Questo manuale è stato scritto da John Fleck
-    (<email>jfleck@inkstain.net</email>). Inviate tutti i commenti e i
-    suggerimenti a proposito di questo manuale al <ulink type="http"
-    url="http://developer.gnome.org/projects/gdp/">GNOME Documentation
-    Project</ulink> inviando un messaggio di posta elettronica a
-    <email>docs@gnome.org</email>. Potete inviare i vostri commenti anche usando
-    il <ulink type="http"
-    url="http://developer.gnome.org/projects/gdp/doctable/">GNOME Documentation
-    Status Table</ulink>.
+      (<email>jfleck@inkstain.net</email>). Inviate tutti i commenti e i
+      suggerimenti a proposito di questo manuale al <ulink type="http"
+      url="http://developer.gnome.org/projects/gdp/">GNOME Documentation
+      Project</ulink> inviando un messaggio di posta elettronica a
+      <email>docs@gnome.org</email>. Potete inviare i vostri commenti anche
+      usando il <ulink type="http"
+      url="http://developer.gnome.org/projects/gdp/doctable/">GNOME
+      Documentation Status Table</ulink>.
     </para>
 
     <para>
