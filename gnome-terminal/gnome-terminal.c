@@ -349,7 +349,7 @@ load_config (char *class)
 	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
 	cfg->font    = gnome_config_get_string ("font=" DEFAULT_FONT);
 	cfg->wordclass  = gnome_config_get_string ("wordclass=-A-Za-z0-9,./?%&#");
-	p = gnome_config_get_string ("scrollpos=left");
+	p = gnome_config_get_string ("scrollpos=right");
 	if (strcasecmp (p, "left") == 0)
 		cfg->scrollbar_position = SCROLLBAR_LEFT;
 	else if (strcasecmp (p, "right") == 0)
@@ -1217,6 +1217,19 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	save_preferences_cmd (widget, term);
 }
 
+static void
+paste_cmd (GtkWidget *widget, ZvtTerm *term)
+{
+	GdkAtom string_atom;
+
+	string_atom = gdk_atom_intern ("STRING", FALSE);
+	if (string_atom == GDK_NONE)
+		return;
+	
+	gtk_selection_convert (GTK_WIDGET (term), GDK_SELECTION_PRIMARY, string_atom,
+			       GDK_CURRENT_TIME);
+}
+
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
         GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
 	GNOMEUIINFO_SEPARATOR,
@@ -1247,6 +1260,11 @@ static GnomeUIInfo gnome_terminal_help_menu [] = {
 	GNOMEUIINFO_END
 };
 
+static GnomeUIInfo gnome_terminal_edit [] = {
+	GNOMEUIINFO_MENU_PASTE_ITEM(paste_cmd, NULL),
+	GNOMEUIINFO_END
+};
+
 static GnomeUIInfo gnome_terminal_settings_menu [] = {
         GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
 	GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd),
@@ -1255,6 +1273,7 @@ static GnomeUIInfo gnome_terminal_settings_menu [] = {
 
 static GnomeUIInfo gnome_terminal_menu [] = {
 	GNOMEUIINFO_MENU_FILE_TREE(gnome_terminal_terminal_menu),
+	GNOMEUIINFO_MENU_EDIT_TREE(gnome_terminal_edit),
 	GNOMEUIINFO_MENU_SETTINGS_TREE(gnome_terminal_settings_menu),
 	GNOMEUIINFO_MENU_HELP_TREE(gnome_terminal_help_menu),
 	GNOMEUIINFO_END
