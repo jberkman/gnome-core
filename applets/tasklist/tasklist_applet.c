@@ -1201,7 +1201,7 @@ cb_motion_timeout (gpointer user_data)
 {
 	Tasklist *tasklist = user_data;
 	
-	if (tasklist->motion_task) {
+	if (tasklist->motion_task && !(tasklist->motion_task->task_group)) {
 		show_task (tasklist, tasklist->motion_task);
 	}
 
