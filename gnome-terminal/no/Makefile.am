@@ -23,7 +23,7 @@ dist-hook:
 install-data-local: index.html
 	-for file in gnome-terminal/*.html gnome-terminal/*.css; do \
 	  basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-	  $(INSTALL_DATA) $$file $(gnome_terminal_helpdir)/$$basefile; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(gnome_terminal_helpdir)/$$basefile; \
 	done
 
 gnome-terminal.ps: gnome-terminal.sgml
