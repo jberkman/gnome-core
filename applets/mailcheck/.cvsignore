@@ -1,6 +1,7 @@
-.deps
-.libs
 Makefile.in
 Makefile
-dialer_applet
 dummy.cc
+.deps
+.libs
+mailcheck_applet
+
