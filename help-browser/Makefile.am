@@ -20,8 +20,7 @@ LDADD = \
 bin_PROGRAMS = gnome-help-browser  gnome-help-caller
 
 gnome_help_caller_SOURCES = \
-				$(NAMING_CLIENT_SOURCES) \
-				$(HELP_CLIENT_SOURCES)   \
+				$(ORBIT_HELP_CLIENT_SOURCES)   \
 				help-caller.c
 
 gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
@@ -38,32 +37,28 @@ gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 			     bookmarks.c bookmarks.h \
 			     check-running.c check-running.h \
 			     help-browser-impl.c \
-			     $(NAMING_CLIENT_SOURCES) \
-			     $(HELP_BROWSER_SOURCES)
+			     $(ORBIT_HELP_BROWSER_SOURCES)
 
-HELP_COMMON_SOURCES   = help-browser.h \
-			help-browser-common.c
 
-HELP_BROWSER_SOURCES  = $(HELP_COMMON_SOURCES) \
-			help-browser-skels.c
+ORBIT_HELP_COMMON_SOURCES   = help-browser.h \
+			      help-browser-common.c
 
-HELP_CLIENT_SOURCES   = $(HELP_COMMON_SOURCES) \
-			help-browser-stubs.c
+ORBIT_HELP_BROWSER_SOURCES  = $(ORBIT_HELP_COMMON_SOURCES) \
+			      help-browser-skels.c
 
-HELP_ALL_SOURCES      = $(HELP_COMMON_SOURCES) \
-			help-browser-skels.c help-browser-stubs.c
+ORBIT_HELP_CLIENT_SOURCES   = $(ORBIT_HELP_COMMON_SOURCES) \
+			      help-browser-stubs.c
 
-NAMING_CLIENT_SOURCES = name.h \
-			name-common.c \
-			name-stubs.c
+ORBIT_GENERATED_SOURCES      = $(ORBIT_HELP_COMMON_SOURCES) \
+		               help-browser-skels.c help-browser-stubs.c
 
-BUILT_SOURCES = $(HELP_ALL_SOURCES) $(NAMING_CLIENT_SOURCES)
+$(ORBIT_GENERATED_SOURCES): $(srcdir)/idl/help-browser.idl 
 
-$(HELP_ALL_SOURCES): $(srcdir)/idl/help-browser.idl 
+BUILT_SOURCES = $(ORBIT_GENERATED_SOURCES)
+
+$(ORBIT_GENERATED_SOURCES): $(srcdir)/idl/help-browser.idl 
 	orbit-idl $(srcdir)/idl/help-browser.idl
 
-$(NAMING_CLIENT_SOURCES): $(srcdir)/idl/name.idl
-	orbit-idl $(srcdir)/idl/name.idl
 
 gnome_help_browser_LDADD = $(LDADD) $(RES_LIBS) $(GTKXMHTML_LIBS)
 

@@ -27,6 +27,8 @@ main(int argc, char* argv[])
   gint  dummy_argc;
   CORBA_Object browser;
   gchar* ior;
+  gchar  URL[1024];
+  gchar* ptr;
   
   dummy_argv[0] = "help-caller";
   dummy_argv[1] = 0;
@@ -44,9 +46,38 @@ main(int argc, char* argv[])
       fprintf(stderr,"Cannot activate browser\n");
       exit(1);
     }
-  fprintf(stderr,"gnome-help-caller gets browser at IOR='%s'\n", CORBA_ORB_object_to_string(orb, browser, &ev));
-  
-  help_browser_simple_browser_fetch_url(browser, "toc:", &ev);
+  fprintf(stderr,"gnome-help-caller gets browser at IOR='%s'\n",
+	  CORBA_ORB_object_to_string(orb, browser, &ev));
+  do
+    {
+      printf("Enter URL: ");
+      fflush(stdout);
+      if ((ptr = fgets(URL, sizeof(URL), stdin)))
+	{
+	  char* ptr_end = ptr + strlen(ptr) - 1;
+	  while (isspace(*ptr_end))
+	    ptr_end--;
+	  *++ptr_end = '\0';
+	  while (*ptr && isspace(*ptr))
+	    ptr++;
+	  if (*ptr == '#')
+	    {
+	      ptr++;
+	      if (!*ptr)
+		ptr = "toc:";
+	      fprintf(stderr,"Displaying URL '%s' in same window\n", ptr);
+	      help_browser_simple_browser_fetch_url(browser, ptr, &ev);
+	    }
+	  else
+	    {
+	      if (!*ptr)
+		ptr = "toc:";
+	      fprintf(stderr,"Displaying URL '%s' in new window\n", ptr);
+	      browser = help_browser_simple_browser_show_url(browser, ptr, &ev);
+	    }
+	  Exception(&ev);
+	}
+    }while (ptr);
 }
 
 					      

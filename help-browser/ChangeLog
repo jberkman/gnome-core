@@ -1,3 +1,53 @@
+1998-10-11  Michael Lausch  <mla@gams.at>
+
+	* idl/help-browser.idl: Changed interface. fetch_url displays the
+	URL in the window of the object passed as the first
+	parameter. show_url creates a new server and uses its window, a
+	new one to display the URL. It returns the new browser server.
+
+	* help-caller.c (main): You can now type in a URL which is
+	displayed in the help browser. If the URL starts with a '#', the
+	same window is used, otherwise a new window is opened. This is
+	just a demo program, showing how to use the CORBA interface to the 
+	help-browser.
+
+	* help-browser-impl.c: new variable win_servant_hash which holds
+ 	the relation between window and CORBA server. This is a hack. See
+ 	the TODO file.
+	(idhash): new function. used for hashing a window pointer.
+	(idcompare): new function. used for comparing two window pointers.
+	both functions are used by the win_servant_hash.
+	(impl_help_browser_simple_browser__create): Accepts an additional
+	parameter which is the window for this server. This parameter may
+	be 0 if there's no window yet. This is true for the first server
+	if no command line argument was passed.
+	If ther's a window, add the window and the servant to the hash table.
+	(impl_help_browser_simple_browser_fetch_url): If the servant
+	doesn't have a window, create one and it to the hash table.
+	(impl_help_browser_simple_browser_show_url): create a new window,
+	and add it to the hash table.
+	(destroy_server): new function. Find the server for this window
+	and destroy it.
+
+	* gnome-help-browser.c: remove the UGLY_LE_HACK define. It's not
+	nedded any more.
+	Export the makeHelpWindow function. It's needed in the CORBA
+	files. 
+	(main): remove #if 0 from the session management code.
+	Only create a window if a command line parameter was there.
+	Redirect stderr and stdout to a file. This is hardcoded right now, 
+	but should be changed ASAP.
+	Use the functions in libgnorva to register and de-register from
+	the naming server.
+	(closeWindowCallback): Close the window and destroy the CORBA
+	server associated with the window.
+	
+
+	* Makefile.am: Reorgnaize the ORBit generated files. All files
+	which can be generated from the IDL source are put in the
+	BUILT_SOURCES macro. Remove source naming server sources, as they
+	are not needed any more. 
+
 1998-10-09  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* Makefile.am (BUILT_SOURCES): Add all ORBit generated files.

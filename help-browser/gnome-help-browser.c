@@ -23,8 +23,9 @@
 #include <gnome.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
-
+#include <stdio.h>
 #include <orb/orbit.h>
 #include <libgnorba/gnorba.h>
 
@@ -34,10 +35,6 @@
 #include "toc2.h"
 #include "cache.h"
 
-#define UGLY_LE_HACK 1
-#ifdef UGLY_LE_HACK
-#include "check-running.h"
-#endif
 
 extern char *program_invocation_name;
 
@@ -58,7 +55,7 @@ void messageHandler(gchar *s);
 void warningHandler(gchar *s);
 void errorHandler(gchar *s);
 void setErrorHandlers(void);
-static HelpWindow makeHelpWindow(gint x, gint y, gint w, gint h);
+HelpWindow makeHelpWindow(gint x, gint y, gint w, gint h);
 static void initConfig(void);
 static void saveConfig(void);
 static GnomeClient *newGnomeClient(void);
@@ -135,8 +132,6 @@ static gint defheight=0;
 
 #ifdef UGLY_LE_HACK
 
-HelpWindow ahelpwindow;
-
 void
 show_requested_url(char *url)
 {
@@ -164,7 +159,7 @@ void Exception( CORBA_Environment* ev )
 int
 main(int argc, char *argv[])
 {
-    HelpWindow                  window;
+    HelpWindow                  window = 0;
     gchar                       buf[BUFSIZ];
     CORBA_ORB                   orb;
     CORBA_Environment           ev;
@@ -193,18 +188,7 @@ main(int argc, char *argv[])
 
     
 /* enable session management here */
-#if 0
-    smClient = NULL;
-    g_message("Session management was disabled at compile-time");
-#else
     smClient = newGnomeClient();
-#endif
-
-#if 0 /*def UGLY_LE_HACK */
-    if (send_command_to_running(helpURL, show_requested_url)) {
-	exit(0);
-    }
-#endif
 
     initConfig();
 
@@ -226,25 +210,18 @@ main(int argc, char *argv[])
     g_snprintf(buf, sizeof(buf), "%s/%s", HELP_BROWSER_RC_DIR, bookmarkFile);
     bookmarkWindow = newBookmarks(bookmarkCallback, NULL, buf);
 
-    window = makeHelpWindow(defposx, defposy, defwidth, defheight );
+    if (helpURL)
+      {
+	window = makeHelpWindow(defposx, defposy, defwidth, defheight );
+	helpWindowShowURL(window, helpURL, TRUE, TRUE);
+      }
 
-    browser_object = impl_help_browser_simple_browser__create(root_poa, window, &ev);
+    browser_object =  impl_help_browser_simple_browser__create(root_poa, window, &ev);
     Exception(&ev);
     
     objref = CORBA_ORB_object_to_string(orb, browser_object, &ev);
     Exception(&ev);
 
-    fprintf(stderr,"gnome-help-browser: objref = '%s'\n", objref);
-    name_service = gnome_name_service_get();
-    g_assert(name_service != CORBA_OBJECT_NIL);
-
-    nc[2].id = "help-browser";
-    nc[2].kind = "object";
-
-    CosNaming_NamingContext_bind(name_service, &nom, browser_object, &ev);
-    if (ev._major != CORBA_NO_EXCEPTION && strcmp(CORBA_exception_id(&ev), ex_CosNaming_NamingContext_AlreadyBound) == 0)
-      CosNaming_NamingContext_rebind(name_service, &nom, browser_object, &ev);
-    Exception(&ev);
     
     pm = PortableServer_POA__get_the_POAManager(root_poa, &ev);
     Exception(&ev);
@@ -252,30 +229,36 @@ main(int argc, char *argv[])
     PortableServer_POAManager_activate(pm, &ev);
     Exception(&ev);
 
-#if 0
-    ahelpwindow=window;
-#endif
+    name_service = gnome_name_service_get();
+    
+    gnome_register_corba_server(name_service, browser_object, "help-browser", "object", &ev);
 
-    if (helpURL)
-	    helpWindowShowURL(window, helpURL, TRUE, TRUE);
-    else {
-	    helpWindowShowURL(window, "toc:", TRUE, TRUE);
+    fprintf(stderr,"\n%s\n", objref);
+    {
+      int fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
+		    | O_APPEND, 0666);
+      setvbuf(stderr, 0, _IOLBF, 0);
+      setvbuf(stdout, 0, _IOLBF, 0);
+      dup2(fd, fileno(stdout));
+      dup2(fd, fileno(stderr));
+      close(fd);
     }
-	 
-	
+    fprintf(stdout,"Testing stdout\n");
+    fprintf(stderr,"Testing stderr\n");
+
     gtk_main();
 
     saveHistory(historyWindow);
     saveBookmarks(bookmarkWindow);
     saveCache(cache);
 
-    CosNaming_NamingContext_unbind(name_service, &nom, &ev);
+    gnome_unregister_corba_server(name_service, "help-browser", "object", &ev);
     Exception(&ev);
     
     return 0;
 }
 
-static HelpWindow
+HelpWindow
 makeHelpWindow(gint x, gint y, gint w, gint h)
 {
     HelpWindow window;
@@ -290,7 +273,6 @@ makeHelpWindow(gint x, gint y, gint w, gint h)
     helpWindowSetBookmarks(window, bookmarkWindow);
 
     windowList = g_list_append(windowList, window);
-    
     return window;
 }
 
@@ -351,20 +333,20 @@ parseAnArg (int key, char *arg, struct argp_state *state)
 static void
 setCurrentCallback(HelpWindow win)
 {
-    windowList = g_list_remove(windowList, win);
-    windowList = g_list_append(windowList, win);
+  windowList = g_list_remove(windowList, win);
+  windowList = g_list_append(windowList, win);
 }
 
 static void
 closeWindowCallback(HelpWindow win)
 {
-    helpWindowClose(win);
-
-    windowList = g_list_remove(windowList, win);
-
-    if (!windowList) {
-	gtk_main_quit();
-    }
+  destroy_server(win);
+  helpWindowClose(win);
+  windowList = g_list_remove(windowList, win);
+  
+  if (!windowList) {
+    gtk_main_quit();
+  }
 }
 
 static void
