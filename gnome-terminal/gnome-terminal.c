@@ -33,6 +33,9 @@ char *geometry = 0;
 /* By default record utmp logins */
 gboolean update_utmp = TRUE;
 
+/* is there pixmap compiled into zvt */
+static gboolean zvt_pixmap_support = TRUE;
+
 /* The color set */
 enum color_set_enum {
 	COLORS_WHITE_ON_BLACK,
@@ -763,10 +766,10 @@ enum {
 	MENUBAR_ROW     = 4,
 	BELL_ROW        = 5,
 	SWAPKEYS_ROW    = 6,
-	PIXMAP_ROW	= 7,
-	PIXMAP_FILE_ROW	= 8,
-	TRANSPARENT_ROW = 9,
-	SHADED_ROW      = 10,
+	PIXMAP_ROW	= 1,
+	PIXMAP_FILE_ROW	= 2,
+	TRANSPARENT_ROW = 3,
+	SHADED_ROW      = 4,
 	SCROLL_ROW      = 1,
 	SCROLLBACK_ROW  = 2,
 	KBDSCROLL_ROW   = 3,
@@ -901,6 +904,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->swapkeys_checkbox,
 			  2, 3, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	
+	/* Image page */
+	/* if pixmap support isn't in zvt, we still create the widgets for
+	   the page, so that we can query them later, but they won't be shown
+	   so the user can't change them */
+	table = gtk_table_new (4, 4, FALSE);
+	if(zvt_pixmap_support)
+		gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Image")));
+
+
 	/* Background Pixmap checkbox */
 	prefs->pixmap_checkbox = gtk_check_button_new_with_label (_("Background pixmap"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox),
@@ -1452,6 +1464,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
+	zvt_pixmap_support = (zvt_term_get_capabilities(term)&ZVT_TERM_PIXMAP_SUPPORT)!=0;
 	gtk_object_set_data(GTK_OBJECT(app), "term", term);
 	gtk_widget_show (GTK_WIDGET (term));
 	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
