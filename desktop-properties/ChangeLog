@@ -1,0 +1,162 @@
+1998-01-28  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* property-keyboard.c: Remove #ifdef HAVE_LIBINTL.
+
+	* Makefile.am: Misc. fixes.
+
+Tue Jan 27 13:57:26 1998  Federico Mena  <federico@bananoid.nuclecu.unam.mx>
+
+	* Makefile.am (install-data-local): Update installation of
+	.desktop files.
+
+1998-01-26  Mark Galassi  <rosalia@cygnus.com>
+
+	* Makefile.am (LDADD): added $(DL_LIB) since these are now
+	required for any user of libgnome.a.
+
+Tue Jan 27 09:00:32 1998  Changwoo Ryu  <cwryu@adam.kaist.ac.kr>
+
+	* {app,property}-{background,keyboard,mouse}.c: 
+	make sure that they include <config.h> and "gnome.h" for i18n. 
+	* property-screensaver.cc: likewise.
+	And comment out #ifdef HAVE_INTL ... #endif.
+	* main.c: include <config.h>.
+	(property_main): add textdomain() below gnome_init().
+	desktop-property now i18ned !  (some compilation warnings remain.)
+
+Wed Jan 21 00:41:27 1998  Federico Mena <federico@bananoid.nuclecu.unam.mx>
+
+	(Based on patch from Raja R Harinath <harinath@cs.umn.edu> *
+	property-screensaver.cc (ConfigScreenSaver::nice_changed): Wrong
+	field was being updated.
+	(screensaver_register): Looked ugly inside extern "C" { }.
+
+	* screensaver.h: Get proper definition for NULL, not some random
+	definition from glib.h.
+	
+Fri Jan  2 14:53:14 1998  Federico Mena  <federico@bananoid.nuclecu.unam.mx>
+
+	* property-background.c: Added #include <string.h>.
+
+	* property-keyboard.c (rbutton_toggled, rate_changed,
+	delay_changed, cbutton_toggled, cvol_changed): Made these
+	functions return void, same as below.
+
+	* property-mouse.c (scale_moved, button_toggled): Made these
+	functions return void in agreement with the signal they handle.
+
+Wed Dec 10 17:46:07 1997  Tom Tromey  <tromey@cygnus.com>
+
+	* main.c (display_properties_setup): Use C-style
+	comment. (Reported by Bruce Perens).
+	(property_main): Register an initialization command with
+	the session manager.
+
+	* Makefile.am (LDADD): Added x_libs.
+
+	* main.c (property_main): Changes to track changes to session
+	code.
+
+Sat Dec  6 23:28:40 1997  Tom Tromey  <tromey@cygnus.com>
+
+	* main.c (property_main): Minimal attempt at saving state with
+	session manager.
+
+Sun Nov 30 22:14:27 1997  Tom Tromey  <tromey@cygnus.com>
+
+	* property-screensaver.cc (screensaver_read): `lock' property now
+	boolean.
+	(screensaver_write): Likewise.
+
+	* property-mouse.c (mouse_read): `right-to-left' property now boolean.
+	(mouse_write): Likewise.
+
+	* property-keyboard.c (keyboard_read): `rate' and `click'
+	properties now boolean.
+	(keyboard_write): Likewise.
+
+Wed Nov 26 15:39:16 1997  Tom Tromey  <tromey@cygnus.com>
+
+	* keyboard.desktop, mouse.desktop, background.desktop: New files.
+	* app-background.c, app-mouse.c, app-keyboard.c: New files.
+	* Makefile.am (bin_PROGRAMS): Install new programs.
+	(mouse_properties_SOURCES): New macro.
+	(keyboard_properties_SOURCES): Likewise.
+	(background_properties_SOURCES): Likewise.
+	(EXTRA_DIST): Include only new desktop files.
+	(install-data-local): Install only new desktop files.
+	* desktop_properties.desktop: Removed.
+	* property-screensaver.cc (settings_frame): Reversed normal, low
+	labels in Settings frame.
+	(nice_changed): Run property_changed.
+	(select_mode): Likewise.
+	(wait_changed): Likewise.
+	(runPreviewXLock): Don't offset preview in y direction.
+	* xlockmore.cc (prepareSetupWindow): Added Help button.  
+	Make Cancel button work.  Set title on window.
+	* property-background.c (radio_toggle_widget_active): Call
+	property_changed.
+	(set_background_mode): Likewise.
+	(set_orientation): Likewise.
+	(set_tiled_wallpaper): Likewise.
+	(browse_activated): Likewise.
+	(wp_selection_ok): Likewise.
+	(color_changed): Removed.
+	(color_setup): Connect signals after setting initial state.
+	(wallpaper_setup): Likewise.
+	* property-keyboard.c (rbutton_toggled): Call property_changed.
+	(rate_changed): Likewise.
+	(delay_changed): Likewise.
+	(cbutton_toggled): Likewise.
+	(cvol_changed): Likewise.
+	* main.c (help): New function.
+	(display_properties_setup): Added Help button; set title on main
+	window.  Disable Apply button.
+	(display_properties_action): Always apply to all pages; disable
+	Apply button.
+	(display_properties_register): Removed.
+	(main): Call application_register.
+	(apply_button): New global.
+	(property_changed): New function.
+	* property-mouse.c (button_toggled): Call property_changed.
+	(scale_moved): Likewise.
+	* gnome-desktop.h (property_changed): Declare.
+
+Sun Nov  9 15:28:46 1997  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (desktop_properties_SOURCES): Added property-mouse.c.
+	* main.c (display_properties_register): Run mouse_register.
+	* property-mouse.c: New file.
+
+Sat Oct 25 21:50:15 1997  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (install-data-local): Use INSTALL_DATA, not cp.
+
+Tue Sep 23 01:47:56 1997  Radek Doulik  <rodo@aquarius>
+
+	* main.c (display_properties_setup): make window unresizeable
+
+ 	* xlockmore.cc (prepareSetupWindow): added buttons to setup window
+
+Mon Sep 22 22:12:23 1997  Radek Doulik  <rodo@aquarius>
+
+	* xlockmore.cc (prepareSetupWindow): fix delete_event handling
+	according to gtk+ changes
+
+	* property-background.c (background_setup): unified padding - use
+	GNOME_PAD defined in gnome-desktop.h
+
+	* screensaver.h: screensaver modes are now in right order (before
+	order changed by hashing)
+
+Wed Sep 17 12:50:00 1997  Radek Doulik  <rodo@aquarius>
+
+	* xlockmore.cc: small bug fix for gnome-0.2 with gtk+970916.
+
+	* property-screensaver.cc: add support for internationalization. 
+	
+Fri Sep 12 19:54:29 1997  Radek Doulik  <rodo@aquarius>
+
+	* xlockmore.cc: handle destroy signals
+
+	* property-screensaver: Implemented the screen saver configurator.
