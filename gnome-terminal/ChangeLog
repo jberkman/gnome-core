@@ -1,3 +1,8 @@
+1999-01-07  Nat Friedman  <nat@nat.org>
+
+	* gnome-terminal.c (new_terminal_cmd): Set the window policy to
+ 	auto-shrink.
+
 1999-01-07  Christopher Blizzard  <blizzard@appliedtheory.com>
 
 	* gnome-terminal.c: add the ability to set the title on the

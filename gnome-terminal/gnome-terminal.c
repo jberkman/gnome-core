@@ -1509,6 +1509,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
+	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
+
 	if (cmd != NULL)
 		initial_term = app;
 
