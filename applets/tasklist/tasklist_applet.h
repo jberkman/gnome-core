@@ -10,6 +10,16 @@
 typedef struct _TasklistTask TasklistTask;
 typedef struct _Config Config;
 
+typedef enum
+{
+	MENU_ACTION_CLOSE,
+	MENU_ACTION_SHOW_HIDE,
+	MENU_ACTION_SHADE_UNSHADE,
+	MENU_ACTION_STICK_UNSTICK,
+	MENU_ACTION_KILL,
+	MENU_ACTION_LAST
+} MenuAction;
+
 struct _TasklistTask {
 	gint x, y;
 	gint width, height;

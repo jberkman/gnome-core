@@ -1,3 +1,10 @@
+1999-08-05  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* menu.c
+	  tasklist_applet.c
+	  tasklist_applet.h: Fix menus (not complete yet though).
+	  
+
 1999-08-04  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* menu.c

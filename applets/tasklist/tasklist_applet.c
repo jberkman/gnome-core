@@ -79,7 +79,8 @@ task_get_xy (gint x, gint y)
 	return NULL;
 }
 
-/* Check which tasks are "visible", if they should be drawn onto the tasklist */
+/* Check which tasks are "visible",
+   if they should be drawn onto the tasklist */
 GList *
 get_visible_tasks (void)
 {
@@ -95,7 +96,8 @@ get_visible_tasks (void)
 	return visible_tasks;
 }
 
-/* Check if a task is "visible", if it should be drawn onto the tasklist */
+/* Check if a task is "visible", 
+   if it should be drawn onto the tasklist */
 gboolean
 is_task_visible (TasklistTask *task)
 {
@@ -226,6 +228,7 @@ layout_tasklist (void)
 
 	curx = 2;
 	cury = 2;
+
 	extra_space = 450 - 4 - (curwidth * num_cols);
 	/* FIXME: Do something with extra_space */
 
@@ -310,11 +313,9 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 					 &task->pixmap, &task->mask);
 
 		tasks = g_list_append (tasks, task);
-		g_print ("Added %s\n", gwmh_task->name);
 	        layout_tasklist ();
 		break;
 	case GWMH_NOTIFY_DESTROY:
-		g_print ("Destroyed: %s\n", gwmh_task->name);
 		tasks = g_list_remove (tasks, find_gwmh_task (gwmh_task));
 		layout_tasklist ();
 		break;
@@ -336,7 +337,6 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 	if (!task)
 		return FALSE;
 
-	g_print ("Task: %s\n", task->gwmh_task->name);
 	if (event->button == 1) {
 		if (GWMH_TASK_ICONIFIED (task->gwmh_task))
 			gwmh_task_show (task->gwmh_task);
@@ -428,7 +428,6 @@ main (gint argc, gchar *argv[])
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 	
-	g_print ("Testar: %s\n", _("Close"));
 	applet_widget_init ("tasklist_applet",
 			    VERSION,
 			    argc, argv,
