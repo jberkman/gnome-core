@@ -1,3 +1,8 @@
+Tue Nov 14 05:20:38 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmthumbnail.c (gwm_thumb_nail_update_drawable): assure that the
+	window we're thumbnailing has reasonable width and height.
+
 Tue Nov 14 04:23:58 2000  Tim Janik  <timj@gtk.org>
 
 	* gwmh.c (get_task_root_and_frame): shut up for a creation/destruction

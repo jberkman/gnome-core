@@ -21,6 +21,8 @@
 
 #define	USE_SHM	// FIXME
 
+#define	EPSILON		(1.0/65536.0)	/* 16bit EPSILON should be good enough */
+
 
 /* --- defines --- */
 #define	SHM_IMAGE_HEIGHT	(32)
@@ -393,7 +395,7 @@ gwm_thumb_nail_update_drawable (GwmThumbNail *nail,
 				gint	      drawable_x,
 				gint	      drawable_y)
 {
-  GdkPixbuf *pixbuf;
+  GdkPixbuf *pixbuf = NULL;
   gint swidth = gdk_screen_width ();
   gint sheight = gdk_screen_height ();
   gdouble xscale, yscale;
@@ -408,6 +410,8 @@ gwm_thumb_nail_update_drawable (GwmThumbNail *nail,
   gdk_window_get_size (drawable, &xx, &yy);
   drawable_width = xx;
   drawable_height = yy;
+  if (xx < 1 || yy < 1)
+    return FALSE;
 
   /* check out of screen bounds */
   if (drawable_x >= swidth || drawable_y >= sheight ||
@@ -460,10 +464,12 @@ gwm_thumb_nail_update_drawable (GwmThumbNail *nail,
     nail->thumb_row = 0;
 
   /* grab screen portion */
-  pixbuf = pixbuf_from_drawable (drawable,
-				 thumb_x0 * xscale, thumb_y0 * yscale,
-				 (thumb_x1 - thumb_x0) * xscale,
-				 (thumb_y1 - thumb_y0) * yscale);
+  if ((thumb_x1 - thumb_x0) * xscale > 1 + EPSILON &&
+      (thumb_y1 - thumb_y0) * yscale > 1 + EPSILON)
+    pixbuf = pixbuf_from_drawable (drawable,
+				   thumb_x0 * xscale, thumb_y0 * yscale,
+				   (thumb_x1 - thumb_x0) * xscale,
+				   (thumb_y1 - thumb_y0) * yscale);
   if (!pixbuf)
     return FALSE;
   

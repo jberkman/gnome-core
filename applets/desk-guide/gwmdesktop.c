@@ -737,13 +737,13 @@ gwm_desktop_class_reload_thumbs (void)
 static void
 thumb_queue_remove (gpointer data)
 {
-  GwmThumbNail *thumb = data;
+  GwmThumbNail *nail = data;
   
-  if (!g_slist_find (thumb_queue, thumb)) /* FIXME */
+  if (!g_slist_find (thumb_queue, nail)) /* FIXME */
     g_error ("removing thumbnail from queue failed");
-  thumb_queue = g_slist_remove (thumb_queue, thumb);
-  if (thumb->pixbuf)
-    gwm_thumb_nail_destroy (thumb);
+  thumb_queue = g_slist_remove (thumb_queue, nail);
+  if (nail->pixbuf)
+    gwm_thumb_nail_destroy (nail);
 }
 
 static void
@@ -761,7 +761,7 @@ gwm_desktop_get_thumb_nail (GwmDesktop *desktop,
 			    guint       height)
 {
   GwmDesktopClass *class = GWM_DESKTOP_GET_CLASS (desktop);
-  GwmThumbNail *thumb;
+  GwmThumbNail *nail;
   
   if (!thumb_queue_id && class->thumb_timeout)
     thumb_queue_id = g_timeout_add_full (G_PRIORITY_LOW * 2,
@@ -769,8 +769,8 @@ gwm_desktop_get_thumb_nail (GwmDesktop *desktop,
 					 thumb_queue_step,
 					 NULL,
 					 NULL);
-  thumb = gwmh_task_get_qdata (task, quark_thumb_nail);
-  if (!thumb)
+  nail = gwmh_task_get_qdata (task, quark_thumb_nail);
+  if (!nail)
     {
       GtkStyle *style = GTK_WIDGET (desktop)->style;
       guint color = 0;
@@ -779,17 +779,17 @@ gwm_desktop_get_thumb_nail (GwmDesktop *desktop,
       color |= (style->bg[GTK_STATE_NORMAL].green >> 8) << 8;
       color |= style->bg[GTK_STATE_NORMAL].blue >> 8;
       
-      thumb = gwm_thumb_nail_new (color, task, task_remove_thumb, width, height, (glong) desktop);
-      if (thumb)
+      nail = gwm_thumb_nail_new (color, task, task_remove_thumb, width, height, (glong) desktop);
+      if (nail)
 	{
-	  thumb_queue = g_slist_append (thumb_queue, thumb);
-	  gwmh_task_set_qdata_full (task, quark_thumb_nail, thumb, thumb_queue_remove);
+	  thumb_queue = g_slist_append (thumb_queue, nail);
+	  gwmh_task_set_qdata_full (task, quark_thumb_nail, nail, thumb_queue_remove);
 	}
     }
   else
-    gwm_thumb_nail_grow (thumb, width, height, (glong) desktop);
+    gwm_thumb_nail_grow (nail, width, height, (glong) desktop);
   
-  return thumb;
+  return nail;
 }
 
 static inline void
@@ -836,20 +836,20 @@ gwm_desktop_draw_task (GwmDesktop *desktop,
   
   if (grab_area->width > 2 && grab_area->height > 2)
     {
-      GwmThumbNail *thumb = gwm_desktop_get_thumb_nail (desktop, task, grab_area->width - 2, grab_area->height - 2);
+      GwmThumbNail *nail = gwm_desktop_get_thumb_nail (desktop, task, grab_area->width - 2, grab_area->height - 2);
       
-      if (thumb)
+      if (nail)
 	{
 	  GdkPixbuf *pixbuf;
 	  
-	  if (gdk_pixbuf_get_width (thumb->pixbuf) != grab_area->width - 2 ||
-	      gdk_pixbuf_get_height (thumb->pixbuf) != grab_area->height - 2)
-	    pixbuf = gdk_pixbuf_scale_simple (thumb->pixbuf,
+	  if (gdk_pixbuf_get_width (nail->pixbuf) != grab_area->width - 2 ||
+	      gdk_pixbuf_get_height (nail->pixbuf) != grab_area->height - 2)
+	    pixbuf = gdk_pixbuf_scale_simple (nail->pixbuf,
 					      grab_area->width - 2,
 					      grab_area->height - 2,
 					      GDK_INTERP_NEAREST);
 	  else
-	    pixbuf = thumb->pixbuf;
+	    pixbuf = nail->pixbuf;
 	  
 	  gdk_draw_rgb_image (drawable,
 			      style->black_gc,
@@ -858,7 +858,7 @@ gwm_desktop_draw_task (GwmDesktop *desktop,
 			      GDK_RGB_DITHER_NONE,
 			      gdk_pixbuf_get_pixels (pixbuf),
 			      gdk_pixbuf_get_rowstride (pixbuf));
-	  if (pixbuf != thumb->pixbuf)
+	  if (pixbuf != nail->pixbuf)
 	    gdk_pixbuf_unref (pixbuf);
 	}
       gtk_draw_shadow (style, drawable,
