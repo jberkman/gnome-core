@@ -1,3 +1,13 @@
+1999-01-22  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c: Save the configuration after changes have been
+	set with gnome-config.
+
+	Do use a different menu for the popups than the main menu.
+
+	Put the color selector back.  Yes, it is for testing, but it makes
+	it very easy to configure a terminal.  So it is back again ;-)
+
 1999-01-20  Nat Friedman  <nat@nat.org>
 
 	* gnome-terminal.c (preferences_cmd): Connect the help signal to

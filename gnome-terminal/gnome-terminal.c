@@ -832,6 +832,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_bool   ("shaded", cfg->shaded);
 	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
 	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
+	gnome_config_sync ();
 }
 
 static void
@@ -1128,6 +1129,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_widget_show_all (prefs->prop_win);
 }
 
+#define NEED_UNUSED_FUNCTIONS
 #ifdef NEED_UNUSED_FUNCTIONS
 static void
 color_ok (GtkWidget *w)
@@ -1173,22 +1175,29 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_widget_hide (app->menubar->parent);
 }
 
-#define DEFINE_TERMINAL_MENU(name,text,cmd) \
-\
-static GnomeUIInfo name [] = {							 \
-        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),         \
-/*	GNOMEUIINFO_ITEM_NONE (N_("_Save properties as Defaults"), NULL, save_preferences_cmd),	 */\
-	GNOMEUIINFO_SEPARATOR,\
-	GNOMEUIINFO_ITEM_NONE (text, NULL, cmd),\
-	/* GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd), */\
-	GNOMEUIINFO_SEPARATOR, \
-	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd), 	\
-	GNOMEUIINFO_END \
-}
+static GnomeUIInfo gnome_terminal_terminal_menu [] = {
+        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
+	GNOMEUIINFO_SEPARATOR,
+	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, hide_menu_cmd),
+	GNOMEUIINFO_SEPARATOR,
+	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd),    
+	GNOMEUIINFO_END
+};
 
-DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_hide_menubar, N_("_Hide menubar"), hide_menu_cmd);
-DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_show_menubar, N_("_Show menubar"), show_menu_cmd);
-	
+static GnomeUIInfo gnome_terminal_popup_menu_hide [] = {
+        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
+        GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
+	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, hide_menu_cmd),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo gnome_terminal_popup_menu_show [] = {
+        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
+        GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
+	GNOMEUIINFO_ITEM_NONE (N_("_Show menubar"), NULL, show_menu_cmd),
+	GNOMEUIINFO_END
+};
+
 static GnomeUIInfo gnome_terminal_help_menu [] = {
 	GNOMEUIINFO_HELP ("gnome-terminal"),
 	GNOMEUIINFO_MENU_ABOUT_ITEM(about_terminal_cmd, NULL),
@@ -1197,11 +1206,12 @@ static GnomeUIInfo gnome_terminal_help_menu [] = {
 
 static GnomeUIInfo gnome_terminal_settings_menu [] = {
         GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
+	GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd),
 	GNOMEUIINFO_END
 };
 
 static GnomeUIInfo gnome_terminal_menu [] = {
-	GNOMEUIINFO_MENU_FILE_TREE(gnome_terminal_terminal_menu_hide_menubar),
+	GNOMEUIINFO_MENU_FILE_TREE(gnome_terminal_terminal_menu),
 	GNOMEUIINFO_MENU_SETTINGS_TREE(gnome_terminal_settings_menu),
 	GNOMEUIINFO_MENU_HELP_TREE(gnome_terminal_help_menu),
 	GNOMEUIINFO_END
@@ -1387,9 +1397,9 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 		menu = gtk_menu_new (); 
 
 		if (cfg->menubar_hidden)
-			uiinfo = gnome_terminal_terminal_menu_show_menubar;
+			uiinfo = gnome_terminal_popup_menu_show;
 		else
-			uiinfo = gnome_terminal_terminal_menu_hide_menubar;
+			uiinfo = gnome_terminal_popup_menu_hide;
 
 		/* All of this magic is required just to pass a *data to the menu entries */
 		uib.connect_func = do_ui_signal_connect;
@@ -2010,7 +2020,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->user_back = cmdline_config->user_back;
 		default_config->color_set = COLORS_CUSTOM;
 	}
-	
+
 	default_config->invoke_as_login_shell =
 		cmdline_config->invoke_as_login_shell;
 	
