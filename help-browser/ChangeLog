@@ -1,3 +1,16 @@
+1998-12-17  Christopher Blizzard  <blizzard@appliedtheory.com>
+
+	* window.c (init_accel): Don't set up a new "grab_focus" signal
+ 	since it already exists in the entry box class heirarchy.
+	(init_accel): Don't attach the grab focus signal to the entry box,
+ 	it already does this.  This causes an endless loop in the signal
+ 	handlers.
+
+1998-12-17  Sebastian Wilhelmi  <wilhelmi@ira.uka.de>
+
+	* docobj.c (docObjFree): Use free for obj->absoluteRef, not g_free
+	as it comes from malloc.
+
 1998-12-15  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* Makefile.am (EXTRA_DIST): Added help-browser.gnorba.

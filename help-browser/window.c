@@ -600,12 +600,6 @@ static void init_accel(HelpWindow win)
 	 GTK_RUN_FIRST,
 	 gtk_marshal_NONE__NONE,
 	 GTK_TYPE_NONE, 0);
-      grab_focus_signal = gtk_object_class_user_signal_new
-	(GTK_OBJECT(win->entryBox)->klass,
-	 "grab_focus",
-	 GTK_RUN_FIRST,
-	 gtk_marshal_NONE__NONE,
-	 GTK_TYPE_NONE, 0);
     }
     gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
 		       "page_up", 
@@ -613,10 +607,6 @@ static void init_accel(HelpWindow win)
     gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
 		       "page_down", 
 		       GTK_SIGNAL_FUNC(pageDown), win);
-    gtk_signal_connect(GTK_OBJECT(win->entryBox), 
-		       "grab_focus",
-		       GTK_SIGNAL_FUNC(gtk_widget_grab_focus), NULL);
-
     gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
 			       "page_up", accel_group, 
 			       'b', 0, 0);
