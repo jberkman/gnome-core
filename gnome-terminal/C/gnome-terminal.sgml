@@ -39,7 +39,7 @@
 	<link linkend="environment">environment</link> variables for details) and provides mouse support
 	to applications that are aware of mouse events for xterm-like
 	terminals. </para>
-    </sect1>
+    </sect1>	
     
     <sect1 id="Emulation">
       <title>Emulation</title>
@@ -299,7 +299,7 @@
 	<para>
 	  If the left mouse button is double-clicked then the selection
 	  will be by word-characters.  Hold the mouse button down on
-	  the second click to drag the mouse and enlarget the
+	  the second click to drag the mouse and enlarge the
 	  selection.  The word-characters are defined
 	  in the <link linkend="config-general">preferences
 	  dialogue</link> under the word class option.
@@ -315,6 +315,7 @@
 	  selection to, and click the right mouse button.  Again,
 	  single, double and triple click-drags will result in
 	  by-character, by-word, or by-line selection.
+	</para>
 	<para>
 	  For all cases, releasing the mouse button automatically
 	  copies the selected text into the clipboard, and may be
@@ -449,7 +450,7 @@
 	    <term>Preferences ...</term>
 	    <listitem>
 	      <para>
-		Displayes the preferences dialogue.  The settings
+		Displays the preferences dialogue.  The settings
 		which can be controlled from this dialogue are
 		described in the <link linkend="config">config
 		section</link>.
