@@ -29,7 +29,7 @@ gint tasklist_get_num_rows(PanelSizeType o);
 static void tasklist_cb_change_size(GtkWidget * widget,
 				    PanelSizeType o, gpointer data);
 TasklistTask *task_get_xy(gint x, gint y);
-void task_draw(TasklistTask * temp_task);
+void task_draw(TasklistTask * temp_task, gboolean flat);
 gchar *task_get_label(TasklistTask * temp_task);
 void tasklist_layout(void);
 gboolean tasklist_cb_button_press(GtkWidget * widget,
@@ -96,9 +96,9 @@ gboolean task_is_visible(TasklistTask * temp_task)
 {
 	GwmhDesk *desk_info;
 
-	desk_info = gwmh_desk_get_config();
+	desk_info = gwmh_desk_get_config ();
 
-	if (GWMH_TASK_SKIP_TASKBAR(temp_task->task))
+	if (GWMH_TASK_SKIP_TASKBAR (temp_task->task))
 		return FALSE;
 
 	if ((!config.all_tasks) && (!config.minimized_tasks)) {
@@ -165,7 +165,7 @@ gchar *task_get_label(TasklistTask * temp_task)
 	return str;
 }
 
-void task_draw(TasklistTask * temp_task)
+void task_draw(TasklistTask * temp_task, gboolean flat)
 {
 	/*  GdkGC *temp_gc; */
 	gchar *tempstr;
@@ -173,14 +173,25 @@ void task_draw(TasklistTask * temp_task)
 
 	if (!task_is_visible(temp_task))
 		return;
-
-	gtk_paint_box(area->style, area->window,
-		      GTK_STATE_NORMAL,
-		      GWMH_TASK_FOCUSED(temp_task->task) ?
-		      GTK_SHADOW_IN : GTK_SHADOW_OUT,
-		      NULL, area, "button",
-		      temp_task->x, temp_task->y,
-		      temp_task->width, temp_task->height);
+	
+	if (flat)
+	{
+		gtk_draw_flat_box (area->style, area->window,
+			   GTK_STATE_NORMAL,
+			   GTK_SHADOW_NONE,
+			   temp_task->x, temp_task->y,
+			   temp_task->width, temp_task->height);
+	}
+	else
+	{
+		gtk_paint_box(area->style, area->window,
+			      GTK_STATE_NORMAL,
+			      GWMH_TASK_FOCUSED(temp_task->task) ?
+			      GTK_SHADOW_IN : GTK_SHADOW_OUT,
+			      NULL, area, "button",
+			      temp_task->x, temp_task->y,
+			      temp_task->width, temp_task->height);
+	}
 
 	if (temp_task->task->name) {
 		text_height = gdk_string_height(area->style->font, "1");
@@ -276,8 +287,11 @@ gboolean tasklist_cb_button_press(GtkWidget * widget, GdkEventButton * event)
 	if (!temp_task)
 		return FALSE;
 
-	if (event->button == 2)
+	if (event->button == 1)
+	{
+		task_draw (temp_task, TRUE);
 		return FALSE;
+	}
 
 	if (!config.show_winops)
 		return FALSE;
@@ -324,7 +338,7 @@ gboolean tasklist_cb_expose(GtkWidget * widget, GdkEventExpose * event)
 
 	while (temp_tasks) {
 		temp_task = (TasklistTask *) temp_tasks->data;
-		task_draw(temp_task);
+		task_draw(temp_task, FALSE);
 		temp_tasks = temp_tasks->next;
 	}
 
@@ -387,9 +401,9 @@ static gboolean tasklist_task_notifier(gpointer func_data, GwmhTask * task,
 
 	if (ntype == GWMH_NOTIFY_INFO_CHANGED) {
 		if (imask & GWMH_TASK_INFO_FOCUSED)
-			task_draw(tasklist_find_tasklist_task(task));
+			task_draw(tasklist_find_tasklist_task(task), FALSE);
 		if (imask & GWMH_TASK_INFO_MISC)
-			task_draw(tasklist_find_tasklist_task(task));
+			task_draw(tasklist_find_tasklist_task(task), FALSE);
 	}
 	if (ntype == GWMH_NOTIFY_NEW) {
 		temp_task = g_malloc(sizeof(TasklistTask));

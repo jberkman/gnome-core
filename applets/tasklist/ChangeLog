@@ -1,3 +1,7 @@
+1999-07-17  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c: Added flat style
+
 1999-07-11  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* menu.c 
