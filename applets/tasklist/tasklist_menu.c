@@ -5,7 +5,7 @@
 #include "pixmaps.h"
 
 GtkWidget *get_popup_menu (TasklistTask *task);
-void add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar *xpm);
+void add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar **xpm);
 gboolean cb_menu (GtkWidget *widget, gpointer data);
 void cb_to_desktop (GtkWidget *widget, gpointer data);
 void cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data);
@@ -127,7 +127,7 @@ menu_popup (TasklistTask *task, guint button, guint32 activate_time)
 
 /* Add a menu item to the popup menu */
 void 
-add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar *xpm)
+add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar **xpm)
 {
 	GtkWidget *menuitem;
 	GdkPixmap *pixmap;
@@ -161,20 +161,20 @@ cb_to_desktop (GtkWidget *widget, gpointer data)
 			       GPOINTER_TO_INT (data));
 	gwmh_task_set_desktop (current_task->gwmh_task, 
 			       GPOINTER_TO_INT (data));
-	layout_tasklist (TRUE);
+	layout_tasklist ();
 }
 
 /* Create a popup menu */
 GtkWidget 
 *get_popup_menu (TasklistTask *task)
 {
-	GtkWidget *menu, *menuitem, *desktop, *label, *gtkpixmap;
-	GdkPixmap *pixmap;
-	GdkBitmap *mask;
-	GwmhDesk *desk_info;
+	GtkWidget *menu, *menuitem; /*, *desktop, *label, *gtkpixmap;*/
+	/*GdkPixmap *pixmap;*/
+	/*GdkBitmap *mask;*/
+	/*GwmhDesk *desk_info;*/
 
-	gchar *wsname;
-	int i, curworkspace;
+	/*gchar *wsname;*/
+	/*int i, curworkspace;*/
 
 	menu = gtk_menu_new ();
 	gtk_widget_show (menu);

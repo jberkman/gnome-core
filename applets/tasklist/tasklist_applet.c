@@ -1,7 +1,9 @@
-#include "gstc.c"
-#include "gwmh.c"
-
 #include <config.h>
+#include <gnome.h>
+
+#include "gstc.h"
+#include "gwmh.h"
+
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #warning NOT USING KWM MINI ICONS
 #if 0
@@ -16,7 +18,6 @@ static void cb_about (void);
 gchar *fixup_task_label (TasklistTask *task);
 gboolean is_task_visible (TasklistTask *task);
 void draw_task (TasklistTask *task);
-void layout_tasklist (void);
 TasklistTask *find_gwmh_task (GwmhTask *gwmh_task);
 gboolean desk_notifier (gpointer func_data, GwmhDesk *desk, GwmhDeskInfoMask change_mask);
 gboolean task_notifier (gpointer func_data, GwmhTask *gwmh_task, GwmhTaskNotifyType ntype, GwmhTaskInfoMask imask);
@@ -305,7 +306,7 @@ layout_tasklist (void)
 	gint j = 0, k = 0, num = 0, p = 0;
 	GList *temp_tasks;
 	TasklistTask *task;
-	gint extra_space;
+	/* gint extra_space; */
 	gint num_rows = 0, num_cols = 0;
 	gint curx = 0, cury = 0, curwidth = 0, curheight = 0;
 	
@@ -769,15 +770,14 @@ create_applet (void)
 gint
 main (gint argc, gchar *argv[])
 {
+	/* Initialize i18n */
+	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+	textdomain (PACKAGE);
+
 	applet_widget_init ("tasklist_applet",
 			    VERSION,
 			    argc, argv,
 			    NULL, 0, NULL);
-
-	/* Initialize i18n */
-	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
-	textdomain (PACKAGE);
-	
 
 	gdk_rgb_set_verbose (TRUE);
 
@@ -795,7 +795,9 @@ main (gint argc, gchar *argv[])
 	read_config ();
 
 	unknown_icon = g_new (TasklistIcon, 1);
-	unknown_icon->normal = gdk_pixbuf_new_from_xpm_data (&unknown_xpm);
+	/* XXX: why do we need to cast unknown_xpm here,
+	   I don't get it -George*/
+	unknown_icon->normal = gdk_pixbuf_new_from_xpm_data ((const gchar **)unknown_xpm);
 	unknown_icon->mask = gdk_pixmap_new (NULL, 16, 16, 1);
 
 	gdk_pixbuf_render_threshold_alpha (unknown_icon->normal,

@@ -60,7 +60,7 @@ cb_check_button (GtkWidget *widget, gboolean *data)
 }
  
 /* Create a spin button */
-GtkWidget *
+static GtkWidget *
 create_spin_button (gchar *name,
 		    gint *init_value,
 		    gfloat min_value,
@@ -97,7 +97,7 @@ create_spin_button (gchar *name,
 }
 
 /* Create a radio button */
-GtkWidget *
+static GtkWidget *
 create_radio_button (gchar *name, GSList **group, 
 		     gint number, gint *change_value)
 {
@@ -119,7 +119,7 @@ create_radio_button (gchar *name, GSList **group,
 }
 
 /* Create a check button */
-GtkWidget *
+static GtkWidget *
 create_check_button (gchar *name, gboolean *change_value)
 {
 	GtkWidget *checkbutton;
@@ -132,10 +132,10 @@ create_check_button (gchar *name, gboolean *change_value)
 }
 
 /* Create the size page */
-void
+static void
 create_size_page (void)
 {
-	GtkWidget *hbox, *table, *frame, *vbox;
+	GtkWidget *hbox,/* *table,*/ *frame, *vbox;
 	GSList *vertgroup = NULL, *horzgroup = NULL;
 	
 	hbox = gtk_hbox_new (TRUE, GNOME_PAD_SMALL);
@@ -220,13 +220,13 @@ create_size_page (void)
 					gtk_label_new (_("Size")));
 }
 
-void
+static void
 create_display_page (void)
 {
 	GtkWidget *vbox, *frame;
 	GtkWidget *miscbox, *taskbox;
-	GtkWidget *radio;
-	GSList *taskgroup = NULL;
+	/*GtkWidget *radio;*/
+	/*GSList *taskgroup = NULL;*/
 
 	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
 	

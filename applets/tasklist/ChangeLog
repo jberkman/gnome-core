@@ -1,3 +1,15 @@
+Wed Jan 05 16:09:39 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch],tasklist_menu.c: fix minor warnings, make
+	  some functions static, and comment out unused variables
+
+	* tasklist_applet.c: don't include gwhm.c and gstc.c but just include
+	  their headers
+
+	* Makefile.am,.cvsignore: add exlicit rules for gwmh.c and gstc.c so
+	  they get copied out of ../desk-guide when needed and compile them as
+	  separate files. Also add them to .cvsignore
+
 Tue Jan 04 00:21:16 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.desktop: use the PanelApplet dentry type

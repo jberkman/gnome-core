@@ -13,7 +13,9 @@ bin_PROGRAMS = tasklist_applet
 tasklist_applet_SOURCES = tasklist_applet.c \
 			  tasklist_config.c \
 			  tasklist_menu.c \
-			  tasklist_properties.c
+			  tasklist_properties.c \
+			  gstc.c \
+			  gwmh.c
 
 tasklist_applet_LDADD = ../../panel/libpanel_applet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS)         \
@@ -37,3 +39,10 @@ sys_DATA = tasklist_applet.desktop
 gnorbadir  = $(sysconfdir)/CORBA/servers
 gnorba_DATA = tasklist_applet.gnorba 
 
+gstc.c: $(srcdir)/../desk-guide/gstc.c
+	cp -f $(srcdir)/../desk-guide/gstc.c $(srcdir)
+
+gwmh.c: $(srcdir)/../desk-guide/gwmh.c
+	cp -f $(srcdir)/../desk-guide/gwmh.c $(srcdir)
+
+CLEANFILES += gwmh.c gstc.c

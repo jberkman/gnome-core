@@ -67,5 +67,5 @@ gboolean write_config (gpointer data,
 		       const gchar *privcfgpath,
 		       const gchar *globcfgpath);
 void change_size (gboolean layout);
-
+void layout_tasklist (void);
 

@@ -3,3 +3,5 @@ tasklist_applet
 .deps
 .libs
 Makefile
+gstc.c
+gwmh.c
