@@ -1,3 +1,8 @@
+1999-03-11  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal: Close all file descriptors that the subprocess
+	should not know about ([3..open_max))
+
 1999-03-09  Owen Taylor  <otaylor@redhat.com>
 
 	* gnome-terminal.c: Use radio buttons instead of

@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #include <gdk/gdkx.h>
 #include <gdk/gdkprivate.h>
@@ -1739,6 +1740,11 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		return;
 		
 	case 0: {
+		int open_max = sysconf (_SC_OPEN_MAX);
+
+		for (i = 3; i < open_max; i++)
+			fcntl (i, F_SETFD, 1);
+		
 		sprintf (buffer, "WINDOWID=%d",(int) ((GdkWindowPrivate *)app->window)->xwindow);
 		env_copy [winid_pos] = buffer;
 		if (cmd){
