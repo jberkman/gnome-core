@@ -39,7 +39,7 @@ extern int init;
 extern int need_sync;
 
 /* Options used by this program.  */
-extern struct argp parser;
+extern const struct poptOption parser[];
 
 END_GNOME_DECLS
 

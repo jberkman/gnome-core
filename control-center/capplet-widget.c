@@ -179,11 +179,14 @@ capplet_gtk_main (void)
         capplet_corba_gtk_main();
 }
 gint
-gnome_capplet_init (char *app_id, struct argp *app_parser,
-                     int argc, char **argv, unsigned int flags,
-                     int *arg_index)
+gnome_capplet_init (const char *app_id, const char *app_version,
+                    int argc, char **argv, struct poptOption *options,
+                    unsigned int flags, poptContext *return_ctx)
 {
-        return capplet_widget_corba_init (app_id, app_parser, &argc, argv, flags, arg_index);
+
+        return capplet_widget_corba_init (app_id, app_version, &argc,
+                                          argv, options, flags, return_ctx);
+
 }
 
 /* internal calls */

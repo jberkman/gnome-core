@@ -30,13 +30,9 @@ main(int argc, char* argv[])
   gchar  URL[1024];
   gchar* ptr;
   
-  dummy_argv[0] = "help-caller";
-  dummy_argv[1] = 0;
-  dummy_argc = 1;
-
   CORBA_exception_init(&ev);
   
-  orb = gnome_CORBA_init("help-caller", NULL, &dummy_argc, dummy_argv, 0, NULL, &ev);
+  orb = gnome_CORBA_init("help-caller", VERSION, &argc, argv, &ev);
   Exception(&ev);
 
   browser = goad_server_activate_with_repo_id(0, "IDL:help_browser/simple_browser:1.0", GOAD_ACTIVATE_REMOTE);

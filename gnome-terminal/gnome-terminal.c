@@ -103,6 +103,9 @@ typedef struct {
 } preferences_t;
 
 static void new_terminal (GtkWidget *widget, ZvtTerm *term);
+static void parse_an_arg (poptContext state,
+			  const struct poptOption *opt,
+			  const char *arg, void *data);
 
 static void
 about_terminal_cmd (void)
@@ -1525,7 +1528,7 @@ load_session (GnomeClient *client)
 #endif
 
 		g_free (geom);
-		gnome_string_array_free (argv);
+		g_strfreev (argv);
 	}
 
 	return TRUE;
@@ -1635,23 +1638,37 @@ enum {
 	CLASS_KEY    = -9
 };
 
-static struct argp_option argp_options [] = {
-	{ "class",      CLASS_KEY,    N_("CLASS"), 0, N_("Terminal class name"), 0 },
-	{ "font",       FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"), 0 },
-	{ "nologin",    NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
-	{ "login",      LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
-	{ "geometry",   GEOMETRY_KEY, N_("GEOMETRY"),0,N_("Specifies the geometry for the main window"), 0 },
-	{ "command",    COMMAND_KEY,  N_("COMMAND"),0,N_("Execute this program instead of a shell"), 0 },
-	{ "foreground", FORE_KEY,     N_("COLOR"),0, N_("Foreground color"), 0 },
-	{ "background", BACK_KEY,     N_("COLOR"),0, N_("Background color"), 0 },
-	{ "discard",    DISCARD_KEY,  N_("ID"),   OPTION_HIDDEN, NULL, 0 },
-	{ NULL, 0, NULL, 0, NULL, 0 },
+static struct poptOption cb_options[] = {
+  {NULL, '\0', POPT_ARG_CALLBACK, parse_an_arg, 0},
+  {"class", '\0', POPT_ARG_STRING, NULL, CLASS_KEY,
+   N_("Terminal class name"), N_("CLASS")},
+  {"font", '\0', POPT_ARG_STRING, NULL, FONT_KEY,
+   N_("Specifies font name"), N_("FONT")},
+  {"nologin", '\0', POPT_ARG_NONE, NULL, NOLOGIN_KEY,
+   N_("Do not start up shells as logins shells"), NULL},
+  {"login", '\0', POPT_ARG_NONE, NULL, LOGIN_KEY,
+   N_("Start up shells as logins shells"), NULL},
+  {"geometry", '\0', POPT_ARG_STRING, NULL, GEOMETRY_KEY,
+   N_("Specifies the geometry for the main window"), N_("GEOMETRY")},
+  {"command", 'e', POPT_ARG_STRING, NULL, COMMAND_KEY,
+   N_("Execute this program instead of a shell"), N_("COMMAND")},
+  {"foreground", '\0', POPT_ARG_STRING, NULL, FORE_KEY,
+   N_("Foreground color"), N_("COLOR")},
+  {"background", '\0', POPT_ARG_STRING, NULL, BACK_KEY,
+   N_("Background color"), N_("COLOR")},
+  {"discard", '\0', POPT_ARG_STRING, NULL, DISCARD_KEY,
+   NULL, N_("ID")},
+  {NULL, '\0', 0, NULL, 0}
 };
 
-static error_t
-parse_an_arg (int key, char *arg, struct argp_state *state)
+static void
+parse_an_arg (poptContext state,
+	      const struct poptOption *opt,
+	      const char *arg, void *data)
 {
-	struct terminal_config *cfg = state->input;
+	struct terminal_config *cfg = data;
+
+	int key = opt->val;
 
 	switch (key){
 	case CLASS_KEY:
@@ -1659,7 +1676,7 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 		cfg->class = g_strconcat ("Class-", arg, NULL);
 		break;
 	case FONT_KEY:
-		cfg->font = arg;
+		cfg->font = (char *)arg;
 		break;
 	case LOGIN_KEY:
 		cfg->invoke_as_login_shell = 1;
@@ -1668,11 +1685,10 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 	        cfg->invoke_as_login_shell = 0;
 	        break;
 	case GEOMETRY_KEY:
-		geometry = arg;
+		geometry = (char *)arg;
 		break;
 	case COMMAND_KEY:
-		initial_command = &state->argv [state->next - 1];
-		state->next = state->argc;
+	        initial_command = poptGetArgs(state);
 		break;
 	case FORE_KEY:
 		if (!gdk_color_parse (arg, &cfg->user_fore))
@@ -1684,18 +1700,11 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 		break;
 	case DISCARD_KEY:
 		gnome_client_disable_master_connection ();
-		discard_section = arg;
+		discard_section = (char *)arg;
 		break;
 	default:
-		return ARGP_ERR_UNKNOWN;
 	}
-	return 0;
 }
-
-static struct argp parser =
-{
-	argp_options, parse_an_arg, NULL, NULL, NULL, NULL, NULL
-};
 
 static int
 main_terminal_program (int argc, char *argv [], char **environ)
@@ -1704,8 +1713,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	char *program_name;
 	char *class;
 	struct terminal_config *default_config, *cmdline_config;
-
-	argp_program_version = VERSION;
+	poptContext ctx;
 
 	env = environ;
 	
@@ -1728,8 +1736,11 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	
 	cmdline_config = g_malloc (sizeof (*cmdline_config));
 	memset (cmdline_config, 0, sizeof (cmdline_config));
-	gnome_init_with_data ("Terminal", &parser, argc, argv, 0, 
-			      NULL, cmdline_config);
+
+	cb_options[0].descrip = (char *)cmdline_config;
+
+	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
+				   cb_options, 0, &ctx);
 
 	if (cmdline_config->class){
 		free (class);

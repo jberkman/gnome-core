@@ -1327,7 +1327,9 @@ main (int argc, char **argv)
 
   e_read();
 
-  gnome_capplet_init("Enlightenment Configuration", NULL, argc, argv, 0, NULL);
+  gnome_capplet_init("e-conf", VERSION, argc,
+                     argv, NULL, 0, NULL);
+
   capplet = capplet_widget_new();
   
   e_setup_multi(NULL, capplet);

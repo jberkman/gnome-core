@@ -10,7 +10,7 @@ static GNOME_capplet capplet = NULL;
 static GNOME_control_center control_center;
 static gchar* cc_ior = NULL;
 static gint id = -1;
-static guint32 xid = 0;
+static guint xid = 0;
 static gint capid = -1;
 static GList *id_list = NULL;
 /* structs */
@@ -39,38 +39,14 @@ extern void _capplet_widget_server_cancel(gint id);
 extern void _capplet_widget_server_help(gint id);
 extern void _capplet_widget_server_new_multi_capplet(gint id, gint capid);
 
-/* parser stuff...*/
-static error_t
-parse_an_arg (int key, char *arg, struct argp_state *state)
-{
-        switch (key) {
-        case 'd':
-                id = atoi (arg);
-                break;
-        case 'c':
-                capid = atoi (arg);
-                break;
-        case 'i':
-                cc_ior = strdup (arg);
-                break;
-        case 'x':
-                xid = strtol(arg, NULL, 10);
-                break;
-        default:
-                return ARGP_ERR_UNKNOWN;
-        }
-        return 0;
-}
-static struct argp_option options[] = {
-        { "id",      'd', N_("ID"),       0, N_("id of the capplet -- assigned by the control-center"), 1},
-        { "cap-id",  'c', N_("CAPID"),    0, N_("multi-capplet id."), 1},
-        { "ior",     'i', N_("IOR"),      0, N_("ior of the control-center"), 1},
-        { "xid",     'x', N_("XID"),      0, N_("X id of the socket it's plugged into"), 1},
-        { NULL,       0,  NULL,           0, NULL, 0 }
+static struct poptOption cap_options[] = {
+        {"id", '\0', POPT_ARG_INT, &id, 0, N_("id of the capplet -- assigned by the control-center"), N_("ID")},
+        {"cap-id", '\0', POPT_ARG_INT, &capid, 0, N_("multi-capplet id."), N_("CAPID")},
+        {"xid", '\0', POPT_ARG_INT, &xid, 0, N_("X id of the socket it's plugged into"), N_("XID")},
+        {"ior", '\0', POPT_ARG_STRING, &cc_ior, 0, N_("ior of the control-center"), N_("IOR")},
+        {NULL, '\0', 0, NULL, 0}
 };
-static struct argp parser = {
-        options, parse_an_arg, NULL,  NULL,  NULL, NULL, NULL
-};
+
 
 /* ORB stuff... */
 PortableServer_ServantBase__epv base_epv = {
@@ -216,23 +192,25 @@ gint get_capid ()
         return capid;
 }
 
-gint
-capplet_widget_corba_init(char *app_id,
-                               struct argp *app_parser,
+gint capplet_widget_corba_init(const char *app_id,
+                               const char *app_version,
                                int *argc, char **argv,
+                               struct poptOption *options,
                                unsigned int flags,
-                               int *arg_index)
+                               poptContext *return_ctx)
 {
-        error_t retval = 0;
+        int retval = 0;
         PortableServer_ObjectId objid = {0, sizeof("capplet_interface"), "capplet_interface"};
         PortableServer_POA poa;
 
-        IIOPAddConnectionHandler = orb_add_connection;
-        IIOPRemoveConnectionHandler = orb_remove_connection;
         CORBA_exception_init(&ev);
-        gnome_parse_register_arguments (&parser);
-        
-        orb = gnome_CORBA_init (app_id, app_parser, argc, argv, flags, arg_index, &ev);
+
+        gnomelib_register_popt_table(cap_options, "capplet options");
+
+        orb = gnome_CORBA_init_with_popt_table (app_id, app_version,
+                                                argc, argv, options, flags,
+                                                return_ctx, &ev);
+
         /* sanity check */
         if ((xid == 0) || (cc_ior == NULL) || (id == -1)) {
                 g_warning ("Insufficient arguments passed to the arg parser.\n");

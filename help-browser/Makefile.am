@@ -7,7 +7,8 @@ INCLUDES = 							\
 	-I$(top_srcdir)/intl -I$(top_builddir)/intl		\
 	$(GNOME_INCLUDEDIR)					\
 	-DGNOMEHELPPATH=\""$(datadir)/gnome/help\"" 	\
-	-DGNOMELOCALEDIR=\""$(datadir)/locale\""
+	-DGNOMELOCALEDIR=\""$(datadir)/locale\""	\
+	-DVERSION=\""$(VERSION)"\"
 
 LDADD = \
 	$(GNOME_LIBDIR)					\

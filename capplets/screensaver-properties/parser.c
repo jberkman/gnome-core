@@ -247,7 +247,7 @@ get_adjustment (gchar *type)
                         temp = strdup (type + 2);
                         temp2 = strstr (temp, "]");
                         temp2[0] = '\000';
-                        temp3 = gnome_string_split (temp, "-", -1);
+                        temp3 = g_strsplit (temp, "-", -1);
                         /* FIXME: This will segv if incorrectly entered. */
                         low = atoi (temp3[0]);
                         high = atoi (temp3[1]);
@@ -256,7 +256,7 @@ get_adjustment (gchar *type)
                         else 
                                 val = low;
                         
-                        gnome_string_array_free (temp3);
+                        g_strfreev (temp3);
                         g_free (temp);
                         /* we add a little to the high value, b/c otherwise the adjustment
                          * won't display the higher value

@@ -254,7 +254,7 @@ int main (int argc, char *argv[])
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
 
-	gnome_init ("GNOME menu editor", NULL, argc, argv, 0, NULL);
+	gnome_init ("GNOME menu editor", VERSION, argc, argv);
 
 	SYSTEM_APPS = gnome_unconditional_datadir_file("apps");
 	SYSTEM_PIXMAPS = gnome_unconditional_datadir_file("pixmaps");

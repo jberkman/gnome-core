@@ -46,12 +46,9 @@ GtkWidget*      capplet_widget_multi_new       	(gint capid);
 
 
 void		capplet_gtk_main  		(void);
-gint		gnome_capplet_init	(char *app_id,
-                                         struct argp *app_parser,
-                                         int argc,
-                                         char **argv,
-                                         unsigned int flags,
-                                         int *arg_index);
+gint gnome_capplet_init (const char *app_id, const char *app_version,
+                         int argc, char **argv, struct poptOption *options,
+                         unsigned int flags, poptContext *return_ctx);
 void 		capplet_widget_state_changed 	(CappletWidget *cap, gboolean undoable);
 
 

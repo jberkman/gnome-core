@@ -25,7 +25,7 @@ main (gint argc, char *argv[])
     else
       temp++;
     if (strcmp (temp, "background-properties-init")== 0) {
-      gnome_init ("background-properties", NULL, argc, argv, 0, NULL);
+      gnome_init ("background-properties", VERSION, argc, argv);
       background_imlib_init ();
       background_properties_init ();
       return 0;
@@ -33,11 +33,10 @@ main (gint argc, char *argv[])
     if (!argv[1])
       return 1;
 
-    argp_program_version = VERSION;
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
     
-    gnome_capplet_init("background-properties", NULL, argc, argv, 0, NULL);
+    gnome_capplet_init("background-properties", VERSION, argc, argv, NULL, 0, NULL);
     
     /* setup session management */
     client = gnome_master_client ();

@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <orb/orbit.h>
 #include <libgnorba/gnorba.h>
+#include <errno.h>
 
 #include "window.h"
 #include "history.h"
@@ -59,7 +60,6 @@ HelpWindow makeHelpWindow(gint x, gint y, gint w, gint h);
 static void initConfig(void);
 static void saveConfig(void);
 static GnomeClient *newGnomeClient(void);
-static error_t parseAnArg (int key, char *arg, struct argp_state *state);
 
 static void configApply(GtkWidget *w, int page, GtkWidget *window);
 static int configCancel(GtkWidget *w, GtkWidget *window);
@@ -78,28 +78,6 @@ static int configCancel(GtkWidget *w, GtkWidget *window);
 #define DEFAULT_HISTORYFILE "history"
 #define DEFAULT_CACHEFILE "cache"
 #define DEFAULT_BOOKMARKFILE "bookmarks"
-
-/* Argument parsing.  */
-static struct argp_option options[] =
-{
-	{ NULL, 'x', N_("X"), 0, N_("X position of window"), 1 },
-	{ NULL, 'y', N_("Y"), 0, N_("Y position of window"), 1 },
-	{ NULL, 'w', N_("WIDTH"), 0, N_("Width of window"), 1 },
-	{ NULL, 'h', N_("HEIGHT"), 0, N_("Height of window"), 1 },
-	{ "debug", 'd', NULL, 0, N_("Debug level"), 0 },
-	{ NULL, 0, NULL, 0, NULL, 0 }
-};
-
-static struct argp parser =
-{
-    options,
-    parseAnArg,
-    N_("[URL]"),
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
 
 /* Config data */			  
 static gchar *manPath;			  
@@ -130,6 +108,17 @@ static gint defposy=0;
 static gint defwidth =0;
 static gint defheight=0;
 
+/* Argument parsing.  */
+static struct poptOption options[] = 
+{
+  {NULL, 'x', POPT_ARG_INT, &defposx, 0, N_("X position of window"), N_("X")},
+  {NULL, 'y', POPT_ARG_INT, &defposy, 0, N_("Y position of window"), N_("Y")},
+  {NULL, 'w', POPT_ARG_INT, &defwidth, 0, N_("Width of window"), N_("WIDTH")},
+  {NULL, 'h', POPT_ARG_INT, &defheight, 0, N_("Height of window"), N_("HEIGHT")},
+  {"debug", 'd', POPT_ARG_INT, &debugLevel, 0, N_("Debug level"), NULL},
+  {NULL, '\0', 0, NULL, 0}
+};
+
 #ifdef UGLY_LE_HACK
 
 void
@@ -145,11 +134,11 @@ void Exception( CORBA_Environment* ev )
     {
     case CORBA_SYSTEM_EXCEPTION:
       g_log("GNOME Help", G_LOG_LEVEL_DEBUG, "CORBA system exception %s.\n",
-	       CORBA_exception_id(ev));
+	    CORBA_exception_id(ev));
       exit ( 1 );
     case CORBA_USER_EXCEPTION:
       g_log("GNOME Help", G_LOG_LEVEL_DEBUG, "CORBA user exception: %s.\n",
-	       CORBA_exception_id( ev ) );
+	    CORBA_exception_id( ev ) );
       exit ( 1 );
     default:
       break;
@@ -168,20 +157,32 @@ main(int argc, char *argv[])
     CORBA_Object                browser_object;
     CORBA_Object                name_service;
     gchar*                      objref;
+    gchar **leftovers;
     CosNaming_NameComponent nc[3] = {{"GNOME", "subcontext"},
 				     {"Servers", "subcontext"}};
     CosNaming_Name nom = {0, 3, nc, CORBA_FALSE};
     int            output_fd;
+    poptContext ctx;
     
     
     CORBA_exception_init(&ev);
-    argp_program_version = HELP_VERSION;
     
     /* Initialize the i18n stuff */
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
-    orb = gnome_CORBA_init(NAME, &parser, &argc, argv, 0, NULL, &ev);
+    orb = gnome_CORBA_init_with_popt_table(NAME, VERSION, &argc, argv,
+					   options, 0, &ctx, &ev);
+    leftovers = poptGetArgs(ctx);
+    if(leftovers && leftovers[0]) {
+      helpURL = leftovers[0];
+      if(*helpURL == '/')
+	helpURL = g_copy_strings("file:", helpURL, NULL);
+      else
+	helpURL = g_strdup(helpURL);
+    }
+    poptFreeContext(ctx);
+
     Exception(&ev);
     
     root_poa = CORBA_ORB_resolve_initial_references(orb, "RootPOA", &ev);
@@ -272,56 +273,6 @@ makeHelpWindow(gint x, gint y, gint w, gint h)
 
     windowList = g_list_append(windowList, window);
     return window;
-}
-
-static error_t
-parseAnArg (int key, char *arg, struct argp_state *state)
-{
-	gint val;
-	
-	if (key == 'x' || key == 'y' || key == 'w' || key == 'h') {
-		val = strtol(arg, NULL, 10);
-
-		switch (key) {
-		case 'x':
-			defposx = val;
-			break;
-		case 'y':
-			defposy = val;
-			break;
-		case 'w':
-			defwidth  = val;
-			break;
-		case 'h':
-			defheight = val;
-			break;
-		default:
-			break;
-		}
-		return 0;
-	}
-
-	if (key == 'd') {
-	        debugLevel++;
-		return 0;
-	}
-
-  if (key != ARGP_KEY_ARG)
-    return ARGP_ERR_UNKNOWN;
-  if (helpURL)
-    argp_usage (state);
-
-  /* this probably somehow leads to a memory leak the size of the URL */
-  if (arg && *arg == '/') {
-	  helpURL = g_malloc(strlen(arg)+10);
-	  strcpy(helpURL, "file:");
-	  strcat(helpURL, arg);
-  } else {
-	  helpURL = g_strdup(arg);
-  }
-  
-
-  return 0;
 }
 
 /********************************************************************/

@@ -281,8 +281,10 @@ keyboard_setup (void)
 void
 main (int argc, char **argv)
 {
-        gnome_capplet_init ("keyboard-properties", NULL, argc, argv, 0, NULL);
-        
+
+        gnome_capplet_init ("keyboard-properties", VERSION, argc,
+                            argv, NULL, 0, NULL);
+
         keyboard_read ();
         keyboard_setup();
         capplet_gtk_main ();

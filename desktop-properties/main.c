@@ -78,11 +78,11 @@ property_main (char *app_id, int argc, char *argv [])
 		while (i);
 	}
 #endif
-	argp_program_version = VERSION;
+
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 
-	gnome_init (app_id, &parser, argc, argv, 0, NULL);
+	gnome_init_with_popt_table (app_id, VERSION, argc, argv, &parser, 0, NULL);
 	client = gnome_master_client ();
 
 	/* Set this stuff for completeness' sake.  */

@@ -62,14 +62,12 @@ control_center_corba_gtk_init(gint *argc, char **argv)
         PortableServer_ObjectId objid = {0, sizeof("control_center_interface"), "control_center_interface"};
         PortableServer_POA poa;
 
-        IIOPAddConnectionHandler = orb_add_connection;
-        IIOPRemoveConnectionHandler = orb_remove_connection;
         CORBA_exception_init(&ev);
         //        gnome_init("desktop-manager", NULL, *argc, argv, 0, NULL);
         //        orb = CORBA_ORB_init(argc, argv, "orbit-local-orb", &ev);
-        orb = gnome_CORBA_init ("desktop-manager", NULL, argc, argv, 0, NULL, &ev);
+        orb = gnome_CORBA_init ("desktop-manager", VERSION, argc, argv, &ev);
+        poa = CORBA_ORB_resolve_initial_references(orb, "RootPOA", &ev);
         POA_GNOME_control_center__init(&poa_control_center_servant, &ev);
-        poa = orb->root_poa;
         PortableServer_POAManager_activate(PortableServer_POA__get_the_POAManager(poa, &ev), &ev);
 
         PortableServer_POA_activate_object_with_id(poa, 
@@ -84,7 +82,6 @@ control_center_corba_gtk_init(gint *argc, char **argv)
         ior = CORBA_ORB_object_to_string(orb, control_center, &ev);
        
         CORBA_Object_release(control_center, &ev);
-        ORBit_custom_run_setup(orb, &ev);
 }
 
 void

@@ -346,7 +346,7 @@ launch_miniview (screensaver_data *sd)
                 close (p[0]);
                 snprintf (xid, 11,"0x%x", GDK_WINDOW_XWINDOW (monitor->window));
                 temp = g_copy_strings (sd->demo, " ", sd->windowid, " ", xid, NULL);
-                argv = gnome_string_split (temp, " ", -1);
+                argv = g_strsplit (temp, " ", -1);
                 g_free (temp);
                 temp = gnome_is_program_in_path (argv[0]);
                 if (temp == NULL)
@@ -540,7 +540,7 @@ dialog_callback (GtkWidget *dialog, gint button, screensaver_data *newsd)
                         snprintf (xid, 11,"0x%x", GDK_WINDOW_XWINDOW (sswin));
                         temp = g_copy_strings (newsd->args, " ", newsd->windowid, " ", xid, NULL);
                         
-                        argv = gnome_string_split (temp, " ", -1);
+                        argv = g_strsplit (temp, " ", -1);
                         g_free (temp);
                         temp = gnome_is_program_in_path (argv[0]);
                         execvp (temp, argv);
