@@ -10,9 +10,6 @@ static gboolean tasklist_icon_check_mini (TasklistTask *task);
 static gboolean tasklist_icon_check_x (TasklistTask *task);
 static void tasklist_icon_set_minimized (TasklistTask *task);
 
-extern GtkWidget *area; /* The drawing area used to display tasks */
-extern TasklistIcon *unknown_icon; /* The unknown icon */
-
 #define INTENSITY(r, g, b) ((r) * 0.30 + (g) * 0.59 + (b) * 0.11)
 
 /* Shamelessly stolen from gwmh.c by Tim Janik */
@@ -22,6 +19,9 @@ tasklist_icon_get_pixmap (TasklistTask *task)
 {
 	XWMHints *wmhints;
 	Pixmap pixmap;
+
+	if (task == NULL)
+		return 0;
 	
 	wmhints = XGetWMHints (GDK_DISPLAY (), task->gwmh_task->xwin);
 
@@ -133,7 +133,8 @@ static gboolean
 tasklist_icon_check_mini (TasklistTask *task)
 {
 	GdkGC *gc;
-	int x, y, b, width, height, depth;
+	int x, y;
+	guint b, width, height, depth;
 	guint32 *atomdata;
 	Window root;
 	GdkImage *image;
@@ -180,7 +181,7 @@ tasklist_icon_check_mini (TasklistTask *task)
 	
 	pixbuf = gdk_pixbuf_get_from_drawable (NULL,
 					       pixmap,
-					       gtk_widget_get_colormap (area),
+					       gtk_widget_get_colormap (task->tasklist->area),
 					       0, 0,
 					       0, 0,
 					       width, height);
@@ -189,8 +190,8 @@ tasklist_icon_check_mini (TasklistTask *task)
 	if (size > 1 && atomdata[1]) {
 		mask = gdk_pixmap_new (NULL, width, height, depth);
 		gc = gdk_gc_new (mask);
-		gdk_gc_set_background (gc, &area->style->black);
-		gdk_gc_set_foreground (gc, &area->style->white);
+		gdk_gc_set_background (gc, &task->tasklist->area->style->black);
+		gdk_gc_set_foreground (gc, &task->tasklist->area->style->white);
 		XCopyPlane (GDK_DISPLAY (), atomdata[1], GDK_WINDOW_XWINDOW (mask),
 			    GDK_GC_XGC (gc), 0, 0, width, height, 0, 0, 1);
 		gdk_gc_unref (gc);
@@ -263,12 +264,12 @@ tasklist_icon_check_x (TasklistTask *task)
 		return FALSE;
 	}
 	
-	pixmap = gdk_pixmap_new (area->window, width, height, -1);	
+	pixmap = gdk_pixmap_new (task->tasklist->area->window, width, height, -1);	
 	gc = gdk_gc_new (pixmap);
 
 	if (depth == 1) {
-		gdk_gc_set_background (gc, &area->style->white);
-		gdk_gc_set_foreground (gc, &area->style->black);
+		gdk_gc_set_background (gc, &task->tasklist->area->style->white);
+		gdk_gc_set_foreground (gc, &task->tasklist->area->style->black);
 		XCopyPlane (GDK_DISPLAY (), wmhints->icon_pixmap, GDK_WINDOW_XWINDOW (pixmap),
 			   GDK_GC_XGC (gc), 0, 0, width, height, 0, 0, 1);
 	}
@@ -276,7 +277,7 @@ tasklist_icon_check_x (TasklistTask *task)
 		XCopyArea (GDK_DISPLAY (), wmhints->icon_pixmap, GDK_WINDOW_XWINDOW (pixmap),
 			   GDK_GC_XGC (gc), 0, 0, width, height, 0, 0);
 	}
-	pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, gtk_widget_get_colormap (area), 
+	pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, gtk_widget_get_colormap (task->tasklist->area), 
 					       0, 0,
 					       0, 0, width, height);
 	gdk_gc_destroy (gc);
@@ -288,8 +289,8 @@ tasklist_icon_check_x (TasklistTask *task)
 	if (wmhints->flags & IconMaskHint) {
 	       mask = gdk_pixmap_new (NULL, width, height, depth);
 	       gc = gdk_gc_new (mask);
-	       gdk_gc_set_background (gc, &area->style->black);
-	       gdk_gc_set_foreground (gc, &area->style->white);
+	       gdk_gc_set_background (gc, &task->tasklist->area->style->black);
+	       gdk_gc_set_foreground (gc, &task->tasklist->area->style->white);
 	       XCopyPlane (GDK_DISPLAY (), wmhints->icon_mask, GDK_WINDOW_XWINDOW (mask),
 			   GDK_GC_XGC (gc), 0, 0, width, height, 0, 0, 1);
 	       gdk_gc_unref (gc);
@@ -333,10 +334,13 @@ tasklist_icon_check_x (TasklistTask *task)
 void
 tasklist_icon_set (TasklistTask *task)
 {
-	task->icon = g_new (TasklistIcon, 1);
+	if (task == NULL)
+		return;
+	
+	task->icon = g_new0 (TasklistIcon, 1);
 
-	task->icon->normal = unknown_icon->normal;
-	task->icon->minimized = unknown_icon->minimized;
+	task->icon->normal    = task->tasklist->unknown_icon->normal;
+	task->icon->minimized = task->tasklist->unknown_icon->minimized;
 
 	if (!tasklist_icon_check_x (task))
 		tasklist_icon_check_mini (task);
@@ -349,19 +353,22 @@ static void
 tasklist_icon_set_minimized (TasklistTask *task)
 {
 	if (task->icon->minimized &&
-		task->icon->minimized != unknown_icon->minimized)
+	    task->icon->minimized != task->tasklist->unknown_icon->minimized)
 		gdk_pixbuf_unref (task->icon->minimized);
 
-	task->icon->minimized = tasklist_icon_create_minimized_icon (task->icon->normal);
+	task->icon->minimized = tasklist_icon_create_minimized_icon (task->tasklist, task->icon->normal);
 }
 
 void
 tasklist_icon_destroy (TasklistTask *task)
 {
-	if (task->icon->normal != unknown_icon->normal)
+	if (task == NULL)
+		return;
+	
+	if (task->icon->normal != task->tasklist->unknown_icon->normal)
 		gdk_pixbuf_unref (task->icon->normal);
 	
-	if (task->icon->minimized != unknown_icon->minimized)
+	if (task->icon->minimized != task->tasklist->unknown_icon->minimized)
 		gdk_pixbuf_unref (task->icon->minimized);
 
 	g_free (task->icon);
@@ -369,7 +376,7 @@ tasklist_icon_destroy (TasklistTask *task)
 
 /* Stolen from gnome-pixmap.c */
 GdkPixbuf *
-tasklist_icon_create_minimized_icon (GdkPixbuf *pixbuf)
+tasklist_icon_create_minimized_icon (Tasklist *tasklist, GdkPixbuf *pixbuf)
 {
 	GdkPixbuf *target;
 	gint i, j;
@@ -380,7 +387,7 @@ tasklist_icon_create_minimized_icon (GdkPixbuf *pixbuf)
 	gint32 red, green, blue;
 	GdkColor color;
 	
-	color = area->style->bg[GTK_STATE_NORMAL];
+	color = tasklist->area->style->bg[GTK_STATE_NORMAL];
 	red = color.red / 255;
 	blue = color.blue / 255;
 	green = color.green / 255;

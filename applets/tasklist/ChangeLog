@@ -1,3 +1,7 @@
+2001-01-24  jacob berkman  <jacob@ximian.com>
+
+	* tasklist*.[ch]: add shlibification and grouping by wmclass
+
 2000-12-21  Richard Hult  <rhult@codefactory.se>
 
 	* tasklist_applet.c (lexographic_compare_func): Sort correctly

@@ -1,5 +1,5 @@
 [tasklist_applet]
-type=exe
+type=shlib
 repo_id=IDL:GNOME/Applet:1.0
 description=GNOME Tasklist
-location_info=tasklist_applet
+location_info=libtasklist_applet.so

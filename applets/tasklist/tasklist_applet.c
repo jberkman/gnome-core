@@ -5,122 +5,93 @@
 #include "gstc.h"
 #include "gwmh.h"
 
+#include <gdk/gdkx.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "tasklist_applet.h"
 #include "unknown.xpm"
 
-/* Prototypes */
-static void cb_properties (void);
-static void cb_about (void);
-gchar *fixup_task_label (TasklistTask *task);
-gboolean is_task_visible (TasklistTask *task);
-void draw_task (TasklistTask *task, GdkRectangle *rect);
-TasklistTask *find_gwmh_task (GwmhTask *gwmh_task);
-gboolean desk_notifier (gpointer func_data, GwmhDesk *desk, GwmhDeskInfoMask change_mask);
-gboolean task_notifier (gpointer func_data, GwmhTask *gwmh_task, GwmhTaskNotifyType ntype, GwmhTaskInfoMask imask);
-gboolean cb_button_press_event (GtkWidget *widget, GdkEventButton *event);
-gboolean cb_drag_motion (GtkWidget *widget, GdkDragContext *context, int x, int y, guint time);
-void cb_drag_leave (GtkWidget *widget, GdkDragContext *context, guint time);
-gboolean cb_motion_timeout (gpointer data);
-gboolean cb_expose_event (GtkWidget *widget, GdkEventExpose *event);
-void create_applet (void);
-TasklistTask *task_get_xy (gint x, gint y);
-GList *get_visible_tasks (void);
-gint get_horz_rows(void);
-gboolean show_task (TasklistTask *task);
-
-GNOME_Panel_OrientType tasklist_orient; /* Tasklist orient */
-GtkWidget *handle; /* The handle box */
-GtkWidget *applet; /* The applet */
-GtkWidget *area; /* The drawing area used to display tasks */
-GList *tasks = NULL; /* The list of tasks used */
-
-#define MOTION_TIMEOUT 500 /* Show task motion_task if cursor over task for ... msec */
-int motion_timeout = 0; /* Show task motion_task after MOTION_TIMEOUT in drag_motion */
-TasklistTask *motion_task = NULL; /* Task to show after motion_timeout */
-
-TasklistIcon *unknown_icon = NULL; /* The unknown icon */
-
-gint vert_height=0; /* Vertical height, used for resizing */
-gint horz_width=0;  /* Horizontal width, used for resizing */
-
-gint panel_size = 48;
-
-extern TasklistConfig Config;
-
-/* sorting the list... */
-static gint
-lexographic_compare_func (gconstpointer a, gconstpointer b)
-{
-       const TasklistTask *la = (const TasklistTask*)a;
-       const TasklistTask *lb = (const TasklistTask*)b;
-
-       if (la->gwmh_task->name == NULL && lb->gwmh_task->name == NULL)
-	       return 0;
-       else if (la->gwmh_task->name == NULL)
-	       return 1;
-       else if (lb->gwmh_task->name == NULL)
-	       return -1;
-
-       return strcasecmp (la->gwmh_task->name, lb->gwmh_task->name);
-}
-
-static gint
-creation_compare_func (gconstpointer a, gconstpointer b)
-{
-       const TasklistTask *la = (const TasklistTask*)a;
-       const TasklistTask *lb = (const TasklistTask*)b;
-
-       return lb->serial_number - la->serial_number;
-}
-
-static gint
-tasklist_sorting_compare_func (gconstpointer a, gconstpointer b)
-{
-       /*
-        * This is dumb, but here's why:
-        * the intent is that there be lots of compare functions
-        * (maybe putting the icons at the top, or by desktop,
-        * or whatever.  Right now there are just two: the old
-        * one and the one I like.  BUT, I don't know enough about
-        * how to make gnome_config_xxx map a list of things into
-        * functions, so for now I just have a boolean that controls
-        * which.  Hopefully the next person who adds sorting functions
-        * will know more about gnome than I do and will fix this hack.
-        * - johnh@isi.edu, 24-Nov-00
-        */
-       return Config.sort_tasklist ?
-	       lexographic_compare_func (a, b) :
-	       creation_compare_func (a, b);
-}
-
-static void
-clamp_size_if_never_push (int *size)
-{
-	if (Config.vert_never_push) {
-		int free_space = applet_widget_get_free_space
-			(APPLET_WIDGET (applet));
-		if (free_space > 0 &&
-		    free_space < *size)
-			*size = free_space;
-	}
-}
-
-
 /* from gtkhandlebox.c */
 #define DRAG_HANDLE_SIZE 10
 
+/* define to x for debugging output */
+#define d(x)
+
+/* sorting the list... */
+static gint
+tlsort (TasklistTask *la, TasklistTask *lb)
+{
+       char *sa, *sb;
+
+       d(g_print ("la: %p\tlb: %p\n", la, lb));
+
+       sa = la->task_group ? la->group_name : (la->group ? la->group->group_name : la->gwmh_task->name);
+       sb = lb->task_group ? lb->group_name : (lb->group ? lb->group->group_name : lb->gwmh_task->name);
+
+       if (sa && sb)
+	       return strcasecmp (sa, sb);
+       else if (sa)
+	       return 1;
+       else if (sb)
+	       return -1;
+       else
+	       return 0;
+}
+
+static void
+clamp_size (Tasklist *tasklist, int *size)
+{
+	int free_space;
+
+	free_space = applet_widget_get_free_space (APPLET_WIDGET (tasklist->applet));
+
+	if (free_space > 0 && free_space < *size)
+		*size = free_space;
+}
+
+void
+tasklist_clean_menu (TasklistTask *task)
+{
+	if(task->menu) {
+		d(g_print ("group had a menu: %p\t", task->menu));
+		gtk_widget_unref (task->menu);
+		d(g_print ("%p\n", task->menu));
+	}
+}
+
+static char *
+get_task_class (GwmhTask *task)
+{
+	XClassHint hint;
+	char *retval;
+
+	if (!XGetClassHint (GDK_DISPLAY (), task->xwin, &hint))
+		return NULL;
+
+	d(g_print ("name: %s\tclass: %s\n", hint.res_name, hint.res_class));
+	retval = g_strdup (hint.res_class);
+
+	XFree (hint.res_name);
+	XFree (hint.res_class);
+
+	return retval;
+}
+
 /* get the horz_rows depending on the configuration settings */
-gint
-get_horz_rows(void)
+static gint
+get_horz_rows(Tasklist *tasklist)
 {
 	int result;
 
-	if (Config.follow_panel_size)
-		result = panel_size/ROW_HEIGHT;
+	g_return_val_if_fail (tasklist != NULL, 1);
+			      
+	if (tasklist->config.follow_panel_size)
+		result = tasklist->panel_size/ROW_HEIGHT;
 	else
-		result = Config.horz_rows;
+		result = tasklist->config.horz_rows;
 
 	if (result < 1)
 		result = 1;
@@ -130,141 +101,122 @@ get_horz_rows(void)
 
 /* Shorten a label that is too long */
 gchar *
-fixup_task_label (TasklistTask *task)
-{
-	gchar *str, *tempstr;
-	gint len, label_len;
+tasklist_task_get_label (TasklistTask *task, int width, gboolean add_groupcount)
+{	
+	Tasklist *tasklist = task->tasklist;
+	gchar *das_string;
+	gchar *str, *tempstr, *groupcount = NULL;
+	gint len, label_len, overhead, allowed_width;
 
-	label_len = gdk_string_width (area->style->font,
-				      task->gwmh_task->name);
+	das_string = task->gwmh_task->name;
+
+	label_len = gdk_string_width (tasklist->area->style->font, das_string);
+
+	overhead = tasklist->config.show_mini_icons ? 30 : 6;
+
+	if (add_groupcount) {
+		groupcount = g_strdup_printf ("(%d) ", g_slist_length (task->vtasks 
+								       ? task->vtasks 
+								       : task->group->vtasks));
+		
+		overhead += 10 + gdk_string_width (tasklist->area->style->font, 
+						   groupcount);
+	}
 	
 	if (GWMH_TASK_ICONIFIED (task->gwmh_task))
-		label_len += gdk_string_width (area->style->font,
-					       "[]");
+		overhead += gdk_string_width (tasklist->area->style->font, "[]");	
 
-	if (label_len > task->width - ROW_HEIGHT) {
+	allowed_width = width - overhead;
+	
+	if ( (width > 0) && (label_len > allowed_width) ) {
 		GdkWChar *wstr;
 
-		len = strlen (task->gwmh_task->name);
+		g_assert (width > 0);
+
+		len = strlen (das_string);
 		wstr = g_new (GdkWChar, len + 3);
-		len = gdk_mbstowcs (wstr, task->gwmh_task->name, len);
+		len = gdk_mbstowcs (wstr, das_string, len);
+		/* ok, the below thing is broken */
 		if ( len < 0 ) { /* if the conversion is failed */
 			wstr[0] = wstr[1] = wstr[2] = '?'; 
 			wstr[3] = '\0'; /* wcscpy(wstr,"???");*/
 			len = 3;
-			label_len = gdk_text_width_wc(area->style->font,
+			label_len = gdk_text_width_wc(tasklist->area->style->font,
                                                       wstr, len);
-			if (label_len <= task->width 
-			    - (Config.show_mini_icons ? 24:6)) {
+			if (label_len <= allowed_width) {
 				str = gdk_wcstombs(wstr);
 				g_free(wstr);
 				return str;
-			}
+				}
 		}
 		wstr[len] = wstr[len+1] = '.';
 		wstr[len+2] = '\0'; /*wcscat(wstr,"..");*/
 		len--;
-
+		
 		for (; len > 0; len--) {
 			wstr[len] = '.';
 			wstr[len + 3] = '\0';
 			
-			label_len = gdk_text_width_wc (area->style->font,
+			label_len = gdk_text_width_wc (tasklist->area->style->font,
 						       wstr, len + 3);
 			
-			if (GWMH_TASK_ICONIFIED (task->gwmh_task))
-				label_len += gdk_string_width (area->style->font,
-							       "[]");
-			if (label_len <= task->width - (Config.show_mini_icons ? 24:6))
+			if (label_len <= allowed_width)
 				break;
 		}
 		str = gdk_wcstombs (wstr);
 		g_free (wstr);
+	} else {
+		str = g_strdup (das_string);
 	}
-	else
-		str = g_strdup (task->gwmh_task->name);
 
-	if (GWMH_TASK_ICONIFIED (task->gwmh_task)) {
-		tempstr = g_strdup_printf ("[%s]", str);
+	if (task->gwmh_task && GWMH_TASK_ICONIFIED (task->gwmh_task)) {
+		tempstr = g_strdup_printf ("[%s]", str);	
 		g_free(str);
+		str = tempstr;
+	}
+	
+	if (groupcount) {
+		tempstr = g_strconcat (groupcount, str, NULL);
+		g_free (str);
 		str = tempstr;
 	}
 
 	return str;
 }
 
-/* Check what task (if any) is at position x,y on the tasklist */
-TasklistTask *
-task_get_xy (gint x, gint y)
-{
-	GList *temp_tasks, *temp;
-	TasklistTask *task;
-
-	temp_tasks = get_visible_tasks ();
-
-	for (temp = temp_tasks; temp != NULL; temp = temp->next) {
-		task = (TasklistTask *)temp->data;
-		if (x > task->x &&
-		    x < task->x + task->width &&
-		    y > task->y &&
-		    y < task->y + task->height) {
-			g_list_free (temp_tasks);
-			return task;
-		}
-	}
-
-	if (temp_tasks != NULL)
-		g_list_free (temp_tasks);
-
-	return NULL;
-}
-
-
-/* Check which tasks are "visible",
-   if they should be drawn onto the tasklist */
-GList *
-get_visible_tasks (void)
-{
-	GList *temp_tasks;
-	GList *visible_tasks = NULL;
-
-	temp_tasks = tasks;
-	while (temp_tasks) {
-		if (is_task_visible ((TasklistTask *) temp_tasks->data))
-                        visible_tasks = g_list_insert_sorted (visible_tasks, temp_tasks->data, tasklist_sorting_compare_func);
-		temp_tasks = temp_tasks->next;
-	}
-	return visible_tasks;
-}
-
 /* Check if a task is "visible", 
    if it should be drawn onto the tasklist */
-gboolean
+static gboolean
 is_task_visible (TasklistTask *task)
 {
+	Tasklist *tasklist;
 	GwmhDesk *desk_info;
+
+	if (!task || task->destroyed || task->task_group)
+		return FALSE;
+
+	tasklist = task->tasklist;
 
 	desk_info = gwmh_desk_get_config ();
 
 	if (GWMH_TASK_SKIP_TASKBAR (task->gwmh_task))
 		return FALSE;
 	
-
 	if (task->gwmh_task->desktop != desk_info->current_desktop ||
 	    task->gwmh_task->harea != desk_info->current_harea ||
 	    task->gwmh_task->varea != desk_info->current_varea) {
 		if (!GWMH_TASK_STICKY (task->gwmh_task)) {
-			if (!Config.all_desks_minimized && 
-			    !Config.all_desks_normal)
+			if (!tasklist->config.all_desks_minimized && 
+			    !tasklist->config.all_desks_normal)
 				return FALSE;
 				
-			else if (Config.all_desks_minimized && 
-				 !Config.all_desks_normal) {
+			else if (tasklist->config.all_desks_minimized && 
+				 !tasklist->config.all_desks_normal) {
 				if (!GWMH_TASK_ICONIFIED (task->gwmh_task))
 					return FALSE;
 			}
-			else if (Config.all_desks_normal && 
-				 !Config.all_desks_minimized) {
+			else if (tasklist->config.all_desks_normal && 
+				 !tasklist->config.all_desks_minimized) {
 				if (GWMH_TASK_ICONIFIED (task->gwmh_task))
 					return FALSE;
 			}
@@ -272,148 +224,381 @@ is_task_visible (TasklistTask *task)
 	}			
 
 	if (GWMH_TASK_ICONIFIED (task->gwmh_task)) {
-		if (!Config.show_minimized)
+		if (!tasklist->config.show_minimized)
 			return FALSE;
 	} else {
-		if (!Config.show_normal)
+		if (!tasklist->config.show_normal)
 			return FALSE;
 	}
 		
 	return TRUE;
 }
 
+static gboolean
+is_task_really_visible (TasklistTask *task)
+{
+	g_return_val_if_fail (task != NULL, FALSE);
+
+	if (!task->tasklist->config.enable_grouping)
+		return is_task_visible (task);
+
+	/* we can probably unroll the length test */
+	if (task->group && g_slist_length (task->group->vtasks) > task->tasklist->config.grouping_min)
+		return FALSE;
+	else if (task->task_group)
+		return g_slist_length (task->vtasks) > task->tasklist->config.grouping_min;;
+	return is_task_visible (task);
+}
+
+static void
+print_task (TasklistTask *task, gpointer null)
+{
+	return;
+
+	if (!task)
+		g_print (" * * NULL TASK * *\n");
+	else if (task->group)
+		g_print ("task: %p (%p) [%d, %d]: %s\n", 
+			 task, task->gwmh_task,
+			 is_task_visible (task),
+			 is_task_really_visible (task),
+			 task->gwmh_task->name);
+	else if (task->task_group) {
+		g_print ("group: %p [%d]: %s\n", task, is_task_really_visible (task), task->group_name);
+		g_slist_foreach (task->tasks, (GFunc)print_task, NULL);
+		g_print ("/\n");
+	} else {
+		g_print ("Unknown task: %p\n", task);
+		g_assert_not_reached ();
+	}
+}
+
+static void
+fixup_group (TasklistTask *group)
+{
+	TasklistTask *task;
+	GSList *item;
+	
+	g_return_if_fail (group != NULL);
+	
+	group->focused_task = NULL;
+	group->gwmh_task->iconified = TRUE;
+	
+	g_slist_free (group->vtasks);
+	group->vtasks = NULL;
+	
+	for (item = group->tasks; item; item = item->next) {
+		task = (TasklistTask *)item->data;
+		if (is_task_visible (task)) {
+			group->vtasks = g_slist_prepend (group->vtasks, task);
+			if (!task->gwmh_task->iconified)
+				group->gwmh_task->iconified = FALSE;
+			if (task->gwmh_task->focused)
+				group->focused_task = task;
+		}
+	}
+}
+
+static gboolean
+fixup_vtask (TasklistTask *task, gpointer forcep)
+{
+	gint force = GPOINTER_TO_INT (forcep);
+	gboolean visible;
+
+	/* why not layout if we are confused */
+	g_return_val_if_fail (task, TRUE);
+
+	if (task->task_group)
+		fixup_group (task);
+
+	visible = is_task_really_visible (task);
+
+	if (visible == task->visible)
+		return FALSE;
+
+	task->visible = visible;
+	task->tasklist->vtasks = visible 
+		? g_slist_insert_sorted (task->tasklist->vtasks, task, tlsort)
+		: g_slist_remove (task->tasklist->vtasks, task);
+
+	if (task->tasklist->config.enable_grouping) {
+		if (task->task_group) {
+			g_slist_foreach (task->tasks, (GFunc)fixup_vtask, forcep);
+		} else if (task->group) {
+			fixup_vtask (task->group, GINT_TO_POINTER (FALSE));
+		}
+	}
+
+	d(g_print (">>>>>\tfixup_vtask "));
+	d(print_task (task, NULL));
+	d(g_slist_foreach (task->tasklist->vtasks, (GFunc)print_task, NULL));
+	d(g_print ("<<<<<\n"));
+
+	return TRUE;
+}
+
+static void
+redo_groups (gchar *groupname, TasklistTask *task, Tasklist *tasklist)
+{
+	print_task (task, NULL);
+
+	fixup_group (task);
+	task->visible = is_task_really_visible (task);
+	if (task->visible)
+		tasklist->vtasks = g_slist_insert_sorted (tasklist->vtasks, task, tlsort);
+}
+
+void
+tasklist_redo_vtasks (Tasklist *tasklist)
+{
+	TasklistTask *task;
+	GList *item;
+	
+	if (tasklist->vtasks) {
+		g_slist_free (tasklist->vtasks);
+		tasklist->vtasks = NULL;
+	}
+
+	d(g_print ("\n\n\n\n\n\n\n\n\n\nredo_vtasks\n\n\n\n\n\n\n\n\n\n"));
+
+	if (tasklist->config.enable_grouping)
+		g_hash_table_foreach (tasklist->groups, (GHFunc)redo_groups, tasklist);
+
+	for (item = gwmh_task_list_get (); item; item = item->next) {
+		task = g_hash_table_lookup (tasklist->tasks, item->data);
+
+		/* this should never actually happen */
+		if (!task) continue;
+
+		task->visible = is_task_really_visible (task);
+		
+		if (task->visible)
+			tasklist->vtasks = g_slist_insert_sorted (tasklist->vtasks, task, tlsort);
+	}
+
+#if 0
+	if (!tasklist->config.sort_tasklist)
+		tasklist->vtasks = g_slist_reverse (tasklist->vtasks);
+#endif
+	d(g_print ("\n\n\n\n\n\n\n\n\n\nvtasks: %d\n", g_slist_length (tasklist->vtasks)));
+
+	d(g_print (">>>>>\tredo_vtasks:\n"));
+	d(g_slist_foreach (tasklist->vtasks, (GFunc)print_task, NULL));
+	d(g_print ("<<<<<\n"));
+}
+
+/* Check what task (if any) is at position x,y on the tasklist */
+static TasklistTask *
+task_get_xy (Tasklist *tasklist, gint x, gint y)
+{
+	GSList *temp_tasks, *temp;
+	TasklistTask *task;
+
+	temp_tasks = tasklist->vtasks;
+
+	for (temp = temp_tasks; temp != NULL; temp = temp->next) {
+		task = (TasklistTask *)temp->data;
+		if (x > task->x &&
+		    x < task->x + task->width &&
+		    y > task->y &&
+		    y < task->y + task->height)
+			return task;
+	}
+
+	return NULL;
+}
+
+static void
+draw_dot (GdkWindow *window, GdkGC *lgc, GdkGC *dgc, int x, int y)
+{
+	gdk_draw_point (window, dgc, x,   y);
+	gdk_draw_point (window, lgc, x+1, y+1);
+}
+
 /* Draw a single task */
 void
-draw_task (TasklistTask *task, GdkRectangle *rect)
+tasklist_draw_task (TasklistTask *task, GdkRectangle *rect)
 {
+	TasklistTask *real_task;
 	gchar *tempstr;
 	gint text_height, text_width;
+	gboolean focused;
 
 	/* For mini icons */
 	TasklistIcon *icon;
 	GdkPixbuf *pixbuf;
+	
+	Tasklist *tasklist;
 
-	if (!is_task_visible (task))
+	if (!is_task_really_visible (task))
 		return;
 
-	gtk_paint_box (area->style, area->window,
-		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
-		       GTK_STATE_ACTIVE : GTK_STATE_NORMAL,
-		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
-		       GTK_SHADOW_IN : GTK_SHADOW_OUT,
-		       rect, area, "button",
-		       task->x, task->y,
-		       task->width, task->height);
+	/* is_task_visible should return FALSE for task == NULL */
+	g_assert (task != NULL);
 
-	if (task->gwmh_task->name) {
-		tempstr = fixup_task_label (task);
-		text_height = gdk_string_height (area->style->font, "1");
-		text_width = gdk_string_width (area->style->font, tempstr);
-		gdk_draw_string (area->window,
-				 area->style->font,
-				 GWMH_TASK_FOCUSED (task->gwmh_task) ?
-				 area->style->fg_gc[GTK_STATE_ACTIVE] :
-				 area->style->fg_gc[GTK_STATE_NORMAL],
-				 task->x +
-				 (Config.show_mini_icons ? 10 : 0) +
-				 ((task->width - text_width) / 2),
-				 task->y + ((task->height - text_height) / 2) + text_height,
+	tasklist = task->tasklist;
+	
+	real_task = task;
+	if (is_task_visible (task->focused_task) && GWMH_TASK_FOCUSED (task->focused_task->gwmh_task))
+		task = task->focused_task;
+
+	focused = GWMH_TASK_FOCUSED (task->gwmh_task) || real_task->menu != NULL;
+
+	gtk_paint_box (tasklist->area->style, tasklist->area->window,
+		       focused ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL,		       
+		       focused ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+		       rect, tasklist->area, "button",
+		       real_task->x, real_task->y,
+		       real_task->width, real_task->height);
+
+	tempstr = tasklist_task_get_label (task, real_task->width, real_task->task_group);
+	if (tempstr) {
+		text_height = gdk_string_height (tasklist->area->style->font, "1");
+		text_width = gdk_string_width (tasklist->area->style->font, tempstr);
+		gdk_draw_string (tasklist->area->window,
+				 tasklist->area->style->font,
+				 focused ?
+				 tasklist->area->style->fg_gc[GTK_STATE_ACTIVE] :
+				 tasklist->area->style->fg_gc[GTK_STATE_NORMAL],
+				 real_task->x +
+				 (tasklist->config.show_mini_icons ? 10 : 0) +
+				 ((real_task->width - text_width) / 2),
+				 real_task->y + ((real_task->height - text_height) / 2) + text_height,
 				 tempstr);
 
 		g_free (tempstr);
 	}
 
-	if (Config.show_mini_icons) {
+	if (tasklist->config.show_mini_icons) {
 		icon = task->icon;
 		
-		if (GWMH_TASK_ICONIFIED (task->gwmh_task))
+		if ( GWMH_TASK_ICONIFIED (task->gwmh_task))
 			pixbuf = icon->minimized;
 		else
 			pixbuf = icon->normal;
 
-		gdk_pixbuf_render_to_drawable_alpha (pixbuf,
-						     area->window,
-						     0, 0,
-						     task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
-						     task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2,
-						     gdk_pixbuf_get_width (pixbuf),
-						     gdk_pixbuf_get_height (pixbuf),
-						     GDK_PIXBUF_ALPHA_BILEVEL,
-						     127,
-						     GDK_RGB_DITHER_NORMAL,
-						     gdk_pixbuf_get_width (pixbuf),
-						     gdk_pixbuf_get_height (pixbuf));
+		gdk_pixbuf_render_to_drawable_alpha (
+			pixbuf,
+			tasklist->area->window,
+			0, 0,
+			real_task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
+			real_task->y + (real_task->height - gdk_pixbuf_get_height (pixbuf)) / 2,
+			gdk_pixbuf_get_width (pixbuf),
+			gdk_pixbuf_get_height (pixbuf),
+			GDK_PIXBUF_ALPHA_BILEVEL,
+			127,
+			GDK_RGB_DITHER_NORMAL,
+			gdk_pixbuf_get_width (pixbuf),
+			gdk_pixbuf_get_height (pixbuf));
 
 	}
-}
 
-static int
-max_width (GList *temp_tasks)
-{
-	GList *li;
-	int maxwidth = 0;
+	if (real_task->task_group) {
+		GtkStyle *style;
+		GdkWindow *window;
+		GdkGC *lgc, *dgc;
+		int x, y, i, j;
 
-	for (li = temp_tasks; li != NULL; li = li->next) {
-		int width;
-		TasklistTask *task = li->data;
-		const char *name = task->gwmh_task->name != NULL ? 
-			task->gwmh_task->name : "";
+		style = tasklist->area->style;
 
-		if (task->fullwidth < 0) {
-			width = gdk_string_width (area->style->font, name);
+		lgc = style->light_gc[focused ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL];
+		dgc = style->dark_gc[focused ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL];
 
-			if (GWMH_TASK_ICONIFIED (task->gwmh_task))
-				width += gdk_string_width (area->style->font,
-							   "[]");
+		window = tasklist->area->window;
 
-			task->fullwidth = width;
-		} else {
-			width = task->fullwidth;
+		x = real_task->x + real_task->width - style->klass->ythickness - 10;
+		y = real_task->y + style->klass->xthickness + 2;
+
+		for (i = 0; i < 3; i++) {
+			for (j = i; j < 3; j++) {
+				draw_dot (window, lgc, dgc, x + j*3, y + i*3);
+			}
 		}
 
-		if (Config.show_mini_icons)
-			width += 10;
+		
 
-		width += ROW_HEIGHT;
-
-		if (width > maxwidth)
-			maxwidth = width;
+#if 0
+		gtk_draw_arrow (tasklist->area->style, tasklist->area->window,
+				focused ? GTK_STATE_ACTIVE : GTK_STATE_NORMAL,
+				GTK_SHADOW_ETCHED_IN,
+				GTK_ARROW_DOWN, TRUE,
+				real_task->x + real_task->width - 12,
+				real_task->y + (real_task->height - 8) / 2,
+				9, 8);
+#endif
 	}
 
-	return maxwidth;
+}
+
+
+static int
+max_width (GSList *tasks)
+{
+	TasklistTask *task;
+	GSList *li;
+	int maxwidth = 0;
+	char *s;
+
+	for (li = tasks; li; li = li->next) {
+		task = li->data;
+
+		if (task->fullwidth < 0) {
+			s = tasklist_task_get_label (task, -1, task->task_group);
+			task->fullwidth = gdk_string_width (
+				task->tasklist->area->style->font, s);
+			g_free (s);
+		}
+
+		maxwidth = MAX (maxwidth,
+				task->fullwidth + 
+				(task->tasklist->config.show_mini_icons 
+				 ? ROW_HEIGHT + 10 : 0));
+	}
+	return MIN (maxwidth, 512);
 }
 
 /* Layout the tasklist */
-void
-layout_tasklist (gboolean call_change_size)
+static int
+real_layout_tasklist (Tasklist *tasklist, gboolean call_change_size)
 {
 	gint j = 0, k = 0, num = 0, p = 0;
-	GList *temp_tasks, *temp;
 	TasklistTask *task;
+	GSList *temp = NULL;
 	/* gint extra_space; */
 	gint num_rows = 0, num_cols = 0;
 	gint curx = 0, cury = 0, curwidth = 0, curheight = 0;
+
+	tasklist->layout_timeout = 0;
+	d(g_message ("Layout!"));
+
+	/*gdk_beep ();*/
 	
-	temp_tasks = get_visible_tasks ();
-	num = g_list_length (temp_tasks);
+	if (!tasklist->vtasks) {
+		d(g_message ("no tasks :(\n"));
+		gtk_widget_draw (tasklist->area, NULL);
+		return FALSE;
+	}
+
+	num = g_slist_length (tasklist->vtasks);
 	
-	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
+	switch (applet_widget_get_panel_orient (APPLET_WIDGET (tasklist->applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
 		if (num == 0) {
-			if (Config.horz_fixed)
-				horz_width = Config.horz_width;
+			if (tasklist->config.horz_fixed)
+				tasklist->horz_width = tasklist->config.horz_width;
 			else
-				horz_width = 4;
+				tasklist->horz_width = 4;
 			
-			change_size (FALSE, -1);
+			if (call_change_size)
+				tasklist_change_size (tasklist, FALSE, -1);
 			
-			gtk_widget_draw (area, NULL);
-			return;
+			gtk_widget_draw (tasklist->area, NULL);
+			return FALSE;
 		}
 
 		while (p < num) {
-			if (num < get_horz_rows())
+			if (num < get_horz_rows(tasklist))
 				num_rows = num;
 			
 			j++;
@@ -422,33 +607,34 @@ layout_tasklist (gboolean call_change_size)
 			if (num_rows < k + 1)
 				num_rows = k + 1;
 			
-			if (get_horz_rows () == 0 || j >= ((num + get_horz_rows() - 1) / get_horz_rows())) {
+			if (get_horz_rows (tasklist) == 0 || j >= ((num + get_horz_rows(tasklist) - 1) / get_horz_rows(tasklist))) {
 				j = 0;
 				k++;
 			}
 			p++;
 		}
 		
-		if (Config.horz_fixed) {
-			curheight = (ROW_HEIGHT * get_horz_rows() - 0) / num_rows;
-			curwidth = (Config.horz_width - 0) / num_cols;
+		if (tasklist->config.horz_fixed) {
+			curheight = (ROW_HEIGHT * get_horz_rows(tasklist)) / num_rows;
+			curwidth = (tasklist->config.horz_width) / num_cols;
 
 		} else {
 			int width;
 
-			width = Config.horz_taskwidth * num_cols + DRAG_HANDLE_SIZE;
-
-			clamp_size_if_never_push (&width);
+			width = tasklist->config.horz_taskwidth * num_cols + DRAG_HANDLE_SIZE;
+			if (tasklist->config.horz_never_push)
+				clamp_size (tasklist, &width);
 
 			width -= DRAG_HANDLE_SIZE;
 
-			curheight = (ROW_HEIGHT * get_horz_rows() - 0) / num_rows;
-			curwidth = width / num_cols;
-
+			curheight = (ROW_HEIGHT * get_horz_rows(tasklist)) / num_rows;
+#if 0
 			/* If the total width is higher than allowed, 
 			   we use the "fixed" way instead */
-			if ((curwidth * num_cols) > Config.horz_width)
-				curwidth = (Config.horz_width - 0) / num_cols;
+			if ((curwidth * num_cols) > tasklist->config.horz_width)
+				curwidth = (tasklist->config.horz_width - 0) / num_cols;
+#endif
+			curwidth = width / num_cols;
 		}
 
 
@@ -456,7 +642,7 @@ layout_tasklist (gboolean call_change_size)
 		cury = 0;
 
 
-		for (temp = temp_tasks; temp != NULL; temp = temp->next) {
+		for (temp = tasklist->vtasks; temp != NULL; temp = temp->next) {
 			task = (TasklistTask *) temp->data;
 			
 			task->x = curx;
@@ -464,11 +650,11 @@ layout_tasklist (gboolean call_change_size)
 			task->width = curwidth;
 			task->height = curheight;
 			
-			if (Config.horz_fixed) {
+			if (tasklist->config.horz_fixed) {
 				curx += curwidth;
 			
-				if (curx >= Config.horz_width ||
-				    curx + curwidth > Config.horz_width) {
+				if (curx >= tasklist->config.horz_width ||
+				    curx + curwidth > tasklist->config.horz_width) {
 					cury += curheight;
 					curx = 0;
 				}
@@ -483,13 +669,13 @@ layout_tasklist (gboolean call_change_size)
 			}
 		}
 
-		if (Config.horz_fixed)
-			horz_width = Config.horz_width;
+		if (tasklist->config.horz_fixed)
+			tasklist->horz_width = tasklist->config.horz_width;
 		else
-			horz_width = num_cols * curwidth + 4;
+			tasklist->horz_width = num_cols * curwidth + 4;
 
 		if (call_change_size)
-			change_size (FALSE, -1);
+			tasklist_change_size (tasklist, FALSE, -1);
 
 		break;
 
@@ -497,49 +683,46 @@ layout_tasklist (gboolean call_change_size)
 	case ORIENT_RIGHT:
 
 		if (num == 0) {
-			if (Config.vert_fixed)
-				vert_height = Config.vert_height;
+			if (tasklist->config.vert_fixed)
+				tasklist->vert_height = tasklist->config.vert_height;
 			else
-				vert_height = 4;
+				tasklist->vert_height = 4;
 			
 			if (call_change_size)
-				change_size (FALSE, -1);
+				tasklist_change_size (tasklist, FALSE, -1);
 			
-			gtk_widget_draw (area, NULL);
-			return;
+			gtk_widget_draw (tasklist->area, NULL);
+			return FALSE;
 		}
 
 		curheight = ROW_HEIGHT;
-		if (Config.follow_panel_size)
-			curwidth = panel_size - 0;
+		if (tasklist->config.follow_panel_size)
+			curwidth = tasklist->panel_size;
 		else
-			curwidth = Config.vert_width - 0;
-
-		if (Config.vert_width_full) {
-			int fullwidth = max_width (temp_tasks);
-
-			if (fullwidth > curwidth)
-				curwidth = fullwidth;
-		}
+			curwidth = tasklist->config.vert_width;
 		
+		if (tasklist->config.vert_width_full)
+			curwidth = MAX (curwidth, max_width (tasklist->vtasks));
+
 		num_cols = 1;
 		num_rows = num;
 		
 		curx = 0;
 		cury = 0;
 
-		if (Config.vert_fixed) {
-			vert_height = Config.vert_height;
+		if (tasklist->config.vert_fixed) {
+			tasklist->vert_height = tasklist->config.vert_height;
 		} else {
-			vert_height = curheight * num_rows + 4 + DRAG_HANDLE_SIZE;
-			clamp_size_if_never_push (&vert_height);
-			vert_height -= DRAG_HANDLE_SIZE;
+			tasklist->vert_height = curheight * num_rows + 4 + DRAG_HANDLE_SIZE;
+			if (tasklist->config.vert_never_push)
+				clamp_size (tasklist, &tasklist->vert_height);
+			tasklist->vert_height -= DRAG_HANDLE_SIZE;
 		}
 		
 		if (call_change_size)
-			change_size (FALSE, curwidth);
+			tasklist_change_size (tasklist, FALSE, curwidth);
 
-		for (temp = temp_tasks; temp != NULL; temp = temp->next) {
+		for (temp = tasklist->vtasks; temp != NULL; temp = temp->next) {
 			task = (TasklistTask *) temp->data;
 			
 			task->x = curx;
@@ -549,9 +732,9 @@ layout_tasklist (gboolean call_change_size)
 			
 			curx += curwidth;
 
-			if (curx >= (Config.follow_panel_size?
-				     panel_size:
-				     Config.vert_width) - 0) {
+			if (curx >= (tasklist->config.follow_panel_size?
+				     tasklist->panel_size:
+				     tasklist->config.vert_width) - 0) {
 				cury += curheight;
 				curx = 0;
 			}
@@ -560,21 +743,36 @@ layout_tasklist (gboolean call_change_size)
 		break;
 	}
 
-	if (temp_tasks != NULL)
-		g_list_free (temp_tasks);
+	gtk_widget_draw (tasklist->area, NULL);
 
-	
-	gtk_widget_draw (area, NULL);
+	return FALSE;
 }
 
+/* this now actually just queues a relayout */
+void
+tasklist_layout_tasklist (Tasklist *tasklist)
+{
+	g_return_if_fail (tasklist);
+
+	/* don't queue another timeout */
+	if (tasklist->layout_timeout) {
+		d(g_message ("Skipped layout!"));
+		return;
+	}
+	
+	d(g_message ("Adding layout callback..."));
+	tasklist->layout_timeout = g_idle_add ((GSourceFunc)real_layout_tasklist, tasklist);
+}
+
+#if 0
 /* Get a task from the list that has got the given gwmh_task */
-TasklistTask *
-find_gwmh_task (GwmhTask *gwmh_task)
+static TasklistTask *
+find_gwmh_task (Tasklist *tasklist, GwmhTask *gwmh_task)
 {
 	GList *temp_tasks;
 	TasklistTask *task;
 
-	temp_tasks = tasks;
+	temp_tasks = tasklist->tasks;
 
 	while (temp_tasks) {
 		task = (TasklistTask *)temp_tasks->data;
@@ -585,234 +783,389 @@ find_gwmh_task (GwmhTask *gwmh_task)
 	
 	return NULL;
 }
+#endif
 
 /* This routine gets called when desktops are switched etc */
-gboolean
+static gboolean
 desk_notifier (gpointer func_data, GwmhDesk *desk,
 	       GwmhDeskInfoMask change_mask)
 {
-	if (Config.all_desks_minimized && 
-	    Config.all_desks_normal)
+	Tasklist *tasklist = (Tasklist *) func_data;
+	
+	if (tasklist->config.all_desks_minimized && 
+	    tasklist->config.all_desks_normal)
 		return TRUE;
 
-	layout_tasklist (TRUE);
+	tasklist_redo_vtasks (tasklist);
+	tasklist_layout_tasklist (tasklist);
 
 	return TRUE;
 }
 
+static void
+tasklist_group_destroy (TasklistTask *group)
+{
+	d(g_print (" *** destroying group: %s\n", group->group_name));
+
+	tasklist_icon_destroy (group);
+
+	g_hash_table_remove (group->tasklist->groups, group->group_name);
+
+	g_free (group->gwmh_task);
+	g_free (group->group_name);
+
+	tasklist_clean_menu (group);
+
+	g_free (group);
+}
+
+static void
+tasklist_task_destroy (GwmhTask *gtask, Tasklist *tasklist)
+{
+	TasklistTask *ttask;
+	
+	g_return_if_fail (gtask != NULL);
+	g_return_if_fail (tasklist != NULL);	
+	
+	ttask = g_hash_table_lookup (tasklist->tasks, gtask);
+	
+	if (!ttask) {
+		g_warning ("Task not found in tasklist: %p; not destroying", gtask);
+		return;
+	}
+
+	d(g_print (" *** removing: %p (%s)\n", ttask, gtask->name));
+	
+	ttask->destroyed = TRUE;
+
+	g_hash_table_remove (tasklist->tasks, gtask);
+	
+	if (ttask == tasklist->motion_task)
+		tasklist->motion_task = NULL;
+
+        /* this is broken */
+#if 0
+	if (ttask->menuitem)
+		gtk_widget_destroy (ttask->menuitem);
+#endif
+	tasklist_icon_destroy (ttask);
+	tasklist_clean_menu (ttask);
+
+	if (ttask->group) {
+		if (ttask->group->focused_task == ttask)
+			ttask->group->focused_task = NULL;
+
+		ttask->group->tasks = g_slist_remove (ttask->group->tasks, ttask);
+
+		if (!ttask->group->tasks)
+			tasklist_group_destroy (ttask->group);
+		else
+			fixup_vtask (ttask->group, GINT_TO_POINTER (FALSE));
+	}
+
+	tasklist->vtasks = g_slist_remove (tasklist->vtasks, ttask);
+
+	g_free (ttask);
+
+	tasklist_layout_tasklist (tasklist);
+}
+
+static TasklistTask *
+tasklist_group_new (TasklistTask *first_task, char *group_name)
+{
+	TasklistTask *group;
+
+	g_return_val_if_fail (first_task != NULL, NULL);
+	g_return_val_if_fail (group_name != NULL, NULL);
+
+	group = g_new0 (TasklistTask, 1);
+	group->tasklist = first_task->tasklist;
+	group->task_group = TRUE;
+	group->group_name = group_name;
+	group->fullwidth = -1;
+	g_hash_table_insert (group->tasklist->groups, group_name, group);
+
+	gdk_pixbuf_ref (first_task->icon->normal);
+	gdk_pixbuf_ref (first_task->icon->minimized);
+
+	group->icon = g_new (TasklistIcon, 1);
+	group->icon->normal    = first_task->icon->normal;
+	group->icon->minimized = first_task->icon->minimized;
+
+	group->tasks = g_slist_prepend (group->tasks, first_task);
+
+	group->gwmh_task = g_new0 (GwmhTask, 1);
+	group->gwmh_task->name = group_name;
+
+	return group;
+}
+
+/* 
+ * this is void since we don't need to get the return value when a
+ * task is created and we can just create a lot of tasks from the gwmh
+ * task glist
+ */
+
+static void
+tasklist_task_new (GwmhTask *gtask, Tasklist *tasklist)
+{
+	TasklistTask *ttask;
+	char *class;
+
+	g_return_if_fail (gtask != NULL);
+	g_return_if_fail (tasklist != NULL);
+	g_return_if_fail (tasklist->tasks != NULL);
+
+	d(g_print ("Adding task: %s\n", gtask->name));
+
+	ttask = g_new0 (TasklistTask, 1);
+
+	ttask->tasklist = tasklist;
+	ttask->gwmh_task = gtask;
+
+	g_hash_table_insert (tasklist->tasks, gtask, ttask);
+
+	ttask->wmhints_icon = tasklist_icon_get_pixmap (ttask);
+
+	tasklist_icon_set (ttask);
+	ttask->fullwidth = -1;
+
+	class = get_task_class (gtask);
+	if (!class)
+		return;
+
+	ttask->group = g_hash_table_lookup (tasklist->groups, class);
+
+	if (!ttask->group)
+		ttask->group = tasklist_group_new (ttask, class);
+	else {
+		ttask->group->tasks = g_slist_prepend (ttask->group->tasks, ttask);
+		g_free (class);
+		fixup_vtask (ttask->group, GINT_TO_POINTER (TRUE));
+	}
+}
+
+
 /* This routine gets called when tasks are created/destroyed etc */
-gboolean
+static gboolean
 task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	       GwmhTaskNotifyType ntype,
 	       GwmhTaskInfoMask imask)
 {
-	gboolean que_draw, que_layout;
-        static gint master_serial_number = 0;
+	Tasklist *tasklist = (Tasklist *) func_data;
 	TasklistTask *task;
-	
+	gboolean resize = FALSE;
+
 	switch (ntype)
 	{
 	case GWMH_NOTIFY_INFO_CHANGED:
-		que_draw = FALSE;
-		que_layout = FALSE;
-		task = find_gwmh_task (gwmh_task);
+		task = g_hash_table_lookup (tasklist->tasks, gwmh_task);
+		if (!task) {
+			g_warning ("Getting info about task we don't know about: %p", gwmh_task);
+			break;
+		}
 
+		if (imask & GWMH_TASK_INFO_FOCUSED && task->gwmh_task->focused && task->group)
+			task->group->focused_task = task;
+
+		/* we only need to re-layout if the task has changed
+		 * visibility status.  If it has, its group will also get fixed up
+		 */
+
+		/* this probably should be optimized and only done when the title changes */
+		resize = (tasklist->config.vert_width_full && 
+			  (tasklist->orient == ORIENT_LEFT || tasklist->orient == ORIENT_RIGHT));
+		task->fullwidth = -1;
+
+		if (fixup_vtask (task, GINT_TO_POINTER (FALSE))) {
+			if (resize)
+				tasklist_change_size (tasklist, TRUE, -1);
+			else
+				tasklist_layout_tasklist (tasklist);
+		} else {
+			if (resize)
+				tasklist_change_size (tasklist, TRUE, -1);
+			else
+				tasklist_draw_task (task->group && is_task_really_visible (task->group)
+						    ? task->group : task, NULL);
+		}
+
+#if 0
 		if (imask & GWMH_TASK_INFO_WM_HINTS) {
-			task->fullwidth = -1;
-			if (tasklist_icon_get_pixmap (task) !=
-			    task->wmhints_icon) {
-				tasklist_icon_destroy (task);
-				tasklist_icon_set (task);
-				que_draw = TRUE;
+			if (tasklist_icon_get_pixmap (task) != task->wmhints_icon) {
+				tasklist_icon_destroy (tasklist, task);
+				tasklist_icon_set (tasklist, task);
+				tasklist_draw_task (tasklist, task, NULL);
 			}
 		}
 		if (imask & GWMH_TASK_INFO_GSTATE)
-			que_layout = TRUE;
-		if (imask & GWMH_TASK_INFO_ICONIFIED) {
-			task->fullwidth = -1;
-			que_layout = TRUE;
-		}
-		if (imask & GWMH_TASK_INFO_FOCUSED)
-			que_draw = TRUE;
-		if (imask & GWMH_TASK_INFO_MISC) {
-			task->fullwidth = -1;
-			que_draw = TRUE;
+			tasklist_layout_tasklist (tasklist);
+		if (imask & GWMH_TASK_INFO_ICONIFIED)
+			tasklist_layout_tasklist (tasklist);
 
-			/* this might change the size,
-			 * if width full is on. */
-			if (Config.vert_width_full &&
-			    (tasklist_orient == ORIENT_LEFT ||
-			     tasklist_orient == ORIENT_RIGHT))
-				que_layout = TRUE;
-		}
+		if (imask & GWMH_TASK_INFO_FOCUSED)
+			tasklist_draw_task (tasklist, task, NULL);
+		if (imask & GWMH_TASK_INFO_MISC)
+			tasklist_draw_task (tasklist, task, NULL);
 		if (imask & GWMH_TASK_INFO_DESKTOP) {
-			if ( ! Config.all_desks_minimized ||
-			     ! Config.all_desks_normal)
-				que_layout = TRUE;
-		}
+			if (tasklist->config.all_desks_minimized && 
+			    tasklist->config.all_desks_normal)
+				break;
 
 		if (que_layout)
 			/* Redraw entire tasklist */
-			layout_tasklist (TRUE);
-		else if (que_draw)
-			/* We can get away with redrawing the task only */
-			draw_task (task, NULL);
+			tasklist_layout_tasklist (tasklist);
+		}
+#endif
 		break;
 	case GWMH_NOTIFY_NEW:
-		task = g_malloc0 (sizeof (TasklistTask));
-		task->gwmh_task = gwmh_task;
-		task->wmhints_icon = tasklist_icon_get_pixmap (task);
-		tasklist_icon_set (task);
-                task->serial_number = master_serial_number++; /* wrapping seems unlikely :-) */
-                tasks = g_list_insert_sorted (tasks, task, tasklist_sorting_compare_func);
-	        layout_tasklist (TRUE);
+		tasklist_task_new (gwmh_task, tasklist);
+		tasklist_layout_tasklist (tasklist);
 		break;
 	case GWMH_NOTIFY_DESTROY:
-		task = find_gwmh_task (gwmh_task);
-		if(task) {
-			tasks = g_list_remove (tasks, task);
-			if (task == motion_task) {
-				motion_task = NULL;
-			}
-			tasklist_icon_destroy (task);
-			if(task->menu)
-				gtk_widget_destroy(task->menu);
-			g_free (task);
-			layout_tasklist (TRUE);
-		}
+		tasklist_task_destroy (gwmh_task, tasklist);
 		break;
 	default:
-		g_print ("Unknown ntype: %d\n", ntype);
+		d(g_print ("Unknown ntype: %d\n", ntype));
 	}
 
 	return TRUE;
 }
 
 /* Show the task if need. Return TRUE if so */
-gboolean
-show_task (TasklistTask *task)
+static gboolean
+show_task (Tasklist *tasklist, TasklistTask *task)
 {
-	if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task)) {
+	if (!GWMH_TASK_ICONIFIED (task->gwmh_task) && GWMH_TASK_FOCUSED (task->gwmh_task))
+		return FALSE;
+
 	
-		if (!(Config.move_to_current && GWMH_TASK_ICONIFIED (task->gwmh_task))) {
-			GwmhDesk *desk_info;
-			desk_info = gwmh_desk_get_config ();
-					
-			if (task->gwmh_task->desktop != desk_info->current_desktop ||
-			    task->gwmh_task->harea != desk_info->current_harea ||
-			    task->gwmh_task->varea != desk_info->current_varea) {
-				gwmh_desk_set_current_area (task->gwmh_task->desktop,
-							    task->gwmh_task->harea,
-							    task->gwmh_task->varea);
-			}
+	if (!(tasklist->config.move_to_current && GWMH_TASK_ICONIFIED (task->gwmh_task))) {
+		GwmhDesk *desk_info;
+		desk_info = gwmh_desk_get_config ();
+		
+		if (task->gwmh_task->desktop != desk_info->current_desktop ||
+		    task->gwmh_task->harea != desk_info->current_harea ||
+		    task->gwmh_task->varea != desk_info->current_varea) {
+			gwmh_desk_set_current_area (task->gwmh_task->desktop,
+						    task->gwmh_task->harea,
+						    task->gwmh_task->varea);
 		}
-	
-		gwmh_task_show (task->gwmh_task);
-		/* Why is a focus needed here?
-		   gwmh_task_show is supposed to give focus */
-		gwmh_task_focus (task->gwmh_task);
-		gwmh_task_focus (task->gwmh_task);
-		
-		
-		return TRUE;
 	}
 	
-	return FALSE;
+	gwmh_task_show (task->gwmh_task);
+#if 0
+	/* Why is a focus needed here?
+	   gwmh_task_show is supposed to give focus */
+	
+	/*
+	 * i think this is a sawfish bug: when "give
+	 * uniconised windows focused" is unchecked it
+	 * probably doesn't reassign focus. -- jacob
+	 */
+	
+	gwmh_task_focus (task->gwmh_task);
+	gwmh_task_focus (task->gwmh_task);
+	
+#endif 
+	return TRUE; 
 }
 
 /* This routine gets called when the mouse is pressed */
-gboolean
-cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
+static gboolean
+cb_button_press_event (GtkWidget *widget, GdkEventButton *event, Tasklist *tasklist)
 {
 	TasklistTask *task;
 	
-	task = task_get_xy ((gint)event->x, (gint)event->y);
+	task = task_get_xy (tasklist, (gint)event->x, (gint)event->y);
 
 	if (!task)
 		return FALSE;
 
 	if (event->button == 1) {
-
-		if (! show_task (task)) {
+		if (task->task_group)
+			tasklist_group_popup (task, event->button, event->time);
+		else if (! show_task (tasklist, task))
 			gwmh_task_iconify (task->gwmh_task);
-		}
-
+		
 		return TRUE;
 	}
-
+	
 	if (event->button == 3) {
 		gtk_signal_emit_stop_by_name (GTK_OBJECT (widget),
 					      "button_press_event");
-		menu_popup (task, event->button, event->time);
+		tasklist_menu_popup (task, event->button, event->time);
 		return TRUE;
 	}
 
 	return FALSE;
 }
 
-void
-cb_drag_leave (GtkWidget *widget, GdkDragContext *context, guint time)
+static void
+cb_drag_leave (GtkWidget *widget, GdkDragContext *context, guint time, Tasklist *tasklist)
 {
-	if (motion_timeout) {
-		gtk_timeout_remove (motion_timeout);
-		motion_timeout = 0;
-		motion_task = NULL;
+	if (tasklist->motion_timeout) {
+		gtk_timeout_remove (tasklist->motion_timeout);
+		tasklist->motion_timeout = 0;
+		tasklist->motion_task = NULL;
 	}
 }
 
+static gboolean 
+cb_motion_timeout (gpointer user_data)
+{
+	Tasklist *tasklist = user_data;
+	
+	if (tasklist->motion_task) {
+		show_task (tasklist, tasklist->motion_task);
+	}
+
+	tasklist->motion_timeout = 0;
+	tasklist->motion_task = NULL;
+	
+	return FALSE;	
+}
+
 /* This routine gets called when user drag something over the tasklist */
-gboolean 
-cb_drag_motion (GtkWidget *widget, GdkDragContext *context, int x, int y, guint time)
+static gboolean 
+cb_drag_motion (GtkWidget *widget, GdkDragContext *context, int x, int y, guint time, Tasklist *tasklist)
 {
 	TasklistTask *task;
 	
 	gdk_drag_status (context, 0, time);
 	
-	task = task_get_xy (x, y);
+	task = task_get_xy (tasklist, x, y);
 	
-	if (task != motion_task) {
+	if (task != tasklist->motion_task) {
 	
-		if (motion_timeout) {
-			gtk_timeout_remove (motion_timeout);
+		if (tasklist->motion_timeout) {
+			gtk_timeout_remove (tasklist->motion_timeout);
 		}
 	
-		motion_task = task;
+		tasklist->motion_task = task;
 
 		if (task) {	
-			motion_timeout = gtk_timeout_add (MOTION_TIMEOUT, cb_motion_timeout, widget);		
+			tasklist->motion_timeout = gtk_timeout_add (MOTION_TIMEOUT, cb_motion_timeout, tasklist);		
 		} else {
-			motion_timeout = 0;
+			tasklist->motion_timeout = 0;
 		}
 	}
 	
 	return TRUE;
 }
 
-gboolean 
-cb_motion_timeout (gpointer data)
-{
-	if (motion_task) {
-		show_task (motion_task);
-	}
-
-	motion_timeout = 0;
-	motion_task = NULL;
-	
-	return FALSE;	
-}
-
 /* This routine gets called when the tasklist is exposed */
-gboolean
-cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
+static gboolean
+cb_expose_event (GtkWidget *widget, GdkEventExpose *event, Tasklist *tasklist)
 {
-	GList *temp_tasks, *temp;
+	GSList *temp_tasks, *temp;
 	TasklistTask *task;
 
-	temp_tasks = get_visible_tasks ();
+	temp_tasks = tasklist->vtasks;
 
-	gtk_paint_flat_box (area->style, area->window,
-			    area->state, GTK_SHADOW_NONE,
-			    &event->area, area, "button",
+	gtk_paint_flat_box (tasklist->area->style, tasklist->area->window,
+			    tasklist->area->state, GTK_SHADOW_NONE,
+			    &event->area, tasklist->area, "button",
 			    0, 0, -1, -1);
 	
 	for (temp = temp_tasks; temp != NULL; temp = temp->next) {
@@ -825,30 +1178,29 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 		rect.height = task->height;
 
 		if(gdk_rectangle_intersect(&event->area, &rect, &dest))
-			draw_task (task, &dest);
+			tasklist_draw_task (task, &dest);
 	}
-
-	if (temp_tasks != NULL)
-		g_list_free (temp_tasks);
 
 	return FALSE;
 }
 
 /* This routine gets called when the user selects "properties" */
 static void
-cb_properties (void)
+cb_properties (AppletWidget *applet, Tasklist *tasklist)
 {
-	display_properties ();
+	tasklist_display_properties (tasklist);
 }
 
 /* This routine gets called when the user selects "about" */
 static void
-cb_about (void)
+cb_about (AppletWidget *applet, Tasklist *tasklist)
 {
 	static GtkWidget *dialog = NULL;
 
 	const char *authors[] = {
 		"Anders Carlsson (andersca@gnu.org)",
+		"Miguel de Icaza (miguel@ximian.com)",
+		"Jacob Berkman (jacob@ximian.com)",
 		NULL
 	};
 
@@ -860,12 +1212,13 @@ cb_about (void)
 		return;
 	}
 	
-	dialog = gnome_about_new ("Gnome Tasklist",
-				  VERSION,
-				  "Copyright (C) 1999 Anders Carlsson",
-				  authors,
-				  "A tasklist for the GNOME desktop environment.\nIcons by Tuomas Kuosmanen (tigert@gimp.org).",
-				  NULL);
+	dialog = gnome_about_new (
+		"Gnome Tasklist",
+		VERSION,
+		_("Copyright (C) 1999 Anders Carlsson"),
+		authors,
+		_("A tasklist for the GNOME desktop environment.\nIcons by Tuomas Kuosmanen (tigert@gimp.org)."),
+		NULL);
 	gtk_signal_connect (GTK_OBJECT(dialog), "destroy",
 			    GTK_SIGNAL_FUNC(gtk_widget_destroyed), &dialog);
 
@@ -875,223 +1228,264 @@ cb_about (void)
 
 /* Ignore mouse button 1 clicks */
 static gboolean
-ignore_1st_click (GtkWidget *widget, GdkEvent *event)
+ignore_1st_click (GtkWidget *widget, GdkEvent *event, Tasklist *tasklist)
 {
 	GdkEventButton *buttonevent = (GdkEventButton *)event;
 
 	if (event->type == GDK_BUTTON_PRESS &&
 	    buttonevent->button == 1) {
-		if (buttonevent->window != area->window)
+		if (buttonevent->window != tasklist->area->window)
 			buttonevent->button = 2;
 	}
 	if (event->type == GDK_BUTTON_RELEASE &&
 	    buttonevent->button == 1) {
-		if (buttonevent->window != area->window)
+		if (buttonevent->window != tasklist->area->window)
 			buttonevent->button = 2;
 	}
 	 
 	return FALSE;
 }
- 
+
 /*
  * Resort the task list.
  * (This is only here because tasks and tasklist_sorting_compare_func
  * are not globally defined.)
  */
 void
-resort_tasklist (void)
+resort_tasklist (Tasklist *tasklist)
 {
-       tasks = g_list_sort (tasks, tasklist_sorting_compare_func);
+	tasklist->vtasks = g_slist_sort (tasklist->vtasks, tlsort);
 }
 
 /* Changes size of the applet */
 void
-change_size (gboolean layout, int fullwidth)
+tasklist_change_size (Tasklist *tasklist, gboolean layout, int fullwidth)
 {
 	gboolean force_change = FALSE;
-	static int old_handle_width = -1;
-	static int old_handle_height = -1;
-	static int old_width = -1;
-	static int old_height = -1;
 	int handle_width = 0;
 	int handle_height = 0;
 	int width = 0;
 	int height = 0;
 
-	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
+
+	switch (applet_widget_get_panel_orient (APPLET_WIDGET (tasklist->applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
-/*		if (Config.horz_fixed)
-			horz_width = Config.horz_width;
-		else
-		horz_width = 4;*/
+		width = tasklist->horz_width;
+		handle_width = tasklist->horz_width + DRAG_HANDLE_SIZE;
+		height = handle_height = get_horz_rows (tasklist) * ROW_HEIGHT;
 
-		width = horz_width;
-		handle_width = DRAG_HANDLE_SIZE + horz_width;
-		height = handle_height = get_horz_rows() * ROW_HEIGHT;
-
-		if (GTK_HANDLE_BOX (handle)->handle_position != GTK_POS_LEFT) {
-			GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
-			force_change = TRUE;
-		}
+		GTK_HANDLE_BOX (tasklist->handle)->handle_position = GTK_POS_LEFT;
 		break;
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
-/*		if (Config.vert_fixed)
-			vert_height = Config.vert_height;
-		else
-		vert_height = 4;*/
+		width = tasklist->config.follow_panel_size
+			? tasklist->panel_size 
+			: tasklist->config.vert_width;
 
-		if (Config.follow_panel_size)
-			width = panel_size;
-		else
-			width = Config.vert_width;
+		if (tasklist->config.vert_width_full) {
+			if (fullwidth < 0)
+				fullwidth = max_width (tasklist->vtasks);
 
-		if (Config.vert_width_full) {
-			if (fullwidth < 0) {
-				GList *temp_tasks = get_visible_tasks ();
-
-				fullwidth = max_width (temp_tasks);
-
-				g_list_free (temp_tasks);
-			}
-
-			if (fullwidth > width)
-				width = fullwidth;
-		}
-
-		if (GTK_HANDLE_BOX (handle)->handle_position != GTK_POS_TOP) {
-			GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
-			force_change = TRUE;
+			width = MAX (width, fullwidth);
 		}
 
 		handle_width = width;
-		handle_height = vert_height + DRAG_HANDLE_SIZE;
-		height = vert_height;
+		handle_height = tasklist->vert_height + DRAG_HANDLE_SIZE;
+		height = tasklist->vert_height;
+			
+		GTK_HANDLE_BOX (tasklist->handle)->handle_position = GTK_POS_TOP;
 	}
 
-	if (force_change ||
-	    old_width != width ||
-	    old_height != height ||
-	    old_handle_width != handle_width ||
-	    old_handle_height != handle_height) {
-		gtk_widget_set_usize (handle,
-				      handle_width,
-				      handle_height);
-		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       width, height);
-		old_width = width;
-		old_height = height;
-		old_handle_width = handle_width;
-		old_handle_height = handle_height;
-	}
-
+	gtk_widget_set_usize (tasklist->handle, handle_width, handle_height);
+	gtk_drawing_area_size (GTK_DRAWING_AREA (tasklist->area), width, height);
+	
 	if (layout)
-		layout_tasklist (FALSE);
+		tasklist_layout_tasklist (tasklist);
 }
 
 /* Called when the panel's orient changes */
 static void
-cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
+cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient, Tasklist *tasklist)
 {
-	
-	tasklist_orient = orient;
+	tasklist->orient = orient;
 
 	/* Change size accordingly */
-	change_size (TRUE, -1);
+	tasklist_change_size (tasklist, TRUE, -1);
 }
 
 static void
-cb_change_pixel_size (GtkWidget *widget, int size)
+cb_change_pixel_size (GtkWidget *widget, int size, Tasklist *tasklist)
 {
-	panel_size = size;
+	tasklist->panel_size = size;
 	
 	/* Change size accordingly */
-	if(Config.follow_panel_size)
-		change_size (TRUE, -1);
+	if(tasklist->config.follow_panel_size)
+		tasklist_change_size (tasklist, TRUE, -1);
 }
 
 static void
-cb_help (GtkWidget *w, gpointer data)
+cb_help (AppletWidget *w, Tasklist *tasklist)
 {
 	GnomeHelpMenuEntry help_entry = { "tasklist_applet",
 					  "index.html" };
 	gnome_help_display(NULL, &help_entry);
 }
 
-/* Create the applet */
-void
-create_applet (void)
+static void
+tasklist_destroy (GtkObject *applet_widget, Tasklist *tasklist)
 {
+	gwmh_task_notifier_remove (tasklist->task_notifier_id);
+	gwmh_desk_notifier_remove (tasklist->desk_notifier_id);
+
+	tasklist->task_notifier_id = -1;
+	tasklist->desk_notifier_id = -1;
+}
+
+/* Create the applet */
+static Tasklist *
+tasklist_new (void)
+{
+	Tasklist *tasklist;
 	GtkWidget *hbox;
 
-	applet = applet_widget_new ("tasklist_applet");
+	tasklist = g_new0 (Tasklist, 1);
+	tasklist->panel_size = 48;
+	tasklist->horz_width = 0;
+	tasklist->vert_height = 0;
+
+	tasklist->applet = applet_widget_new ("tasklist_applet");
+	if (!tasklist->applet) {
+		g_warning (_("Tasklist: Unable to create applet widget"));
+		g_free (tasklist);
+		return NULL;
+	}
+
+#warning should we be doing this?
+	/* gtk_widget_ref (tasklist->applet); */
 	
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox);
+	
+	tasklist->handle = gtk_handle_box_new ();
+	gtk_signal_connect (GTK_OBJECT (tasklist->handle), "event",
+			    GTK_SIGNAL_FUNC (ignore_1st_click), tasklist);
+
+	tasklist->area = gtk_drawing_area_new ();
+
+
+	gtk_widget_ensure_style (tasklist->area);
+	tasklist->unknown_icon = g_new (TasklistIcon, 1);
+	tasklist->unknown_icon->normal = gdk_pixbuf_new_from_xpm_data (unknown_xpm);
+	tasklist->unknown_icon->minimized = tasklist_icon_create_minimized_icon (tasklist, tasklist->unknown_icon->normal);
+
+#if 0
+	gtk_container_add (GTK_CONTAINER (tasklist->handle), tasklist->area);
+#endif
 
 	/* we must bind signals BEFORE applet_widget_add to avoid
 	 * a race */
-	gtk_signal_connect (GTK_OBJECT (applet), "change-orient",
-			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
-	gtk_signal_connect (GTK_OBJECT (applet), "save-session",
-			    GTK_SIGNAL_FUNC (write_config), NULL);
-	gtk_signal_connect (GTK_OBJECT (applet), "change-pixel-size",
-			    GTK_SIGNAL_FUNC (cb_change_pixel_size), NULL);
+	gtk_signal_connect (GTK_OBJECT (tasklist->applet), "change-orient",
+			    GTK_SIGNAL_FUNC (cb_change_orient), tasklist);
+	gtk_signal_connect (GTK_OBJECT (tasklist->applet), "save-session",
+			    GTK_SIGNAL_FUNC (tasklist_write_config), tasklist);
+	gtk_signal_connect (GTK_OBJECT (tasklist->applet), "change-pixel-size",
+			    GTK_SIGNAL_FUNC (cb_change_pixel_size), tasklist);
 
-	applet_widget_add (APPLET_WIDGET (applet), hbox);
-	
-	handle = gtk_handle_box_new ();
-	gtk_signal_connect (GTK_OBJECT (handle), "event",
-			    GTK_SIGNAL_FUNC (ignore_1st_click), NULL);
-
-	area = gtk_drawing_area_new ();
-
-	gtk_widget_show (area);
-	gtk_widget_show (handle);
-	gtk_container_add (GTK_CONTAINER (handle), area);
-	gtk_container_add (GTK_CONTAINER (hbox), handle);
-
-	gtk_widget_set_events (area, GDK_EXPOSURE_MASK | 
+	gtk_widget_set_events (tasklist->area, GDK_EXPOSURE_MASK | 
 			       GDK_BUTTON_PRESS_MASK |
 			       GDK_BUTTON_RELEASE_MASK);
-	gtk_signal_connect (GTK_OBJECT (area), "expose_event",
-			    GTK_SIGNAL_FUNC (cb_expose_event), NULL);
-	gtk_signal_connect (GTK_OBJECT (area), "button_press_event",
-			    GTK_SIGNAL_FUNC (cb_button_press_event), NULL);
-	gtk_signal_connect (GTK_OBJECT (area), "drag_motion",
-			    GTK_SIGNAL_FUNC (cb_drag_motion), NULL);
-	gtk_signal_connect (GTK_OBJECT (area), "drag_leave",
-			    GTK_SIGNAL_FUNC (cb_drag_leave), NULL);			    
-			    
-			    
-	gtk_drag_dest_set (GTK_WIDGET (area), 0,
-	 		   NULL, 0, GDK_ACTION_COPY);  
+	gtk_signal_connect (GTK_OBJECT (tasklist->area), "expose_event",
+			    GTK_SIGNAL_FUNC (cb_expose_event), tasklist);
+	gtk_signal_connect (GTK_OBJECT (tasklist->area), "button_press_event",
+			    GTK_SIGNAL_FUNC (cb_button_press_event), tasklist);
+	gtk_signal_connect (GTK_OBJECT (tasklist->area), "drag_motion",
+			    GTK_SIGNAL_FUNC (cb_drag_motion), tasklist);
+	gtk_signal_connect (GTK_OBJECT (tasklist->area), "drag_leave",
+			    GTK_SIGNAL_FUNC (cb_drag_leave), tasklist);			    
+			    			    
+	gtk_drag_dest_set (GTK_WIDGET (tasklist->area), 0,
+	 		   NULL, 0, GDK_ACTION_COPY);
 
-	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
-					       "properties",
-					       GNOME_STOCK_MENU_PROP,
-					       _("Properties..."),
-					       (AppletCallbackFunc) cb_properties,
-					       NULL);
-	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
-					       "help",
-					       GNOME_STOCK_PIXMAP_HELP,
-					       _("Help"),
-					       (AppletCallbackFunc) cb_help,
-					       NULL);
+	/*
+	 * we add the area *after* the widget so that we get events on it
+	 */
+	gtk_container_add (GTK_CONTAINER (hbox), tasklist->handle);
+	applet_widget_add (APPLET_WIDGET (tasklist->applet), hbox);
+	gtk_container_add (GTK_CONTAINER (tasklist->handle), tasklist->area);
+	
+	tasklist_read_config (tasklist);
+	
+	applet_widget_register_stock_callback (
+		APPLET_WIDGET (tasklist->applet),
+		"properties",
+		GNOME_STOCK_MENU_PROP,
+		_("Properties..."),
+		(AppletCallbackFunc) cb_properties,
+		tasklist);
 
-	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
-					       "about",
-					       GNOME_STOCK_MENU_ABOUT,
-					       _("About..."),
-					       (AppletCallbackFunc) cb_about,
-					       NULL);
+	applet_widget_register_stock_callback (
+		APPLET_WIDGET (tasklist->applet),
+		"help",
+		GNOME_STOCK_PIXMAP_HELP,
+		_("Help"),
+		(AppletCallbackFunc) cb_help,
+		tasklist);
+
+	applet_widget_register_stock_callback (
+		APPLET_WIDGET (tasklist->applet),
+		"about",
+		GNOME_STOCK_MENU_ABOUT,
+		_("About..."),
+		(AppletCallbackFunc) cb_about,
+		tasklist);
+
+	tasklist->panel_size = applet_widget_get_panel_pixel_size(APPLET_WIDGET(tasklist->applet));
+	tasklist->orient = applet_widget_get_panel_orient(APPLET_WIDGET(tasklist->applet));
+
+	tasklist->task_notifier_id = gwmh_task_notifier_add (task_notifier, tasklist);
+	tasklist->desk_notifier_id = gwmh_desk_notifier_add (desk_notifier, tasklist);
+
+	gtk_signal_connect (GTK_OBJECT (tasklist->applet), "destroy",
+			    GTK_SIGNAL_FUNC (tasklist_destroy), tasklist);
+	
+	gtk_widget_show_all (tasklist->area);
+	gtk_widget_show_all (tasklist->handle);
+
+	tasklist_change_size (tasklist, TRUE, -1);
+
+	tasklist->tasks = g_hash_table_new (g_direct_hash, g_direct_equal);
+	tasklist->groups = g_hash_table_new (g_str_hash, g_str_equal);
+
+	g_list_foreach (gwmh_task_list_get (), (GFunc)tasklist_task_new, tasklist);
+
+	return tasklist;
 }
 
+static void
+tasklist_init (void)
+{
+	gwmh_init ();
+}
+
+static void
+tasklist_freeze (Tasklist *tasklist)
+{
+	tasklist->frozen = TRUE;
+}
+
+static void
+tasklist_thaw (Tasklist *tasklist)
+{
+	tasklist->frozen = FALSE;
+}
+
+#ifdef APPLET_COMPILE_AS_PROCESS
 gint
 main (gint argc, gchar *argv[])
 {
+	Tasklist *tasklist;
+	
 	/* Initialize i18n */
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
@@ -1108,25 +1502,76 @@ main (gint argc, gchar *argv[])
 	gtk_widget_set_default_colormap (gdk_rgb_get_cmap ());
 	gtk_widget_set_default_visual (gdk_rgb_get_visual ());
 
-	gwmh_init ();
-	gwmh_task_notifier_add (task_notifier, NULL);
-	gwmh_desk_notifier_add (desk_notifier, NULL);
+	tasklist_init ();
 	
-	create_applet ();
+	tasklist = create_applet ();
 
-	read_config ();
-	panel_size = applet_widget_get_panel_pixel_size(APPLET_WIDGET(applet));
-	tasklist_orient = applet_widget_get_panel_orient(APPLET_WIDGET(applet));
-
-	change_size (TRUE, -1);
+	tasklist_change_size (tasklist, TRUE);
 
 	gtk_widget_show (applet);
-
-	unknown_icon = g_new (TasklistIcon, 1);
-	unknown_icon->normal = gdk_pixbuf_new_from_xpm_data (unknown_xpm);
-	unknown_icon->minimized = tasklist_icon_create_minimized_icon (unknown_icon->normal);
 
 	applet_widget_gtk_main ();
 
 	return 0;
 }
+#else
+static GtkWidget *
+make_new_applet (const char *goad_id)
+{
+	static int inited = 0;
+	Tasklist *tasklist;
+	
+	if (!inited){
+		tasklist_init ();
+		inited = 1;
+	}
+	tasklist = tasklist_new ();
+
+	if (!tasklist)
+		return NULL;
+
+	gtk_widget_show_all (tasklist->applet);
+
+	return tasklist->applet;
+}
+
+static CORBA_Object
+activator (PortableServer_POA poa,
+	   const char *goad_id,
+	   const char **params,
+	   gpointer *impl_ptr,
+	   CORBA_Environment *ev)
+{
+	GtkWidget *widget;
+
+	widget = make_new_applet (goad_id);
+	if (widget == NULL) {
+		g_warning (_("Don't know how to activate `%s'\n"), goad_id);
+		return CORBA_OBJECT_NIL;
+	}
+
+	return applet_widget_corba_activate (widget, poa, goad_id,
+					     params, impl_ptr, ev);
+}
+static void
+deactivator (PortableServer_POA poa,
+	     const char *goad_id,
+	     gpointer impl_ptr,
+	     CORBA_Environment *ev)
+{
+	applet_widget_corba_deactivate (poa, goad_id, impl_ptr, ev);
+}
+
+static const char *repo_id[]={ "IDL:GNOME/Applet:1.0", NULL };
+static GnomePluginObject applets_list[] = { 
+	{ repo_id, "tasklist_applet", NULL, "Task list applet",
+	  &activator, &deactivator },
+	{ NULL }
+};
+
+GnomePlugin GNOME_Plugin_info = { 
+	applets_list,
+	NULL
+};
+
+#endif
