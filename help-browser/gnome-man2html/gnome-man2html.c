@@ -13,6 +13,9 @@
  *
  * Output made prettier - April 2000~~
  * Iain Holmes  <ih@csd.abdn.ac.uk>
+ *
+ * Improved hypertext support - July 2000
+ * David A. Wheeler <dwheeler@dwheeler.com>
  */
 
 
@@ -78,6 +81,8 @@
 ** ^^^^
 ** <file.h>              Include file    file:/usr/include/file.h
 **      ^^^
+** /filename             Filename        file:///filename
+** ^
 **
 ** Since man2html does not check if manpages, hosts or email addresses exist,
 ** some links might not work. For manpages, some extra checks are performed
@@ -113,7 +118,6 @@
 **    time to look through all the available manpages.)
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -125,6 +129,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <errno.h>
+
 
 
 static char *URLbasename = NULL;
@@ -443,6 +448,104 @@ static char
 	return man_buf;
 }
 
+/* Prints the span of characters first..last inclusively to stdout,
+ * stopping on '\0' if there's one in that range.
+ * Does nothing if first == NULL, last == NULL, or last<first.
+ * Note that if (first && *first && first==last), one character is printed.
+ */
+void
+putspan(const char *first, const char *last)
+{
+    char *s;
+    if (!first || !last) return;
+    for (s = (char *) first; s <= last; s++) {
+	if (!*s) return;
+	putchar(*s);
+    }
+}
+
+/* Returns match position if first..last contains the literal match,
+   else NULL. */
+char *
+strstrspan(const char *first, const char *last, const char *match)
+{
+    register char *c;
+    int matchlength = strlen(match);
+    const char *lastcheck = last - (matchlength - 1);
+    for (c = (char*) first; c < lastcheck; c++) {
+	if ((*c == *match) && (!strncmp(c, match, matchlength))) return c;
+    }
+    return NULL;
+}
+
+/* List of directories which we'll add links to.
+   Note that this is an intentionally narrow list; the assumption is
+   that we don't want to add links unless we believe a naive user will
+   actually want to link to that file (in particular we want to avoid
+   linking to binary files).  Non-naive users will know how to get
+   to the other files without help!
+*/
+
+static const char *legaldirs[] = {
+ "/usr/doc",
+ "/usr/man",
+ "/usr/info",
+ "/usr/include",           /* References to C header files as documentation */
+ "/usr/share",             /* includes /usr/share/doc */
+ "/usr/src",               /* for docs with the source, e.g., kernel docs */
+ "/usr/local/doc",
+ "/usr/local/man",
+ "/usr/local/info",
+ "/usr/local/include",
+ "/usr/local/share",
+ "/usr/local/src",
+ "/opt/doc",
+ "/opt/man",
+ "/opt/info",
+ (char *) NULL,
+};
+
+/* Given f (a string that might begin an absolute filename),
+   returns pointer to last char of directory prefix, or NULL if not found. */
+char *
+find_directory_prefix(char *f)
+{
+	int i, len;
+	char c;
+	for (i=0; legaldirs[i] != NULL; i++) {
+		len = strlen(legaldirs[i]);
+		if (!strncmp(f, legaldirs[i], len)) {
+			c = f[len];
+			if ( (c == '\0') ||  !isalnum(c)) {
+				return f + (strlen(legaldirs[i])-1);
+			}
+		}
+	}
+	return NULL;
+}
+
+
+/* Given begin (pointing to a string that might begin an absolute filename),
+   returns pointer to last char of a linkable filename, else NULL. */
+char *
+find_linkable_file_end(char *begin)
+{
+	char *end;
+	/* Find the end of the putative filename */
+	end = find_directory_prefix(begin);
+	if (!end) {return NULL;};
+	if (end[1]=='/') {
+		while (*end && (!isspace(*end)) && (*end != '<')) end++;
+		end--;
+	}
+	while (strchr(".,;'\")>", *end)) end--; /* Improbable endings */
+	/* Ignore "filenames" with improbable strings inside them. */
+	if (strstrspan(begin, end, "&lt;")) {return NULL;};
+	if (strstrspan(begin, end, "$")) {return NULL;};
+	/* end now points at the end of the filename. */
+	return end;
+}
+
 
 static char outbuffer[NULL_TERMINATED(HUGE_STR_MAX)];
 static int obp=0;
@@ -450,6 +553,10 @@ static int no_newline_output=0;
 static int newline_for_fun=0;
 static int output_possible=0;
 static int out_length=0;
+static int inside_link=0;  /* If >0, we're inside an <A ..> link */
+static int pseudolink=0;  /* If >0, we're inside a bogus <A HREF=":"> link */
+
+#define NUM_URI_PATTERNS 9
 
 /*
 ** Add the links to the output.
@@ -461,17 +568,18 @@ static int out_length=0;
 ** ftp.host.name           -> ftp://ftp.host.name
 ** name@host               -> mailto:name@host
 ** <name.h>                -> file:/usr/include/name.h   (guess)
+** /dir/file               -> file:///dir/dir/file
 **
-** Other possible links to add in the future:
 **
-** /dir/dir/file  -> file:/dir/dir/file
 */
 static void
 add_links(char *c)
 {
 	int i,j,nr;
 	char *f, *g,*h;
-	char *idtest[6]; /* url, mailto, www, ftp, manpage */
+	char *idtest[NUM_URI_PATTERNS]; /* url, mailto, www, ftp, manpage */
+	char *starting_position = c;
+
 	out_length+=strlen(c);
 
 	/* search for (section) */
@@ -482,12 +590,71 @@ add_links(char *c)
 	idtest[3]=strstr(c,"ftp.");
 	idtest[4]=strchr(c+1,'(');
 	idtest[5]=strstr(c+1,".h&gt;");
-	for (i=0; i<6; i++) nr += (idtest[i]!=NULL);
+	idtest[6]=strstr(c,"<A ");
+	idtest[7]=strstr(c,"</A>");
+	idtest[8]=strchr(c,'/');
+	for (i=0; i<NUM_URI_PATTERNS; i++) {
+		if (idtest[i]!=NULL) {nr=1; break;}
+	}
 	while (nr) {
 		j=-1;
-		for (i=0; i<6; i++)
+		for (i=0; i<NUM_URI_PATTERNS; i++)
 			if (idtest[i] && (j<0 || idtest[i]<idtest[j])) j=i;
-		switch (j) {
+		if (inside_link && (j != 7)) {
+		  /* Inside a link and not closing it, so output & skip */
+			f=idtest[j];
+			putspan(c,f);
+			c = f+1;
+		}
+		else switch (j) {
+		case 8: /* filename */
+			f=idtest[8];
+			if ( ((f==starting_position) ||
+                              (isspace(f[-1]) || (f[-1] == '>'))) &&
+			     (g = find_linkable_file_end(f))) {
+				putspan(c, f-1);
+				fputs("<A HREF=\"file://", stdout);
+				putspan(f,g);
+				fputs("\">", stdout);
+				putspan(f,g);
+				fputs("</A>", stdout);
+				c = g + 1;
+				idtest[8]=strchr(g,'/');
+			} else {
+				idtest[8]=strchr(f+1,'/');
+			}
+			break;
+		case 7: /* End </A> tag */
+			f=idtest[j];
+			putspan(c, f-1);
+ 			c=f+4;
+			if (!pseudolink) { fputs("</A>", stdout); }
+			else {
+				pseudolink = (pseudolink>0) ? pseudolink-1 : 0;
+				while (*c && isspace(*c)) {c++;};
+			};
+			if (inside_link>0) {inside_link--;};
+			break;
+		case 6: /* Begin <A ..> tag */
+			inside_link++;
+			f=idtest[j];
+			if (!strncmp(f, "<A HREF=\":\">", 12)) {
+				/* Skip the ":" pseudo-URI. */
+				putspan(c,f-1);
+				c = f + 12; /* Skip past pseudo-link */
+				while (*c && isspace(*c)) {c++;};
+				pseudolink++;
+			} else {
+				g=strchr(f,'>');
+				if (g) {
+					putspan(c,g);
+					c = g+1;
+				} else { /* Incomplete tag, do what we can. */
+					fputs(c, stdout);
+					while (*c) {c++;};
+				}
+			}
+			break;
 		case 5: /* <name.h> */
 			f=idtest[5];
 			h=f+2;
@@ -579,7 +746,7 @@ add_links(char *c)
 		case 2: /* www */
 			g=f=idtest[j];
 			while (*g && (isalnum(*g) || *g=='_' || *g=='-' 
-				      || *g=='+' ||
+				      || *g=='+' || *g == '/' ||
 				      *g=='.')) g++;
 			if (g[-1]=='.') g--;
 			if (g-f>4) {
@@ -653,6 +820,7 @@ add_links(char *c)
 		default:
 			break;
 		}
+		/* Determine if there's more work to do; if so, set nr=1. */
 		nr=0;
 		if (idtest[0] && idtest[0]<c) idtest[0]=strstr(c+1,"://");
 		if (idtest[1] && idtest[1]<c) idtest[1]=strchr(c+1,'@');
@@ -660,7 +828,12 @@ add_links(char *c)
 		if (idtest[3] && idtest[3]<c) idtest[3]=strstr(c,"ftp.");
 		if (idtest[4] && idtest[4]<c) idtest[4]=strchr(c+1,'(');
 		if (idtest[5] && idtest[5]<c) idtest[5]=strstr(c+1,".h&gt;");
-		for (i=0; i<6; i++) nr += (idtest[i]!=NULL);
+		if (idtest[6] && idtest[6]<c) idtest[6]=strstr(c+1,"<A ");
+		if (idtest[7] && idtest[7]<c) idtest[7]=strstr(c+1,"</A>");
+		if (idtest[8] && idtest[8]<c) idtest[8]=strchr(c+1,'/');
+		for (i=0; i<NUM_URI_PATTERNS; i++) {
+			if (idtest[i]!=NULL) {nr=1; break;}
+		}
 	}
 	fputs(c, stdout);
 }
@@ -1894,7 +2067,7 @@ static char
 	static int mandoc_bd_options; /* Only copes with non-nested Bd's */
 
 	int i,j,mode=0;
-	char *h;
+	char *g, *h;
 	char *wordlist[MAX_WORDLIST];
 	int words;
 	char *sl;
@@ -2510,8 +2683,27 @@ static char
 				out_html("</PRE>");
 			}
 			trans_char(c,'"', '\a');
+			/* Compute label based on section name, translating
+			   space->underscore & skipping nongraphic chars */
+			sl = malloc(strlen(c)+1);
+			h = sl;
+			for (g = c; *g && (*g != '\n'); g++) {
+				if (*g == ' ') *h++ = '_';
+				else if (isgraph(*g)) *h++ = *g;
+			}
+			*h = '\0';
+			out_html("<A NAME=\"");
+			out_html(sl);
+			out_html("\" id=\"");
+			out_html(sl);
+			/* &nbsp; for mosaic users */
+			out_html("\">&nbsp;</A>");
+			free(sl);
+
 			add_to_index(mode, c);
 			out_html("<A NAME=\"");
+			out_html(label);
+			out_html("\" id=\"");
 			out_html(label);
 			/* &nbsp; for mosaic users */
 			if (mode) 
@@ -3282,6 +3474,34 @@ static char
 				curpos++;
 			else
 				curpos=0;
+			break;
+		case V('U','R'):  /* Start hypertext link to given URI (URL) */
+			sl = fill_words(c+j, wordlist, &words);
+			c = sl + 1;
+			out_html("<A HREF=\"");
+			if (words) {
+				scan_troff(wordlist[0], 1, NULL);
+			}
+			out_html("\">");
+			break;
+		case V('U','N'):  /* Named anchor */
+			sl = fill_words(c+j, wordlist, &words);
+			c = sl + 1;
+			out_html("<A NAME=\"");
+			if (words) {
+				scan_troff(wordlist[0], 1, NULL);
+			}
+			out_html("\" id=\"");
+			if (words) {
+				scan_troff(wordlist[0], 1, NULL);
+			}
+			out_html("\">");
+			out_html("&nbsp;"); /* For Mosaic users */
+			out_html("</A>");
+			break;
+		case V('U','E'):  /* End hypertext link (match to .UR) */
+			out_html("</A>");
+			c = skip_till_newline(c);
 			break;
 		case V('%','A'):	/* BSD mandoc biblio stuff */
 		case V('%','D'):

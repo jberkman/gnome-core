@@ -1,3 +1,38 @@
+1999-08-23  David A. Wheeler  <dwheeler@ida.org>
+
+	* gnome-man2html/man2html.c: Several changes to improve
+	hypertext linking.  These include:
+
+	 - Added support for new hypertext link macros. The macro
+	 ".UR url" starts a hypertext link, generating <A HREF="url">.
+	 The macro ".UE" ends it, generating </A>.  The macro ".UN name"
+	 inserts a named anchor, generating
+	 <A NAME="name" id="name">&nbsp;</A>.  The code is smart enough
+	 to know that hypertext anchors can't be nested; indeed, by using
+	 .UR ":" you can disable hypertext links until the matching ".UE".
+	 These macros are documented in man(7)
+	 as distributed by the Linux Documentation Project (LDP).
+
+	 - Automatically insert hypertext links to filenames.
+	 To prevent bogus filename linking, filename links
+	 must be absolute (begin with "/") and must be one of the handful of
+	 standard filenames from the Filesystem Hierarchy
+	 (e.g., /usr/doc, etc.).  Also, filenames must be at the beginning
+	 of a line, preceded by a space, or preceded in the HTML by a tag
+	 (e.g., begin/end of italics or bold).  Some filenames are
+	 directories, which gnome-help-browser doesn't support yet;
+	 I intend to add that support in a separate patch.
+	 Do a man:at(1) for an example.
+
+	 - Partial web addresses (www.whatever and ftp.whatever) can now
+	 include '/', so addresses like www.w3.org/CGI work correctly.
+
+	 - Inserts hyperlink names for sections & subsections that are equal
+	 to the section name (with spaces->underscores).  This lets you refer
+	 to sections by name, e.g., <man:ftp(1)#ENVIRONMENT> is now legal.
+	 The old link namess (e.g., lbAA) have been kept so you can use
+	 either name format, your choice.
+
 Mon Jun 12 16:17:18 2000  George Lebl <jirka@5z.com>
 
 	* docobj.c (docObjFree): free stuff allocated with glib with g_free
