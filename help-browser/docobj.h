@@ -4,6 +4,7 @@
 #include "gnome-helpwin.h"
 #include "url.h"
 #include "queue.h"
+#include "history.h"
 
 struct _docObj {
 	gchar *ref;
@@ -21,6 +22,7 @@ typedef struct _docObj docObj;
 extern gchar CurrentRef[];
 extern gchar LoadingRef[]; /* HACK */
 extern Queue queue;
+extern History history;
 
 void visitURL( GnomeHelpWin *help, gchar *ref );
 void visitURL_nohistory( GnomeHelpWin *help, gchar *ref );

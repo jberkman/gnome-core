@@ -33,6 +33,7 @@ resolveURL( docObj *obj )
 		return;
 
 	if (isRelative(obj->ref)) {
+	    printf("RELATIVE: %s\n", obj->ref);
 		obj->url.u = decomposeUrlRelative(obj->ref, CurrentRef, &s);
 		g_free(obj->ref);
 		obj->ref = s;

@@ -13,11 +13,13 @@
 
 #include "parseUrl.h"
 #include "queue.h"
+#include "history.h"
 
 gchar  CurrentRef[1024];
 gchar  LoadingRef[1024];
 
 Queue queue;
+History history;
 
 docObj
 *docObj_new(void)
@@ -78,8 +80,10 @@ _visitURL( GnomeHelpWin *help, gchar *ref, gboolean save )
 	visitDocument(help, obj);
 
 	/* obj->ref was 'cleaned up' by visitDocuemnt()/resolveURL() */
-	if (save)
+	if (save) {
 		queue_add(queue, obj->ref);
+		addToHistory(history, obj->ref);
+	}
 	docObj_free(obj);
 }
 

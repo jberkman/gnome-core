@@ -19,6 +19,7 @@
 #include "gnome-help-browser.h"
 
 #include "toc.h"
+#include "history.h"
 
 #include "docobj.h"
 #include "queue.h"
@@ -43,6 +44,9 @@ static void init_toolbar(GnomeHelpWin *help);
 static void update_toolbar(void);
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs);
 static void tocselectionChanged(gchar *data);
+static void ghelpShowHistory (void);
+static void ghelpHideHistory (void);
+static void historyCallback (gchar *ref, GtkWidget *w);
 
 XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 
@@ -62,7 +66,8 @@ GtkWidget *toc;
 GnomeUIInfo filemenu[] = {
 	{GNOME_APP_UI_ITEM, "Exit", "Exit program", quit_cb, 
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
+	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
 
 GnomeUIInfo helpmenu[] = {
@@ -70,11 +75,24 @@ GnomeUIInfo helpmenu[] = {
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_HELP, NULL, NULL, "help-browser", 
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
+	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
  
+GnomeUIInfo windowmenu[] = {
+    {GNOME_APP_UI_ITEM, "Show history", "Opens the history window",
+     ghelpShowHistory, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_ITEM, "Hide history", "Hides the history window",
+     ghelpHideHistory, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
+
+};
+
 GnomeUIInfo mainmenu[] = {
 	{GNOME_APP_UI_SUBTREE, "File", NULL, filemenu, 
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+	{GNOME_APP_UI_SUBTREE, "Windows", NULL, windowmenu,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_SUBTREE, "Help", NULL, helpmenu,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
@@ -90,6 +108,24 @@ main(int argc, char *argv[]) {
 	return 0;
 }
 
+static void
+ghelpShowHistory (void)
+{
+    showHistory(history);
+}
+
+static void
+ghelpHideHistory (void)
+{
+    hideHistory(history);
+}
+
+static void
+historyCallback (gchar *ref, GtkWidget *w)
+{
+    visitURL(GNOME_HELPWIN(w), ref);
+    update_toolbar();
+}
 
 static void
 quit_cb (GtkWidget *widget, void *data)
@@ -144,6 +180,7 @@ prepare_app(char *file)
 
 	gtk_widget_show (app);
 
+	history = newHistory(0, (GSearchFunc)historyCallback, help); 
 
 	queue= queue_new();
 	if (file)
@@ -181,7 +218,6 @@ about_cb (GtkWidget *widget, void *data)
 static void
 tocselectionChanged(gchar *file) 
 {
-
 	if (file != NULL) {
 		visitURL(GNOME_HELPWIN(help), file);
 		update_toolbar();
