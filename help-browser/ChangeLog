@@ -2,6 +2,8 @@
 
 	* gnome-help-browser.c (main): Revert to the old behaviour to
 	display the toc: URL if called without cmd line argument.
+	(main): Don't crash if ther's no orbit-naming-server available.
+	
 
 1998-10-11  Michael Lausch  <mla@gams.at>
 

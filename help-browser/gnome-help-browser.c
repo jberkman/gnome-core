@@ -171,6 +171,7 @@ main(int argc, char *argv[])
     CosNaming_NameComponent nc[3] = {{"GNOME", "subcontext"},
 				     {"Servers", "subcontext"}};
     CosNaming_Name nom = {0, 3, nc, CORBA_FALSE};
+    int            output_fd;
     
     
     CORBA_exception_init(&ev);
@@ -229,27 +230,27 @@ main(int argc, char *argv[])
     Exception(&ev);
 
     name_service = gnome_name_service_get();
+    if (!CORBA_Object_is_nil(name_service, &ev))
+      {
+	gnome_register_corba_server(name_service, browser_object, "help-browser", "object", &ev);
+        fprintf(stderr,"\n%s\n", objref);
+      }
+    output_fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
+		     | O_APPEND, 0666);
+    setvbuf(stderr, 0, _IOLBF, 0);
+    setvbuf(stdout, 0, _IOLBF, 0);
+    dup2(output_fd, fileno(stdout));
+    dup2(output_fd, fileno(stderr));
+    close(output_fd);
     
-    gnome_register_corba_server(name_service, browser_object, "help-browser", "object", &ev);
-
-    fprintf(stderr,"\n%s\n", objref);
-    {
-      int fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
-		    | O_APPEND, 0666);
-      setvbuf(stderr, 0, _IOLBF, 0);
-      setvbuf(stdout, 0, _IOLBF, 0);
-      dup2(fd, fileno(stdout));
-      dup2(fd, fileno(stderr));
-      close(fd);
-    }
-
     gtk_main();
 
     saveHistory(historyWindow);
     saveBookmarks(bookmarkWindow);
     saveCache(cache);
 
-    gnome_unregister_corba_server(name_service, "help-browser", "object", &ev);
+    if (!CORBA_Object_is_nil(name_service, &ev))
+      gnome_unregister_corba_server(name_service, "help-browser", "object", &ev);
     Exception(&ev);
     
     return 0;
