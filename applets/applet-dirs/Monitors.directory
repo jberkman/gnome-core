@@ -31,5 +31,5 @@ Comment[no]=Systemmonitorer, osv ...
 Comment[pl]=Aplety monitoruj╠ce
 Comment[pt]=Monitores de sistema, etc ...
 Comment[ru]=Индикаторы работы Системы и т.п.
-Icon=gnome-folder.png
+Icon=gnome-monitor.png
 Type=Directory
