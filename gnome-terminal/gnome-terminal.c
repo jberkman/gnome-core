@@ -33,6 +33,9 @@ char *geometry = 0;
 /* The color mode */
 int color_type;
 
+/* The color set */
+int color_set;
+
 /* Scrollbar position */
 enum {
 	SCROLLBAR_LEFT, SCROLLBAR_RIGHT, SCROLLBAR_HIDDEN
@@ -52,6 +55,7 @@ typedef struct {
 	GtkWidget *blink_checkbox;
 	GtkWidget *font_entry;
 	GtkWidget *color_scheme;
+	GtkWidget *def_fore_back;
 	GtkWidget *scrollbar;
 } preferences_t;
 
@@ -98,15 +102,19 @@ close_all_cmd (void)
  * Keep a copy of the current font name
  */
 void
-gnome_term_set_font (ZvtTerm *term, char *font)
+gnome_term_set_font (ZvtTerm *term, char *font_name)
 {
 	char *s;
+	GdkFont *font;
 
-	zvt_term_set_font_name  (term, font);
+	font = gdk_font_load (font_name);
+	if (font)
+		zvt_term_set_fonts  (term, font, font);
+	
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
 		g_free (s);
-	gtk_object_set_user_data (GTK_OBJECT (term), g_strdup (font));
+	gtk_object_set_user_data (GTK_OBJECT (term), g_strdup (font_name));
 }
 
 static GtkWidget *
@@ -119,42 +127,101 @@ aligned_label (char *str)
 	return l;
 }
 
+/* Popular palettes */
 gushort linux_red[] = { 0x0000, 0xaaaa, 0x0000, 0xaaaa, 0x0000, 0xaaaa, 0x0000, 0xaaaa,
-			0x5555, 0xffff, 0x5555, 0xffff, 0x5555, 0xffff, 0x5555, 0xffff };
+			0x5555, 0xffff, 0x5555, 0xffff, 0x5555, 0xffff, 0x5555, 0xffff,
+			0x0,    0x0 };
 gushort linux_grn[] = { 0x0000, 0x0000, 0xaaaa, 0x5555, 0x0000, 0x0000, 0xaaaa, 0xaaaa,
-			0x5555, 0x5555, 0xffff, 0xffff, 0x5555, 0x5555, 0xffff, 0xffff };
+			0x5555, 0x5555, 0xffff, 0xffff, 0x5555, 0x5555, 0xffff, 0xffff,
+			0x0,    0x0 };
 gushort linux_blu[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0xaaaa, 0xaaaa, 0xaaaa, 0xaaaa,
-			0x5555, 0x5555, 0x5555, 0x5555, 0xffff, 0xffff, 0xffff, 0xffff }; 
+			0x5555, 0x5555, 0x5555, 0x5555, 0xffff, 0xffff, 0xffff, 0xffff,
+			0x0,    0x0 };
 
 gushort xterm_red[] = { 0x0000, 0x6767, 0x0000, 0x6767, 0x0000, 0x6767, 0x0000, 0x6868,
-			0x2a2a, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff };
-gushort xterm_grn[] = { 0x0000, 0x0000, 0x6767, 0x6767, 0x0000, 0x0000, 0x6767, 0x6868,
-			0x2a2a, 0x0000, 0xffff, 0xffff, 0x0000, 0x0000, 0xffff, 0xffff };
-gushort xterm_blu[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0x6767, 0x6767, 0x6767, 0x6868,
-			0x2a2a, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff };
+			0x2a2a, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff,
+			0x0,    0x0 };
 
+gushort xterm_grn[] = { 0x0000, 0x0000, 0x6767, 0x6767, 0x0000, 0x0000, 0x6767, 0x6868,
+			0x2a2a, 0x0000, 0xffff, 0xffff, 0x0000, 0x0000, 0xffff, 0xffff,
+			0x0,    0x0 };
+gushort xterm_blu[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0x6767, 0x6767, 0x6767, 0x6868,
+			0x2a2a, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff,
+			0x0,    0x0 };
 
 gushort rxvt_red[] = { 0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff,
-		       0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff };
-gushort rxvt_blu[] = { 0x0000, 0x0000, 0xffff, 0xffff, 0x0000, 0x0000, 0xffff, 0xffff,
-		       0x0000, 0x0000, 0xffff, 0xffff, 0x0000, 0x0000, 0xffff, 0xffff };
-gushort rxvt_grn[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff,
-		       0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff };
+		       0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff, 0x0000, 0xffff,
+			0x0,    0x0 };
+gushort rxvt_grn[] = { 0x0000, 0x0000, 0xffff, 0xffff, 0x0000, 0x0000, 0xffff, 0xffff,
+		       0x0000, 0x0000, 0xffff, 0xffff, 0x0000, 0x0000, 0xffff, 0xffff,
+			0x0,    0x0 };
+gushort rxvt_blu[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff,
+		       0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff,
+			0x0,    0x0 };
 
 static void
 set_color_scheme (ZvtTerm *term, int color_type)
 {
+	gushort *red, *blue, *green;
+	
 	switch (color_type){
 	case 0:
-		zvt_term_set_color_scheme (term, linux_red, linux_grn, linux_blu);
+		red = linux_red;
+		green = linux_grn;
+		blue = linux_blu;
 		break;
 	case 1:
-		zvt_term_set_color_scheme (term, xterm_red, xterm_grn, xterm_blu);
+		red = xterm_red;
+		green = xterm_grn;
+		blue = xterm_blu;
 		break;
-	case 2:
-		zvt_term_set_color_scheme (term, rxvt_red, rxvt_grn, rxvt_blu);
+	default:		/* and 2 */
+		red = rxvt_red;
+		green = rxvt_grn;
+		blue = rxvt_blu;
 		break;
 	}
+	switch (color_set){
+		/* White on black */
+	case 0:
+		red   [16] = red [7];
+		blue  [16] = blue [7];
+		green [16] = green [7];
+		red   [17] = red [0];
+		blue  [17] = blue [0];
+		green [17] = green [0];
+		break;
+
+		/* black on white */
+	case 1:
+		red   [16] = red [0];
+		blue  [16] = blue [0];
+		green [16] = green [0];
+		red   [17] = red [7];
+		blue  [17] = blue [7];
+		green [17] = green [7];
+		break;
+		
+		/* Green on black */
+	case 2:
+		red   [17] = 0;
+		green [17] = 0;
+		blue  [17] = 0;
+		red   [16] = 0;
+		green [16] = 0xffff;
+		blue  [16] = 0;
+		break;
+		/* Black on light yellow */
+	case 3:
+		red   [16] = 0;
+		green [16] = 0;
+		blue  [16] = 0;
+		red   [17] = 0xffff;
+		green [17] = 0xffff;
+		blue  [17] = 0xdddd;
+	}
+	zvt_term_set_color_scheme (term, red, green, blue);
+	gtk_widget_queue_draw (GTK_WIDGET (term));
 }
 
 static void
@@ -172,6 +239,7 @@ apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 	zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
 	color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
 	scrollpos  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
+	color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
 
 	/* sve the global variables */
 	blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
@@ -251,7 +319,7 @@ free_lambda (GtkWidget *w, void *l)
 }
 		    
 static GtkWidget *
-create_option_menu (GnomePropertyBox *box, char **menu_list, int item)
+create_option_menu (GnomePropertyBox *box, char **menu_list, int item, GtkSignalFunc func)
 {
 	GtkWidget *omenu;
 	GtkWidget *menu;
@@ -268,8 +336,7 @@ create_option_menu (GnomePropertyBox *box, char **menu_list, int item)
 		t->menu = omenu;
 		t->box  = box;
 		entry = gtk_menu_item_new_with_label (_(*menu_list));
-		gtk_signal_connect (GTK_OBJECT (entry), "activate",
-				    GTK_SIGNAL_FUNC (set_active), t);
+		gtk_signal_connect (GTK_OBJECT (entry), "activate", func, t);
 		gtk_signal_connect (GTK_OBJECT (entry), "destroy",
 				    GTK_SIGNAL_FUNC (free_lambda), t);
 		gtk_widget_show (entry);
@@ -290,6 +357,14 @@ char *color_scheme [] = {
 	NULL
 };
 
+char *fore_back_table [] = {
+	N_("White on black"),
+	N_("Black on white"),
+	N_("Green on black"),
+	N_("Black on light yellow"),
+	NULL
+};
+
 char *scrollbar_position_list [] = {
 	N_("Left"),
 	N_("Right"),
@@ -299,9 +374,10 @@ char *scrollbar_position_list [] = {
 
 enum {
 	COLORPAL_ROW = 1,
-	SCROLL_ROW   = 2,
-	FONT_ROW     = 3,
-	BLINK_ROW    = 4
+	FOREBACK_ROW = 2,
+	SCROLL_ROW   = 3,
+	FONT_ROW     = 4,
+	BLINK_ROW    = 5
 };
 
 static void
@@ -323,14 +399,25 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	table = gtk_table_new (0, 0, 0);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("Look")));
+
+	/* Color palette */
 	l = aligned_label (_("Color palette:"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
-						  color_scheme, color_type);
+						  color_scheme, color_type, GTK_SIGNAL_FUNC (set_active));
 	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
 			  2, 3, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	
+
+	/* default foreground/backgorund selector */
+	l = aligned_label (_("Colors:"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->def_fore_back = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
+						   fore_back_table, color_set, GTK_SIGNAL_FUNC (set_active));
+	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
+			  2, 3, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  
 	/* Font */
 	l = aligned_label (_("Font:"));
 	gtk_table_attach (GTK_TABLE (table), l,
@@ -355,7 +442,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			  1, 2, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
 					       scrollbar_position_list,
-					       scrollbar_position);
+					       scrollbar_position, GTK_SIGNAL_FUNC (set_active));
 	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
 			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
@@ -388,6 +475,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term)
 				 scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
 	gnome_config_set_bool   ("/Terminal/Config/blinking", blink);
 	gnome_config_set_int    ("/Terminal/Config/scrollbacklines", scrollback);
+	gnome_config_set_int    ("/Terminal/Config/color_set", color_set);
 	gnome_config_set_string ("/Terminal/Config/color_scheme",
 				 color_type == 0 ? "linux" : (color_type == 1 ? "xterm" : "rxvt"));
 	gnome_config_sync ();
@@ -626,6 +714,7 @@ terminal_load_defaults (void)
 	else
 		color_type = 2;
 	blink = gnome_config_get_bool ("/Terminal/Config/blinking=0");
+	color_set = gnome_config_get_int ("/Terminal/Config/color_set=0");
 }
 
 /* Keys for the ARGP parser, should be negative */

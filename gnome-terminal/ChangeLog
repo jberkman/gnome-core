@@ -1,3 +1,9 @@
+1998-05-06  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (gnome_term_set_font): Load both the regular
+	and bold fonts from the same name.  On the Indy, the different
+	fonts do not look terribly good. 
+
 1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (apply_changes): Only apply changes once.
