@@ -1,0 +1,778 @@
+<!DOCTYPE BOOK PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [ <!ENTITY
+GNOME-APPS SYSTEM "gnome-terminal.sgml">] >
+
+
+<Book id="index" lang="es">
+  <title>Guía de usuario del terminal de GNOME</title>
+  <bookinfo>
+    <authorgroup>
+      <author>
+		<firstname>Miguel</firstname>
+		<surname>de Icaza</surname>
+      </author>
+      <author>
+		<firstname>Michael</firstname>
+		<surname>Zucchi</surname>
+      </author>
+      <author>
+		<firstname>Joaquín</firstname>
+		<surname>Cuenca Abela</surname>
+      </author>
+    </authorgroup>
+    <releaseinfo>documentación no finalizada</releaseinfo>
+	<legalnotice>
+      <para>
+		Este documento puede distribuirse libremente de acuerdo con
+		los términos de la GNU General Public License.
+      </para>
+    </legalnotice>
+  </bookinfo>
+  <toc></toc>
+  
+  <chapter id="terminal">
+    <title>La guía de usuarios del terminal de GNOME</title>
+    
+    <sect1 id="Description">
+      <title>Descripción</title>
+      <para>
+		Gnome-terminal es un emulador de terminal que forma parte del
+		proyecto GNOME.  Proporciona acceso a la línea de órdenes Unix
+		en el entorno GNOME.
+      </para>
+      <para>
+		Gnome-terminal puede utilizar carácteres en color (ver la
+		sección variables de <link
+		linkend="environment">entorno</link> para ver más detalles) y
+		le añade la posibilidad de utilizar el ratón a las
+		aplicaciones que son capaces de recibir eventos de ratón en
+		terminales del estilo xterm.
+      </para>
+    </sect1>
+    
+    <sect1 id="Emulation">
+      <title>Emulación</title>
+	  
+      <para>
+		El programa de terminal de GNOME (gnome-terminal) está
+		diseñado para emular al programa `xterm' creado por el X
+		Consortium.  A su vez el programa `xterm' es una emulación
+		casi completa del terminal DEC VT102.
+      </para>
+      
+      <para>
+		El terminal de GNOME admite las mismas extensiones al VT102
+		que proporciona el programa xterm a través de secuencias
+		especiales de escape.  El programa xterm está en evolución.
+		Los cambios recientes a xterm se han incluido en
+		gnome-terminal.  Esto incluye la emulación de las nuevas
+		secuencias de escape DEC VT220.
+      </para>
+	  
+    </sect1>
+	
+    <sect1 id="config">
+      <title>Opciones configurables</title>
+      <para>
+		Las opciones del programa las podremos configurar gracias al
+		cuadro de diálogo preferencias, que podemos invocar gracias al
+		<link linkend="menu-settings">elemento de menú
+		preferencias</link>, que se encuentra en la opción
+		<guimenu>Configuración</guimenu> de la barra de menú del
+		gnome-terminal.
+      </para>
+	  
+      <sect2 id="config-general">
+		<title>Opciones generales</title>
+		<para>
+		  Aunque la mayoría de las opciones son bastante sencillas de
+		  entender, vamos a discutir algunas de ellas en detalle.
+		</para>
+		<variablelist>
+		  <varlistentry>
+			<term>Clase del terminal</term>
+			<listitem>
+			  <para>
+				Elige la clase de terminal para la actual
+				configuración o terminal.  Vea la sección <link
+				linkend="classes">clases</link> para obtener más
+				información.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Carácteres que pueden ser parte de una palabra</term>
+			<listitem>
+			  <para>
+				Define una lista de carácteres (o <emphasis>clases de
+				  carácteres</emphasis>) que deben ser considerados
+				  `carácteres de palabras'.  Estos carácteres se
+				  utilizarán cuando se  <link
+				  linkend="pointer-select">seleccione texto</link>
+				  palabra a palabra.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+	  
+      <sect2 id="config-colour">
+		<title>Configuración del color</title>
+		<para>
+		  Gnome terminal implementa todas las extensiones de color
+		  utilizadas por xterm.  Estas opciones le permitirán
+		  controlas estos colores.
+		</para>
+		<variablelist>
+		  <varlistentry>
+			<term>Paleta de colores</term>
+			<listitem>
+			  <para>
+				gnome-terminal admite cuatro conjuntos de colores: el
+				conjunto consola Linux, el conjunto xterm a color, el
+				conjunto rxvt, y un conjunto de colores completamente
+				personalizable.  Estos conjuntos definen la intensidad
+				y colores de las dieciseis combinaciones de color ANSI
+				que están admitidas por estos terminales.
+			  </para>
+			  <para>
+				Si ha seleccionado la opción colores personalizados,
+				entonces los 16 colores (realmente 8 colores, y 8
+				tonalidades) pueden personalizarse pulsando en los
+				selectores de color.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Combinación de colores primarios</term>
+			<listitem>
+			  <para>
+				Cuando no se ha pedido ningún color por parte de la
+				aplicación que se ejecuta dentro de gnome-terminal,
+				gnome-terminal le permitirá cambiar los colores de
+				primer plano y de fondo que estén por defecto.
+			  </para>
+			  
+			  <para>
+				Tendremos disponibles las siguientes opciones: blanco
+				sobre negro, negro sobre blanco, verde sobre negro,
+				negro sobre amarillo brillante, y colores
+				personalizados.  La forma en la que aparezcan estos
+				colores dependerá de la paleta seleccionada (si
+				utilizamos las opciones blanco sobre negro o negro
+				sobre blanco).  Personalizados le permitirá
+				seleccionar los colores de primer plano y de fondo de
+				forma individual e independientemente de la paleta.
+			  </para>
+			  
+			  <para>
+				Además el usuario puede arrastrar un color de
+				cualquier fuente de color (un selector rectangular de
+				color, una rueda de color, etc...) y soltarlo en el
+				terminal.  Si suelta el color en un espacio en blanco,
+				cambiará el color de fondo, si lo suelta en una celda
+				que contenga un carácter, cambiar el color de primer
+				plano.  Esto hará que se cambie automáticamente a
+				colores personalizados y que `color de primer plano' y
+				`color de fondo' tomen el valor que les corresponde.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+    </sect1>
+	
+    <sect1 id="classes">
+      <title>Clases de terminal</title>
+      <para>
+		El terminal GNOME le permite tener distintos perfiles de
+		configuración para distintas utilizaciones (distintos colores
+		de fondo, presencia, ausencia y posición de las barras de
+		scroll, y cosas así).  Para utilizar los perfiles de
+		configuración, selección el formulario
+		<guimenuitem>preferencias</guimenuitem> del menú
+		<guimenu>configuración</guimenu> del terminal.  Seleccione las
+		opciones que prefiera (estos cambios se activarán en el
+		terminal que tiene abierto, así que podrá ver si está de
+		acuerdo con las opciones que ha escogido), y antes de cerrar
+		el formulario <guimenuitem>preferencias</guimenuitem>,
+		asegúrese de poner un nuevo nombre en el espacio marcado con
+		<guilabel>Clase de terminal</guilabel>.
+      </para>
+      
+      <para>
+		Para activar automáticamente una clase de terminal en el
+		arranque puede utilizar la opción --tclass en la línea de
+		órdenes.
+      </para>
+    </sect1>
+    
+    <sect1 id="Options">
+      <title>Opciones de la línea de órdenes</title>
+      <para>
+		<itemizedlist>
+		  <listitem>
+			<para><symbol>--background COLOR</symbol></para>
+			
+			<para>
+			  Se utiliza para especificar el color de fondo del
+			  terminal en el arranque.  El COLOR puede ser tener
+			  cualquier forma aceptada por el sistema de ventanas.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--tclass TCLASS</symbol></para>
+			<para>
+			  Especifica la clase de terminal utilizada para
+			  configurar el terminal en el arranque.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--command COMANDO, -e COMANDO</symbol></para>
+			<para>
+			  Ejecuta la orden COMANDO en el arranque.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--execute COMANDO ARGS, -x COMANDO
+			ARGS</symbol></para>
+			<para>
+			  Ejecuta la orden COMANDO con los argumentos ARGS en el
+			  arranque.  No se procesará por el terminal ningún
+			  argumento que venga detrás de esta opción.  Este
+			  comportamiento imita el de xterm -e.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--font FUENTE</symbol></para>
+			<para>
+			  Hace que el tipo de letra del terminal sea FUENTE.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--foreground COLOR</symbol></para>
+			<para>
+			  Hace que el color del primer plano del terminal sea
+			  COLOR.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--geometry GEOMETRÍA</symbol></para>
+			<para>
+			  Especifica la geometría que tendrá este terminal.  La
+			  geometría incluye la anchura y altura deseadas medidas
+			  en carácteres.  Por ejemplo: --geometry=80x40 creará un
+			  terminal de ochenta columnas por 40 filas.
+			</para>
+			<para>
+			  CORREGIDME:  Enlazar con la documentación de las
+			  gnome-libs relativa a las especificaciones de GEOMETRÍA,
+			  cuando ese documento se escriba.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--login</symbol></para>
+			<para>
+			  Hace que gnome-terminal ejecute la línea de órdenes en
+			  modo login (en este modo se ejecutarán todos los scripts
+			  de inicialización).
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--nologin</symbol></para>
+			<para>
+			  Hace que gnome-terminal sólo ejecute un shell, sin
+			  ejecutar ninguno de los scripts de inicialización.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--noutmp</symbol></para>
+			<para>
+			  Indica que este y el shell asociado no deben registrarse
+			  en la base de datos del sistema de usuarios que están
+			  utilizando el ordenador.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--utmp</symbol></para>
+			<para>
+			  Indica que el usuario quiere que este terminal se
+			  registre en la base de datos del sistema de usuarios que
+			  están conectados actualmente al sistema (la base de
+			  datos utmp).  Este es el modo por defecto.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--title TÍTULO, -t TÍTULO</symbol></para>
+			<para>
+			  Hace que el terminal GNOME utilice TÍTULO como el título
+			  de la ventana.
+			</para>
+		  </listitem>
+		  
+		  <listitem>
+			<para><symbol>--termname TERMNAME</symbol></para>
+			<para>
+			  Hace que el terminal GNOME utilice TERMNAME como el
+			  valor de la variable de entorno TERM.
+			</para>
+		  </listitem>
+		</itemizedlist>
+		
+      </para>
+      <para>
+		Puede utilizar más de una opción a la vez: por ejemplo, en una
+		máquina con el navegador en modo texto Lynx instalado,
+		'gnome-terminal --title Red --command lynx' abrirá un
+		gnome-terminal que ejecutará Lynx y que tendrá una barra de
+		título donde aparecerá "Red".
+      </para>
+	  
+    </sect1>
+    
+    <sect1 id="pointerusage">
+      <title>Utilización del puntero</title>
+      <para>
+		El puntero del ratón puede utilizarse para seleccionar
+		(copiar), y extender la selección actual del texto, pegar
+		texto desde otros terminales o aplicaciones, y para hacer que
+		aparezcan los menúes.
+      </para>
+      <sect2 id="pointer-select">
+		<title>Selección</title>
+        <para>
+		  Lo siguiente asume un ratón estándar de tres botones cuyos
+          botones derecho e izquierdo no han sido intercambiados
+          utilizando la opción que hay en el centro de control para
+          zurdos.  Por supuesto, toda la explicación que viene a
+          continuación también sirve si se utiliza de opción de
+          zurdos, pero donde dice botón derecho habrá que usar el
+          izquierdo y viceversa.
+        </para>
+		<para>
+		  El botón <mousebutton>izquierdo</mousebutton> del ratón
+		  puede utilizarse para iniciar una selección.  Si se pulsa el
+		  botón del ratón una vez, y se arrastra, entonces se
+		  seleccionarán los carácteres uno a uno.  Si en su arrastre
+		  traspasa los límites verticales de la ventana, entonces se
+		  hará un scroll para que puede seguir seleccionando.
+		</para>
+		<para>
+		  Si se hace un doble clic con el botón
+		  <mousebutton>izquierdo</mousebutton>, entonces la selección
+		  será por palabras.  Mantenga pulsado el botón del ratón en
+		  el momento en que hace su segundo clic y arrastre el ratón
+		  para aumentar la selección.  Los carácteres que forman parte
+		  de una palabra están definidos en el formulario <link
+		  linkend="config-general">preferencias</link> en la opción
+		  <guilabel>Carácteres que pueden ser parte de una
+		  palabra</guilabel>.
+		</para>
+		<para>
+		  Para terminar, si hace un triple clic con el botón izquierdo
+		  del ratón y mantiene el botón pulsado, se seleccionarán
+		  líneas enteras conforme vaya arrastrando el ratón arriba y
+		  abajo.
+		</para>
+		<para>
+		  El botón <mousebutton>central</mousebutton> puede utilizarse
+		  para extender la selección.  Sólo tiene que llevar el
+		  puntero hasta donde quiera extender la selección y pulsar
+		  con el botón derecho del ratón mientras el ratón siga en la
+		  barra de scroll.  De nuevo, un, doble o triple clic hará que
+		  se seleccione por carácteres, por palabras, o por líneas.
+		</para>
+		<para>
+		  En cualquier caso, al soltar el botón del ratón se copiará
+		  automáticamente el texto seleccionado en el portapapeles, y
+		  podrá pegarse en cualquier otra aplicación.  Si hace
+		  aparecer un nuevo carácter en pantalla se perderá la
+		  selección, pero no el contenido del portapapeles.
+		</para>
+      </sect2>
+      <sect2 id="pointer-paste">
+		<title>Pegando texto</title>
+		<para>
+		  Si se pulsa el botón <mousebutton>central</mousebutton> del
+		  ratón, se pegará el contenido de la selección en la ventana.
+		  Esto puede utilizarse para transferir texto desde otras
+		  aplicaciones.
+		</para>
+		<para>
+		  Si sólo tiene un ratón con dos botones, probablemente su
+		  servidor X tenga un método para emular el botón
+		  <mousebutton>central</mousebutton> del ratón (generalmente
+		  pulsando simultáneamente los dos botones del ratón).  Mire
+		  en la documentación de su servidor X para obtener más
+		  información.
+		</para>
+      </sect2>
+      <sect2 id="pointer-wheel">
+		<title>Ratones con ruedas</title>
+		<para>
+		  Si tiene un ratón con rueda (que envian los eventos de botón
+		  de ratón 4 y 5), podrá utilizar la rueda para hacer pasar a
+		  la página siguiente y a la anterior.
+		</para>
+      </sect2>
+      <sect2 id="pointer-menu">
+		<title>Menú de control</title>
+		<para>
+		  El ratón también puede utilizarse para desplegar un <link
+			linkend="menu-popup">menú de control</link>, que puede
+			utilizarse para reiniciar el terminal, o para hacer que
+			vuelva a aparecer la barra de menú, si esta había sido
+			ocultada.
+		</para>
+		<para>
+		  Para hacer aparecer este menú, sólo tiene que pulsar la
+		  tecla <keycap>CTRL</keycap> y pulsar en el botón
+		  <mousebutton>derecho</mousebutton> del ratón.
+		</para>
+      </sect2>
+	  
+      <sect2 id="pointer-dnd">
+		<title>Arrastrar y soltar</title>
+		<para>
+		  Se puede utilizar el «arrastrar y soltar» para hacer una
+		  gran cantidad de cosas en el terminal.
+		</para>
+		<variablelist>
+		  <varlistentry>
+			<term>Arrastrando ficheros</term>
+			<listitem>
+			  <para>
+				Si se arrastra algún fichero en el termial, entonces
+				se pegará su nombre completo en la ventana.  También
+				se pueden dejar en el terminal direcciones de internet
+				(arrastrándolas desde Netscape).
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Arrastrando colores</term>
+			<listitem>
+			  <para>
+				Se puede arrastrar un color desde otra aplicación de
+				GNOME, o desde el <link
+				linkend="menu-settings">selector de color</link> y
+				soltarlo en el terminal.  Si se suelta encima de un
+				carácter, entonces pondrá como color de primer plano
+				el color que hemos soltado.  Si se suelta en un lugar
+				donde no haya ningún carácter, entonces pondrá el
+				color de fondo.  Mire la sección <link
+				linkend="config-colour">configuración del color</link>
+				para más información.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+	</sect1>
+    
+    <sect1 id="menus">
+      <title>Menúes</title>
+      <para>
+		Gnome-terminal puede configurarse gracias al menú principal y
+		a un menú desplegable que podremos conseguir si pulsamos el
+		botón <mousebutton>derecho</mousebutton> del ratón y la tecla
+		<keycap>CTRL</keycap>.  (A veces no hace falta pulsar la tecla
+		<keycap>CTRL</keycap>, pero no debe suponer que siempre es
+		así.)
+      </para>
+      <sect2 id="menu-file">
+		<title>Menú archivo</title>
+		<variablelist>
+		  <varlistentry>
+			<term>Nuevo terminal</term>
+			<listitem>
+			  <para>
+				Crear un nuevo terminal.  Esta es una forma eficiente
+				de crear varios terminales, ya que todos ellos serán
+				procesados como el mismo programa y PID.  Sin embargo
+				cada uno ejecutará su propia línea de órdenes.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Esconder la barra de menú</term>
+			<listitem>
+			  <para>
+				Esconde la barra de menú del terminal, creando un
+				terminal más pequeño y más ordenado.  Puede hacer
+				reaparecer la barra de menú utilizando el menú de
+				control, que puede hacer aparecer pulsando la tecla
+				<keycap>CTRL</keycap> y pulsando el botón
+				<mousebutton>derecho</mousebutton> del ratón.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Cerrar el terminal</term>
+			<listitem>
+			  <para>
+				Cierra el terminal actual.  También cierra cualquier
+                otro terminal que haya sido abierto mediante la línea
+                de órdenes de este terminal.  Si éste es el el último
+                terminal en cerrarse, entonces el programa
+                gnome-terminal finaliza.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+	  
+      <sect2 id="menu-edit">
+		<title>Menú editar</title>
+		<variablelist>
+		  <varlistentry>
+			<term>Pegar</term>
+			<listitem>
+			  <para>
+				Pega la selección actual o el contenido del
+				portapapeles en el terminal.  Esto también puede
+				conseguirse utilizado el botón
+				<mousebutton>central</mousebutton> del ratón.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+	  
+      <sect2 id="menu-settings">
+		<title>Menú configuración</title>
+		<variablelist>
+		  <varlistentry>
+			<term>Preferencias ...</term>
+			<listitem>
+			  <para>
+				Muestra el formulario preferencias.  Las preferencias
+				que pueden controlarse mediante este formulario están
+				descritas en la sección <link
+				linkend="config">opciones configurables</link>.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Reiniciar el terminal</term>
+			<listitem>
+			  <para>
+				Reinicia los parámetros del terminal.  Esta orden no
+				borrará la pantalla ni moverá el cursor, pero
+				cualquier salida del terminal posterior a esta acción
+				se reiniciará al tipo de letra y a los atributos por
+				defecto.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Reiniciar y Limpiar</term>
+			<listitem>
+			  <para>
+				Reinicia los parámetros del terminal, y además borra
+				la pantalla.  Todos los tipos de letra y los atributos
+				son reiniciados.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Selector de colores...</term>
+			<listitem>
+			  <para>
+				Puede utilizarse para arrastrar y soltar colores en el
+				terminal.  Vea la descripción que hay en el <link
+				linkend="config-colour">selector de color</link>.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+	  
+      <sect2 id="menu-help">
+		<title>Menú ayuda</title>
+		<variablelist>
+		  <varlistentry>
+			<term>Guía de usuario del terminal GNOME...</term>
+			<listitem>
+			  <para>
+				Para llegar a este documento desde el terminal de
+				GNOME.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Acerca de...</term>
+			<listitem>
+			  <para>
+				Un pequeño reconocimiento a todos chicos que han
+				trabajado duro para hacer que el terminal GNOME sea
+				una realidad.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+	  
+      <sect2 id="menu-popup">
+		<title>Menú desplegable</title>
+		<para>
+		  Podemos hacer aparecer el menú desplegable pulsando el botón
+		  <mousebutton>derecho</mousebutton> del ratón y la tecla
+		  <keycap>CTRL</keycap> simultáneamente.  Este menú es un
+		  simple atajo para algunas de las funciones del menú
+		  principal, y también es útil cuando el menú principal está
+		  oculto.  Están disponibles las siguientes opciones:
+		</para>
+		<variablelist>
+		  <varlistentry>
+			<term>Nuevo terminal ...</term>
+			<listitem>
+			  <para>
+				Crea un nuevo terminal.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Preferencias...</term>
+			<listitem>
+			  <para>
+				Muestra el formulario preferencias.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Esconder/Ver barra de menú</term>
+			<listitem>
+			  <para>
+				Esconde o muestra la barra de menú principal,
+				dependiendo de su estado actual.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Reiniciar el terminal</term>
+			<listitem>
+			  <para>
+				Reinicia los atributos del terminal sin borrar la
+				pantalla.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		  <varlistentry>
+			<term>Reiniciar y Limpiar</term>
+			<listitem>
+			  <para>
+				Reinicia los atributos del terminal y borra la
+				pantalla.
+			  </para>
+			</listitem>
+		  </varlistentry>
+		</variablelist>
+      </sect2>
+	  
+    </sect1>
+    
+    <sect1 id="environment">
+      <title>Entorno</title>
+      <para>
+		El terminal de GNOME crea las siguientes variables:
+		<itemizedlist>
+		  <listitem>
+			<para><symbol>TERM</symbol></para>
+
+			<para>
+			  Esta variable tiene el valor «xterm» por omisión.
+			  Algunas implementaciones de curses y algunas
+			  aplicaciones basadas en curses puede que necesiten que
+			  el valor sea xterm-color, color-xterm o xterm-debian
+			  para que puedan ejecutarse en color.  Tal vez tenga que
+			  cambiar el valor de esta variable a uno de estos valores
+			  si su aplicación no tiene color.  Podrá hacer esto
+			  utilizando la <link linkend="Options">opción de la línea
+			  de órdenes</link> --termname.
+			</para>
+		  </listitem>
+
+		  <listitem>
+			<para><symbol>COLORTERM</symbol></para>
+
+			<para>
+			  Esta variable tiene el valor «gnome-terminal».  Varias
+			  aplicaciones (especialmente las que utilizan Slang)
+			  utilizan esta variable para determinar si el terminal
+			  admite colores.
+			</para>
+		  </listitem>
+
+		  <listitem>
+			<para><symbol>WINDOWID</symbol></para>
+
+			<para>
+			  Esta variable contiene el identificador de la ventana
+			  X11.  Se utiliza a veces por la aplicación para
+			  modificar los contenidos de la ventana o para hacer
+			  algún efecto especial.
+			</para>
+		  </listitem>
+		</itemizedlist>
+      </para>
+    </sect1>
+    
+    <sect1 id="Authors">
+      <title>Autores</title>
+
+      <para>
+		Muchas personas han trabajado juntas para construir el
+		gnome-terminal:
+	  </para>
+
+      <para>
+		Michael Zucchi ha programado el widget Zvt; Miguel de Icaza y
+		Jay Painter lo mejoraron y se ocuparon su posterior depuración
+		y mantenimiento.  George Lebl le añadió la posibilidad de
+		utilizar transparencia y dibujos como fondo, añadiendo una
+		salida por pantalla más suave y más rápida y un modo de scroll
+		opcional.
+	  </para>
+
+      <para>
+		Miguel hizo el programa principal del terminal de GNOME, y
+		Erik Troan incluyó la utilización de la clase terminal (entre
+		otras cosas).  Jeff Garzik, Jay, Christopher Blizzard,
+		Michael, Jens Lautenbacher, Tom Tromey, Tristan Tarrant,
+		Jonathan Blandford y Michael Zucchi incluyeron arreglos y
+		mejoras menores.  Nat Friedman revisó la interfaz de usuario
+		para que utilizase los estándares GNOME.  Felix Bellaby, Tom
+		Tromey y Manish Vachharajani implementarón y mejoraron el
+		código concerniente al gestor de sesiones.
+      </para>
+    </sect1>
+    
+  </chapter>
+  
+</book>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->

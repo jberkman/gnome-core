@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in.
 
 # Documentation
-SUBDIRS = C no
+SUBDIRS = C es no
 
 INCLUDES = 			\
 	-I$(includedir)		\
