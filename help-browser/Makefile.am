@@ -6,14 +6,11 @@ INCLUDES = 			\
 	-I$(includedir)		\
 	-I$(top_srcdir)/intl
 
-# THIS DOESNT GO HERE
-ZLIB = /usr/lib/libz.a
-
 LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
-	$(INTLLIBS)					\
-	$(ZLIB)
+	$(INTLLIBS)
+
 
 bin_PROGRAMS = gnome-help-browser 
 
