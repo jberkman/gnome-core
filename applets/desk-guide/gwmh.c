@@ -1839,7 +1839,6 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
 				      XA_KWM_WIN_ICON,
 				      &size,
 				      32);
-  g_print ("atomdata: %d\n", atomdata);
 
   if (atomdata)
     {
