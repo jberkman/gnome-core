@@ -506,6 +506,8 @@ delete_browse (GtkWidget *w, GdkEvent *e, GtkWidget **f)
 				  (GTK_FILE_SELECTION (*f)));
 	*f = NULL;
 
+	g_print("delete_browse\n");
+
 	return TRUE;
 }
 

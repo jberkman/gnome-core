@@ -92,6 +92,7 @@ void
 display_properties_setup (void)
 {
 	gnome_property_configurator_setup (display_config);
+	main_window = display_config->property_box;
 	gnome_property_configurator_request_foreach (display_config,
 						     GNOME_PROPERTY_SETUP);
 
@@ -141,6 +142,7 @@ property_main (char *app_id, int argc, char *argv [])
 	gnome_client_set_clone_command (client, 1, argv);
 
 	display_config = gnome_property_configurator_new ();
+
 	application_register (display_config);
 
 	/* If this startup is the result of a previous session, we try

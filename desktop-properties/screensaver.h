@@ -52,17 +52,17 @@ struct ScreenSaver {
 	}
 
 	virtual ~ScreenSaver () {
-		g_free (name);
-		g_free (comment);
-		g_hash_table_destroy (modes);
-		g_list_free (modesL);
+		g_free (name); name = NULL;
+		g_free (comment); comment = NULL;
+		g_hash_table_destroy (modes); modes = NULL;
+		g_list_free (modesL); modesL = NULL;
 	}
 
 	void addMode (ScreenSaverMode *m) {
+	        g_print("Adding mode %s\n", m->name);
 		g_hash_table_insert (modes, m->name, m);
 		modesL = g_list_append (modesL, (gpointer) m);
 	}
-
 };
 
 #endif

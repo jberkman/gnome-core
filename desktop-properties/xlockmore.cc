@@ -128,12 +128,12 @@ XLockMore::forkAndExec () {
 static gint
 deleteSetupWin (GtkWidget *w, GdkEvent *ev, XLockMore *xm)
 {
-	xm->kill (&xm->sPID);
-	gtk_widget_destroy (xm->setupWin);
-	xm->setupWin = NULL;
-	xm->mapSignal = xm->unmapSignal = -1;
+  xm->kill (&xm->sPID);
+  gtk_widget_destroy (xm->setupWin);
+  xm->setupWin = NULL;
+  xm->mapSignal = xm->unmapSignal = -1;
 
-	return TRUE;
+  return TRUE;
 }
 
 static gint
@@ -142,7 +142,7 @@ destroySetupWin (GtkWidget *w, XLockMore *xm)
 	deleteSetupWin (w, NULL, xm);
 }
 
-extern GtkWidget *main_window;
+extern "C" GtkWidget *main_window;
 
 void
 XLockMore::prepareSetupWindow ()
@@ -157,7 +157,6 @@ XLockMore::prepareSetupWindow ()
 				    GTK_SIGNAL_FUNC (deleteSetupWin), this);
 		gtk_signal_connect (GTK_OBJECT (main_window), "destroy",
 				    GTK_SIGNAL_FUNC (destroySetupWin), this);
-		g_print("Here we go for %p\n", this);
 
 		setupNotebook = gtk_notebook_new ();
 
@@ -232,31 +231,7 @@ XLockMore::prepareSetupWindow ()
 		gtk_box_pack_start (GTK_BOX (vbox), fb, TRUE, FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (setupWin), vbox);
 
-		gtk_widget_show (hb2);
-
-		gtk_widget_show (sw);
-		gtk_widget_show (f1);
-		gtk_widget_show (f2);
-		gtk_widget_show (f3);
-		gtk_widget_show (setupFrame);
-		gtk_widget_show (l1);
-		gtk_widget_show (l2);
-		gtk_widget_show (setupName);
-		// gtk_widget_show (setupComment);
-		gtk_widget_show (vb3);
-		gtk_widget_show (vb2);
-		gtk_widget_show (setupOptions);
-		gtk_widget_show (modePage);
-		gtk_widget_show (setupNotebook);
-		gtk_widget_show (bhelp);
-		gtk_widget_show (bcl);
-		gtk_widget_show (bapl);
-		gtk_widget_show (bok);
-		gtk_widget_show (bdf);
-		gtk_widget_show (hbox);
-		gtk_widget_show (fb);
-		gtk_widget_show (vbox);
-		gtk_widget_show (setupWin);
+		gtk_widget_show_all (setupWin);
 	}
 }
 
