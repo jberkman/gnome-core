@@ -18,7 +18,8 @@ HelpWindow helpWindowNew(gchar *name,
 			 HelpWindowCB about_callback,
 			 HelpWindowCB new_window_callback,
 			 HelpWindowCB close_window_callback,
-			 HelpWindowCB set_current_callback);
+			 HelpWindowCB set_current_callback,
+			 HelpWindowCB config_callback);
 void helpWindowClose(HelpWindow win);
 void helpWindowShowURL(HelpWindow win, gchar *ref);
 void helpWindowSetHistory(HelpWindow win, History history);

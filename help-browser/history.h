@@ -9,6 +9,7 @@ typedef struct _history_struct *History;
 typedef void (*HistoryCB) (gchar *ref);
 
 History newHistory(gint length, HistoryCB callback, gchar *file);
+void reconfigHistory(History h, gint length, HistoryCB callback, gchar *file);
 void destroyHistory(History h);
 void addToHistory(History h, gchar *ref);
 void showHistory(History h);

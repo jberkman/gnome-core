@@ -34,14 +34,31 @@ static void appendEntry(History h, gchar *ref, gint date, guint count);
 
 History newHistory(gint length, HistoryCB callback, gchar *file)
 {
-    gchar filename[BUFSIZ];
     History res;
 
     res = g_new(struct _history_struct, 1);
-    res->length = length;
+    res->file = NULL;
+    reconfigHistory(res, length, callback, file);
+
     res->table = g_hash_table_new(g_str_hash, g_str_equal);
-    res->callback = callback;
     res->internalSelectSkipThis = 0;
+
+    createHistoryWindow(res, &res->window, &res->clist);
+
+    loadHistory(res);
+
+    return res;
+}
+
+void reconfigHistory(History h, gint length, HistoryCB callback, gchar *file)
+{
+    gchar filename[BUFSIZ];
+    
+    h->length = length;
+    h->callback = callback;
+    if (h->file) {
+	g_free(h->file);
+    }
     if (file) {
 	if (*(file) != '/') {
 	    g_snprintf(filename, sizeof(filename), "%s/%s",
@@ -49,16 +66,10 @@ History newHistory(gint length, HistoryCB callback, gchar *file)
 	} else {
 	    strncpy(filename, file, sizeof(filename));
 	}
-	res->file = g_strdup(filename);
+	h->file = g_strdup(filename);
     } else {
-	res->file = NULL;
+	h->file = NULL;
     }
-
-    createHistoryWindow(res, &res->window, &res->clist);
-
-    loadHistory(res);
-
-    return res;
 }
 
 static void loadHistory(History h)

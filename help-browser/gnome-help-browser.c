@@ -37,6 +37,7 @@ static void aboutCallback(HelpWindow win);
 static void newWindowCallback(HelpWindow win);
 static void closeWindowCallback(HelpWindow win);
 static void setCurrentCallback(HelpWindow win);
+static void configCallback(HelpWindow win);
 
 static void historyCallback(gchar *ref);
 static void bookmarkCallback(gchar *ref);
@@ -52,6 +53,8 @@ static void saveConfig(void);
 static GnomeClient *newGnomeClient(void);
 static error_t parseAnArg (int key, char *arg, struct argp_state *state);
 
+static void configOK(GtkWidget *w, GtkWidget *window);
+static void configCancel(GtkWidget *w, GtkWidget *window);
 
 /* MANPATH should probably come from somewhere */
 #define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
@@ -130,7 +133,6 @@ main(gint argc, gchar *argv[])
     setErrorHandlers();
 	
     historyWindow = newHistory(historyLength, historyCallback, historyFile);
-
     cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free,
 			 cacheFile);
     tocWindow = newToc(manPath, infoPath, ghelpPath, tocCallback);
@@ -156,7 +158,8 @@ makeHelpWindow()
     HelpWindow window;
     
     window = helpWindowNew(NAME, aboutCallback, newWindowCallback,
-			   closeWindowCallback, setCurrentCallback);
+			   closeWindowCallback, setCurrentCallback,
+			   configCallback);
     helpWindowSetHistory(window, historyWindow);
     helpWindowSetCache(window, cache);
     helpWindowSetToc(window, tocWindow);
@@ -282,6 +285,10 @@ void setErrorHandlers(void)
     g_set_print_handler((GErrorFunc) printf);
 }
 
+
+/**********************************************************************/
+
+/* Sesssion stuff */
 
 static int
 save_state (GnomeClient        *client,
@@ -422,4 +429,183 @@ static void saveConfig(void)
     gnome_config_set_string("/" NAME "/bookmarks/file", bookmarkFile);
     
     gnome_config_sync();
+}
+
+/* Given the current config settings, reset all the widgets and stuff */
+static void setConfig(void)
+{
+    reconfigHistory(historyWindow, historyLength,
+		    historyCallback, historyFile);
+    reconfigDataCache(cache, memCacheSize, 0, (GCacheDestroyFunc)g_free,
+		      cacheFile);
+    /*tocWindow = newToc(manPath, infoPath, ghelpPath, tocCallback);*/
+    reconfigBookmarks(bookmarkWindow, bookmarkCallback, NULL, bookmarkFile);
+}
+
+/* XXX This stuff should all be abstracted somewhere else. */
+/* There are globals around where there shouldn't be.      */
+
+#define CONFIG_INT  1
+#define CONFIG_TEXT 2
+
+struct _config_entry {
+    gchar *name;
+    gint type;
+    gpointer var;
+    GtkWidget *entry;
+};
+
+GtkWidget *configWindow = NULL;
+struct _config_entry configs[] = {
+    { "History size", CONFIG_INT, &historyLength, NULL },
+    { "History file", CONFIG_TEXT, &historyFile, NULL },
+    { "Cache size", CONFIG_INT, &memCacheSize, NULL },
+    { "Cache file", CONFIG_TEXT, &cacheFile, NULL },
+    { "Bookmark file", CONFIG_TEXT, &bookmarkFile, NULL },
+
+    { "Man Path", CONFIG_TEXT, &manPath, NULL },
+    { "Info Path", CONFIG_TEXT, &infoPath, NULL },
+    { "GNOME Help Path", CONFIG_TEXT, &ghelpPath, NULL },
+    
+    { NULL, 0, NULL }
+};
+
+static void
+generateConfigWidgets(GtkWidget *parentBox, struct _config_entry *configs)
+{
+    GtkWidget *table, *label, *entry;
+    struct _config_entry *p;
+    gchar buf[BUFSIZ];
+    gint rows;
+    
+    if (! configs)
+	return;
+
+    rows = 0;
+    p = configs;
+    while (p->name) {
+	rows++;
+	p++;
+    }
+
+    table = gtk_table_new(rows, 2, FALSE);
+    gtk_widget_show(table);
+    gtk_box_pack_start(GTK_BOX(parentBox), table, TRUE, TRUE, 0);
+
+    rows = 0;
+    p = configs;
+    while (p->name) {
+	label = gtk_label_new(p->name);
+	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_RIGHT);
+	gtk_widget_show(label);
+	
+	entry = gtk_entry_new();
+	gtk_widget_show(entry);
+	p->entry = entry;
+
+	if (p->type == CONFIG_INT) {
+	    sprintf(buf, "%d", *(gint *)(p->var));
+	    gtk_entry_set_text(GTK_ENTRY(entry), buf);
+	} else if (p->type == CONFIG_TEXT) {
+	    gtk_entry_set_text(GTK_ENTRY(entry), *(gchar **)(p->var));
+	}
+
+	gtk_table_attach(GTK_TABLE(table), label, 0, 1, rows, rows + 1,
+			 GTK_FILL, GTK_FILL,
+			 5, 0);
+	gtk_table_attach(GTK_TABLE(table), entry, 1, 2, rows, rows + 1,
+			 GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL,
+			 0, 0);
+
+	rows++;
+	p++;
+    }
+}
+
+static void
+configCallback(HelpWindow win)
+{
+    GtkWidget *window, *box, *buttonBox, *ok, *cancel;
+
+    if (configWindow) {
+	return;
+    }
+    
+    /* Main Window */
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "Gnome Help Configure");
+    gtk_widget_set_usize (window, 500, -1);
+    configWindow = window;
+
+    /* Vbox */
+    box = gtk_vbox_new(FALSE, 5);
+    gtk_container_border_width (GTK_CONTAINER (box), 5);
+    gtk_container_add(GTK_CONTAINER(window), box);
+    gtk_widget_show(box);
+
+    /* Entries */
+
+    generateConfigWidgets(box, configs);
+
+    /* Buttons */
+
+    buttonBox = gtk_table_new(1, 2, TRUE);
+    gtk_widget_show(buttonBox);
+
+    ok = gnome_stock_button(GNOME_STOCK_BUTTON_OK);
+    GTK_WIDGET_SET_FLAGS (GTK_WIDGET (ok), GTK_CAN_DEFAULT);
+    gtk_widget_show(ok);
+
+    cancel = gnome_stock_button(GNOME_STOCK_BUTTON_CANCEL);
+    GTK_WIDGET_SET_FLAGS (GTK_WIDGET (cancel), GTK_CAN_DEFAULT);
+    gtk_widget_show(cancel);
+
+    gtk_table_attach(GTK_TABLE(buttonBox), ok, 0, 1, 0, 1,
+		     GTK_EXPAND, 0, 0, 0);
+    gtk_table_attach(GTK_TABLE(buttonBox), cancel, 1, 2, 0, 1,
+		     GTK_EXPAND, 0, 0, 0);
+    gtk_box_pack_start(GTK_BOX(box), buttonBox, TRUE, TRUE, 0);
+
+    gtk_signal_connect(GTK_OBJECT(ok), "clicked",
+		       (GtkSignalFunc)configOK, window);
+    gtk_signal_connect(GTK_OBJECT(cancel), "clicked",
+		       (GtkSignalFunc)configCancel, window);
+
+    gtk_widget_show(window);
+}
+
+static void
+configOK(GtkWidget *w, GtkWidget *window)
+{
+    struct _config_entry *p = configs;
+    gchar *s;
+    gint x;
+    
+    while (p->name) {
+	s = gtk_entry_get_text(GTK_ENTRY(p->entry));
+
+	if (p->type == CONFIG_INT) {
+	    sscanf(s, "%d", &x);
+	    *(gint *)(p->var) = x;
+	} else if (p->type == CONFIG_TEXT) {
+	    if (*(gchar **)(p->var)) {
+		g_free(*(gchar **)(p->var));
+	    }
+	    *(gchar **)(p->var) = g_strdup(s);;
+	}
+	
+	p++;
+    }
+    
+    gtk_widget_destroy(window);
+    configWindow = NULL;
+    saveConfig();
+    setConfig();
+}
+
+static void
+configCancel(GtkWidget *w, GtkWidget *window)
+{
+    gtk_widget_destroy(window);
+    configWindow = NULL;
 }

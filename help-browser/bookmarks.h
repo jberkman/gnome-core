@@ -9,10 +9,12 @@ typedef struct _bookmarks_struct *Bookmarks;
 typedef void (*BookmarksCB) (gchar *ref);
 
 Bookmarks newBookmarks(BookmarksCB callback, gpointer data, gchar *file);
-void destroyBookmarks(Bookmarks h);
-void addToBookmarks(Bookmarks h, gchar *ref);
-void showBookmarks(Bookmarks h);
-void hideBookmarks(Bookmarks h);
-void saveBookmarks(Bookmarks h);
+void reconfigBookmarks(Bookmarks b, BookmarksCB callback,
+		       gpointer data, gchar *file);
+void destroyBookmarks(Bookmarks b);
+void addToBookmarks(Bookmarks b, gchar *ref);
+void showBookmarks(Bookmarks b);
+void hideBookmarks(Bookmarks b);
+void saveBookmarks(Bookmarks b);
 
 #endif _GNOME_HELP_BOOKMARKS_H_

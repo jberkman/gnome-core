@@ -1,6 +1,8 @@
 /* Caching functions for ghelp */
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <glib.h>
 #include "cache.h"
 
@@ -34,10 +36,8 @@ DataCache newDataCache(guint maxMemSize, guint maxDiskSize,
     DataCache res;
 
     res = (DataCache)malloc(sizeof *res);
-    res->maxMemSize = maxMemSize;
-    res->maxDiskSize = maxDiskSize;
-    res->destroyFunc = destroyFunc;
-    res->file = file;
+    res->file = NULL;
+    reconfigDataCache(res, maxMemSize, maxDiskSize, destroyFunc, file);
 
     res->memSize = 0;
     res->diskSize = 0;
@@ -46,6 +46,30 @@ DataCache newDataCache(guint maxMemSize, guint maxDiskSize,
     res->queue = NULL;
 
     return res;
+}
+
+void reconfigDataCache(DataCache cache, guint maxMemSize, guint maxDiskSize,
+		       GCacheDestroyFunc destroyFunc, gchar *file)
+{
+    gchar filename[BUFSIZ];
+    
+    cache->maxMemSize = maxMemSize;
+    cache->maxDiskSize = maxDiskSize;
+    cache->destroyFunc = destroyFunc;
+    if (cache->file) {
+	g_free(cache->file);
+    }
+    if (file) {
+	if (*(file) != '/') {
+	    g_snprintf(filename, sizeof(filename), "%s/%s",
+		       getenv("HOME"), file);
+	} else {
+	    strncpy(filename, file, sizeof(filename));
+	}
+	cache->file = g_strdup(filename);
+    } else {
+	cache->file = NULL;
+    }
 }
 
 void saveCache(DataCache cache)
@@ -97,6 +121,15 @@ void addToDataCache(DataCache cache, gchar *key, gpointer value, guint size)
 {
     struct _data_cache_entry *hit;
 
+    if (size > cache->maxMemSize) {
+	return;
+    }
+
+    /* If we have too much stuff in the cache, clean up a bit */
+    while (cache->memSize + size > cache->maxMemSize) {
+	removeElement(cache);
+    }
+    
     hit = g_new(struct _data_cache_entry, 1);
     hit->key = g_strdup(key);
     hit->value = value;
@@ -105,11 +138,6 @@ void addToDataCache(DataCache cache, gchar *key, gpointer value, guint size)
     cache->queue = g_list_append(cache->queue, hit);
     g_hash_table_insert(cache->hashTable, hit->key, hit);
     cache->memSize += size;
-
-    /* If we have too much stuff in the cache, clean up a bit */
-    while (cache->memSize > cache->maxMemSize) {
-	removeElement(cache);
-    }
 }
 
 static void removeElement(DataCache cache)

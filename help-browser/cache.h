@@ -8,6 +8,9 @@ typedef struct _data_cache *DataCache;
 DataCache newDataCache(guint maxMemSize, guint maxDiskSize,
 		       GCacheDestroyFunc destroyFunc, gchar *file);
 
+void reconfigDataCache(DataCache cache, guint maxMemSize, guint maxDiskSize,
+		       GCacheDestroyFunc destroyFunc, gchar *file);
+
 void destroyDataCache(DataCache cache);
 
 gpointer lookupInDataCache(DataCache cache, gchar *key);

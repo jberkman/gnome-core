@@ -1,3 +1,15 @@
+1998-03-11  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Made history, cache, bookmarks reconfigurable.
+
+	* Config panel.
+
+	* More humanRef bits (history, bookmarks, etc).
+
+1998-03-10  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Cache tweak.
+
 Tue Mar 10 22:39:15 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* gnome-help-browser.c (program_invocation_name): Declare.

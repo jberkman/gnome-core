@@ -45,8 +45,8 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save )
 
 	/* obj was 'cleaned up' by visitDocuemnt()/resolveURL() */
 	if (save) {
-	        helpWindowQueueAdd(win, docObjGetAbsoluteRef(obj));
-		helpWindowHistoryAdd(win, docObjGetAbsoluteRef(obj));
+	        helpWindowQueueAdd(win, docObjGetHumanRef(obj));
+		helpWindowHistoryAdd(win, docObjGetHumanRef(obj));
 	}
 	
 	docObjFree(obj);

@@ -49,6 +49,7 @@ struct _helpWindow {
 
     /* The current page reference */
     gchar *currentRef;
+    gchar *humanRef;
 
     /* The entry box that shows the URL */
     GtkWidget *entryBox;
@@ -61,6 +62,7 @@ struct _helpWindow {
     HelpWindowCB new_window_cb;
     HelpWindowCB close_window_cb;
     HelpWindowCB set_current_cb;
+    HelpWindowCB config_cb;
     History history;
     Toc toc;
     DataCache cache;
@@ -73,6 +75,7 @@ static GtkWidget * makeEntryArea(HelpWindow w);
 /* Callbacks */
 static void quit_cb(void);
 static void about_cb (GtkWidget *w, HelpWindow win);
+static void config_cb (GtkWidget *w, HelpWindow win);
 static void bookmark_cb (GtkWidget *w, HelpWindow win);
 static void close_cb (GtkWidget *w, HelpWindow win);
 static void delete_cb (GtkWidget *w, void *foo, HelpWindow win);
@@ -110,6 +113,7 @@ GnomeUIInfo filemenu[] = {
     GNOMEUIINFO_ITEM("New window", "Open new browser window",
 		     new_window_cb, NULL),
     GNOMEUIINFO_ITEM("Add Bookmark", "Add Bookmark", bookmark_cb, NULL),
+    GNOMEUIINFO_ITEM("Configure", "Configure", config_cb, NULL),
     GNOMEUIINFO_ITEM("Close", "Close window", close_cb, NULL),
     GNOMEUIINFO_ITEM("Exit", "Exit program", quit_cb, NULL),
     GNOMEUIINFO_END
@@ -174,10 +178,17 @@ about_cb (GtkWidget *w, HelpWindow win)
 }
 
 static void
+config_cb (GtkWidget *w, HelpWindow win)
+{
+    if (win->config_cb)
+	(win->config_cb)(win);
+}
+
+static void
 bookmark_cb (GtkWidget *w, HelpWindow win)
 {
     if (win->bookmarks)
-	addToBookmarks(win->bookmarks, win->currentRef);
+	addToBookmarks(win->bookmarks, win->humanRef);
 }
 
 static void
@@ -439,6 +450,10 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
     w->currentRef = g_strdup(ref);
     
     gtk_entry_set_text(GTK_ENTRY(w->entryBox), humanRef);
+    if (w->humanRef) {
+	g_free(w->humanRef);
+    }
+    w->humanRef = g_strdup(humanRef);
 
     /* Load it up */
     buf = g_malloc(len + 1);
@@ -466,6 +481,8 @@ helpWindowClose(HelpWindow win)
 
     if (win->currentRef)
 	g_free(win->currentRef);
+    if (win->humanRef)
+	g_free(win->humanRef);
     queue_free(win->queue);
     g_free(win);
 }
@@ -475,7 +492,8 @@ helpWindowNew(gchar *name,
 	      HelpWindowCB about_callback,
 	      HelpWindowCB new_window_callback,
 	      HelpWindowCB close_window_callback,
-	      HelpWindowCB set_current_callback)
+	      HelpWindowCB set_current_callback,
+	      HelpWindowCB config_callback)
 {
         HelpWindow w;
 	GtkWidget *entryArea;
@@ -488,10 +506,12 @@ helpWindowNew(gchar *name,
 	w->new_window_cb = new_window_callback;
 	w->close_window_cb = close_window_callback;
 	w->set_current_cb = set_current_callback;
+	w->config_cb = config_callback;
 	w->history = NULL;
 	w->bookmarks = NULL;
 	w->cache = NULL;
 	w->currentRef = NULL;
+	w->humanRef = NULL;
 
 	w->app = gnome_app_new (name, "Gnome Help Browser");
 	gtk_widget_realize (w->app);
