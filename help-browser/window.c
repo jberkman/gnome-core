@@ -26,7 +26,6 @@
 #include "misc.h"
 
 /* Toolbar pixmaps */
-#include "close.xpm"
 #include "right_arrow.xpm"
 #include "left_arrow.xpm"
 #include "contents.xpm"
@@ -93,7 +92,6 @@ static void anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 static void reload_page(GtkWidget *w, HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowBookmarks (GtkWidget *w, HelpWindow win);
-static void ghelpShowToc (GtkWidget *w, HelpWindow win);
 static void entryChanged(GtkWidget *w, HelpWindow win);
 static void setCurrent(HelpWindow w);
 
@@ -132,8 +130,6 @@ GnomeUIInfo helpmenu[] = {
 GnomeUIInfo windowmenu[] = {
     GNOMEUIINFO_ITEM("History", "Show History Window",
 		     ghelpShowHistory, NULL),
-    GNOMEUIINFO_ITEM("Table of Contents", "Show Table of Contents Window",
-		     ghelpShowToc, NULL),
     GNOMEUIINFO_ITEM("Bookmarks", "Show Bookmarks Window",
 		     ghelpShowBookmarks, NULL),
     GNOMEUIINFO_END
@@ -158,8 +154,6 @@ GnomeUIInfo toolbar[] = {
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_ITEM("History", "Show History Window",
 		     ghelpShowHistory, contents_xpm),
-    GNOMEUIINFO_ITEM("TOC", "Show Table of Contents Window",
-		     ghelpShowToc, contents_xpm),
     GNOMEUIINFO_ITEM("BMarks", "Show Bookmarks Window",
 		     ghelpShowBookmarks, contents_xpm),
     GNOMEUIINFO_END
@@ -224,12 +218,6 @@ static void
 ghelpShowBookmarks (GtkWidget *w, HelpWindow win)
 {
     showBookmarks(win->bookmarks);
-}
-
-static void
-ghelpShowToc (GtkWidget *w, HelpWindow win)
-{
-    showToc(win->toc);
 }
 
 static void
@@ -459,8 +447,6 @@ helpWindowHistoryAdd(HelpWindow w, gchar *ref)
 {
     addToHistory(w->history, ref);
 }
-
-static gchar *buf2;
 
 void
 helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,

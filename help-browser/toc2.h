@@ -25,12 +25,7 @@ struct _big_table_entry {
 
 typedef struct _toc *Toc;
 
-typedef void (*TocCB) (gchar *ref);
-
-Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
-	   TocCB callback);
-void showToc(Toc toc);
-void hideToc(Toc toc);
+Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath);
 
 GString *generateHTML(Toc res);
 

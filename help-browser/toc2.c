@@ -20,36 +20,13 @@ struct _toc {
     GList *manTable;
     GList *infoTable;
     GList *ghelpTable;
-
-    GtkWidget *window;
-    GtkWidget *htmlWidget;
-    TocCB callback;
 };
 
 static struct _toc_config *addToConfig(struct _toc_config *index,
 				       gchar *paths, gint type);
 static gint countChars(gchar *s, gchar ch);
 static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath);
-static int hideTocInt(GtkWidget *window);
-static void tocClicked(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, Toc toc);
 static GList *findFirstEntryByName(GList *table, gchar *name);
-
-void showToc(Toc toc)
-{
-    gtk_widget_show(GTK_WIDGET(toc->window));
-}
-
-void hideToc(Toc toc)
-{
-    gtk_widget_hide(GTK_WIDGET(toc->window));
-}
-
-static int hideTocInt(GtkWidget *window)
-{
-    gtk_widget_hide(GTK_WIDGET(window));
-
-    return FALSE;
-}
 
 static gint countChars(gchar *s, gchar ch)
 {
@@ -106,11 +83,9 @@ static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
     index->type = 0;
 }
 
-Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
-	   TocCB callback)
+Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
 {
     Toc res;
-    GString *s;
 
     buildTocConfig(manPath, infoPath, ghelpPath);
     
@@ -118,41 +93,8 @@ Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
     res->manTable = newManTable(toc_config);
     res->ghelpTable = newGhelpTable(toc_config);
     res->infoTable = newInfoTable(toc_config);
-    res->callback = callback;
-
-    s = generateHTML(res);
-
-    res->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(res->window), "Gnome Help TOC");
-    gtk_widget_set_usize (res->window, 300, 200);
-
-    res->htmlWidget = gnome_helpwin_new();
-    gtk_widget_show(res->htmlWidget);
-
-    gtk_signal_connect(GTK_OBJECT(res->htmlWidget), "activate",
-		       GTK_SIGNAL_FUNC(tocClicked), res);
-
-    gtk_container_add(GTK_CONTAINER(res->window), res->htmlWidget);
-
-    gtk_signal_connect(GTK_OBJECT (res->window), "destroy",
-		       GTK_SIGNAL_FUNC(hideTocInt), NULL);
-    gtk_signal_connect(GTK_OBJECT (res->window), "delete_event",
-		       GTK_SIGNAL_FUNC(hideTocInt), NULL);
-
-    gtk_xmhtml_source(GTK_XMHTML(res->htmlWidget), s->str);
-    
-    g_string_free(s, TRUE); 
 
     return res;
-}
-
-static void
-tocClicked(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, Toc toc)
-{
-	/* XXX should also have mime type info */
-	if (toc->callback) {
-	    (toc->callback)(cbs->href);
-	}
 }
 
 GString *generateHTML(Toc toc)

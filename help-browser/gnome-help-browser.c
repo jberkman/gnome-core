@@ -43,7 +43,6 @@ static void configCallback(HelpWindow win);
 
 static void historyCallback(gchar *ref);
 static void bookmarkCallback(gchar *ref);
-static void tocCallback(gchar *ref);
 
 void messageHandler(gchar *s);
 void warningHandler(gchar *s);
@@ -105,7 +104,7 @@ static gchar *bookmarkFile;
 static GnomeClient *smClient;
 
 /* A few globals */
-static Toc tocWindow;
+static Toc toc;
 static History historyWindow;
 static DataCache cache;
 static Bookmarks bookmarkWindow;
@@ -154,7 +153,7 @@ main(gint argc, gchar *argv[])
     historyWindow = newHistory(historyLength, historyCallback, historyFile);
     cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free,
 			 cacheFile);
-    tocWindow = newToc(manPath, infoPath, ghelpPath, tocCallback);
+    toc = newToc(manPath, infoPath, ghelpPath);
     bookmarkWindow = newBookmarks(bookmarkCallback, NULL, bookmarkFile);
 
     window = makeHelpWindow(defposx, defposy, defwidth, defheight );
@@ -196,7 +195,7 @@ makeHelpWindow(gint x, gint y, gint w, gint h)
 			   configCallback);
     helpWindowSetHistory(window, historyWindow);
     helpWindowSetCache(window, cache);
-    helpWindowSetToc(window, tocWindow);
+    helpWindowSetToc(window, toc);
     helpWindowSetBookmarks(window, bookmarkWindow);
 
     windowList = g_list_append(windowList, window);
@@ -282,13 +281,6 @@ static void
 bookmarkCallback (gchar *ref)
 {
     g_message("BOOKMARKS: %s", ref);
-    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref, TRUE);
-}
-
-static void
-tocCallback (gchar *ref) 
-{
-    g_message("TOC: %s", ref);
     helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref, TRUE);
 }
 
@@ -499,7 +491,7 @@ static void setConfig(void)
 		    historyCallback, historyFile);
     reconfigDataCache(cache, memCacheSize, 0, (GCacheDestroyFunc)g_free,
 		      cacheFile);
-    /*tocWindow = newToc(manPath, infoPath, ghelpPath, tocCallback);*/
+    /*toc = newToc(manPath, infoPath, ghelpPath, tocCallback);*/
     reconfigBookmarks(bookmarkWindow, bookmarkCallback, NULL, bookmarkFile);
 }
 

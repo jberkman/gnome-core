@@ -1,3 +1,7 @@
+1998-03-18  Marc Ewing  <marc@redhat.com>
+
+	* Removed the TOC window
+
 1998-03-16  Michael Fulbright  <msf@redhat.com>
 
 	* Added default page, made appropriate Makefile.am changes
