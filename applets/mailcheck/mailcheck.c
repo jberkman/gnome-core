@@ -510,6 +510,21 @@ destroy_applet(GtkWidget *widget, gpointer data)
 }
 
 
+static void
+about_window(AppletWidget *a_widget, gpointer a_data)
+{
+	GtkWidget *about = NULL;
+	gchar     *authors [] = { "Miguel de Icaza (miguel@kernel.org)", NULL };
+	
+	l_about = gnome_about_new ( _("Mail check Applet", "1.0"),
+				    _("(c) 1998 the Free Software Foundation"),
+				    authors,
+				    _("Mail check notifies you when new mail is on your mailbox")
+				    NULL);
+  gtk_widget_show(l_about);
+  return;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -536,8 +551,6 @@ main(int argc, char **argv)
 		}
 	}
 
-	fprintf(stderr, "mail_file = %s\n", mail_file);
-	
 	applet = applet_widget_new(argv[0]);
 	if (!applet)
 		g_error("Can't create applet!\n");
@@ -567,6 +580,12 @@ main(int argc, char **argv)
 					"properties",
 					_("Properties"),
 					mailcheck_properties,
+					NULL);
+
+	applet_widget_register_callback(APPLET_WIDGET(applet),
+					"about",
+					_("About..."),
+					mailcheck_about,
 					NULL);
 
 	applet_widget_gtk_main ();
