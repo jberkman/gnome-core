@@ -399,8 +399,12 @@ void save_pressed_cb(GtkWidget *w, gpointer data)
 
 	if (isfile(path))
 		{
+#if 0
 		gnome_question_dialog (_("Overwrite existing file?"),
 			(GnomeReplyCallback) save_dialog_cb, NULL);
+#else
+		save_dialog_cb(0, NULL);
+#endif
 		g_free(path);
 		return;
 		}
