@@ -1,5 +1,7 @@
 2000-02-11  Jason Leach  <leach@wam.umd.edu>
 
+	* gnome-convert (plain): important bug fix, closes #6003
+
 	* mime.c: Make sure to include <alloca.h> when required (added an
 	#ifdef HAVE_ALLOCA_H), fixes bug #2275
 	* gnome-help-browser.c: same

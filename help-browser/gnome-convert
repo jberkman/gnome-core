@@ -117,7 +117,7 @@ if (/^application.pdf/) {
 }
 
 print "<h1>Unknown data type</h1>\n";
-print "<p>File with uknown type <TT>$_</TT> was encountered. If it can reasonably be converted to text/html, add conversion routine to <CODE>gnome-convert</CODE> script.\n";
+print "<p>File with unkown type <TT>$_</TT> was encountered. If it can reasonably be converted to text/html, add conversion routine to <CODE>gnome-convert</CODE> script.\n";
 print "<p>File has been saved into <TT>$tmpname</TT>, delete it if you don't need it.\n";
 
 print "<p>Additionaly, you may\n<ul>\n";
