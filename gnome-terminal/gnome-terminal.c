@@ -1,5 +1,6 @@
 /*
  * The GNOME terminal, using Michael Zucchi's zvt widget.
+ * (C) 1998 Miguel de Icaza, Michael Zucchi.
  */
 #include <config.h>
 #include <unistd.h>
@@ -28,7 +29,7 @@ enum {
 } scrollbar_position;
 
 /* How to invoke the shell */
-int invoke_as_login_shell = 1;
+int invoke_as_login_shell = 0;
 
 /* Do we want blinking cursor? */
 int blink;
@@ -64,7 +65,7 @@ static void
 close_terminal_cmd (void *unused, void *data)
 {
 	terminals = g_list_remove (terminals, data);
-	gtk_widget_destroy (GTK_WIDGET (data));
+	gtk_widget_destroy (gtk_widget_get_toplevel (GTK_WIDGET (data)));
 	if (terminals == NULL)
 		gtk_main_quit ();
 }
@@ -113,14 +114,13 @@ choose_font (void)
 	l = gtk_label_new (font);
 	gtk_widget_show (l);
 	gtk_container_add (GTK_CONTAINER (font_button), l);
-	gnome_property_box_changed (prop_win);
+	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop_win));
 }
 
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GtkTable *table;
-	GtkWidget *l, *e;
+	GtkWidget *l, *e, *table, *c;
 	
 	if (prop_win)
 		return;
@@ -145,6 +145,13 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, 3, 4, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
+	c = gtk_check_button_new_with_label (_("Blinking cursor"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (c),
+				     blink ? 1 : 0);
+	gtk_table_attach (GTK_TABLE (table), c,
+			  2, 3, 5, 6, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prop_win), "apply",
 			    GTK_SIGNAL_FUNC (apply_changes), term);
 	gtk_signal_connect (GTK_OBJECT (prop_win), "delete_event",
@@ -242,7 +249,7 @@ new_terminal (void)
 		for (p = env; *p; p++)
 			;
 		i = env - p;
-		env_copy = (char **) g_malloc (sizeof (char **) * (i + 1 + EXTRA));
+		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
 			if (strncmp (*p, "TERM", 4) == 0)
 				env_copy [i++] = "TERM=xterm-color";
@@ -320,13 +327,15 @@ terminal_load_defaults (void)
 
 /* Keys for the ARGP parser, should be negative */
 enum {
-	FONT_KEY = -1,
-	NOLOGIN_KEY = -2
+	FONT_KEY    = -1,
+	NOLOGIN_KEY = -2,
+	LOGIN_KEY   = -3
 };
 
 static struct argp_option argp_options [] = {
 	{ "font",    FONT_KEY,    N_("FONT"), 0, N_("Specifies font name"),                    0 },
 	{ "nologin", NOLOGIN_KEY, NULL,       0, N_("Do not start up shells as login shells"), 0 },
+	{ "login",   LOGIN_KEY,   NULL,       0, N_("Start up shells as login shells"), 0 },
 	{ NULL, 0, NULL, 0, NULL, 0 },
 };
 
@@ -336,6 +345,9 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 	switch (key){
 	case FONT_KEY:
 		font = arg;
+		break;
+	case LOGIN_KEY:
+		invoke_as_login_shell = 1;
 		break;
 	case NOLOGIN_KEY:
 	        invoke_as_login_shell = 0;
