@@ -6,15 +6,17 @@ INCLUDES = -I. -I$(srcdir) 				\
 	-I$(top_builddir)/panel \
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"	\
 	-I$(includedir) $(GNOME_INCLUDEDIR)		\
-	-DVERSION=\""$(VERSION)"\"
+	-DVERSION=\""$(VERSION)"\"			\
+	@PIXBUF_CFLAGS@
 
 bin_PROGRAMS = deskguide_applet
 
-deskguide_applet_SOURCES = gstc.c gwmh.c gwmdesktop.c gwmtaskview.c deskguide_applet.c
+deskguide_applet_SOURCES = gstc.c gwmh.c gwmthumbnail.c gwmdesktop.c gwmtaskview.c deskguide_applet.c
 
 deskguide_applet_LDADD = ../../panel/libpanel_applet.la \
-		     $(GNOME_LIBDIR) $(ORB_LIBS)         \
-		     $(GNOMEUI_LIBS) $(GNORBA_LIBS)      \
+		     $(GNOME_LIBDIR) $(ORB_LIBS)        \
+		     $(GNOMEUI_LIBS) $(GNORBA_LIBS)     \
+		     @PIXBUF_LIBS@			\
 		     $(INTLLIBS)
 
 EXTRA_DIST = \
@@ -22,6 +24,7 @@ EXTRA_DIST = \
 	gwmh.h \
 	gwmdesktop.h \
 	gwmtaskview.h \
+	gwmthumbnail.h \
 	deskguide_applet.h \
 	deskguide_applet.gnorba \
 	deskguide_applet.desktop \

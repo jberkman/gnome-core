@@ -184,7 +184,8 @@ struct _GwmhDesk
 struct _GwmhTask
 {
   gchar     *name;
-
+  gchar     *icon_name;
+  
   /* window's state and hints */
   GwmhState        gstate;
   GwmhHints        ghints;

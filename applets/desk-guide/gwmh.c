@@ -842,6 +842,8 @@ gwmh_property_atom2info (Atom     atom,
 {
   static const Atom gwmh_XA_WM_HINTS = XA_WM_HINTS;
   static const Atom gwmh_XA_WM_NAME = XA_WM_NAME;
+  static const Atom gwmh_XA_WM_ICON_NAME = XA_WM_ICON_NAME;
+  
   static const struct {
     const Atom *atom_p;
     guint       iflag;
@@ -865,6 +867,7 @@ gwmh_property_atom2info (Atom     atom,
     { &XA_WM_STATE,			GWMH_TASK_INFO_ICONIFIED, },
     { &gwmh_XA_WM_HINTS,                GWMH_TASK_INFO_WM_HINTS, },
     { &gwmh_XA_WM_NAME,			GWMH_TASK_INFO_MISC, },
+    { &gwmh_XA_WM_ICON_NAME,            GWMH_TASK_INFO_MISC, },
   };
   guint i;
   
@@ -1209,6 +1212,23 @@ gwmh_task_update (GwmhTask        *task,
 	{
 	  g_free (task->name);
 	  task->name = g_strdup (name);
+	  ichanges |= GWMH_TASK_INFO_MISC;
+	}
+      g_free (name);
+
+      name = get_typed_property_data (xdisplay, xwindow,
+				      XA_WM_ICON_NAME,
+				      XA_STRING,
+				      &size, 8);
+      if (!name && !size)
+	name = get_typed_property_data (xdisplay, xwindow,
+					XA_WM_ICON_NAME,
+					XA_COMPOUND_TEXT,
+					&size, 8);
+      if (!gwmh_string_equals (task->icon_name, name))
+	{
+	  g_free (task->icon_name);
+	  task->icon_name = g_strdup (name);
 	  ichanges |= GWMH_TASK_INFO_MISC;
 	}
       g_free (name);
@@ -1685,6 +1705,7 @@ task_new (GdkWindow *window)
   task = g_new0 (GwmhTask, 1);
   gwmh_desk.client_list = g_list_prepend (gwmh_desk.client_list, task);
   task->name = NULL;
+  task->icon_name = NULL;
   task->frame_x = -1;
   task->frame_y = -1;
   task->win_x = -1;
@@ -1782,6 +1803,8 @@ task_delete (GwmhTask *task)
   gwmh_desk.client_list = g_list_remove (gwmh_desk.client_list, task);
   g_free (task->name);
   task->name = "DELETED";
+  g_free (task->icon_name);
+  task->icon_name = NULL;
   
   if (g_list_find (gwmh_desk.client_list, task))
     g_error ("deleted task still in client_list\n"); /* FIXME */

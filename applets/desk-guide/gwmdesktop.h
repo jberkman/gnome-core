@@ -49,6 +49,9 @@ struct _GwmDesktop
   guint          harea, varea;
   guint          last_desktop;
   GList         *task_list;
+
+  gfloat	 area_width;
+  gfloat	 area_height;
   
   GdkBitmap     *bitmap;
   GdkPixmap     *pixmap;
@@ -67,9 +70,9 @@ struct _GwmDesktopClass
 {
   GtkDrawingAreaClass  parent_class;
 
-  guint          double_buffer : 1;
   GtkOrientation orientation;
   guint          area_size;
+  guint		 thumb_timeout;
   guint          raised_grid : 1;
   guint          move_to_frame_offset : 1;
 
@@ -88,11 +91,12 @@ void            gwm_desktop_set_index    (GwmDesktop  *desktop,
                                           guint        index);
 
 void            gwm_desktop_class_config (GwmDesktopClass *klass,
-                                          gboolean         double_buffer,
+                                          guint		   thumb_timeout,
                                           GtkOrientation   orientation,
                                           guint            area_size,
                                           gboolean         raised_grid,
 					  gboolean	   move_to_frame_offset);
+void		gwm_desktop_class_reload_thumbs (void);
 
 
 #ifdef __cplusplus

@@ -21,6 +21,7 @@
 #include <libgnomeui/gnome-window-icon.h>
 #include "gwmdesktop.h"
 #include "gwmtaskview.h"
+#include "gwmthumbnail.h"
 
 
 #define CONFIG_OBOX_BORDER 6
@@ -76,16 +77,15 @@ static ConfigItem gp_config_items[] = {
   CONFIG_SECTION (sect_layout,					N_ ("Layout")),
   CONFIG_BOOL (switch_arrow,	FALSE,
 	       N_ ("Switch tasklist arrow")),
-  /* FIXME: remove this:
-   * CONFIG_BOOL (show_properties_button,	FALSE,
-   *  	          N_ ("Show properties `?' button")),
-   * CONFIG_BOOL (show_pager,	TRUE,
-   * N_ ("Show desktop pager")),
-   */
   CONFIG_BOOL (current_only,	FALSE,
 	       N_ ("Only show current desktop in pager")),
-  CONFIG_BOOL (raise_grid,		FALSE,
+  CONFIG_BOOL (raise_grid,	FALSE,
 	       N_ ("Raise area grid over tasks")),
+  CONFIG_SECTION (sect_thumb_nail,				N_ ("Thumb Nails")),
+  CONFIG_BOOL (enable_thumb_nails,	TRUE,
+	       N_ ("Fill window thumbnails with screen contents")),
+  CONFIG_RANGE (thumb_nail_delay, 500,	50,	5000,
+		N_ ("Incremental update delay [ms]")),
   CONFIG_SECTION (sect_tooltips,				N_ ("Tooltips")),
   CONFIG_BOOL (tooltips,	TRUE,
 	       N_ ("Show Desk-Guide tooltips")),
@@ -133,9 +133,6 @@ static ConfigItem gp_config_items[] = {
 	       N_ ("Divide width by number of columns")),
 
   CONFIG_PAGE (N_ ("Advanced")),
-  CONFIG_SECTION (sect_drawing,					N_ ("Drawing")),
-  CONFIG_BOOL (double_buffer,	TRUE,
-	       N_ ("Draw desktops double-buffered (recommended)")),
   CONFIG_SECTION (sect_workarounds,			N_ ("Window Manager Workarounds")),
   CONFIG_BOOL (skip_movement_offset,		TRUE,
 	       N_ ("Window manager moves decoration window instead\n"
@@ -425,6 +422,7 @@ gp_desk_notifier (gpointer	   func_data,
     {
       gp_destroy_gui ();
       gp_init_gui ();
+      gwm_desktop_class_reload_thumbs ();
     }
   else
     {
@@ -515,8 +513,9 @@ gp_create_desk_widgets (void)
 	  area_size /= (gdouble) MIN (n, N_DESKTOPS);
 	}
     }
+  gwm_thumb_nails_set_active (BOOL_CONFIG (enable_thumb_nails));
   gwm_desktop_class_config (gtk_type_class (GWM_TYPE_DESKTOP),
-			    BOOL_CONFIG (double_buffer),
+			    BOOL_CONFIG (enable_thumb_nails) ? RANGE_CONFIG (thumb_nail_delay) : 0,
 			    gp_orientation,
 			    area_size,
 			    BOOL_CONFIG (raise_grid),
@@ -832,27 +831,6 @@ gp_init_gui (void)
    ? gtk_box_pack_end
    : gtk_box_pack_start) (GTK_BOX (abox), button, TRUE, TRUE, 0);
   
-  /* FIXME: remove this:
-   *  (arrow_at_end
-   *   ? gtk_box_pack_end
-   *   : gtk_box_pack_start) (GTK_BOX (abox), button, !BOOL_CONFIG (show_properties_button), TRUE, 0);
-   *  button = gtk_widget_new (GTK_TYPE_BUTTON,
-   *			       "visible", BOOL_CONFIG (show_properties_button),
-   *			       "can_focus", FALSE,
-   *			       "label", "?",
-   *			       "signal::clicked", gp_config_popup, NULL,
-   *			       "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
-   *			       "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
-   *			       NULL);
-   *  gtk_tooltips_set_tip (gp_tooltips,
-   *			    button,
-   *			    DESK_GUIDE_NAME,
-   *			    NULL);
-   * (!arrow_at_end
-   *  ? gtk_box_pack_end
-   *  : gtk_box_pack_start) (GTK_BOX (abox), button, TRUE, TRUE, 0);
-   */
-  
   /* desktop pagers
    */
   gp_create_desk_widgets ();
@@ -915,6 +893,8 @@ gp_config_check (GtkWidget *widget)
 			    !BOOL_TMP_CONFIG (abandon_area_height));
   gtk_widget_set_sensitive (CONFIG_WIDGET (toplevel, area_width),
 			    !BOOL_TMP_CONFIG (abandon_area_width));
+  gtk_widget_set_sensitive (CONFIG_WIDGET (toplevel, thumb_nail_delay),
+			    BOOL_TMP_CONFIG (enable_thumb_nails));
 }
 
 static void
