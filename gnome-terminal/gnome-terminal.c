@@ -503,8 +503,11 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	return 0;
 }
 
+static void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
+
 static void
-apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term){
+apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term)
+{
 	struct terminal_config *newcfg, *cfg;
 
 	if (page != -1) return;
@@ -518,6 +521,7 @@ apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term){
 		apply_changes (term, newcfg);
 		terminal_config_free (newcfg);
 	}
+	save_preferences_cmd (widget, term);
 }
 
 static void
@@ -782,6 +786,56 @@ free_cs (GtkWidget *widget, GnomeColorPicker *cp)
 {
 }
 	 
+static char *
+get_color_string (GdkColor c)
+{
+	static char buffer [40];
+
+	sprintf (buffer, "rgb:%04x/%04x/%04x", c.red, c.green , c.blue);
+	return buffer;
+}
+
+static void
+save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg, gchar *prefix)
+{
+	gnome_config_push_prefix (prefix);
+
+	if (cfg->font)
+		gnome_config_set_string ("font", cfg->font);
+	gnome_config_set_string ("scrollpos",
+				 cfg->scrollbar_position == SCROLLBAR_LEFT ? "left" :
+				 cfg->scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
+	gnome_config_set_bool   ("bell_silenced", cfg->bell);
+	gnome_config_set_bool   ("blinking", cfg->blink);
+	gnome_config_set_bool   ("swap_del_and_backspace", cfg->swap_keys);
+	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
+	gnome_config_set_int    ("color_set", cfg->color_set);
+	gnome_config_set_string ("color_scheme",
+		     cfg->color_type == 0 ? "linux" : (cfg->color_type == 1 ? "xterm" : "rxvt"));
+	gnome_config_set_string ("foreground", get_color_string (cfg->user_fore));
+	gnome_config_set_string ("background", get_color_string (cfg->user_back));
+	gnome_config_set_bool   ("menubar", !cfg->menubar_hidden);
+	gnome_config_set_bool   ("scrollonkey", cfg->scroll_key);
+	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
+	gnome_config_set_bool   ("transparent", cfg->transparent);
+	gnome_config_set_bool   ("shaded", cfg->shaded);
+	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
+	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
+	gnome_config_sync ();
+
+	gnome_config_pop_prefix ();
+}
+
+static void
+save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
+{
+	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
+ 	char *prefix = alloca (strlen (cfg->class) + 20);
+
+	sprintf (prefix, "/Terminal/%s/", cfg->class);
+	save_preferences (widget, term, cfg, prefix);
+}
+
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
@@ -1076,56 +1130,6 @@ color_cmd (void)
 	gtk_widget_show (c);
 }
 
-static char *
-get_color_string (GdkColor c)
-{
-	static char buffer [40];
-
-	sprintf (buffer, "rgb:%04x/%04x/%04x", c.red, c.green , c.blue);
-	return buffer;
-}
-
-static void
-save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg, gchar *prefix)
-{
-	gnome_config_push_prefix (prefix);
-
-	if (cfg->font)
-		gnome_config_set_string ("font", cfg->font);
-	gnome_config_set_string ("scrollpos",
-				 cfg->scrollbar_position == SCROLLBAR_LEFT ? "left" :
-				 cfg->scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
-	gnome_config_set_bool   ("bell_silenced", cfg->bell);
-	gnome_config_set_bool   ("blinking", cfg->blink);
-	gnome_config_set_bool   ("swap_del_and_backspace", cfg->swap_keys);
-	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
-	gnome_config_set_int    ("color_set", cfg->color_set);
-	gnome_config_set_string ("color_scheme",
-		     cfg->color_type == 0 ? "linux" : (cfg->color_type == 1 ? "xterm" : "rxvt"));
-	gnome_config_set_string ("foreground", get_color_string (cfg->user_fore));
-	gnome_config_set_string ("background", get_color_string (cfg->user_back));
-	gnome_config_set_bool   ("menubar", !cfg->menubar_hidden);
-	gnome_config_set_bool   ("scrollonkey", cfg->scroll_key);
-	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
-	gnome_config_set_bool   ("transparent", cfg->transparent);
-	gnome_config_set_bool   ("shaded", cfg->shaded);
-	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
-	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
-	gnome_config_sync ();
-
-	gnome_config_pop_prefix ();
-}
-
-static void
-save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
-{
-	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
- 	char *prefix = alloca (strlen (cfg->class) + 20);
-
-	sprintf (prefix, "/Terminal/%s/", cfg->class);
-	save_preferences (widget, term, cfg, prefix);
-}
-
 static void
 show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 {
@@ -1152,9 +1156,9 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 
 #define DEFINE_TERMINAL_MENU(name,text,cmd) \
 \
-static GnomeUIInfo name [] = {								\
-	GNOMEUIINFO_ITEM_NONE (N_("_New terminal"), NULL, new_terminal),\
-	GNOMEUIINFO_ITEM_NONE (N_("_Save properties as Defaults"), NULL, save_preferences_cmd),	\
+static GnomeUIInfo name [] = {							 \
+	GNOMEUIINFO_ITEM_NONE (N_("_New terminal"), NULL, new_terminal),         \
+/*	GNOMEUIINFO_ITEM_NONE (N_("_Save properties as Defaults"), NULL, save_preferences_cmd),	 */\
 	GNOMEUIINFO_SEPARATOR,\
 	GNOMEUIINFO_ITEM_NONE (text, NULL, cmd),\
 	GNOMEUIINFO_ITEM_STOCK (N_("_Properties..."), NULL, preferences_cmd, GNOME_STOCK_MENU_PROP), \

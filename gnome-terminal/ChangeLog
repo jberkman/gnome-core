@@ -1,3 +1,7 @@
+1998-12-09  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c: Preferences are now saved by default.
+
 1998-12-02  Jeff Garzik  <jgarzik@pobox.com>
 
 	* gnome-terminal.c:
