@@ -12,7 +12,7 @@
       </author>
     </authorgroup>
     <releaseinfo>documentation in progress</releaseinfo>
-     <legalnotice>
+     <legalnotice id="legalnotice">
       <para>
 	Dette dokumentet kan redistribueres fritt i samsvar med
 	betingelsene gitt i GNU General Public License.</para>
@@ -355,8 +355,8 @@
 	</para>
       </sect2>
       
-      <sect2 id="pointer-dnd"
-        <Title>Dra-og-slipp</title>
+      <sect2 id="pointer-dnd">
+        <title>Dra-og-slipp</title>
 	<para>
 	  Dra-og-slipp kan brukes til en rekke operasjoner i innenfor
 	  terminalen.
@@ -495,7 +495,7 @@
 	</variablelist>
       </sect2>
       
-      <sect2 id="menu-help"
+      <sect2 id="menu-help">
         <title>Hjelpmenyen</title>
 	<variablelist>
 	  <varlistentry>
