@@ -764,7 +764,7 @@ free_cs (GtkWidget *widget, GnomeColorSelector *cs)
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GtkWidget *l, *table, *o, *m, *label, *b1, *b2, *e;
+	GtkWidget *l, *table, *picker, *label, *b1, *b2, *e;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
 	GList *class_list = NULL;
@@ -800,29 +800,24 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->font_entry), "changed",
 			    GTK_SIGNAL_FUNC (font_changed), prefs);
-	gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
+		gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
 			  2, 3, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
-	o = gnome_font_picker_new();
-	gnome_font_picker_set_font_name(GNOME_FONT_PICKER(o),
+	picker = gnome_font_picker_new();
+	gnome_font_picker_set_font_name(GNOME_FONT_PICKER(picker),
 					gtk_entry_get_text(GTK_ENTRY (prefs->font_entry)));
-	gnome_font_picker_set_mode(GNOME_FONT_PICKER(o),
+	gnome_font_picker_set_mode(GNOME_FONT_PICKER (picker),
 				   GNOME_FONT_PICKER_MODE_USER_WIDGET);
 	
-	gtk_signal_connect (GTK_OBJECT (o), "font_set",
+	gtk_signal_connect (GTK_OBJECT (picker), "font_set",
 			    GTK_SIGNAL_FUNC (font_changed), prefs);
-
-	m = gtk_hbox_new (0, 0);
 	label = gtk_label_new (_("Browse..."));
-	gtk_container_add (GTK_CONTAINER(m), label);
-	gnome_font_picker_uw_set_widget(GNOME_FONT_PICKER(o), GTK_WIDGET(m));
-	
-	gtk_object_set_user_data(GTK_OBJECT(o), GTK_OBJECT(prefs->font_entry)); 
-	gtk_object_set_user_data (GTK_OBJECT(prefs->font_entry), GTK_OBJECT(o)); 
-	
-	gtk_table_attach (GTK_TABLE (table), o,
-			  3, 5, FONT_ROW, FONT_ROW+1, 0, 0, 0, 0);
-	
+	gnome_font_picker_uw_set_widget(GNOME_FONT_PICKER(picker), GTK_WIDGET(label));
+	gtk_object_set_user_data(GTK_OBJECT(picker), GTK_OBJECT(prefs->font_entry)); 
+	gtk_object_set_user_data (GTK_OBJECT(prefs->font_entry), GTK_OBJECT(picker)); 
+
+	gtk_table_attach (GTK_TABLE (table), picker,
+			  3, 5, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	/* Terminal class */
 	l = aligned_label (_("Terminal Class"));
 	gtk_table_attach (GTK_TABLE (table), l,
@@ -891,7 +886,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_file_entry), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), e,
-			  2, 3, PIXMAP_FILE_ROW, PIXMAP_FILE_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 5, PIXMAP_FILE_ROW, PIXMAP_FILE_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Transparency */
 	prefs->transparent_checkbox = gtk_check_button_new_with_label (_("Transparent"));
@@ -1114,7 +1109,7 @@ static GnomeUIInfo name [] = {								\
 	GNOMEUIINFO_SEPARATOR,								\
 	GNOMEUIINFO_ITEM_NONE (text,                     NULL, cmd),			\
 	GNOMEUIINFO_ITEM_STOCK (N_("_Properties..."),    NULL, preferences_cmd, GNOME_STOCK_MENU_PROP), \
-	GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd),	      	\
+	/* GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd), */	      	\
 	GNOMEUIINFO_SEPARATOR, \
 	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd), 	\
 	GNOMEUIINFO_END \

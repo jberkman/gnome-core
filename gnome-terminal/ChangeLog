@@ -1,5 +1,7 @@
 1998-10-29  Jens Lautenbacher  <jens@tellux.de>
 
+	* gnome-terminal.c (preferences_cmd): visual clean-up
+
 	* gnome-terminal.h: removed prototype for create_font_menu
 
 	* Makefile.am (gnome_terminal_SOURCES): removed menu.c because we
