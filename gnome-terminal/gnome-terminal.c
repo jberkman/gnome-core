@@ -778,9 +778,8 @@ enum {
 
 /* called back to free the ColorSelector */
 static void
-free_cs (GtkWidget *widget, GnomeColorSelector *cs)
+free_cs (GtkWidget *widget, GnomeColorPicker *cp)
 {
-	/*gnome_color_selector_destroy (cs);*/
 }
 	 
 static void
