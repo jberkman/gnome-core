@@ -192,7 +192,7 @@ create_geometry_page (void)
 			    create_spin_button (_("Tasklist height:"),
 						&PropsConfig.vert_height,
 						48,
-						1024,
+						1024*8,
 						10),
 			    FALSE, TRUE, 0);
 
