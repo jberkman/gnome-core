@@ -435,12 +435,14 @@ create_applet (void)
 					       _("About..."),
 					       (AppletCallbackFunc) cb_about,
 					       NULL);
-	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
+	/*don't register with NULL callback, it's evil, uncomment when
+	  properties do exist*/
+   	/*applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "properties",
 					       GNOME_STOCK_MENU_PROP,
 					       _("Properties..."),
 					       NULL,
-					       NULL);
+					       NULL);*/
 	gtk_widget_show (applet);
 }
 
