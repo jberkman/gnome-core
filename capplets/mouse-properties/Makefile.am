@@ -12,7 +12,7 @@ mouse_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS) \
 		     $(GNOMEUI_LIBS) $(INTLLIBS) -lgnorba
 install-exec-hook:
-	cd $(bindir) && $(LN_S) mouse-properties-capplet mouse-properties-init
+	cd $(bindir) && rm -f mouse-properties-init; $(LN_S) mouse-properties-capplet mouse-properties-init
 
 EXTRA_DIST = \
 	mouse-properties.desktop

@@ -7,7 +7,7 @@ INCLUDES = -I. -I$(srcdir) 				\
 bin_PROGRAMS = screensaver-properties-capplet
 
 install-exec-hook:
-	cd $(bindir) && $(LN_S) screensaver-properties-capplet screensaver-properties-init
+	cd $(bindir) && rm -f screensaver-properties-init; $(LN_S) screensaver-properties-capplet screensaver-properties-init
 
 screensaver_properties_capplet_SOURCES = \
 	screensaver-properties-capplet.c	\
