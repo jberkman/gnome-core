@@ -52,13 +52,13 @@ GnomeUIInfo mainmenu[] = {
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };
- 
+
 int
 main(int argc, char *argv[])
 {
 	/* gnome_init() is always called at the beginning of a program.  it
 	   takes care of initializing both Gtk and GNOME */
-	gnome_init ("sample", &argc, &argv);
+	gnome_init ("sample", NULL, argc, argv, 0, NULL);
 	
 	/* prepare_app() makes all the gtk calls necessary to set up a
 	   minimal Gnome application; It's based on the hello world example

@@ -4,7 +4,9 @@ SUBDIRS = gnome-man2html gnome-info2html
 
 INCLUDES = 			\
 	-I$(includedir)		\
-	-I$(top_srcdir)/intl
+	-I$(top_srcdir)/intl	\
+	$(GNOME_INCLUDEDIR)	\
+	-DGNOMELOCALEDIR=\""$(datadir)/locale\""
 
 LDADD = \
 	$(GNOME_LIBDIR)					\

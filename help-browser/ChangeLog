@@ -1,3 +1,21 @@
+Sun Mar  8 18:44:55 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* sample.c (main): Use new gnome_init.
+
+	* gnome-help-browser.c (HELP_VERSION): Renamed from VERSION to
+	avoid clash with config.h.
+
+	* Makefile.am (INCLUDES): Added GNOME_INCLUDEDIR.  Define
+	GNOMELOCALEDIR.
+
+Sat Mar  7 12:08:37 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* gnome-help-browser.c: Include <config.h>.
+	(helpURL): New global.
+	(parser): New structure.
+	(parseAnArg): New function.
+	(main): Changed to use new argument parsing.
+
 1998-03-08  Marc Ewing  <marc@redhat.com>
 
 	* Misc cleanups of gnome-helpwin, gnome-info2html,

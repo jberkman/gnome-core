@@ -18,6 +18,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <config.h>
 #include <gnome.h>
 
 #include "window.h"
@@ -27,7 +28,7 @@
 #include "cache.h"
 
 #define NAME "GnomeHelp"
-#define VERSION "0.4"
+#define HELP_VERSION "0.4"
 
 static void aboutCallback(HelpWindow win);
 static void newWindowCallback(HelpWindow win);
@@ -45,6 +46,7 @@ void setErrorHandlers(void);
 static HelpWindow makeHelpWindow(void);
 static void initConfig(void);
 static void saveConfig(void);
+static error_t parseAnArg (int key, char *arg, struct argp_state *state);
 
 /* MANPATH should probably come from somewhere */
 #define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
@@ -59,6 +61,18 @@ static void saveConfig(void);
 #define DEFAULT_HISTORYFILE ".gnome-help-browser/history"
 #define DEFAULT_CACHEFILE ".gnome-help-browser/cache"
 #define DEFAULT_BOOKMARKFILE ".gnome-help-browser/bookmarks"
+
+/* Session saving.  */
+static struct argp parser =
+{
+    NULL,
+    parseAnArg,
+    N_("[URL]"),
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
 
 /* Config data */			  
 static gchar *manPath;			  
@@ -78,12 +92,21 @@ static Bookmarks bookmarkWindow;
 
 GList *windowList = NULL;
 
+/* This is the name of the help URL from the command line.  */
+static char *helpURL = NULL;
+
 int
 main(int argc, char *argv[])
 {
     HelpWindow window;
-    
-    gnome_init(NAME, &argc, &argv);
+
+    argp_program_version = HELP_VERSION;
+
+    /* Initialize the i18n stuff */
+    bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+    textdomain (PACKAGE);
+
+    gnome_init(NAME, &parser, argc, argv, 0, NULL);
 
     initConfig();
     
@@ -97,7 +120,7 @@ main(int argc, char *argv[])
 
     window = makeHelpWindow();
 
-    if (argc > 1)
+    if (helpURL)
 	helpWindowShowURL(window, argv[1]);
 	
     gtk_main();
@@ -124,6 +147,17 @@ makeHelpWindow()
     windowList = g_list_append(windowList, window);
     
     return window;
+}
+
+static error_t
+parseAnArg (int key, char *arg, struct argp_state *state)
+{
+  if (key != ARGP_KEY_ARG)
+    return ARGP_ERR_UNKNOWN;
+  if (helpURL)
+    argp_usage (state);
+  helpURL = arg;
+  return 0;
 }
 
 /********************************************************************/
@@ -188,7 +222,7 @@ aboutCallback (HelpWindow win)
 		NULL
 	};
 
-	about = gnome_about_new ( "Gnome Help Browser", VERSION,
+	about = gnome_about_new ( "Gnome Help Browser", HELP_VERSION,
 				  "Copyright (c) 1998 Red Hat Software, Inc.",
 				  authors,
 				  "GNOME Help Browser allows easy access to "
