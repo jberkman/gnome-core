@@ -1,3 +1,10 @@
+Thu Dec 16 09:13:53 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_create_desk_widgets): 
+	(gp_config_find_value): 
+	(gp_config_popup): bunch of bugs fixed (sanity check config values,
+	offer saved config values in GUI).
+
 Sat Nov  6 01:00:21 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmdesktop.c (gwm_desktop_button_press): added new feature, top-left

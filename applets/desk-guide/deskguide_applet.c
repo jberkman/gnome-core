@@ -281,9 +281,7 @@ gp_load_config (const gchar *privcfgpath)
 	{
 	  gchar *path = g_strconcat (section, "/",
 				     item->path, "=",
-				     GPOINTER_TO_INT (item->value)
-				     ? "true" :
-				     "false",
+				     GPOINTER_TO_INT (item->value) ? "true" : "false",
 				     NULL);
 	  
 	  item->value = GINT_TO_POINTER (gnome_config_get_bool (path));
@@ -314,7 +312,7 @@ gp_config_find_value (const gchar *path,
     {
       ConfigItem *item = gp_config_items + i;
       
-      if (path == item->path)
+      if ((path && item->path && strcmp (path, item->path) == 0) || path == item->path)
 	return tmp_value ? item->tmp_value : item->value;
     }
   
@@ -474,8 +472,12 @@ gp_create_desk_widgets (void)
 	area_size = RANGE_CONFIG (area_height);
       if (BOOL_CONFIG (div_by_vareas))
 	area_size /= (gdouble) N_VAREAS;
-      if (BOOL_CONFIG (div_by_nrows))
-	area_size /= (gdouble) RANGE_CONFIG (row_stackup);
+      if (BOOL_CONFIG (div_by_nrows) && !BOOL_CONFIG (current_only))
+	{
+	  guint n = RANGE_CONFIG (row_stackup);
+
+	  area_size /= (gdouble) MIN (n, N_DESKTOPS);
+	}
     }
   else /* gp_orientation == GTK_ORIENTATION_VERTICAL */
     {
@@ -485,8 +487,12 @@ gp_create_desk_widgets (void)
 	area_size = RANGE_CONFIG (area_width);
       if (BOOL_CONFIG (div_by_hareas))
 	area_size /= (gdouble) N_HAREAS;
-      if (BOOL_CONFIG (div_by_ncols))
-	area_size /= (gdouble) RANGE_CONFIG (col_stackup);
+      if (BOOL_CONFIG (div_by_ncols) && !BOOL_CONFIG (current_only))
+	{
+	  guint n = (gdouble) RANGE_CONFIG (col_stackup);
+
+	  area_size /= (gdouble) MIN (n, N_DESKTOPS);
+	}
     }
   gwm_desktop_class_config (gtk_type_class (GWM_TYPE_DESKTOP),
 			    BOOL_CONFIG (double_buffer),
@@ -506,11 +512,16 @@ gp_create_desk_widgets (void)
       if (gp_orientation == GTK_ORIENTATION_HORIZONTAL)
 	{
 	  n_desks_per_column = RANGE_CONFIG (row_stackup);
+	  n_desks_per_column = MIN (n_desks_per_column, N_DESKTOPS);
 	  n_desks_per_column = (N_DESKTOPS + n_desks_per_column - 1) / n_desks_per_column;
 	}
       else
-	n_desks_per_column = RANGE_CONFIG (col_stackup);
-      
+	{
+	  guint n = RANGE_CONFIG (col_stackup);
+
+	  n_desks_per_column = MIN (n, N_DESKTOPS);
+	}
+
       for (i = 0; i < max; i++)
 	{
 	  GtkWidget *alignment;
@@ -951,6 +962,7 @@ gp_config_popup (void)
       GSList *fslist, *slist = NULL;
       guint i;
       
+      gp_config_reset_tmp_values ();
       for (i = 0; i < gp_n_config_items; i++)
 	slist = g_slist_prepend (slist, gp_config_items + i);
       slist = g_slist_reverse (slist);
@@ -971,9 +983,9 @@ gp_config_popup (void)
       g_slist_free (fslist);
 
       gtk_quit_add_destroy (1, GTK_OBJECT (dialog));
-      gp_config_check (dialog);
     }
   
+  gp_config_check (dialog);
   gtk_widget_show (dialog);
   gdk_window_raise (dialog->window);
 }
