@@ -1,3 +1,9 @@
+1999-02-10  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* dialogs.c (new_item_pressed_cb):
+	(save_pressed_cb): I dont know the code well, but current_path
+	might become * NULL at some points.  Account for those cases.
+
 Mon Feb  8 07:00:15 1999  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch]: Version to 0.99.0, copyright to 1999.

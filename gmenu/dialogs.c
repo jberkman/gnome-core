@@ -184,7 +184,17 @@ new_item_pressed_cb(GtkWidget *w, gpointer data)
   dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
 
   filename = "untitled.desktop";
-  path = g_strconcat(current_path, "/", filename, NULL);
+
+  /*
+   * HACK:
+   *  I dont know this code well, but apparently current-path might
+   * be null from time to time, account for that.
+   */
+  if (!current_path)
+	  path = g_strconcat(USER_APPS, "/", filename, NULL);
+  else
+	  path = g_strconcat(current_path, "/", filename, NULL);
+	  
 
   if (! save_desktop_entry_file(dentry, path, FALSE, FALSE, TRUE))
     {
@@ -303,11 +313,22 @@ save_pressed_cb(GtkWidget *w, gpointer data)
        * Folder
        */
 
-      parent_dir = g_dirname(current_path);
+      /*
+       * HACK: I dont know the code well, but current_path might become
+       * NULL at some points.  Account for those cases.N
+       */
+      if (!current_path)
+	      parent_dir = g_dirname(USER_APPS);
+      else
+	      parent_dir = g_dirname(current_path);
+      
       path = g_concat_dir_and_file(parent_dir, dentry->name);
       g_free(parent_dir);
 
-      orig_path = g_strdup(current_path);
+      if (current_path)
+	      orig_path = g_strdup(current_path);
+      else
+	      orig_path = g_strdup (USER_APPS);
     }
   else
     {
@@ -322,7 +343,10 @@ save_pressed_cb(GtkWidget *w, gpointer data)
        * themselves in the foot.
        */
       filename = g_strconcat(dentry->name, ".desktop", NULL);
-      path = g_concat_dir_and_file(current_path, filename);
+      if (current_path)
+	      path = g_concat_dir_and_file(current_path, filename);
+      else
+	      path = g_concat_dir_and_file(USER_APPS, filename);
       g_free(filename);
       orig_path = g_strdup(old_d->path);
     }
