@@ -453,7 +453,7 @@ screensaver_write ()
 	gnome_config_set_string ("/Desktop/ScreenSaver/screensaver",
 				 css->screensaver_name);
 	gnome_config_set_string ("/Desktop/ScreenSaver/mode",
-	 ((css->curMode->name) ? css->curMode->name: css->mode_name));
+	 ((css->curMode && css->curMode->name) ? css->curMode->name: css->mode_name));
  
 	gnome_config_sync ();
 
