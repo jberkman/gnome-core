@@ -1,8 +1,8 @@
 bin_PROGRAMS = gemvt
 
-INCLUDE_always = -I$(includedir) $(X_CFLAGS)
+INCLUDE_always = -I$(includedir) $(X_CFLAGS) 
 
-INCLUDES = $(INCLUDE_always)
+INCLUDES = $(INCLUDE_always) $(GNOME_INCLUDEDIR)
 
 gemvt_SOURCES = $(gmevt_c_files) 
 gemvt_LDADD = $(GETOPT_OBJS) $(GEMVT_LD_EXTRA) $(X_LIBS)

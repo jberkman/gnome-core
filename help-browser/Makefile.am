@@ -39,7 +39,7 @@ PIXMAPS = close.xpm contents.xpm help.xpm left_arrow.xpm right_arrow.xpm
 
 EXTRA_DIST = sample-help.html gnome-help-browser-help.html \
 	     sample-topic.dat gnome-help-browser-topic.dat \
-	     $(PIXMAPS)
+	     $(PIXMAPS) gnome-help.desktop
 
 #
 # shouldn't hard code locate here, how do I get it??
