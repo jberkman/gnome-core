@@ -569,7 +569,7 @@ helpWindowClose(HelpWindow win)
 
 static void init_accel(HelpWindow win)
 {
-    GtkAcceleratorTable *accelTable;
+    GtkAccelGroup *accelGroup;
 
     /* What a hack this is.  I'm sure there is a better way */
     win->accelWidget = gtk_button_new_with_label("accelWidget");
@@ -583,17 +583,20 @@ static void init_accel(HelpWindow win)
     gtk_signal_connect(GTK_OBJECT(win->accelWidget), "enter",
 		       GTK_SIGNAL_FUNC(focusEnter), win);
     
-    accelTable = gtk_object_get_data(GTK_OBJECT(win->app),
-				     "GtkAcceleratorTable");
-    gtk_accelerator_table_install(accelTable,
-				  GTK_OBJECT(win->accelWidget), "pressed",
-				  'b', 0);
-    gtk_accelerator_table_install(accelTable,
-				  GTK_OBJECT(win->accelWidget), "released",
-				  ' ', 0);
-    gtk_accelerator_table_install(accelTable,
-				  GTK_OBJECT(win->accelWidget), "enter",
-				  'g', 0);
+    accelGroup = gtk_object_get_data(GTK_OBJECT(win->app),
+				     "GtkAccelGroup");
+    gtk_widget_add_accelerator(win->accelWidget,
+		    "pressed",
+		    accelGroup,
+		    'b', 0, 0);
+    gtk_widget_add_accelerator(win->accelWidget,
+		    "released",
+		    accelGroup,
+		    ' ', 0, 0);
+    gtk_widget_add_accelerator(win->accelWidget,
+		    "enter",
+		    accelGroup,
+		    'g', 0, 0);
 }
 
 static void pageUp(GtkWidget *w, HelpWindow win)
