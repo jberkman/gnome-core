@@ -8,6 +8,7 @@ bin_PROGRAMS = gmenu
 gmenu_SOURCES =	\
 	desktop.c		\
 	edit.c			\
+	gmenu.h			\
 	main.c			\
 	order.c			\
 	save.c			\

@@ -1,3 +1,7 @@
+1999-03-25  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* Makefile.am (gmenu_SOURCES): Put gmenu.h in the list of sources.
+
 1999-03-25  Nat Friedman  <nat@nat.org>
 
 	* tree.c (menu_tree_sync_node_to_dentry): Destroy the dd->pixmap
