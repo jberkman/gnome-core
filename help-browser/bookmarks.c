@@ -208,7 +208,7 @@ static int hideBookmarksInt(GtkWidget *window)
 {
     gtk_widget_hide(GTK_WIDGET(window));
 
-    return FALSE;
+    return TRUE;
 }
 
 static void createBookmarksWindow(Bookmarks b, GtkWidget **window,

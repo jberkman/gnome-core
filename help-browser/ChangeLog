@@ -1,3 +1,7 @@
+1998-04-22  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Make hiding/showing of bookmarks/history work properly
+
 1998-04-20  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* window.c: Make the browser use gnome-stock pixmaps.
