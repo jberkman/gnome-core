@@ -39,22 +39,22 @@ int main (int argc, char *argv[]);
 
 /* menu bar */
 GnomeUIInfo file_menu[] = {
-	{ GNOME_APP_UI_ITEM, N_("New Folder..."), NULL, create_folder_pressed, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("New _Folder..."), NULL, create_folder_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW, 'F',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, N_("Delete..."), NULL, delete_pressed_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("_Delete..."), NULL, delete_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CUT, 'D',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, N_("Quit"), NULL, destroy_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("_Quit"), NULL, destroy_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT, 'Q',
 	  GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 GnomeUIInfo sort_menu[] = {
-	{ GNOME_APP_UI_ITEM, N_("Folder"), NULL, sort_single_pressed, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("_Sort Folder"), NULL, sort_single_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SPELLCHECK, 'S',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, N_("Folder Recursive"), NULL, sort_recursive_pressed, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("Sort Folder _Recursive"), NULL, sort_recursive_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SPELLCHECK, 'R',
 	  GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
@@ -68,12 +68,12 @@ GnomeUIInfo help_menu[] = {
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 GnomeUIInfo main_menu[] = {
-	{ GNOME_APP_UI_SUBTREE, N_("File"), NULL, file_menu, NULL, NULL,
-	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	{ GNOME_APP_UI_SUBTREE, N_("Sort"), NULL, sort_menu, NULL, NULL,
-	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	{ GNOME_APP_UI_SUBTREE, N_("Help"), NULL, help_menu, NULL, NULL,
-	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
+	{ GNOME_APP_UI_SUBTREE, N_("_File"), NULL, file_menu, NULL, NULL,
+	  GNOME_APP_PIXMAP_NONE, NULL, 'F', GDK_MODIFIER_MASK, NULL },
+	{ GNOME_APP_UI_SUBTREE, N_("_Sort"), NULL, sort_menu, NULL, NULL,
+	  GNOME_APP_PIXMAP_NONE, NULL, 'S', GDK_MODIFIER_MASK, NULL },
+	{ GNOME_APP_UI_SUBTREE, N_("_Help"), NULL, help_menu, NULL, NULL,
+	  GNOME_APP_PIXMAP_NONE, NULL, 'H', GDK_MODIFIER_MASK, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 
