@@ -1,3 +1,7 @@
+1999-02-23 Mike Bond <mike.bond@template.com>
+
+	* gnome-terminal.c (gather_changes): Load the value for wordclass
+
 1999-02-21  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* gnome-terminal.c (button_press): Simplified menu handling by

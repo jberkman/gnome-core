@@ -414,7 +414,7 @@ gather_changes (ZvtTerm *term)
 	newcfg->shaded = GTK_TOGGLE_BUTTON (prefs->shaded_checkbox)->active;
 	newcfg->background_pixmap = GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox)->active;
 	newcfg->pixmap_file  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->pixmap_file_entry)));
-
+	newcfg->wordclass = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->wordclass_entry)));
 	(int) newcfg->scrollbar_position = gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 
 	g_free (newcfg->font);
