@@ -1,3 +1,8 @@
+Mon Jun 29 14:21:50 1998  Havoc Pennington  <hp@pobox.com>
+
+	* property-ui.c (ui_setup): Added checkbutton for toolbar button 
+	relief.
+
 1998-07-01  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* *.desktop: Added Portuguese translations.
