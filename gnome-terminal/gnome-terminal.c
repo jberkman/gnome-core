@@ -1986,6 +1986,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, i
 	ZvtTerm   *term;
 	static char **env_copy;
 	static int winid_pos;
+	static int term_pos;
 	char buffer [40];
 	char winclass [64];
 	char *shell, *name;
@@ -1993,7 +1994,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, i
 	struct terminal_config *cfg;
 	int width, height;
 	int xpos, ypos;
-	gboolean term_found = FALSE;
 		
 	/* FIXME: is seems like a lot of this stuff should be done by apply_changes instead */
 
@@ -2017,32 +2017,16 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, i
 		i = p - env;
 		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
-			if (strncmp (*p, "TERM=", 5) == 0) {
-				if (cfg->termname && cfg->termname [0])
-					env_copy [i++] = cfg->termname;
-				else {
-					/*
-					 * DO NOT change this, its here for a reason 
-					 * this emulator doesn't emulate xterm-color, or xterm-debian, or
-					 * xterm-old, it emulates xterm.  
-					 */
-					env_copy [i++] =  "TERM=xterm";
-				}
-				term_found = TRUE;
-			} else if ((strncmp (*p, "COLUMNS=", 8) == 0)
+		        if ((strncmp (*p, "COLUMNS=", 8) == 0)
 				   || (strncmp (*p, "LINES=", 6) == 0)
-				   || (strncmp(*p, "WINDOWID=", 9) == 0)) {
+				   || (strncmp(*p, "WINDOWID=", 9) == 0)
+				   || (strncmp (*p, "TERM=", 5) == 0)) {
 				/* nothing: do not copy those */
 			} else
 				env_copy [i++] = *p;
 		}
-		if (!term_found){
-			if (cfg->termname && cfg->termname [0])
-				env_copy [i++] = cfg->termname;
-			else
-				env_copy [i++] = "TERM=xterm";
-		}
-		
+		term_pos = i++;
+		env_copy [term_pos] = "";
 		env_copy [i++] = "COLORTERM=gnome-terminal";
 		winid_pos = i++;
 		env_copy [winid_pos] = "TEST";
@@ -2204,9 +2188,16 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, i
 
 		for (i = 3; i < open_max; i++)
 			fcntl (i, F_SETFD, 1);
-		
+
+		/* set delayed env variables */
 		sprintf (buffer, "WINDOWID=%d",(int) GDK_WINDOW_XWINDOW(GTK_WIDGET(term)->window));
 		env_copy [winid_pos] = buffer;
+
+		if (cfg->termname && cfg->termname [0])
+			env_copy [term_pos] = cfg->termname;
+		else
+			env_copy [term_pos] = "TERM=xterm";
+
 		if (cmd){
 			environ = env_copy;
 			execvp (cmd[0], cmd);

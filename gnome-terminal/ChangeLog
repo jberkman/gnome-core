@@ -1,3 +1,8 @@
+2000-02-01  NotZed  <notzed@zedzone.helixcode.com>
+
+	* gnome-terminal.c (new_terminal_cmd): Merge of g-t-merge-1-1 to
+	g-t-merge-1-2 into HEAD.
+	
 2000-01-24  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-terminal.c (main_terminal_program): start local term
@@ -11,6 +16,14 @@
 
 	* gnome-terminal.c (new_terminal_for_client): Merge changes from
 	g-t-merge-1-0 to g-t-merge-1-1 into HEAD.
+
+2000-02-01  NotZed  <notzed@zedzone.helixcode.com>
+
+	* gnome-terminal.c (new_terminal_cmd): TERM setting was taken
+	directly from config, and would dissapear if the first terminal
+	opened was closed, when its config was free'd.  Now it sets
+	the term setting each time, like WINDOWID is set.  Fixes 'dumb
+	terminal' bug.
 
 2000-01-23  NotZed  <notzed@zedzone.helixcode.com>
 
