@@ -5,12 +5,7 @@
 
 BEGIN_GNOME_DECLS
 
-#define MONITOR_CONTENTS_X 20
-#define MONITOR_CONTENTS_Y 10
-#define MONITOR_CONTENTS_WIDTH 157
-#define MONITOR_CONTENTS_HEIGHT 111
-
-GtkWidget *get_monitor_preview_widget (void);
+extern GtkWidget *main_window;
 
 /* A property sheet should call this function when the user has made
    a change that could be applied.  */

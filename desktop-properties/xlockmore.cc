@@ -148,8 +148,6 @@ destroySetupWin (GtkWidget *w, XLockMore *xm)
 	deleteSetupWin (w, NULL, xm);
 }
 
-extern "C" GtkWidget *main_window;
-
 void
 XLockMore::prepareSetupWindow ()
 {

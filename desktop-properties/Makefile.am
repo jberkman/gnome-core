@@ -16,23 +16,23 @@ keyboard_properties_SOURCES =	\
 	gnome-desktop.h		\
 	app-keyboard.c
 
-CPP_FILES = \
+background_properties_SOURCES =	\
+	main.c			\
+	property-background.c	\
+	gnome-desktop.h		\
+	screensaver.h		\
+	app-background.c	\
+	imlib-misc.c		\
+	imlib-misc.h		\
 	property-screensaver.cc	\
 	property-screensaver.h	\
 	xlockmore.cc		\
 	xlockmore.h		\
 	xlockparse.ll
 
-background_properties_SOURCES =	\
-	main.c			\
-	property-background.c	\
-	gnome-desktop.h		\
-	screensaver.h		\
-	app-background.c
-
 LDADD = \
 	$(GNOME_LIBDIR)					\
-	-lgdk_imlib					\
+	-lImlib						\
 	$(GNOMEUI_LIBS)					\
         @XF86MISC_LIBS@					\
 	$(INTLLIBS)

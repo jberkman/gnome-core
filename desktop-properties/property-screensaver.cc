@@ -5,6 +5,7 @@
 
 #include <config.h>
 #include "property-screensaver.h"
+#include "imlib-misc.h"
 #include "xlockmore.h"
 #include <stdio.h>
 #include <stdarg.h>

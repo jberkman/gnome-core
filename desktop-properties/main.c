@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include <gnome.h>
-#include <gdk_imlib.h>
 #include "gnome-desktop.h"
 
 
@@ -13,8 +12,6 @@ GnomePropertyConfigurator *display_config;
 
 /* This is true if we've ever changed the state with this program.  */
 static int state_changed = 0;
-
-static GdkImlibImage *monitor_image;
 
 
 /* True if we are running in initialize-then-exit mode.  */
@@ -43,20 +40,6 @@ static struct argp parser =
 };
 
 
-GtkWidget *
-get_monitor_preview_widget (void)
-{
-	GtkWidget *pwid;
-	char *f;
-
-	f = gnome_pixmap_file ("monitor.xpm");
-	pwid = gnome_pixmap_new_from_file (f);
-	g_free (f);
-	gtk_widget_show (pwid);
-
-	return pwid;
-}
-
 /* Enable the Apply button.  */
 void
 property_changed (void)
@@ -67,11 +50,6 @@ property_changed (void)
 static gint
 deleteFn (GtkWidget *widget, gpointer *data)
 {
-	if (monitor_image) {
-		gdk_imlib_destroy_image (monitor_image);
-		monitor_image = NULL;
-	}
-
 	gtk_main_quit ();
 
 	return TRUE;

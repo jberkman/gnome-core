@@ -1,3 +1,20 @@
+1998-04-30  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* property-background.c (fill_monitor): Use plain Imlib (not
+	gdk_imlib) for operations.  This means mixing gdk with xlib,
+	woohoo.  Also fixed some sizing errors.
+
+	* imlib-misc.c: New file that does several nasty things with
+	imlib.  It will force a second instance of imlib to be initialized
+	with the system default visual (we need it to set the root
+	window's background).  The get_monitor_preview_widget() function
+	also resides here now, and it now returns a GtkPixmap inside a
+	GtkEventBox.  We need an event box because the widget needs its
+	own X window.
+
+	* Makefile.am (background_properties_SOURCES): Added
+	imlib-misc.[ch] tothe sources.
+
 1998-04-28  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* property-mouse.c (mouse_setup): Beautified the dialog.
