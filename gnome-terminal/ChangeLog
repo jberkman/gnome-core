@@ -1,3 +1,7 @@
+2000-04-03  Jacob Berkman  <jacob@helixcode.com>
+
+	* */Makefile.am: use new template makefile
+
 2000-04-03 Alastair McKinstry <mckinstry@computer.org>
 
 	* gnome-terminal.desktop: Added Irish (gaelic) translation.

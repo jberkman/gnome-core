@@ -31,8 +31,15 @@
 /* Toolbar pixmaps */
 #include "contents.xpm"
 
+#ifdef HELP_USE_GTKHTML
+#include <gtkhtml/htmlurl.h>
+#include <errno.h>
+void gtk_html_source (GtkHTML *html, char *url, char *source);
+#endif
+
 #define DEFAULT_HEIGHT 500
 #define DEFAULT_WIDTH  600
+
 
 struct _helpWindow {
     /* Main app widget */
@@ -90,12 +97,23 @@ static void help_forward(GtkWidget *w, HelpWindow win);
 static void help_backward(GtkWidget *w, HelpWindow win);
 static void help_onhelp(GtkWidget *w, HelpWindow win);
 static void help_gotoindex(GtkWidget *w, HelpWindow win);
+
+#ifdef HELP_USE_GTKHTML
+static void gtkhtml_activate (GtkWidget *w, const gchar *url, HelpWindow data);
+static void gtkhtml_onurl (GtkWidget *w, const gchar *url, HelpWindow data);
+static void on_set_base (GtkHTML *html, const gchar *url, gpointer data);
+static void gtkhtml_formActivate (GtkWidget *w, const gchar *method,
+				  const gchar *url, const gchar *encoding,
+				  HelpWindow win);
+#else
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void formActivate(GtkWidget *w, XmHTMLFormCallbackStruct *cbs,
 			    HelpWindow win);
+#endif
+
 static void reload_page(GtkWidget *w, HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowBookmarks (GtkWidget *w, HelpWindow win);
@@ -114,8 +132,11 @@ static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
 
+#ifdef HELP_USE_GTKHTML
+static void url_requested (GtkHTML *html, const char *url, GtkHTMLStreamHandle handle, HelpWindow win);
+#else
 XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
-
+#endif
 
 
 /**********************************************************************/
@@ -351,6 +372,45 @@ quit_cb (void)
     return;
 }
 
+#ifdef HELP_USE_GTKHTML
+static void
+gtkhtml_activate (GtkWidget *w, const gchar *url, HelpWindow win)
+{
+    g_message("TAG CLICKED: %s", url);
+
+    helpWindowShowURL(win, url, TRUE, TRUE);
+}
+
+static void
+gtkhtml_onurl (GtkWidget *html, const gchar *url, HelpWindow win)
+{
+	gnome_appbar_set_status (GNOME_APPBAR (win->appBar), url ? url : "");
+}
+
+static void
+gtkhtml_formActivate (GtkWidget *w, const gchar *method,
+		      const gchar *action, const gchar *encoding,
+		      HelpWindow win)
+{
+	GString *tmpstr = g_string_new (action);
+
+	g_print("submitting '%s' to '%s' using method '%s'\n", encoding, action, method);
+
+	if(strcasecmp(method, "GET") == 0) {
+
+		tmpstr = g_string_append_c (tmpstr, '?');
+		tmpstr = g_string_append (tmpstr, encoding);
+		
+		helpWindowShowURL (w, tmpstr->str, FALSE, TRUE);
+		
+		g_string_free (tmpstr, TRUE);
+	} else {
+		g_warning ("Unsupported submit method '%s'\n", method);
+	}
+}
+
+#else /* !HELP_USE_GTKHTML */
+
 static void
 xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
@@ -382,6 +442,7 @@ anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 	}
 }
 
+
 static void
 formActivate(GtkWidget *w, XmHTMLFormCallbackStruct *cbs, HelpWindow win)
 {
@@ -398,6 +459,8 @@ formActivate(GtkWidget *w, XmHTMLFormCallbackStruct *cbs, HelpWindow win)
 			  cbs->components[i].value);
 	}
 }
+#endif /* HELP_USE_GTKHTML */
+
 static void
 help_forward(GtkWidget *w, HelpWindow win)
 {
@@ -448,6 +511,8 @@ help_gotoindex(GtkWidget *w, HelpWindow win)
 	helpWindowShowURL(win, "toc:", TRUE, FALSE);
 }
 
+
+
 static void
 reload_page(GtkWidget *w, HelpWindow win)
 {
@@ -466,7 +531,11 @@ reload_page(GtkWidget *w, HelpWindow win)
     
     g_message("RELOAD PAGE: %s", buf);
     /* make html widget believe we want to reload */
+#ifdef HELP_USE_GTKHTML
+    gtk_html_source (GTK_HTML (win->helpWidget), "toc:wanda", "<BODY>Hi</BODY>");
+#else
     gtk_xmhtml_source(GTK_XMHTML(win->helpWidget), "<BODY>Hi</BODY>");
+#endif
     helpWindowShowURL(win, buf, FALSE, FALSE);
 }	
 
@@ -607,17 +676,13 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
     gchar *buf=NULL;
 
     /* First set the current ref (it may be used to load images) */
-    if (w->currentRef) {
-	g_free(w->currentRef);
-    }
+    g_free (w->currentRef);
 
     /* It's important to set this first because it used is to */
     /* resolve relative refs for images.                      */
     w->currentRef = g_strdup(ref);
     
-    if (w->humanRef) {
-	g_free(w->humanRef);
-    }
+    g_free (w->humanRef);
 
     w->humanRef = g_strdup(humanRef);
 
@@ -625,14 +690,23 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
     buf = g_malloc(len + 1);
     memcpy(buf, s, len);
     buf[len] = '\0';
+#ifdef HELP_USE_GTKHTML
+    on_set_base (NULL, w->currentRef, NULL);
+    gtk_html_source (GTK_HTML (w->helpWidget), w->humanRef, buf);
+#else
     gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), buf);
+#endif
     g_free(buf);
     gtk_entry_set_text(GTK_ENTRY(w->entryBox), humanRef);
 
     if (w->Title)
 	g_free(w->Title);
 
+#ifdef HELP_USE_GTKHTML
+    buf = gtk_html_get_title (GTK_HTML (w->helpWidget));
+#else
     buf = XmHTMLGetTitle((GTK_WIDGET(w->helpWidget)));
+#endif
     if (!buf)
 	w->Title = g_strdup("");
     else
@@ -676,6 +750,9 @@ static void init_accel(HelpWindow win)
     static gint up_signal = 0;
     static gint down_signal = 0;
 
+#ifdef HELP_USE_GTKHTML
+    g_message ("Skipping accel init...");
+#else
     GtkAccelGroup *accel_group = gtk_accel_group_get_default();
 
     if(!page_up_signal) {
@@ -738,38 +815,55 @@ static void init_accel(HelpWindow win)
     gtk_widget_add_accelerator(win->entryBox, 
 			       "grab_focus", accel_group, 
 			       'g', 0, 0);
+#endif
 }
 
 static void pageUp(GtkWidget *w, HelpWindow win)
 {
+#ifdef HELP_USE_GTKHTML
+    g_message ("page up!");
+#else
     GtkAdjustment *adj;
-    
+
     adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
     gtk_adjustment_set_value(adj, adj->value - (adj->page_size));
+#endif
 }
 
 static void pageDown(GtkWidget *w, HelpWindow win)
 {
+#ifdef HELP_USE_GTKHTML
+    g_message ("page down!");
+#else
     GtkAdjustment *adj;
-    
+
     adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
     gtk_adjustment_set_value(adj, adj->value + (adj->page_size));
+#endif
 }
 
 static void spaceUp(GtkWidget *w, HelpWindow win)
 {
+#ifdef HELP_USE_GTKHTML
+    g_message ("space up");
+#else
     GtkAdjustment *adj;
-    
+
     adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
     gtk_adjustment_set_value(adj, adj->value - (adj->step_increment));
+#endif
 }
 
 static void spaceDown(GtkWidget *w, HelpWindow win)
 {
+#ifdef HELP_USE_GTKHTML
+    g_message ("space down");
+#else
     GtkAdjustment *adj;
-    
+
     adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
     gtk_adjustment_set_value(adj, adj->value + (adj->step_increment));
+#endif
 }
 
 static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
@@ -836,9 +930,13 @@ helpWindowNew(gchar *name,
 
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();
+#ifdef HELP_USE_GTKHTML
+	g_warning ("skipping some xmhtml stuff...");
+#else
 	gtk_xmhtml_set_anchor_underline_type(GTK_XMHTML(w->helpWidget),
 					    GTK_ANCHOR_SINGLE_LINE);
 	gtk_xmhtml_set_anchor_buttons(GTK_XMHTML(w->helpWidget), FALSE);
+#endif
 	gtk_widget_show(w->helpWidget);
 
 	/* add a status bar */
@@ -849,6 +947,18 @@ helpWindowNew(gchar *name,
 	gnome_app_install_menu_hints(GNOME_APP (w->app), mainmenu);
 	
 	/* trap clicks on tags so we can stick requested link in browser */
+#ifdef HELP_USE_GTKHTML
+	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "link_clicked",
+			   GTK_SIGNAL_FUNC(gtkhtml_activate), w);
+
+	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "on_url",
+			   GTK_SIGNAL_FUNC(gtkhtml_onurl), w);
+
+	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "submit",
+					     GTK_SIGNAL_FUNC(gtkhtml_formActivate), w);
+	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "set_base",
+			   GTK_SIGNAL_FUNC (on_set_base), w);
+#else /* !HELP_USE_GTKHTML */
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "activate",
 			   GTK_SIGNAL_FUNC(xmhtml_activate), w);
 
@@ -857,17 +967,34 @@ helpWindowNew(gchar *name,
 
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "form",
 					     GTK_SIGNAL_FUNC(formActivate), w);
+#endif /* HELP_USE_GTKHTML */
 
+#ifdef HELP_USE_GTKHTML
+	{
+		GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+		gtk_widget_show (scrolled_window);
+		gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+						GTK_POLICY_AUTOMATIC,
+						GTK_POLICY_AUTOMATIC);
+		
+		gtk_container_add (GTK_CONTAINER (scrolled_window), w->helpWidget);
+		gtk_box_pack_start (GTK_BOX (vbox), scrolled_window, TRUE, TRUE, 0);
+	}
+#else
 	gtk_box_pack_start(GTK_BOX(vbox), w->helpWidget, TRUE, TRUE, 0);
-
+#endif
 	gnome_app_set_contents(GNOME_APP(w->app), vbox);
 
+#ifdef HELP_USE_GTKHTML
+	gtk_signal_connect (GTK_OBJECT (w->helpWidget), "url_requested",
+			    GTK_SIGNAL_FUNC (url_requested), w);
+#else
 	/* HACKHACKHACK this will grab images via http */
 	gtk_object_set_data(GTK_OBJECT(w->helpWidget), "HelpWindow", w);
 	gtk_xmhtml_set_image_procs(GTK_XMHTML(w->helpWidget),
 				   (XmImageProc)load_image,
 				   NULL,NULL,NULL);
-
+#endif
 	/* size should be auto-determined, or read from gnomeconfig() */
 	if (width && height)
 		gtk_window_set_default_size(GTK_WINDOW(w->app), width, height); 
@@ -882,12 +1009,20 @@ helpWindowNew(gchar *name,
 
 	/* Add accelerators */
 	init_accel(w);
-					
+
+#ifdef HELP_USE_GTKHTML
+	gtk_signal_connect(GTK_OBJECT(w->helpWidget),
+#else
 	gtk_signal_connect(GTK_OBJECT(GTK_XMHTML(w->helpWidget)->html.work_area),
+#endif
 			   "drag_data_received",
 			   GTK_SIGNAL_FUNC(dndDrop), w);
 
+#ifdef HELP_USE_GTKHTML
+        gtk_drag_dest_set (w->helpWidget,
+#else
 	gtk_drag_dest_set (GTK_XMHTML(w->helpWidget)->html.work_area,
+#endif
 			   GTK_DEST_DEFAULT_MOTION |
 			   GTK_DEST_DEFAULT_HIGHLIGHT |
 			   GTK_DEST_DEFAULT_DROP,
@@ -962,11 +1097,18 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 
 	/* XXX This should work, but it doesn't */
 	{
-	  const char *title = XmHTMLGetTitle(GTK_WIDGET(win->helpWidget));
-	  if (!title) title = "";
+#ifdef HELP_USE_GTKHTML
+	    const char *title = gtk_html_get_title (GTK_HTML (win->helpWidget));
+#else
+	    const char *title = XmHTMLGetTitle(GTK_WIDGET(win->helpWidget));
+#endif
+	    if (!title) title = "";
 	}
-
+#ifdef HELP_USE_GTKHTML
+#warning grab focus on the scroll
+#else
 	gtk_widget_grab_focus(GTK_XMHTML(win->helpWidget)->html.vsb);
+#endif
 }
 
 GtkWidget 
@@ -979,7 +1121,126 @@ GtkWidget
 
 /**********************************************************************/
 
+#ifdef HELP_USE_GTKHTML
+static HTMLURL *baseURL;
 
+static void
+on_set_base (GtkHTML *html, const gchar *url, gpointer data)
+{
+	if (baseURL)
+		html_url_destroy (baseURL);
+	g_message ("new base: %s", url);
+	baseURL = html_url_new (url);
+}
+
+static gchar *
+parse_href (const gchar *s)
+{
+	gchar *retval;
+	gchar *tmp;
+	HTMLURL *tmpurl;
+
+	if(s == NULL || *s == 0)
+		return NULL;
+
+	if (s[0] == '#') {
+		tmpurl = html_url_dup (baseURL, HTML_URL_DUP_NOREFERENCE);
+		html_url_set_reference (tmpurl, s + 1);
+
+		tmp = html_url_to_string (tmpurl);
+		html_url_destroy (tmpurl);
+
+		return tmp;
+	}
+
+	tmpurl = html_url_new (s);
+	if (html_url_get_protocol (tmpurl) == NULL) {
+		if (s[0] == '/') {
+			if (s[1] == '/') {
+				gchar *t;
+
+				/* Double slash at the beginning.  */
+
+				/* FIXME?  This is a bit sucky.  */
+				t = g_strconcat (html_url_get_protocol (baseURL),
+						 ":", s, NULL);
+				tmpurl = html_url_new (t);
+				retval = html_url_to_string (tmpurl);
+				html_url_destroy (tmpurl);
+				g_free (t);
+			} else {
+				/* Single slash at the beginning.  */
+
+				tmpurl = html_url_dup (baseURL,
+						       HTML_URL_DUP_NOPATH);
+				html_url_set_path (tmpurl, s);
+				retval = html_url_to_string (tmpurl);
+				html_url_destroy (tmpurl);
+			}
+		} else {
+			tmpurl = html_url_append_path (baseURL, s);
+			retval = html_url_to_string (tmpurl);
+			html_url_destroy (tmpurl);
+		}
+	} else {
+		retval = html_url_to_string (tmpurl);
+	}
+
+	return retval;
+}
+
+static void
+url_requested (GtkHTML *html, const char *url, GtkHTMLStreamHandle handle, HelpWindow win)
+{
+	char *full_url = url;
+	GtkHTMLStreamStatus status;
+	docObj obj;
+	guchar *buf;
+	gint buflen;
+
+	full_url = parse_href (url);
+
+	if (GNOME_HELPWIN (html)->writing) {
+		return;
+	}
+
+	obj = docObjNew(full_url, win->useCache);
+	g_free (full_url);
+
+	docObjResolveURL(obj, helpWindowCurrentRef(win));
+
+	if (strstr(docObjGetAbsoluteRef(obj), "file:")) {
+		int fd, tmperrno;
+		char buf2[8192];
+		
+		fd = open(docObjGetAbsoluteRef(obj) + 5, O_RDONLY | O_NONBLOCK);
+		if (fd < 0) {
+			return;
+		}
+		
+		do {
+			buflen = read(fd, buf2, 8192);
+			tmperrno = errno;
+			gtk_html_write(html, handle, buf2, buflen);
+		} while (buflen || tmperrno == EAGAIN);
+		close(fd);
+		gtk_html_end(html, handle, GTK_HTML_STREAM_OK);
+		docObjFree(obj);
+		return;
+	}
+
+	if (transport(obj, helpWindowGetCache(win))) {
+	    docObjFree(obj);
+	    gtk_html_stream_end (html, handle, GTK_HTML_STREAM_ERROR);
+	    return;
+	}
+
+	docObjGetRawData(obj, &buf, &buflen);
+	gtk_html_write (html, handle, buf, buflen);
+	gtk_html_end (html, handle, GTK_HTML_STREAM_OK);
+	docObjFree(obj);
+}
+#else
 /* HACK HACK HACK */
 /*
  * Among problems this routine has - it leaves temp files in /tmp 
@@ -1020,13 +1281,13 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	docObjFree(obj);
 	return XmHTMLImageDefaultProc(html_widget, tmpnam, NULL, 0);
 }
+#endif
 
 void
 statusMsg(gchar *msg)
 {
     HelpWindow win;
     extern GList *windowList;
-
     if (!windowList) 
       puts(msg);
     else {

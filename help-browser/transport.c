@@ -204,7 +204,7 @@ transportUnknown( docObj obj )
 
     url = docObjGetDecomposedUrl(obj);
     g_snprintf(key, sizeof key, "gnome-download '%s'", docObjGetAbsoluteRef(obj));
-
+    g_message ("key is: %s", key);
     pipe = popen(key, "r");
     sock = fileno(pipe);
     res = loadSock(obj, sock);
@@ -256,6 +256,7 @@ transportHTTP( docObj obj )
         g_warning ("buffer too small");
 	return -1;
     }
+    g_message ("sending on %d: %s", sock, buf);
     write(sock, buf, strlen(buf));
     statusMsg("Transfering data...");
     res = loadSock(obj, sock);

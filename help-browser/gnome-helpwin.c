@@ -37,7 +37,11 @@
 #include <gnome.h>
 #include "gnome-helpwin.h"
 
+#ifdef HELP_USE_GTKHTML
+static GtkHTMLClass *parent_class;
+#else
 static GtkXmHTMLClass *parent_class;
+#endif
 
 /****************/
 /* widget stuff */
@@ -73,13 +77,21 @@ gnome_helpwin_class_init(GnomeHelpWinClass *helpclass)
 */
 
 	/* ugly C magic, doubt its required */
+#ifdef HELP_USE_GTKHTML
+	parent_class = gtk_type_class (GTK_TYPE_HTML);
+#else
 	parent_class = gtk_type_class (gtk_xmhtml_get_type ()); 
+#endif
 }
 
 static void
 gnome_helpwin_init(GnomeHelpWin *help)
 {
 	/* init struct _GnomeHelpWin */
+#ifdef HELP_USE_GTKHTML
+	gtk_html_construct (GTK_WIDGET (help));
+	gtk_html_load_empty (GTK_HTML (help));
+#endif
 	help->document_path[0] = 0;
 	help->html_source = NULL;
 }
@@ -100,7 +112,11 @@ gnome_helpwin_get_type(void)
 			(GtkClassInitFunc) NULL
 		};
 
+#ifdef HELP_USE_GTKHTML
+		GnomeHelpWin_type = gtk_type_unique(GTK_TYPE_HTML,
+#else
 		GnomeHelpWin_type = gtk_type_unique(gtk_xmhtml_get_type(),
+#endif
 						    &GnomeHelpWin_info);
 	}
 	return GnomeHelpWin_type;
@@ -126,7 +142,9 @@ void
 gnome_helpwin_jump_to_anchor(GnomeHelpWin *w, gchar *anchor)
 {
 	gchar *a;
-
+#ifdef HELP_USE_GTKHTML
+	g_warning ("jumping...");
+#else
 	g_return_if_fail( w != NULL );
 	g_return_if_fail( anchor != NULL );
 
@@ -139,22 +157,51 @@ gnome_helpwin_jump_to_anchor(GnomeHelpWin *w, gchar *anchor)
 	}
 		
         XmHTMLAnchorScrollToName(GTK_WIDGET(w), a);
+#endif
 }
 
 void
 gnome_helpwin_jump_to_line(GnomeHelpWin *w, gint line)
 {
+#ifdef HELP_USE_GTKHTML
+	g_warning ("jumping to line...");
+#else
 	g_return_if_fail( w != NULL );
 
 	/*        XmHTMLTextScrollToLine(GTK_WIDGET(w), line); */
 	gtk_xmhtml_set_topline(GTK_XMHTML(w), line);
+#endif
 }
 
 gint
 gnome_helpwin_get_line(GnomeHelpWin *w)
 {
+#ifdef HELP_USE_GTKHTML
+	return 0;
+#else
         return gtk_xmhtml_get_topline(GTK_XMHTML(w));
+#endif
 }
+
+#ifdef HELP_USE_GTKHTML
+void
+gtk_html_source (GtkHTML *html, char *url, char *source)
+{
+	GtkHTMLStreamHandle handle;
+
+	/* we need to set writing to TRUE so that the url_requested
+	 * callback won't try to load it, since we already have the
+	 * source in source, and url_requested doesn't know how to
+	 * handle ghelp: or toc: or the other funky "protocols".
+	 */
+	GNOME_HELPWIN (html)->writing = TRUE;
+	handle = gtk_html_begin (html, url);
+	gtk_html_write (html, handle, source, strlen (source));
+
+	GNOME_HELPWIN (html)->writing = FALSE;
+	gtk_html_end (html, handle, GTK_HTML_STREAM_OK);
+}
+#endif /* HELP_USE_GTKHTML */
 
 /*
  * gnome_helpwin_goto()
@@ -197,7 +244,7 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 		*tmp = '\0';
 	}
 
-
+#ifndef HELP_USE_GTKHTML
         /* TODO: jump to a "#anchor" in the same document should work */
 	if ((path[strlen(path) - 1] == '/') ||
 	    (path[0] == 0)) {
@@ -208,6 +255,7 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 		gnome_helpwin_jump_to_anchor( help, anchor);
 		return;
 	}
+#endif
 
 	errno = 0;
 	f = fopen(path, "rt");
@@ -219,7 +267,11 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 
 		help->html_source= g_strdup(_("<body><h2>Error: file not "
 					    "found</h2></body>"));
+#ifdef HELP_USE_GTKHTML
+		gtk_html_source (GTK_HTML (help), filename, help->html_source);
+#else
 		gtk_xmhtml_source( GTK_XMHTML(help), help->html_source );
+#endif
 		return;
 	}
 
@@ -242,13 +294,15 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 		errno = 0;
 	}
 
+#ifdef HELP_USE_GTKHTML
+	gtk_html_source (GTK_HTML (help), path, str);
+#else
 	gtk_xmhtml_source( GTK_XMHTML(help), str);
 	gnome_helpwin_jump_to_anchor( help, anchor);
-
+#endif
 	if (help->html_source)
 	    g_free(help->html_source);
 
 	help->html_source = str;
 
 }
-

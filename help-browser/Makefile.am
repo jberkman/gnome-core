@@ -2,21 +2,32 @@
 
 SUBDIRS = help gnome-man2html gnome-info2html
 
+if HELP_USE_GTKHTML
+htmlcflags=-DHELP_USE_GTKHTML
+endif
+
 INCLUDES = 							\
 	-I$(includedir)						\
 	-I$(top_srcdir)/intl -I$(top_builddir)/intl		\
 	$(GNOME_INCLUDEDIR)					\
 	-DGNOMEHELPPATH=\""$(datadir)/gnome/help\"" 	\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""	\
-	-DVERSION=\""$(VERSION)"\"
+	$(htmlcflags)
+
+if HELP_USE_GTKHTML
+htmllibs = $(GNOME_XML_LIB) @PIXBUF_LIBS@ \
+	$(GTK_HTML_PREFIX)/lib/libgtkhtml.a	\
+	$(GNOME_PRINT_PREFIX)/lib/libgnomeprint.a
+else
+htmllibs = $(GTKXMHTML_LIBS)
+endif
 
 LDADD = \
-	-lgnorba                                        \
-	$(GNOMEUI_LIBS)					\
-	$(GNOME_LIBDIR)					\
-	$(ORBIT_LIBS)                                   \
+	$(GNOMEUI_LIBS)		\
+	$(GNORBA_LIBS)		\
+	$(GNOME_LIBDIR)		\
+	$(ORBIT_LIBS)		\
         $(INTLLIBS)
-
 
 bin_PROGRAMS = gnome-help-browser  gnome-help-caller
 
@@ -37,6 +48,7 @@ gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 			     visit.c visit.h magic.c magic.h \
 			     bookmarks.c bookmarks.h \
 			     help-browser-impl.c \
+				htmlurl.c htmlurl.h \
 			     $(ORBIT_HELP_BROWSER_SOURCES)
 
 
@@ -65,7 +77,7 @@ my_help_browser_idl: $(top_srcdir)/idl/help-browser.idl $(ORBIT_IDL)
 
 help-caller.o gnome-help-browser.o: help-browser.h
 
-gnome_help_browser_LDADD = $(LDADD) $(RES_LIBS) $(GTKXMHTML_LIBS)
+gnome_help_browser_LDADD = $(LDADD) $(htmllibs)
 
 PIXMAPS = close.xpm contents.xpm help.xpm left_arrow.xpm right_arrow.xpm 
 

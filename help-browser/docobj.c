@@ -133,6 +133,8 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	    obj->transportFunc   = transportUnknown;
 	}
 
+	g_message ("trans: %d", obj->transportMethod);
+
 	if (! obj->humanRef) {
 	    docObjSetHumanRef(obj, obj->absoluteRef);
 	}

@@ -1,3 +1,7 @@
+2000-04-03  Jacob Berkman  <jacob@helixcode.com>
+
+	* add gtkhtml support
+
 2000-04-03  Alastair McKinstry <alastair@ilo.dec.com>
 
         * help-browser.desktop:	Added Irish (gaelic) translation.

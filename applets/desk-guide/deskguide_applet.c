@@ -850,7 +850,7 @@ static void
 gp_phelp (GtkWidget *w, gint tab, gpointer data)
 {
   GnomeHelpMenuEntry help_entry = { "desk-guide_applet", 
-				    "index.html#deskguide-properties" };
+				    "index.html#DESKGUIDE-PROPERTIES" };
   gnome_help_display(NULL, &help_entry);
 }
 

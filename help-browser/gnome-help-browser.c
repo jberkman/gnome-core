@@ -41,6 +41,10 @@
 #include "cache.h"
 #include "help-browser.h"
 
+#ifdef HELP_USE_GTKHTML
+#include <gtkhtml/gtkhtml.h>
+#endif
+
 extern char *program_invocation_name;
 
 #define NAME "GnomeHelp"
@@ -180,6 +184,11 @@ main(int argc, char *argv[])
     orb = gnome_CORBA_init_with_popt_table(NAME, VERSION, &argc, argv,
 					   options, 0, &ctx, GNORBA_INIT_SERVER_FUNC, &ev);
 
+    gdk_rgb_init ();
+ 
+    gtk_widget_set_default_colormap (gdk_rgb_get_cmap ());
+    gtk_widget_set_default_visual (gdk_rgb_get_visual ());
+
     leftovers = poptGetArgs(ctx);
     if(leftovers && leftovers[0]) {
       helpURL = leftovers[0];
@@ -237,7 +246,7 @@ main(int argc, char *argv[])
     Exception(&ev);
 
     goad_server_register(NULL, browser_object, "gnome-help-browser", "object", &ev);
-
+#if 0
     /* define if you need to debug output, else squelch it */
 #ifdef CREATE_LOGFILE
     output_fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
@@ -250,7 +259,7 @@ main(int argc, char *argv[])
     dup2(output_fd, fileno(stdout));
     dup2(output_fd, fileno(stderr));
     close(output_fd);
-
+#endif
     gtk_main();
 
     saveHistory(historyWindow);

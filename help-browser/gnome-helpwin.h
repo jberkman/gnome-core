@@ -24,7 +24,12 @@
 
 
 #include <gnome.h>
+
+#ifdef HELP_USE_GTKHTML
+#include <gtkhtml/gtkhtml.h>
+#else
 #include <gtk-xmhtml/gtk-xmhtml.h>
+#endif
 
 BEGIN_GNOME_DECLS
 
@@ -37,14 +42,23 @@ typedef struct _GnomeHelpWin       GnomeHelpWin;
 typedef struct _GnomeHelpWinClass  GnomeHelpWinClass;
 
 struct _GnomeHelpWin {
+#ifdef HELP_USE_GTKHTML
+    GtkHTML parent;
+    gboolean writing;
+#else
     GtkXmHTML parent;
+#endif
 
     gchar document_path[1024];
     gchar *html_source;
 };
 
 struct _GnomeHelpWinClass {
+#ifdef HELP_USE_GTKHTML
+    GtkHTMLClass parent_class;
+#else
     GtkXmHTMLClass parent_class;
+#endif
 };
 
 
