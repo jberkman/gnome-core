@@ -1,3 +1,8 @@
+1998-05-14  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (parse_an_arg): Addedd support for executing a
+	command at startup with the --command option.
+
 1998-05-13  Jaka Mocnik <jaka.mocnik@kiss.uni-lj.si>
 
         * gnome-terminal.c (new_terminal): connected the GnomeApp's

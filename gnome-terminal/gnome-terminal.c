@@ -47,6 +47,9 @@ int invoke_as_login_shell = 0;
 /* Do we want blinking cursor? */
 int blink;
 
+/* Initial command */
+char *initial_command;
+
 /* A list of all the open terminals */
 GList *terminals = 0;
 
@@ -587,7 +590,7 @@ configure_term_dnd (ZvtTerm *term)
 }
 
 void
-new_terminal (void)
+new_terminal_cmd (char *cmd)
 {
 	GtkWidget *app, *hbox, *scrollbar;
 	ZvtTerm   *term;
@@ -701,13 +704,26 @@ new_terminal (void)
 		perror ("Error: unable to fork");
 		return;
 		
-	case 0: 
+	case 0: {
+		char *cmd_args [] = { "-c", NULL, NULL };
+		char **args = NULL;
+		
 		sprintf (buffer, "WINDOWID=%d",(int) ((GdkWindowPrivate *)app->window)->xwindow);
 		env_copy [winid_pos] = buffer;
-		execle (shell, name, NULL, env_copy);
+		if (cmd)
+			execle (shell, name, "-c", cmd, NULL, env_copy);
+		else
+			execle (shell, name, NULL, env_copy);
 		perror ("Could not exec\n");
 		_exit (127);
 	}
+	}
+}
+
+void
+new_terminal ()
+{
+	new_terminal_cmd (NULL);
 }
 
 static void
@@ -741,7 +757,8 @@ enum {
 	FONT_KEY     = -1,
 	NOLOGIN_KEY  = -2,
 	LOGIN_KEY    = -3,
-	GEOMETRY_KEY = -4
+	GEOMETRY_KEY = -4,
+	COMMAND_KEY  = -5
 };
 
 static struct argp_option argp_options [] = {
@@ -749,6 +766,7 @@ static struct argp_option argp_options [] = {
 	{ "nologin",  NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
 	{ "login",    LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
 	{ "geometry", GEOMETRY_KEY, N_("GEOMETRY"),0,N_("Specifies the geometry for the main window"), 0 },
+	{ "command",  COMMAND_KEY,  N_("COMMAND"),0,N_("Execute this program instead of a shell"), 0 },
 	{ NULL, 0, NULL, 0, NULL, 0 },
 };
 
@@ -768,6 +786,10 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 	case GEOMETRY_KEY:
 		geometry = arg;
 		break;
+	case COMMAND_KEY:
+		initial_command = arg;
+		break;
+		
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}
@@ -793,7 +815,7 @@ main (int argc, char *argv [], char **environ)
 
 	terminal_load_defaults ();
 
-	new_terminal ();
+	new_terminal_cmd (initial_command);
 	
 	gtk_main ();
 	return 0;
