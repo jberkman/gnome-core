@@ -1,3 +1,7 @@
+Thu Nov 04 13:16:25 1999  George Lebl <jirka@5z.com>
+
+	* gnome-hint.c: use free for strings gotten from gnome-xml
+
 Fri Oct 22 15:45:30 1999  George Lebl  <jirka@5z.com>
 
 	* gnome-hint.c: always add the default hint before trying to

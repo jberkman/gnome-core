@@ -62,12 +62,12 @@ get_i18n_string(xmlDocPtr doc, xmlNodePtr child, char *name)
 		lang = xmlGetProp (cur, "xml:lang");
 		if(!lang) {
 			if(gotlang) continue;
-			g_free(current);
+			if(current) free(current);
 			current = xmlNodeListGetString (doc, cur->childs, 1);
 		} else {
 			GList *l = find_lang(langlist,gotlang,lang);
 			if(l) {
-				g_free(current);
+				if(current) free(current);
 				current = xmlNodeListGetString (doc, cur->childs, 1);
 				gotlang = l;
 				if(l == langlist) /*we can't get any better then this*/
@@ -75,7 +75,6 @@ get_i18n_string(xmlDocPtr doc, xmlNodePtr child, char *name)
 			}
 		}
 	}
-	
 	return current;
 }
 
