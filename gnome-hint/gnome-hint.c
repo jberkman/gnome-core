@@ -364,16 +364,34 @@ draw_on_canvas(GtkWidget *canvas, int is_fortune, int is_motd, char *hint)
 }
 
 static void
-exit_clicked(void)
+exit_clicked(GtkWidget *window)
 {
 	GtkWidget *message_box;
-	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb))) {
+	gboolean old_run_hints =
+		gnome_config_get_bool ("/Gnome/Login/RunHints=true");
+	gboolean new_run_hints =
+		gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb));
+	/* show the dialog ONLY when the user toggled the hints off just
+	 * now, and not if they were off before */
+	if (old_run_hints && !new_run_hints) {
 		message_box = gnome_message_box_new (_("You've chosen to disable the startup hint.\n"
 						       "To re-enable it, choose \"Startup Hint\"\n"
 						       "in the GNOME Control Center"),
 						     GNOME_MESSAGE_BOX_INFO,
 						     GNOME_STOCK_BUTTON_OK,
 						     NULL);
+		gnome_dialog_set_parent(GNOME_DIALOG(message_box),
+					GTK_WINDOW(window));
+
+		/* show now guarantees that the window will be realized and
+		 * shown before it returns */
+		gtk_widget_show_now (message_box);
+
+		gnome_win_hints_set_layer(message_box, WIN_LAYER_ONTOP);
+
+		/* raise window above the hints dialog if obscured */
+		gdk_window_raise(message_box->window);
+		
 		gnome_dialog_run (GNOME_DIALOG (message_box));
 	}
 	gnome_config_set_bool ("/Gnome/Login/RunHints", gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb)));
@@ -383,7 +401,7 @@ exit_clicked(void)
 }
 
 static void
-fortune_clicked(GtkWidget *w, int button, gpointer data)
+fortune_clicked(GtkWidget *window, int button, gpointer data)
 {
 	switch(button) {
 	case 0:
@@ -395,12 +413,12 @@ fortune_clicked(GtkWidget *w, int button, gpointer data)
 		grow_text_if_necessary();
 		break;
 	default:
-		exit_clicked ();
+		exit_clicked (window);
 	}
 }
 
 static void
-hints_clicked(GtkWidget *w, int button, gpointer data)
+hints_clicked(GtkWidget *window, int button, gpointer data)
 {
 	switch(button) {
 	case 0:
@@ -422,7 +440,7 @@ hints_clicked(GtkWidget *w, int button, gpointer data)
 		grow_text_if_necessary();
 		break;
 	default:
-		exit_clicked ();
+		exit_clicked (window);
 	}
 }
 
@@ -462,7 +480,7 @@ window_realize(GtkWidget *win)
 	   top without other starting apps overlaying it, since it's
 	   what the user should see (especially on the first run) so
 	   we can't have it obscured */
-	gnome_win_hints_set_layer(win,WIN_LAYER_ONTOP);
+	gnome_win_hints_set_layer(win, WIN_LAYER_ONTOP);
 }
 
 int
@@ -501,7 +519,7 @@ main(int argc, char *argv[])
 		win = gnome_dialog_new(_("Message of The Day"),
 				       GNOME_STOCK_BUTTON_CLOSE,
 				       NULL);
-		gtk_signal_connect(GTK_OBJECT(win),"clicked",
+		gtk_signal_connect(GTK_OBJECT(win), "clicked",
 				   GTK_SIGNAL_FUNC(exit_clicked),
 				   NULL);
 	} else if(is_fortune) {
@@ -509,7 +527,7 @@ main(int argc, char *argv[])
 				       GNOME_STOCK_BUTTON_NEXT,
 				       GNOME_STOCK_BUTTON_CLOSE,
 				       NULL);
-		gtk_signal_connect(GTK_OBJECT(win),"clicked",
+		gtk_signal_connect(GTK_OBJECT(win), "clicked",
 				   GTK_SIGNAL_FUNC(fortune_clicked),
 				   NULL);
 	} else {
@@ -518,15 +536,15 @@ main(int argc, char *argv[])
 				       GNOME_STOCK_BUTTON_NEXT,
 				       GNOME_STOCK_BUTTON_CLOSE,
 				       NULL);
-		gtk_signal_connect(GTK_OBJECT(win),"clicked",
+		gtk_signal_connect(GTK_OBJECT(win), "clicked",
 				   GTK_SIGNAL_FUNC(hints_clicked),
 				   NULL);
 	}
-	gtk_signal_connect(GTK_OBJECT(win),"delete_event",
+	gtk_signal_connect(GTK_OBJECT(win), "delete_event",
 			   GTK_SIGNAL_FUNC(exit_clicked),
 			   NULL);
 	gtk_window_set_position(GTK_WINDOW(win),GTK_WIN_POS_CENTER);
-	gtk_signal_connect_after(GTK_OBJECT(win),"realize",
+	gtk_signal_connect_after(GTK_OBJECT(win), "realize",
 				 GTK_SIGNAL_FUNC(window_realize), NULL);
 
 	sw = gtk_scrolled_window_new(NULL,NULL);

@@ -1,3 +1,12 @@
+Sun Apr 02 15:04:04 2000  George Lebl <jirka@5z.com>
+
+	* gnome-hint.c: exit_clicked now takes the first parameter to be the
+	  widget of the toplevel dialog window.  The "to reenable..." message
+	  box has it's parent set to the toplevel dialog window, it is set to
+	  be _ONTOP and is raised after being realized.  It is also shown
+	  ONLY when the state of RunHints goes from on -> off to avoid bogus
+	  messages when not running from gnome-session.
+
 Sun Apr 02 14:31:25 2000  George Lebl <jirka@5z.com>
 
 	* gnome-hint.c: when the message of the day file is absolutely empty
