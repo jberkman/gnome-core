@@ -1,3 +1,10 @@
+Sun Jul 19 02:25:24 1998  John Ellis  <johne@bellatlantic.net>
+
+	* Makefile.am: removed old reference icon-sel.[ch]
+	* gmenu.[ch], dialogs.c, edit.c, tree.c, order.c: fixed a few casts,
+	first attempt at internationalization.
+	* order.c (get_desktop_file_info): now uses dentry to load info.
+
 Sat Jul 18 19:27:29 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c (main): ctree now uses GTK_SELECTION_BROWSE

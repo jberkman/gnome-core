@@ -2,6 +2,7 @@
 /*##                       gmenu (GNOME menu editor) 0.2.4         ##*/
 /*###################################################################*/
 
+#include <config.h>
 #include "gmenu.h"
 #include "up.xpm"
 #include "down.xpm"
@@ -19,7 +20,7 @@ GtkWidget *pathlabel;
 
 GtkWidget *filename_entry;
 
-GnomeDEntryEdit *edit_area;
+GtkObject *edit_area;
 
 GList *topnode;
 GList *usernode;
@@ -38,13 +39,13 @@ static void destroy_cb();
 int main (int argc, char *argv[]);
 
 GnomeUIInfo file_menu[] = {
-	{ GNOME_APP_UI_ITEM, "New Folder...", NULL, create_folder_pressed, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, _("New Folder..."), NULL, create_folder_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW, 'F',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, "Delete...", NULL, delete_pressed_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, _("Delete..."), NULL, delete_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CUT, 'D',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, "Quit", NULL, destroy_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, _("Quit"), NULL, destroy_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT, 'Q',
 	  GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
@@ -52,15 +53,15 @@ GnomeUIInfo file_menu[] = {
 GnomeUIInfo help_menu[] = {
 	{ GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	{ GNOME_APP_UI_ITEM, "About...", NULL, about_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, _("About..."), NULL, about_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0,
 	  NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 GnomeUIInfo main_menu[] = {
-	{ GNOME_APP_UI_SUBTREE, ("File"), NULL, file_menu, NULL, NULL,
+	{ GNOME_APP_UI_SUBTREE, _("File"), NULL, file_menu, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	{ GNOME_APP_UI_SUBTREE, ("Help"), NULL, help_menu, NULL, NULL,
+	{ GNOME_APP_UI_SUBTREE, _("Help"), NULL, help_menu, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
@@ -262,13 +263,16 @@ int main (int argc, char *argv[])
 	GtkWidget *label;
 	GtkWidget *button;
 
+	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
+	textdomain(PACKAGE);
+
 	gnome_init ("GNOME menu editor", NULL, argc, argv, 0, NULL);
 
 	SYSTEM_APPS = gnome_unconditional_datadir_file("apps");
 	SYSTEM_PIXMAPS = gnome_unconditional_datadir_file("pixmaps");
 	if (!g_file_exists(SYSTEM_APPS) || !g_file_exists(SYSTEM_PIXMAPS))
 		{
-		g_print(_("unable to retrieve GNOME installation directory\n"));
+		g_print("unable to retrieve GNOME installation directory\n");
 		return 1;
 		}
 

@@ -29,7 +29,6 @@ struct _Desktop_Data
 	gint terminal;
 	gchar *doc;
 	gchar *type;
-	gint multiple_args;
 	GtkWidget *pixmap;
 	gint isfolder;
 	gint expanded;
@@ -56,7 +55,7 @@ extern GtkWidget *pathlabel;
 
 extern GtkWidget *filename_entry;
 
-extern GnomeDEntryEdit *edit_area;
+extern GtkObject *edit_area;
 
 extern GList *topnode;
 extern GList *usernode;

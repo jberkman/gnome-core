@@ -110,7 +110,7 @@ void create_folder_pressed()
 
 	dlg = g_new(Misc_Dialog, 1);
 	
-	dlg->dialog = gnome_dialog_new("New Folder", GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
+	dlg->dialog = gnome_dialog_new(_("New Folder"), GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 
 	label = gtk_label_new(_("Create Folder:"));
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dlg->dialog)->vbox),label,FALSE,FALSE,0);
@@ -240,7 +240,7 @@ static void save_dialog_cb( gint button, gpointer data)
 
 		overwrite = isfile(path);
 
-		dentry = gnome_dentry_get_dentry(edit_area);
+		dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
 		dentry->location = strdup(path);
 		gnome_desktop_entry_save (dentry);
 		gnome_desktop_entry_destroy (dentry);

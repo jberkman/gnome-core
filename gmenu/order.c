@@ -112,9 +112,7 @@ void free_order_list(GList *orderlist)
 Desktop_Data * get_desktop_file_info (char *file)
 {
 	Desktop_Data *d;
-	FILE *f;
-	gchar buf1[2048];
-	gchar *buf2;
+	GnomeDesktopEntry *dentry;
 
 /*	g_print("reading file: %s\n",file);*/
 
@@ -139,7 +137,6 @@ Desktop_Data * get_desktop_file_info (char *file)
 	d->isfolder = FALSE;
 	d->expanded = FALSE;
 	d->editable = TRUE;
-	d->multiple_args = 0;
 
 
 	if (isdir(file))
@@ -151,89 +148,27 @@ Desktop_Data * get_desktop_file_info (char *file)
 		return d;
 		}
 
-	f = fopen(file,"r");
-	if (!f)
-		{
-		return NULL;
-		}
+	dentry = gnome_desktop_entry_load_unconditional(file);
 
-	while (fgets(buf1,2048,f))
-		{
-		gchar *p;
-		int l;
-		l = strlen(buf1);
-		buf2 = buf1;
-		while (buf2[0] != '=' && buf2[0] != '\n' && buf2 < buf1 + l) buf2++;
-		buf2[0] = '\0';
-		buf2 ++;
+	if (!dentry) return NULL;
 
-		p = buf1;
-		while (p < buf1 + l)
-			{
-			if (p[0] == '\n') p[0] = '\0';
-			p++;
-			}
-
-		if (!strcasecmp(buf1,"Name"))
-			{
-			if (d->name) free(d->name);
-			d->name = strdup(buf2);
-			}
-		if (!strcasecmp(buf1,"Comment"))
-			{
-			if (d->comment) free(d->comment);
-			d->comment = strdup(buf2);
-			}
-		if (!strcasecmp(buf1,"TryExec"))
-			{
-			if (d->tryexec) free(d->tryexec);
-			d->tryexec = strdup(buf2);
-			}
-		if (!strcasecmp(buf1,"Exec"))
-			{
-			if (d->exec) free(d->exec);
-			d->exec = strdup(buf2);
-			}
-		if (!strcasecmp(buf1,"Icon"))
-			{
-			if (d->icon) free(d->icon);
-			d->icon = strdup(buf2);
-			}
-		if (!strcasecmp(buf1,"Type"))
-			{
-			if (d->type) free(d->type);
-			d->type = strdup(buf2);
-			}
-		if (!strcasecmp(buf1,"Terminal"))
-			{
-			if (!strcmp(buf2,"1"))
-				d->terminal = TRUE;
-			else
-				d->terminal = FALSE;
-			}
-		if (!strcasecmp(buf1,"DocPath"))
-			{
-			if (d->doc) free(d->doc);
-			d->doc = strdup(buf2);
-			}
-		if (!strcasecmp(buf1,"MultipleArgs"))
-			{
-			if (!strcmp(buf2,"1"))
-				d->multiple_args = TRUE;
-			else
-				d->multiple_args = FALSE;
-			}
-		}
-
-	fclose(f);
+	if (dentry->name) d->name = strdup(dentry->name);
+	if (dentry->comment) d->comment = strdup(dentry->comment);
+	if (dentry->tryexec) d->tryexec = strdup(dentry->tryexec);
+	d->exec = NULL;
+	if (dentry->icon) d->icon = strdup(dentry->icon);
+	if (dentry->type) d->type = strdup(dentry->type);
+	d->terminal = dentry->terminal;
+	if (dentry->docpath) d->doc = strdup(dentry->docpath);
 
 	if (d->icon)
 		{
-		gchar *icon_path;
+/*		gchar *icon_path;
 		icon_path = correct_path_to_file(SYSTEM_PIXMAPS, USER_PIXMAPS, d->icon);
 		if (icon_path)
-			d->pixmap = gnome_pixmap_new_from_file_at_size (icon_path, 20, 20);
-		else
+*/
+		d->pixmap = gnome_pixmap_new_from_file_at_size (d->icon, 20, 20);
+		if (!d->pixmap)
 			d->pixmap = gnome_pixmap_new_from_xpm_d (unknown_xpm);
 		}
 	else
@@ -241,6 +176,7 @@ Desktop_Data * get_desktop_file_info (char *file)
 		d->pixmap = gnome_pixmap_new_from_xpm_d (unknown_xpm);
 		}
 
+	gnome_desktop_entry_destroy(dentry);
 	return d;
 }
 
