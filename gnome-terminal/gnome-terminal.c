@@ -1123,7 +1123,9 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 static gint
 die (GnomeClient *client, gpointer client_data)
 {
+#if 0
 	close_all_cmd ();
+#endif
 	return TRUE;
 }
 
