@@ -249,6 +249,7 @@ int main (int argc, char *argv[])
 	GtkWidget *vbox;
 	GtkWidget *frame;
 	GtkWidget *button;
+	GtkWidget *scrolled;
 	GtkTooltips *tooltips;
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
@@ -288,6 +289,12 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
 	gtk_widget_show(vbox);
 
+	scrolled = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled),
+				GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	gtk_box_pack_start(GTK_BOX(vbox),scrolled,TRUE,TRUE,0);
+	gtk_widget_show(scrolled);
+
 	gtk_widget_push_visual (gdk_imlib_get_visual ());
 	gtk_widget_push_colormap (gdk_imlib_get_colormap ());
 	menu_tree_ctree = gtk_ctree_new(1, 0);
@@ -302,7 +309,7 @@ int main (int argc, char *argv[])
 	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),"button_release_event", GTK_SIGNAL_FUNC(tree_item_selected),NULL);
 	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"tree_move", GTK_SIGNAL_FUNC(tree_moved),"before");
 	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),"tree_move", GTK_SIGNAL_FUNC(tree_moved),NULL);
-	gtk_box_pack_start(GTK_BOX(vbox),menu_tree_ctree,TRUE,TRUE,0);
+	gtk_container_add (GTK_CONTAINER (scrolled), menu_tree_ctree);
 	gtk_widget_show(menu_tree_ctree);
 
 	/* tree info area */

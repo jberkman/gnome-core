@@ -1,3 +1,8 @@
+Sun Nov  8 02:51:02 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c(main):Place the ctree into a scrolled window for the
+	latest gtk.
+
 Thu Oct  1 14:42:15 1998  John Ellis  <johne@bellatlantic.net>
 
 	* dialogs.c, edit.c, gmenu.[ch], tree.c: Fix missing prototype
