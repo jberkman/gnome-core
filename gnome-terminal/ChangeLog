@@ -1,3 +1,8 @@
+Fri May 22 18:31:33 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* gnome-terminal.c (get_shell_name): Use gnome_util_user_shell.
+	(new_terminal_cmd): Free `shell'.
+
 1998-05-21  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (parse_an_arg): Add support for specifying the

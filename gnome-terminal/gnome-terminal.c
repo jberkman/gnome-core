@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include <gnome.h>
 #include <zvt/zvtterm.h>
-#include <pwd.h>
 #include <gdk/gdkprivate.h>
 #include <string.h>
 #include <sys/types.h>
@@ -646,32 +645,13 @@ set_shell_to (char *the_shell, char **shell, char **name)
 /*
  * Puts in *shell a pointer to the full shell pathname
  * Puts in *name the invocation name for the shell
+ * *shell is allocated on the heap.
  */
 static void
 get_shell_name (char **shell, char **name)
 {
-	struct passwd *pw;
-	int i;
-	char *shells [] = {
-		"/bin/bash", "/bin/zsh", "/bin/tcsh", "/bin/ksh",
-		"/bin/csh", "/bin/sh", 0
-	};
-	
-	if ((*shell = getenv ("SHELL"))){
-		set_shell_to (*shell, shell, name);
-		return;
-	}
-	pw = getpwuid(getuid());
-	if (pw && pw->pw_shell) {
-		set_shell_to (pw->pw_shell, shell, name);
-		return;
-	} 
-
-	for (i = 0; shells [i]; i++)
-		if (g_file_exists (shells [i])){
-			set_shell_to (shells [i], shell, name);
-			return;
-		}
+	*shell = gnome_util_user_shell ();
+	set_shell_to (*shell, shell, name);
 }
 
 void
@@ -874,6 +854,8 @@ new_terminal_cmd (char **cmd)
 		_exit (127);
 	}
 	}
+
+	g_free (shell);
 }
 
 void
