@@ -1,3 +1,9 @@
+1998-05-05  Federico Mena  <federico@nuclecu.unam.mx>
+
+	* property-screensaver.cc (setup): 
+	* property-background.c (background_setup): Make the monitor
+	sub-window be displayed correctly.
+
 1998-05-05  Michael Fulbright  <msf@redhat.com>
 
 	* property-mouse.c: fixed labels for Fast/Slow and Large/Small,

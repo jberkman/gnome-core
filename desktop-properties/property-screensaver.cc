@@ -309,12 +309,15 @@ ConfigScreenSaver::setup ()
 {
 	GtkWidget *hbox, *bottom;
 	GtkWidget *settings, *modes;
+	GtkWidget *align;
 	
-	vbox = gtk_vbox_new (TRUE, 0);
-	hbox = gtk_hbox_new (TRUE, 0);
+	vbox = gtk_vbox_new (FALSE, 0);
+	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
 	bottom = gtk_hbox_new (FALSE, GNOME_PAD);
 	gtk_container_border_width (GTK_CONTAINER (bottom), GNOME_PAD);
+
+	align = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
 
 	this->monitor = get_monitor_preview_widget ();
 	gtk_signal_connect (GTK_OBJECT (monitor), "map",
@@ -328,12 +331,14 @@ ConfigScreenSaver::setup ()
 	settings = settings_frame ();
 	modes = modes_frame ();
 
-	gtk_box_pack_start (GTK_BOX(hbox), monitor, FALSE, FALSE, 0);
-	gtk_box_pack_start (GTK_BOX(bottom), settings, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX(hbox), align, TRUE, TRUE, 0);
+	gtk_container_add (GTK_CONTAINER (align), this->monitor);
+	gtk_box_pack_start (GTK_BOX(bottom), settings, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX(bottom), modes, TRUE, TRUE, 0);
 	gtk_box_pack_end (GTK_BOX (vbox), bottom, TRUE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (vbox), hbox, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
+	gtk_widget_show (align);
 	gtk_widget_show (monitor);
 	gtk_widget_show (settings);
 	gtk_widget_show (modes);
