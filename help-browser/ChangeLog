@@ -1,3 +1,8 @@
+2000-03-14  Pablo Saratxaga <pablo@mandrakesoft.com>
+
+	* help/Makefile.am, help/lt/*: added Lithuanian default page
+          from Gediminas Paulauskas <menesis@delfi.lt>
+
 2000-03-19  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-help-browser.c (main): show the window before loading
