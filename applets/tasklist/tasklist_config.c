@@ -29,8 +29,11 @@ void write_config (void)
 	
 	gnome_config_set_bool ("tasklist/show_mini_icons",
 			       Config.show_mini_icons);
-	gnome_config_set_int ("tasklist/tasks_to_show", 
-			      Config.tasks_to_show);
+	gnome_config_set_bool ("tasklist/show_normal",
+			       Config.show_normal);
+	gnome_config_set_bool ("tasklist/show_minimized",
+			       Config.show_minimized);
+
 	gnome_config_set_bool ("tasklist/all_desks_normal",
 			       Config.all_desks_normal);
 	gnome_config_set_bool ("tasklist/all_desks_minimized",
@@ -58,7 +61,8 @@ void read_config (void)
 	Config.confirm_before_kill = gnome_config_get_bool ("tasklist/confirm_before_kill=true");
 	
 	Config.show_mini_icons = gnome_config_get_bool ("tasklist/show_mini_icons=true");
-	Config.tasks_to_show = gnome_config_get_int ("tasklist/tasks_to_show=0");
+	Config.show_normal = gnome_config_get_bool ("tasklist/show_normal=true");
+	Config.show_minimized = gnome_config_get_bool ("tasklist/show_minimized=true");
 	Config.all_desks_normal = gnome_config_get_bool ("tasklist/all_desks_normal=false");
 	Config.all_desks_minimized = gnome_config_get_bool ("tasklist/all_desks_minimized=false");
 }

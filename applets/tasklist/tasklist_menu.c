@@ -91,7 +91,7 @@ cb_menu (GtkWidget *widget, gpointer data)
 			gwmh_task_kill (current_task->gwmh_task);
 		break;
 	case MENU_ACTION_SHOW_HIDE:
-		if (GWMH_TASK_MINIMIZED (current_task->gwmh_task)) {
+		if (GWMH_TASK_ICONIFIED (current_task->gwmh_task)) {
 			gwmh_task_show (current_task->gwmh_task);
 			gwmh_task_show (current_task->gwmh_task);
 		}

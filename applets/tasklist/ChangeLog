@@ -1,3 +1,16 @@
+1999-09-16    <andersca@picard.andersnet>
+
+	* tasklist_applet.h
+	  tasklist_applet.c
+	  tasklist_config.c
+	  tasklist_properties.c: Changed option buttons to check 
+	  buttons for "Show mininized/normal tasks"
+
+1999-09-16  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c
+	  tasklist_menu.c: Fixed minimize/iconify bug with E and sawmill
+
 1999-09-14  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_applet.c

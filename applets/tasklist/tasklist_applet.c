@@ -127,30 +127,25 @@ is_task_visible (TasklistTask *task)
 				
 			else if (Config.all_desks_minimized && 
 				 !Config.all_desks_normal) {
-				if (!GWMH_TASK_MINIMIZED (task->gwmh_task))
+				if (!GWMH_TASK_ICONIFIED (task->gwmh_task))
 					return FALSE;
 			}
 			else if (Config.all_desks_normal && 
 				 !Config.all_desks_minimized) {
-				if (GWMH_TASK_MINIMIZED (task->gwmh_task))
+				if (GWMH_TASK_ICONIFIED (task->gwmh_task))
 					return FALSE;
 			}
 		}
 	}			
 
-	switch (Config.tasks_to_show) {
-	case TASKS_SHOW_ALL:
-		return TRUE;
-		break;
-	case TASKS_SHOW_NORMAL:
-		if (GWMH_TASK_MINIMIZED (task->gwmh_task))
+	if (GWMH_TASK_ICONIFIED (task->gwmh_task)) {
+		if (!Config.show_minimized)
 			return FALSE;
-		break;
-	case TASKS_SHOW_MINIMIZED:
-		if (!GWMH_TASK_MINIMIZED (task->gwmh_task))
+	} else {
+		if (!Config.show_normal)
 			return FALSE;
 	}
-	
+		
 	return TRUE;
 }
 
@@ -449,6 +444,8 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	{
 	case GWMH_NOTIFY_INFO_CHANGED:
 		if (imask & GWMH_TASK_INFO_GSTATE)
+			layout_tasklist ();
+		if (imask & GWMH_TASK_INFO_ICONIFIED)
 			layout_tasklist ();
 		if (imask & GWMH_TASK_INFO_FOCUSED)
 			draw_task (find_gwmh_task (gwmh_task));

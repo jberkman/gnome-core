@@ -36,7 +36,8 @@ struct _TasklistTask {
 struct _TasklistConfig {
 
 	gboolean show_mini_icons; /* Show small icons next to tasks */
-	gint tasks_to_show; /* Which tasks to show */
+	gboolean show_minimized; /* Show minimized tasks */
+	gboolean show_normal; /* Show normal tasks */
 	gboolean all_desks_normal; /* Show normal tasks on all desktops */
 	gboolean all_desks_minimized; /* Show minimized tasks on all desktops */
 	gboolean confirm_before_kill; /* Confirm before killing windows */
