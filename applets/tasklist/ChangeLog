@@ -1,9 +1,21 @@
+1999-07-11  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* menu.c 
+	  tasklist_applet.c
+	  tasklist_applet.h
+	  tasklist_config.c
+	  tasklist_properties.c: Use K&R indentation, misc cleanups
+
 1999-07-10  Tomas Ogren  <stric@ing.umu.se>
 
-	* menu.c, tasklist_properties.c, tasklist_applet.h, tasklist_applet.c:
-	Misc compiler warning fixes.
+	* menu.c
+	  tasklist_properties.c
+	  tasklist_applet.h
+	  tasklist_applet.c: Misc compiler warning fixes.
 
 1999-07-06  Anders Carlsson  <anders.carlsson@tordata.se>
 
-	* tasklist_applet.c, tasklist_applet.h, tasklist_config.c, tasklist_properties.c:
-	Added tasklist width change support.
+	* tasklist_applet.c
+	  tasklist_applet.h
+	  tasklist_config.c
+	  tasklist_properties.c: Added tasklist width change support.

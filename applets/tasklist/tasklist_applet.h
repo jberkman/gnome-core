@@ -8,31 +8,29 @@
 typedef struct _TasklistTask TasklistTask;
 typedef struct _Config Config;
 
-struct _TasklistTask
-{
-  gint x, y;
-  gint width, height;
-  GdkPixmap pixmap;
-  GdkBitmap bitmap;
-  GwmhTask *task;
+struct _TasklistTask {
+	gint x, y;
+	gint width, height;
+	GdkPixmap pixmap;
+	GdkBitmap bitmap;
+	GwmhTask *task;
 };
 
-struct _Config
-{
-  gboolean show_winops;
-  gboolean confirm_kill;
-  gboolean all_tasks;
-  gboolean minimized_tasks;
-  gboolean show_all;
-  gboolean show_normal;
-  gboolean show_minimized;
-  gboolean numrows_follows_panel;
-  gint tasklist_width;
+struct _Config {
+	gboolean show_winops;
+	gboolean confirm_kill;
+	gboolean all_tasks;
+	gboolean minimized_tasks;
+	gboolean show_all;
+	gboolean show_normal;
+	gboolean show_minimized;
+	gboolean numrows_follows_panel;
+	gint tasklist_width;
 };
 
-void menu_popup (TasklistTask *temp_task, guint button, guint32 activate_time);
-void config_load (const gchar *privcfgpath);
-void config_save (const gchar *privcfgpath);
-void properties_show (void);
-void tasklist_layout (void);
-gint tasklist_get_num_rows (PanelSizeType o);
+void menu_popup(TasklistTask * temp_task, guint button, guint32 activate_time);
+void config_load(const gchar * privcfgpath);
+void config_save(const gchar * privcfgpath);
+void properties_show(void);
+void tasklist_layout(void);
+gint tasklist_get_num_rows(PanelSizeType o);
