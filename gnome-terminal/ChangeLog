@@ -1,3 +1,17 @@
+1999-07-07  Miguel de Icaza  <miguel@gnu.org>
+
+	* gnome-terminal.c (new_terminal_cmd): Merge this fix from gnome-core-1-0
+
+1999-06-27  Miguel de Icaza  <miguel@gnu.org>
+
+	* C/gnome-terminal.sgml: Updated documentation on the color drag
+	and drop to more accurrately describe it.
+	
+1999-04-17  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (main): Reset SIGCHLD signal handler, do not
+	depend on the environment to be correct.
+
 1999-07-08  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* gnome-terminal.c (new_terminal_cmd): Applied a patch Michael
@@ -41,6 +55,7 @@
 	(new_terminal_cmd): Set the TERM environment from termname, if it
 	is set.  Otherwise set it to xterm.  Yes xterm, not xterm-debian
 	or xterm-fluffy-bloody-sheep!  (see bug #1374)
+
 
 1999-05-31  Michael Zucchi  <mzucchi@denr.sa.gov.au>
 

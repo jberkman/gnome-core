@@ -1769,8 +1769,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 					env_copy [i++] =  "TERM=xterm";
 				}
 				term_found = TRUE;
-			} else if ((strncmp (*p, "COLUMNS=", 8) == 0)
-				 || (strncmp (*p, "LINES=", 6) == 0)){
+			} else if ((strncmp (*p, "COLUMNS=", 8) == 0) ||
+				   (strncmp (*p, "LINES=", 6) == 0) ||
+				   (strncmp (*p, "WINDOWID=", 8) == 0)){
 				/* nothing: do not copy those */
 			} else
 				env_copy [i++] = *p;

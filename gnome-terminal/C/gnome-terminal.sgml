@@ -129,7 +129,8 @@
 		Custom allows you to select the default foreground and
 		background colours.</para>
 
-	      <para>Additionally, the user can drag a colour from any GNOME
+	      <para>Additionally, the user can drag a colour from the
+		rectangular box beneath the color wheel from any GNOME
 		colour selector or colour source and drop it into the
 		terminal.  If the user drops the colour on a white space, it
 		will set the background, if the user drops the colour on a
