@@ -25,6 +25,7 @@ GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
 GList *tasks; /* The list of tasks used */
 GdkPixbuf *unknown_icon; /* Unknown icon */
+GdkBitmap unknown_mask; /* Unknown mask */
 
 gint vert_height=0; /* Vertical height, used for resizing */
 gint horz_width=0;  /* Horizontal width, used for resizing */
@@ -749,6 +750,9 @@ main (gint argc, gchar *argv[])
 						     NULL, unknown_xpm);
 	*/
 	unknown_icon = gdk_pixbuf_new_from_xpm_data (&unknown_xpm);
+	gdk_pixbuf_render_threshold_alpha (unknown_icon,
+					   &unknown_mask,
+					   0, 0, 0, 0, 16, 16, 0);
 
 	applet_widget_gtk_main ();
 
