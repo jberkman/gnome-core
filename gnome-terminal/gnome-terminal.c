@@ -595,30 +595,25 @@ switch_terminal_class (ZvtTerm *term, struct terminal_config *newcfg)
 			   term);
 
 	gtk_widget_show (mbox);
-
 }
 
 static void
-window_closed (GtkWidget *w, void *data)
+window_destroy (GtkWidget *w, gpointer data)
 {
 	ZvtTerm *term = ZVT_TERM (data);
 	preferences_t *prefs;
 
 	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
-	gtk_signal_disconnect_by_data(GTK_OBJECT(prefs->pixmap_file_entry),
-				      prefs);
+	gtk_signal_disconnect_by_data (GTK_OBJECT (prefs->pixmap_file_entry), prefs);
 	g_free (prefs);
-	
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", NULL);
 }
 
 static int
-window_closed_event (GtkWidget *w, GdkEvent *event, void *data)
+window_delete_event (GtkWidget *w, GdkEvent *event, gpointer data)
 {
-	ZvtTerm *term = ZVT_TERM (data);
-	
-	window_closed (w, term);
-	return FALSE;
+	gtk_widget_destroy (w);
+	return TRUE;
 }
 
 /*
@@ -1122,9 +1117,9 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
 			    GTK_SIGNAL_FUNC (apply_changes_cmd), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "delete_event",
-			    GTK_SIGNAL_FUNC (window_closed_event), term);
+			    GTK_SIGNAL_FUNC (window_delete_event), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
-			    GTK_SIGNAL_FUNC (window_closed), term);
+			    GTK_SIGNAL_FUNC (window_destroy), term);
 
 	help_entry.name = gnome_app_id;
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "help",

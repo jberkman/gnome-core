@@ -1,3 +1,8 @@
+1999-02-07  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* gnome-terminal.c (window_delete_event): Fixed crashes when
+	closing the preferences window with the window manager.
+
 1999-02-06  Changwoo Ryu  <cwryu@adam.kaist.ac.kr>
 
 	* gnome-terminal.desktop: Updated Korean translation.
