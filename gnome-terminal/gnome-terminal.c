@@ -32,7 +32,7 @@ extern char **environ;
 char **env;
 
 #define DEFAULT_FONT "-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1"
-#define EXTRA 2
+#define EXTRA 3
 
 /* Initial geometry */
 char *geometry = 0;
@@ -1748,6 +1748,22 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	GdkModifierType mask;
 #endif
 
+	if (event->button == 1 && GDK_CONTROL_MASK){
+		gdk_window_get_pointer(widget->window, &x, &y, &mask);
+		match = zvt_term_match_check(term, x/term->charwidth, y/term->charheight, 0);
+		if (!match)
+			return FALSE;
+		
+		/*
+		 * If shift-button-3 is pressed, open the url
+		 */
+		if (event->state & GDK_CONTROL_MASK){
+			gnome_url_show (match);
+			return TRUE;
+		}
+		return FALSE;
+	}
+	
 	if (event->button != 3
 	    || (!(event->state & GDK_CONTROL_MASK) && term->vx->selected)
 	    || (term->vx->vt.mode & VTMODE_SEND_MOUSE))
@@ -1762,7 +1778,7 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 		/*
 		 * If shift-button-3 is pressed, open the url
 		 */
-		if (event->state & GDK_SHIFT_MASK){
+		if (event->state & GDK_CONTROL_MASK){
 			gnome_url_show (match);
 			return TRUE;
 		}

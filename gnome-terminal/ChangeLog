@@ -1,3 +1,8 @@
+1999-10-11  Miguel de Icaza  <miguel@gnu.org>
+
+	* gnome-terminal.c (EXTRA): Applied patch from housel@acm.org,
+	change from 2 to 3
+
 1999-09-17  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* no/Makefile.am (gnome-terminal/index.html): Revert unlogged
