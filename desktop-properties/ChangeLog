@@ -1,3 +1,8 @@
+1998-12-02  Martin Baulig  <martin@home-of-linux.org>
+
+	* Makefile.am (bin_PROGRAMS): Removed the Bell properties here
+	since we now have a capplet for this.
+
 1998-11-24  Andrew T. Veliath  <andrewtv@usa.net>
 
 	* property-ui.c (ui_setup): New UI property: "Toolbars have text
