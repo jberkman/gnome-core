@@ -1,5 +1,7 @@
 2001-06-20  Kjartan Maraas  <kmaraas@gnome.org>
 
+	* gwmthumbnail.c: Fix code to be triggered by failure to
+	allocate X shared memory. From Doug Larrick <doug@ties.org>.
 	* deskguide_applet.c: Make all uses of the gettext macros
 	look like _() and N_(), not _ () and N_ ().
 	
