@@ -1,3 +1,21 @@
+1999-03-09  Owen Taylor  <otaylor@redhat.com>
+
+	* gnome-terminal.c: Use radio buttons instead of
+	check buttons on the image page so that the interaction
+	between the options is clear.
+	
+	* gnome-terminal.c: Get rid of the complicated system
+	of setting object data and handlers on all option-menu
+	items in favor of the "straightforward" approach
+	of writing a option_menu_get_history().
+
+	* Set the labels of the color pickers insensitive,
+	in addition to the color pickers themselves.
+
+	* gnome-terminal.c (check_image_options_sensitivity): 
+	Fix sensitivity of options in image preferences page to
+	accurately represent their interactions.
+
 1999-03-08  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (load_config): Make the default scrollbar
