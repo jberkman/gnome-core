@@ -56,6 +56,13 @@ lexographic_compare_func (gconstpointer a, gconstpointer b)
        const TasklistTask *la = (const TasklistTask*)a;
        const TasklistTask *lb = (const TasklistTask*)b;
 
+       if (la->gwmh_task->name == NULL && lb->gwmh_task->name == NULL)
+	       return 0;
+       else if (la->gwmh_task->name == NULL)
+	       return 1;
+       else if (lb->gwmh_task->name == NULL)
+	       return -1;
+
        return strcasecmp (la->gwmh_task->name, lb->gwmh_task->name);
 }
 

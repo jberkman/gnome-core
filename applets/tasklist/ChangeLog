@@ -1,3 +1,8 @@
+2000-12-21  Richard Hult  <rhult@codefactory.se>
+
+	* tasklist_applet.c (lexographic_compare_func): Sort correctly
+	even if one of the tasks has no name (instead of just crashing).
+
 Wed Dec 20 15:25:02 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.[ch], tasklist_config.c, tasklist_properties.c:
