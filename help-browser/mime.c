@@ -10,11 +10,7 @@
 #include <signal.h>
 #include <ctype.h>
 #include <fcntl.h>
-#if defined(HAVE_WAIT_H) || !defined(HAVE_CONFIG_H)
-#include <wait.h>
-#else
 #include <sys/wait.h>
-#endif
 #include <errno.h>
 #include <string.h>
 

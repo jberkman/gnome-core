@@ -1,3 +1,7 @@
+Fri May 15 11:59:00 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* mime.c: Just use <sys/wait.h>.
+
 Wed May 13 22:33:56 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* gnome-help-browser.c (save_state): If shutdown requested, then
