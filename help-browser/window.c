@@ -337,16 +337,7 @@ help_backward(GtkWidget *w, HelpWindow win)
 static void
 help_onhelp(GtkWidget *w, HelpWindow win)
 {
-	gchar *p, *q;
-
-	p = gnome_help_file_path("help-browser", "help-browser.html");
-	if (!p)
-		return;
-	q = alloca(strlen(p)+10);
-	strcpy(q,"file:");
-	strcat(q, p);
-	g_free(p);
-	helpWindowShowURL(win, q, TRUE, FALSE);
+	helpWindowShowURL(win, "ghelp:help-browser", TRUE, TRUE);
 }
 
 static void

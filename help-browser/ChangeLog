@@ -1,3 +1,7 @@
+1998-05-05  Michael Fulbright  <msf@redhat.com>
+
+	* window.c: help_onhelp() - use "ghelp:help-browser" magic URL
+
 1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-help-browser.c (configApply): Only load the configuration
