@@ -384,7 +384,7 @@ ConfigScreenSaver::apply ()
 		pid = gnome_config_get_int ("/Desktop/ScreenSaver/xautolock_pid=0");
 	        if (pid) {
 			::kill (pid, SIGTERM);
-			waitpid(pid, &pid, 0):
+			waitpid(pid, &pid, 0);
 		}
 
 		pid = fork ();
