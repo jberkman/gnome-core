@@ -51,6 +51,7 @@ gint      e_opt_resize = 2;
 gint      e_opt_slide_mode = 0;
 
 gchar     e_opt_tooltips = 1;
+gchar     e_opt_menuslide = 0;
 gfloat    e_opt_tooltiptime = 1.5;
 
 gfloat    e_opt_shade_speed = 4000.0;
@@ -58,7 +59,7 @@ gfloat    e_opt_map_speed = 4000.0;
 gfloat    e_opt_cleanup_speed = 4000.0;
 gfloat    e_opt_desk_speed = 4000.0;
 gfloat    e_opt_desktop_bg_timeout = 60.0;
-gfloat    e_opt_number_of_desks = 6;
+gfloat    e_opt_number_of_desks = 32;
 
 GList    *backgrounds = NULL;
 
@@ -91,6 +92,8 @@ e_try (void)
 	     " DESKSLIDESPEED: %i"
 	     " DESKTOPBGTIMEOUT: %i"
 	     " SAVEUNDER: %i"
+	     " NUMDESKTOPS: %i"
+	     " MENUSLIDE: %i"
 	     "\""
 	     ,
 	     e_opt_sound, e_opt_slide_cleanup, e_opt_slide_map, 
@@ -102,8 +105,11 @@ e_try (void)
 	     (gint)e_opt_cleanup_speed,
 	     (gint)e_opt_desk_speed,
 	     ((gint)e_opt_desktop_bg_timeout) * 60,
-	     e_opt_saveunders
+	     e_opt_saveunders,
+	     (gint)e_opt_number_of_desks,
+	     e_opt_menuslide
 	     );
+  printf("%s\n", cmd);
   system(cmd);
     {
       gint i, d;
@@ -251,6 +257,16 @@ e_read (void)
 	  sscanf(buf, "%*s %4000s", cmd);
 	  e_opt_saveunders = atoi(cmd);
 	}
+      else if (!strcmp(cmd, "NUMDESKTOPS:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_number_of_desks = atof(cmd);
+	}
+      else if (!strcmp(cmd, "MENUSLIDE:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_menuslide = atof(cmd);
+	}
     }
   pclose(eesh);
   eesh = NULL;
@@ -371,9 +387,11 @@ e_cb_range(GtkWidget *widget, gpointer data)
   GtkAdjustment      *adj;
   gfloat             *value, current_val;
   static gint        just_changed = 0;
+  GtkFunction        func;
   
   w = GTK_WIDGET(data);
   c = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(w), "capplet");
+  func = (GtkFunction)gtk_object_get_data(GTK_OBJECT(w), "function");
   capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
   adj = gtk_object_get_data(GTK_OBJECT(w), "adj");
   value = (gfloat *)gtk_object_get_data(GTK_OBJECT(w), "value");
@@ -391,7 +409,10 @@ e_cb_range(GtkWidget *widget, gpointer data)
 	just_changed--;
     }
   *value = adj->value;
-    
+
+  if (func)
+    (*func)((gint)(adj->value));
+  
   widget = NULL;
 }
 
@@ -507,6 +528,68 @@ e_add_step_range_to_frame(GtkWidget *w, gchar *text, gfloat *value,
   gtk_object_set_data(GTK_OBJECT(hscale), "adj", (gpointer)adj);
   gtk_object_set_data(GTK_OBJECT(hscale), "value", (gpointer)value);  
   gtk_object_set_data(GTK_OBJECT(hscale), "capplet", (gpointer)current_capplet);  
+  gtk_box_pack_start(GTK_BOX(hbox), hscale, TRUE, TRUE, 0);
+  label = gtk_label_new(upper_text);
+  gtk_widget_show(label);
+  align2 = gtk_alignment_new(0.5, 1.0, 0.0, 0.0);
+  gtk_widget_show(align2);
+  gtk_container_add(GTK_CONTAINER(align2), label);
+  gtk_box_pack_start(GTK_BOX(hbox), align2, FALSE, FALSE, 0);
+  
+  gtk_object_set_data(GTK_OBJECT(w), "rows", (gpointer)(rows + 1));
+}
+
+void
+e_add_step_range_to_frame_with_cb(GtkWidget *w, gchar *text, gfloat *value, 
+				  gfloat lower, gfloat upper, gchar *lower_text, 
+				  gchar *upper_text, gfloat step,
+				  GtkFunction func)
+{
+  GtkObject *adj;
+  GtkWidget *frame, *hscale, *hbox, *label, *align, *table, *align2;
+  gint rows;
+  
+  if (!w)
+    return;
+  if (!text)
+    return;
+  table = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(w), "table");
+  if (!table)
+    return;
+  rows = (gint)gtk_object_get_data(GTK_OBJECT(w), "rows");
+  
+  frame = gtk_frame_new(text);
+  gtk_widget_show(frame);
+  align = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
+  gtk_widget_show(align);
+  gtk_container_add(GTK_CONTAINER(align), frame);
+  gtk_table_attach(GTK_TABLE(table), align, 0, 10, rows, rows + 1,
+		   GTK_EXPAND | GTK_FILL,
+		   GTK_EXPAND | GTK_FILL, 0, 0);
+  
+  align = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
+  gtk_widget_show(align);
+  gtk_container_add(GTK_CONTAINER(frame), align);
+  hbox = gtk_hbox_new(FALSE, 2);
+  gtk_widget_show(hbox);
+  gtk_container_add(GTK_CONTAINER(align), hbox);
+  
+  label = gtk_label_new(lower_text);
+  gtk_widget_show(label);
+  align2 = gtk_alignment_new(0.5, 1.0, 0.0, 0.0);
+  gtk_widget_show(align2);
+  gtk_container_add(GTK_CONTAINER(align2), label);
+  gtk_box_pack_start(GTK_BOX(hbox), align2, FALSE, FALSE, 0);
+  adj = gtk_adjustment_new(*value, lower, upper, step, step, step);
+  hscale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
+  gtk_scale_set_digits(GTK_SCALE(hscale), 0);
+  gtk_widget_show(hscale);
+  gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
+		     GTK_SIGNAL_FUNC(e_cb_range), (gpointer)hscale);
+  gtk_object_set_data(GTK_OBJECT(hscale), "adj", (gpointer)adj);
+  gtk_object_set_data(GTK_OBJECT(hscale), "value", (gpointer)value);  
+  gtk_object_set_data(GTK_OBJECT(hscale), "capplet", (gpointer)current_capplet);  
+  gtk_object_set_data(GTK_OBJECT(hscale), "function", (gpointer)func);  
   gtk_box_pack_start(GTK_BOX(hbox), hscale, TRUE, TRUE, 0);
   label = gtk_label_new(upper_text);
   gtk_widget_show(label);
@@ -956,6 +1039,7 @@ e_setup (GtkWidget *c)
 			    16.0, 20000.0, 
 			    _("Slower"), _("Faster"), 
 			    &e_opt_slide_desk, 0.0);
+  e_add_onoff_to_frame(frame, _("Menu Sliding Animation"), &e_opt_menuslide);
 
   capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
 }
@@ -999,6 +1083,22 @@ e_cb_bg_sel(GtkWidget *widget, gpointer data)
 }
 
 static void
+e_cb_bt_update(gint n)
+{
+  gint i;
+  GtkWidget *bt;
+  
+  for (i = 0; i < 32; i ++)
+    {
+      bt = deskbt[i];
+      if (i < (gint)e_opt_number_of_desks)
+	gtk_widget_set_sensitive(bt, TRUE);
+      else
+	gtk_widget_set_sensitive(bt, FALSE);      
+    }
+}
+
+static void
 e_setup_desktops (GtkWidget *c)
 {
   GtkWidget *frame, *frame2, *hbox, *align, *border, *area, *bar, *win;
@@ -1014,9 +1114,10 @@ e_setup_desktops (GtkWidget *c)
   frame = e_create_frame (_("Desktop Options"));
   gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
 
-  e_add_step_range_to_frame(frame, _("Number of Desktops"), 
-			    &e_opt_number_of_desks, 1.0, 33.0, 
-			    _("Fewer"), _("More"), 1.0);
+  e_add_step_range_to_frame_with_cb(frame, _("Number of Desktops"), 
+				    &e_opt_number_of_desks, 1.0, 33.0, 
+				    _("Fewer"), _("More"), 1.0,
+				    e_cb_bt_update);
 
   frame2 = e_create_frame (_("Background Definitions"));
   e_add_widget_to_frame(frame, frame2);
@@ -1142,7 +1243,7 @@ e_setup_desktops (GtkWidget *c)
   for (i = 0; i < 32; i ++)
     {
       bt = (GtkWidget *)((g_list_nth(btl, i))->data);
-      if (i < e_opt_number_of_desks)
+      if (i < (gint)e_opt_number_of_desks)
 	gtk_widget_set_sensitive(bt, TRUE);
       else
 	gtk_widget_set_sensitive(bt, FALSE);      
