@@ -1,3 +1,8 @@
+Sun Dec 17 15:27:40 2000  George Lebl <jirka@5z.com>
+
+	* gnome-terminal.c: plug a leak and fix some stuff up based on a
+	  patch from "Juan Pablo Mendoza M." <pablo_juan@yahoo.com>
+
 Thu Nov 30 15:06:33 2000  George Lebl <jirka@5z.com>
 
 	* gnome-terminal.c: actually make the background dropping work

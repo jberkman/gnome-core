@@ -1072,6 +1072,7 @@ save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	char *prefix = g_strdup_printf ("/Terminal/%s/", cfg->class);
 
 	gnome_config_push_prefix (prefix);
+	g_free (prefix);
 	save_preferences (widget, term, cfg);
 	gnome_config_pop_prefix ();
 }
@@ -1704,10 +1705,11 @@ static GnomeUIInfo gnome_terminal_menu[] = {
 /*
  * Puts in *shell a pointer to the full shell pathname
  * Puts in *name the invocation name for the shell
- * *shell is allocated on the heap.
+ * *shell is newly allocated 
+ * *name is newly allocated
  */
 static void
-get_shell_name (char **shell, char **name, int isLogin)
+get_shell_name (char **shell, char **name, gboolean isLogin)
 {
 	char *only_name;
 	int len;
@@ -1724,12 +1726,11 @@ get_shell_name (char **shell, char **name, int isLogin)
 	if (isLogin){
 		len = strlen (only_name);
 		
-		/* memory leak! */
 		*name  = g_malloc (len + 2);
 		**name = '-';
 		strcpy ((*name)+1, only_name); 
 	} else {
-		*name = only_name;
+		*name = g_strdup (only_name);
 	}
 }
 
@@ -2227,7 +2228,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
-	sprintf(winclass, "GnomeTerminal.%d", termid);
+	g_snprintf (winclass, sizeof (winclass), "GnomeTerminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", winclass);
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
@@ -2369,6 +2370,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	switch (zvt_term_forkpty (term, cfg->update_records)){
 	case -1:
 		show_pty_error_dialog(errno);
+		g_free (shell);
+		g_free (name);
+
 		/* should we exit maybe? */
 		return NULL;
 		
@@ -2379,7 +2383,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 			fcntl (i, F_SETFD, 1);
 
 		/* set delayed env variables */
-		sprintf (buffer, "WINDOWID=%d",(int) GDK_WINDOW_XWINDOW(GTK_WIDGET(term)->window));
+		g_snprintf (buffer, sizeof (buffer),
+			    "WINDOWID=%d",(int) GDK_WINDOW_XWINDOW(GTK_WIDGET(term)->window));
 		env_copy [winid_pos] = buffer;
 
 		if (cfg->termname && cfg->termname [0])
@@ -2397,7 +2402,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	}
 	}
 
-        /* IS THIS BEING DOUBLE-FREED??? --JMP g_free (shell); */
+	g_free (shell);
+	g_free (name);
 
 	return app;
 }
