@@ -45,6 +45,9 @@ extern char **environ;
 /* Initial geometry */
 static char *initial_global_geometry = NULL;
 
+/* Window icon */
+static char *window_icon = GNOME_ICONDIR"/gnome-terminal.png";
+
 char **env;
 
 #define DEFAULT_FONT "-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1"
@@ -120,6 +123,7 @@ struct terminal_config {
 	int terminal_id;			/* terminal id for this terminal */
 	char *pixmap_file;
         char *window_title;                     /* the window title */
+        char *window_icon;                      /* the window icon */
 	char *wordclass;			/* select-by-word character class */
 	char *termname;				/* TERM variable setting, store as TERM=xxx */
 	GdkColor palette[18];			/* the full palette */
@@ -538,6 +542,7 @@ load_config (char *class)
 	cfg->background_pixmap = gnome_config_get_bool ("background_pixmap=false");
 	cfg->pixmap_file = gnome_config_get_string ("pixmap_file");
 	cfg->window_title = NULL;
+	cfg->window_icon = NULL;
 
 	cfg->termname = NULL;
 	cfg->terminal_id = 0;
@@ -2228,6 +2233,10 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
+	/* override the icon if it was in the config */
+	if (cfg->window_icon) {
+	  gnome_window_icon_set_from_file (GTK_WINDOW(app), cfg->window_icon);
+ 	}
 	g_snprintf (winclass, sizeof (winclass), "GnomeTerminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", winclass);
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
@@ -2457,7 +2466,7 @@ load_factory_settings ()
 }
 
 static gboolean
-load_session ()
+load_session (void)
 {
 	int num_terms, i;
 	gboolean def;
@@ -2506,6 +2515,7 @@ load_session ()
 			g_free(ctmp);
 		}
 		cfg->window_title = gnome_config_get_string("window_title");
+		cfg->window_icon = gnome_config_get_string("window_icon");
 		if (gnome_config_get_bool ("do_utmp=true"))
 			cfg->update_records |= ZVT_TERM_DO_UTMP_LOG;
 		if (gnome_config_get_bool ("do_wtmp=true"))
@@ -2619,7 +2629,12 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 			ctmp = "xterm";
 		gnome_config_set_string("termname", ctmp);
 
-		gnome_config_set_string("window_title", cfg->window_title?cfg->window_title:"Terminal");
+		gnome_config_set_string ("window_title",
+					 cfg->window_title != NULL ?
+					   cfg->window_title : "Terminal");
+		gnome_config_set_string ("window_icon",
+					 cfg->window_icon != NULL ?
+					   cfg->window_icon : GNOME_ICONDIR"/gnome-terminal.png");
 		gnome_config_set_bool("do_utmp", (cfg->update_records & ZVT_TERM_DO_UTMP_LOG) != 0);
 		gnome_config_set_bool("do_wtmp", (cfg->update_records & ZVT_TERM_DO_WTMP_LOG) != 0);
 		gnome_config_set_bool("start_terminal_factory", 
@@ -2685,6 +2700,7 @@ enum {
 	USE_FACTORY_KEY  = -16,
 	DOLASTLOG_KEY   = -17,
 	DONOLASTLOG_KEY = -18,
+	ICON_KEY        = -19,
 };
 
 static struct poptOption cb_options [] = {
@@ -2737,6 +2753,9 @@ static struct poptOption cb_options [] = {
 	
 	{ "title", 't', POPT_ARG_STRING, NULL, TITLE_KEY,
           N_("Set the window title"), N_("TITLE") },
+
+	{ "icon", '\0', POPT_ARG_STRING, NULL, ICON_KEY,
+	  N_("Set the window icon"), N_("ICON") },
 
 	{ "termname", '\0', POPT_ARG_STRING, NULL, TERM_KEY,
           N_("Set the TERM variable"), N_("TERMNAME") },
@@ -2853,6 +2872,11 @@ parse_an_arg (poptContext state,
 		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
                 break;
+	case ICON_KEY:
+		cfg->window_icon = g_strdup(arg);
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
 	case TERM_KEY:
 		cfg->termname = g_strdup_printf("TERM=%s", arg);
 		start_terminal_factory = FALSE;
@@ -2990,6 +3014,11 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	/* override the title*/
 	if (cmdline_config->window_title) {
 	  default_config->window_title = cmdline_config->window_title;
+	}
+
+	/* override the icon*/
+	if (cmdline_config->window_icon) {
+	  default_config->window_icon = cmdline_config->window_icon;
 	}
 	
 	if (cmdline_config->have_user_colors){

@@ -1,3 +1,9 @@
+Sun Dec 17 17:42:53 2000  George Lebl <jirka@5z.com>
+
+	* gnome-terminal.c:  Make the icon selectable and savable just as the
+	  window title is with an --icon option.  Based on a patch from Jason
+	  Petrone <jpetrone@cnri.reston.va.us>
+
 Sun Dec 17 15:27:40 2000  George Lebl <jirka@5z.com>
 
 	* gnome-terminal.c: plug a leak and fix some stuff up based on a
