@@ -88,7 +88,7 @@ MC_IF_VAR_EQ(GCC, yes,
 	MC_ADD_TO_VAR(CFLAGS, -finline-functions, -finline-functions)
 	MC_ADD_TO_VAR(CFLAGS, -frerun-cse-after-loop, -frerun-cse-after-loop)
 	MC_ADD_TO_VAR(CFLAGS, -freg-struct-return, -freg-struct-return)
-	MC_ADD_TO_VAR(CFLAGS, -fnonnull-objects, -fnonnull-objects)
+dnl	MC_ADD_TO_VAR(CFLAGS, -fnonnull-objects, -fnonnull-objects)
 	dnl use of -pipe breaks most gcc setups that aren't using GNU binutils
 	dnl MC_ADD_TO_VAR(CFLAGS, -pipe, -pipe)
 	dnl -funroll-loops gives problems with -O and templates (see Rep-CppBug_1.C)
