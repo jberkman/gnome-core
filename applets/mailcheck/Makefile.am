@@ -21,8 +21,13 @@ mailcheck_applet_LDADD = ../../panel/libpanel_applet.la \
 
 mailcheck_applet_LINK = $(CXXLINK)
 
-EXTRA_DIST = mailcheck_applet.desktop
+BITMAPS = email.xpm email-e.xpm
+
+EXTRA_DIST = mailcheck_applet.desktop $BITMAPS
 
 sysdir = $(datadir)/applets/Network
 sys_DATA = mailcheck_applet.desktop
+
+pixmapdir = $(datadir)/pixmaps/mailcheck
+pixmap_DATA = $(BITMAPS)
 
