@@ -1,5 +1,7 @@
 1999-05-28  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
+	* .cvsignore: added .libs
+
 	* gnome-terminal.c (new_terminal_cmd): display an error dialog
 	if pty_login fails.  Simple try to catch linux unix98 pty 
 	mis-installations
