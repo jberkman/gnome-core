@@ -22,6 +22,7 @@ struct _CappletWidget
 {
 	GtkPlug			window;
 	int			control_center_id;
+        int			capid;
         gboolean 		changed;
 };
 

@@ -12,14 +12,14 @@ GNOME_control_center control_center;
 static void orb_add_connection(GIOPConnection *cnx);
 static void orb_remove_connection(GIOPConnection *cnx);
 static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond);
-static void server_try (PortableServer_Servant servant, CORBA_Environment * ev);
-static void server_revert (PortableServer_Servant servant, CORBA_Environment * ev);
-static void server_ok (PortableServer_Servant servant, CORBA_Environment * ev);
-static void server_help (PortableServer_Servant servant, CORBA_Environment * ev);
-void _capplet_widget_server_try();
-void _capplet_widget_server_revert();
-void _capplet_widget_server_ok();
-void _capplet_widget_server_help();
+static void server_try (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
+static void server_revert (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
+static void server_ok (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
+static void server_help (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
+void _capplet_widget_server_try(gint id);
+void _capplet_widget_server_revert(gint id);
+void _capplet_widget_server_ok(gint id);
+void _capplet_widget_server_help(gint id);
 
 
 PortableServer_ServantBase__epv base_epv = {
@@ -54,24 +54,24 @@ orb_remove_connection(GIOPConnection *cnx)
         cnx->user_data = (gpointer)-1;
 }
 static void
-server_try (PortableServer_Servant servant, CORBA_Environment * ev)
+server_try (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_try();
+        _capplet_widget_server_try(id);
 }
 static void
-server_revert (PortableServer_Servant servant, CORBA_Environment * ev)
+server_revert (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_revert();
+        _capplet_widget_server_revert(id);
 }
 static void
-server_ok (PortableServer_Servant servant, CORBA_Environment * ev)
+server_ok (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_ok();
+        _capplet_widget_server_ok(id);
 }
 static void
-server_help (PortableServer_Servant servant, CORBA_Environment * ev)
+server_help (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_help();
+        _capplet_widget_server_help(id);
 }
 
 void
@@ -99,17 +99,16 @@ capplet_widget_corba_init(gint *argc, char **argv, gchar *cc_ior, gint id)
                 exit (1);
         }
        
-        CORBA_Object_release(capplet, &ev);
         ORBit_custom_run_setup(orb, &ev);
 
         /* now we get the control center. */
         control_center = CORBA_ORB_string_to_object(orb, cc_ior, &ev);
-        
         if (! control_center) {
                 g_warning ("Unable reach the control-center.\nExiting...");
                 exit (1);
         }
-        GNOME_control_center_register_capplet(control_center, id,control_center,&ev);
+
+        GNOME_control_center_register_capplet(control_center, id, capplet, &ev);
 }
 void
 capplet_corba_gtk_main (void)

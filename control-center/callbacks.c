@@ -71,9 +71,6 @@ about_callback(GtkWidget *widget, gpointer data)
 				NULL);
         gtk_widget_show(about);
 }
-void help_button_callback(GtkWidget *widget, gpointer data)
-{
-}
 void
 exit_row_callback(GtkWidget *widget, gint row, gint column, GdkEventButton * event, gpointer nulldata)
 {

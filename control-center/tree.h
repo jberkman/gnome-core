@@ -28,6 +28,7 @@ struct _node_data
         GNOME_capplet capplet;
         GnomeDesktopEntry *gde;
         GtkWidget *socket;
+        GtkWidget *label;
         gint id;
         gint notetab_id;
         gboolean modified;

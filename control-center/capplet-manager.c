@@ -31,6 +31,7 @@ void try_button_callback(GtkWidget *widget, gpointer data);
 void revert_button_callback(GtkWidget *widget, gpointer data);
 void ok_button_callback(GtkWidget *widget, gpointer data);
 void cancel_button_callback(GtkWidget *widget, gpointer data);
+void help_button_callback(GtkWidget *widget, gpointer data);
 node_data *
 find_node_by_id (gint id)
 {
@@ -93,13 +94,13 @@ launch_capplet (node_data *data)
                 data->help_button = gtk_button_new_with_label ("Help");
                 gtk_container_add (GTK_CONTAINER (bbox), data->help_button);
                 gtk_signal_connect (GTK_OBJECT (data->help_button), "clicked", GTK_SIGNAL_FUNC (help_button_callback), data);
-       
                 
                 /* put it all together */
                 gtk_box_pack_start (GTK_BOX (vbox), data->socket, TRUE, TRUE, 0);
                 gtk_box_pack_end (GTK_BOX (vbox), bbox, FALSE, FALSE, 5);
                 gtk_box_pack_end (GTK_BOX (vbox), separator, FALSE, FALSE, 0);
-                gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox, gtk_label_new (data->gde->name));
+                data->label = gtk_label_new (data->gde->name);
+                gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox, data->label);
                 gtk_widget_show_all (vbox);
                 data->notetab_id = current_page++;
                 data->id = id++;
@@ -131,51 +132,31 @@ launch_capplet (node_data *data)
 void try_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
-        GNOME_capplet_try (nd->capplet, &ev);
+        GNOME_capplet_try (nd->capplet,nd->id, &ev);
 }
 void revert_button_callback(GtkWidget *widget, gpointer data)
 {
+        node_data *nd = (node_data *) data;
+        GNOME_capplet_revert (nd->capplet,nd->id, &ev);
 }
 void ok_button_callback(GtkWidget *widget, gpointer data)
 {
+        node_data *nd = (node_data *) data;
+        GNOME_capplet_ok (nd->capplet,nd->id, &ev);
 }
 void cancel_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
-#if 0
-        if (nd->modified == TRUE) {
-                GtkWidget *dialog = gnome_dialog_new("Warning",
-                                                     GNOME_STOCK_BUTTON_OK,
-                                                     GNOME_STOCK_BUTTON_CLOSE,
-                                                     GNOME_STOCK_BUTTON_CANCEL,
-                                                     NULL);
-                GtkWidget *label = gtk_label_new ("You have made some changes.  Do you want\n"\
-                                                  "to save them?\n");
-                gnome_dialog_set_default (GNOME_DIALOG (dialog), 0);
-                gnome_dialog_set_parent (GNOME_DIALOG (dialog), GTK_WINDOW (main_window));
-                gtk_widget_show (label);
-
-                gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
-
-                gtk_box_pack_start (GTK_BOX (GNOME_DIALOG(dialog)->vbox), 
-                                    label, TRUE, TRUE, 0);
-                switch (gnome_dialog_run (GNOME_DIALOG (dialog))) {
-                case 0:
-                        /* save code in here... */
-                        break;
-                case 2:
-                        gnome_dialog_close (GNOME_DIALOG (dialog));
-                        return;
-                default:
-                        break;
-                }
-                gnome_dialog_close (GNOME_DIALOG (dialog));
-        }
-#endif
+        GList *temp;
         revert_button_callback (widget, data);
         gtk_notebook_remove_page (GTK_NOTEBOOK (notebook), nd->notetab_id);
         nd->id = -1;
-        
+
+        capplet_list = g_list_remove (capplet_list, nd);
+        for (temp = capplet_list; temp; temp = temp->next)
+                if (((node_data*)temp->data)->notetab_id > nd->notetab_id)
+                        ((node_data*)temp->data)->notetab_id -=1;
+                        
         if (--current_page == 0) {
 
                 gtk_container_remove (GTK_CONTAINER (container), notebook);
@@ -185,4 +166,9 @@ void cancel_button_callback(GtkWidget *widget, gpointer data)
                 g_list_remove (capplet_list, nd);
                 gtk_widget_unref (splash_screen);
         }
+}
+void help_button_callback(GtkWidget *widget, gpointer data)
+{
+        node_data *nd = (node_data *) data;
+        GNOME_capplet_help (nd->capplet,nd->id, &ev);
 }

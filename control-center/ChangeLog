@@ -1,3 +1,12 @@
+1998-09-4	<jrb@redhat.com>
+	*fixed many things, and it all works (sorta... :)
+	
+1998-08-28    <jrb@redhat.com>
+
+	* capplet-manager.c (cancel_button_callback): now correctly closes 
+	capplets from the control-center end.
+
+
 Tue Aug 26 18:13:17 1998  Jonathan Blandford <jrb@redhat.com>
 	* caplet*: renamed to capplet*
 	* corba-glue: added working support for Corba

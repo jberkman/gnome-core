@@ -20,13 +20,6 @@ void exit_dialog_cancel_callback(GtkWidget *widget, gpointer data);
 void exit_callback(GtkWidget *widget, gpointer data);
 void help_callback(GtkWidget *widget, gpointer data);
 void about_callback(GtkWidget *widget, gpointer data);
-void try_button_callback(GtkWidget *widget, gpointer data);
-void revert_button_callback(GtkWidget *widget, gpointer data);
-void ok_button_callback(GtkWidget *widget, gpointer data);
-void cancel_button_callback(GtkWidget *widget, gpointer data);
-void help_button_callback(GtkWidget *widget, gpointer data);
-
-
 
 #ifdef __cplusplus
 }

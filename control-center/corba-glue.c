@@ -119,6 +119,7 @@ void
 server_state_changed(PortableServer_Servant servant, CORBA_long id, CORBA_boolean undoable, CORBA_Environment * ev)
 {
         node_data *nd = find_node_by_id (id);
+        GtkStyle *style;
         if (nd == NULL){
                 g_print ("er, couldn't find node %d\n",id);
                 return;
@@ -128,4 +129,7 @@ server_state_changed(PortableServer_Servant servant, CORBA_long id, CORBA_boolea
         if (undoable)
                 gtk_widget_set_sensitive (nd->revert_button, TRUE);
         gtk_widget_set_sensitive (nd->ok_button, TRUE);
+
+        style = gtk_widget_get_style (nd->label);
+        
 }
