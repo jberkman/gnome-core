@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <libgnorba/gnorba.h>
+#include "help-browser.h"
 
 void Exception( CORBA_Environment* ev )
 {
@@ -19,6 +20,7 @@ void Exception( CORBA_Environment* ev )
     }
 }
 
+void
 main(int argc, char* argv[])
 {
   CORBA_ORB orb;

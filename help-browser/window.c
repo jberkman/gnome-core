@@ -579,9 +579,9 @@ helpWindowClose(HelpWindow win)
 
 static void init_accel(HelpWindow win)
 {
-    static page_up_signal = 0;
-    static page_down_signal = 0;
-    static grab_focus_signal = 0;
+    static gint page_up_signal = 0;
+    static gint page_down_signal = 0;
+    static gint grab_focus_signal = 0;
 
     GtkAccelGroup *accel_group = gtk_accel_group_get_default();
 

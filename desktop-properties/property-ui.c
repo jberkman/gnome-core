@@ -163,7 +163,7 @@ make_option_menu(GtkWidget * vbox, const gchar * labeltext,
     gtk_menu_append ( GTK_MENU(menu), menuitem );
     gtk_signal_connect ( GTK_OBJECT(menuitem), "activate", 
                          GTK_SIGNAL_FUNC(callback), 
-                         (gpointer) i );
+                         GINT_TO_POINTER (i) );
     if ( i == (*getfunc)() ) {
       gtk_option_menu_set_history ( GTK_OPTION_MENU(option_menu), i );
     }

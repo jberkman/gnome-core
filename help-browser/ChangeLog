@@ -1,3 +1,12 @@
+1998-11-29  Herbert Valerio Riedel  <hvr@hvrlab.ml.org>
+
+	* help-caller.c (main): seems as there is no return -> void main(...)
+	(INCLUDES): added #include "help-browser.h"
+
+	* bookmarks.c (appendEntry): fixed pointer-typo (IMHO)
+
+	* window.c (init_accel): declared static gint explicitly
+
 1998-11-26  Herbert Valerio Riedel  <hvr@hvrlab.ml.org>
 
 	* check-running.c (do_cb): added an int-argument to declaration 

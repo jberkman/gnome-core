@@ -134,7 +134,7 @@ static void appendEntry(Bookmarks b, gchar *ref, gchar *title)
 
     buf[0] = ref;
     buf[1] = title;
-    x = gtk_clist_append(GTK_CLIST(b->clist), &buf);
+    x = gtk_clist_append(GTK_CLIST(b->clist), buf);
     gtk_clist_set_row_data(GTK_CLIST(b->clist), x, entry);
 }
 
