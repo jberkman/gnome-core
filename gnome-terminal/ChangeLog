@@ -1,3 +1,9 @@
+1999-04-10  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
+
+	* gnome-terminal.c (button_press): Only extend selection if we
+	have some to extend.  Otherwise bring up the menu.  Miggy-babes
+	couldn't work it out otherwise :P
+
 1999-04-04  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
 
 	* gnome-terminal.c (gnome_term_set_font): Only call
