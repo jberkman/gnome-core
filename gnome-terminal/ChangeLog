@@ -1,3 +1,8 @@
+1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (drop_data_available): Important DnD bug fix
+	that walks the list of dropped files correctly.
+
 1998-05-04    <msf@redhat.com>
 
 	* menu.c: commented out include of zvt/forkpty.h

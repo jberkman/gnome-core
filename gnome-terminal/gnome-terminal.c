@@ -465,7 +465,7 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 	int len;
 
 	do {
-		len = 1 + strlen (event->data);
+		len = 1 + strlen (p);
 		count -= len;
 
 		vt_writechild (&term->vx->vt, p, len - 1);
@@ -522,13 +522,22 @@ new_terminal (void)
 
 	app = gnome_app_new ("Terminal", "Terminal");
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
+#ifdef ZVT_USES_MINIMAL_ALLOC
+	gtk_window_set_policy  (GTK_WINDOW (app), 1, 1, 1);
+#else
 	gtk_window_set_policy  (GTK_WINDOW (app), 0, 1, 1);
+#endif
 	gtk_widget_realize (app);
 	terminals = g_list_prepend (terminals, app);
 
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
 	gtk_widget_show (GTK_WIDGET (term));
+#if ZVT_USES_MINIMAL_ALLOC
+	gtk_widget_set_usize (GTK_WIDGET (term),
+			      80 * term->charwidth,
+			      25 * term->charheight);
+#endif
 	zvt_term_set_scrollback (term, scrollback);
 	gnome_term_set_font (term, font);
 	zvt_term_set_blink (term, blink);
