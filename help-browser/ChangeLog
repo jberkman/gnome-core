@@ -1,3 +1,11 @@
+1998-04-02  Michael Fulbright  <msf@redhat.com>
+
+	* Tweaked 'Reload' a little, might work a little better now
+
+	* Added some stock icons to menus
+
+	* Fixed it so we dont segv when user give URL starting with a '/'
+
 1998-03-27  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* window.c (helpWindowShowURL): Don't pass NULL pointers to printf.

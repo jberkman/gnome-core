@@ -10,6 +10,7 @@
 
 #include <gnome.h>
 #include <libgnomeui/gnome-app.h>
+#include <libgnomeui/gnome-stock.h>
 #include <libgnome/gnome-help.h>
 #include <gdk/gdkkeysyms.h>
 #include "gnome-helpwin.h"
@@ -113,6 +114,7 @@ XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 
 /* Menu and toolbar structures */
 
+#if 0
 GnomeUIInfo filemenu[] = {
     GNOMEUIINFO_ITEM("New window", "Open new browser window",
 		     new_window_cb, NULL),
@@ -122,9 +124,43 @@ GnomeUIInfo filemenu[] = {
     GNOMEUIINFO_ITEM("Exit", "Exit program", quit_cb, NULL),
     GNOMEUIINFO_END
 };
+#endif
+
+GnomeUIInfo filemenu[] = {
+	{GNOME_APP_UI_ITEM, 
+	 N_("New window"), N_("Open new browser window"),
+         new_window_cb, NULL, NULL, 
+	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW,
+	 0, 0, NULL},
+	{GNOME_APP_UI_ITEM, 
+	 N_("Add Bookmark"), N_("Add bookmark"),
+         bookmark_cb, NULL, NULL, 
+	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
+	 0, 0, NULL},
+	{GNOME_APP_UI_ITEM, 
+	 N_("Configure"), N_("Configure"),
+         config_cb, NULL, NULL, 
+	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP,
+	 0, 0, NULL},
+	{GNOME_APP_UI_ITEM, 
+	 N_("Close"), N_("Close window"),
+         close_cb, NULL, NULL, 
+	 GNOME_APP_PIXMAP_NONE, NULL,
+	 0, 0, NULL},
+	{GNOME_APP_UI_ITEM, 
+	 N_("Exit"), N_("Exit all windows"),
+         quit_cb, NULL, NULL, 
+	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT,
+	 0, 0, NULL},
+	GNOMEUIINFO_END
+};
 
 GnomeUIInfo helpmenu[] = {
-    GNOMEUIINFO_ITEM("About...", "Info about this program", about_cb, NULL),
+    {GNOME_APP_UI_ITEM, 
+     N_("About"), N_("Info about this program"),
+     about_cb, NULL, NULL, 
+     GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT,
+     0, 0, NULL},
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_HELP("help-browser"),
     GNOMEUIINFO_END
@@ -334,7 +370,7 @@ reload_page(GtkWidget *w, HelpWindow win)
     
     g_message("RELOAD PAGE: %s", buf);
     /* make html widget believe we want to reload */
-    gtk_xmhtml_source(GTK_XMHTML(win->helpWidget), "");
+    gtk_xmhtml_source(GTK_XMHTML(win->helpWidget), "<BODY>Hi</BODY>");
     helpWindowShowURL(win, buf, FALSE, FALSE);
 }	
 

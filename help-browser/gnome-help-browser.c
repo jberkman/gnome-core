@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <gnome.h>
+#include <string.h>
 
 #include "window.h"
 #include "history.h"
@@ -224,7 +225,16 @@ parseAnArg (int key, char *arg, struct argp_state *state)
   if (helpURL)
     argp_usage (state);
 
-  helpURL = arg;
+  /* this probably somehow leads to a memory leak the size of the URL */
+  if (arg && *arg == '/') {
+	  helpURL = g_malloc(strlen(arg)+10);
+	  strcpy(helpURL, "file:");
+	  strcat(helpURL, arg);
+  } else {
+	  helpURL = g_strdup(arg);
+  }
+  
+
   return 0;
 }
 
