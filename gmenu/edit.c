@@ -333,6 +333,7 @@ static Edit_Area *edit_area_new()
 
 	label = gtk_label_new(_("Revert"));
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
+	GTK_WIDGET_SET_FLAGS (ea->revert_button, GTK_CAN_DEFAULT);
 	gtk_widget_show(label);
 
 	frame = gtk_frame_new(NULL);
