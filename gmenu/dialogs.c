@@ -253,7 +253,7 @@ static void save_dialog_cb( gint button, gpointer data)
 	if (!button)
 		{
 		Desktop_Data *d;
-		GtkCTreeNode *node;
+		GtkCTreeNode *node = NULL;
 		GtkCTreeNode *parent;
 		gint overwrite;
 		char *path;

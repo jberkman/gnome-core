@@ -1,5 +1,11 @@
 1999-01-18  Jeff Garzik  <jgarzik@pobox.com>
 
+	* gmenu.c (main):
+	s/gtk_ctree_set_reorderable/gtk_clist_set_reorderable/
+
+	* dialogs.c (save_dialog_cb):
+	Init 'node' var to kill bug.
+
 	* tree.c: gtkcompat.h substitutions
 
 1999-01-18  Christopher Blizzard  <blizzard@appliedtheory.com>

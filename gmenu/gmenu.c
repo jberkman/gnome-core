@@ -353,7 +353,7 @@ int main (int argc, char *argv[])
 	gtk_clist_set_row_height(GTK_CLIST(menu_tree_ctree),22);
 	gtk_clist_set_column_width(GTK_CLIST(menu_tree_ctree),0,300);
 	gtk_clist_set_selection_mode(GTK_CLIST(menu_tree_ctree),GTK_SELECTION_SINGLE);
-	/*gtk_ctree_set_reorderable(GTK_CTREE(menu_tree_ctree),TRUE);*/
+	gtk_clist_set_reorderable (GTK_CLIST(menu_tree_ctree), TRUE);
 	gtk_ctree_set_drag_compare_func(GTK_CTREE(menu_tree_ctree), tree_move_test_cb);
 	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),"button_release_event", GTK_SIGNAL_FUNC(tree_item_selected),NULL);
 	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"tree_move", GTK_SIGNAL_FUNC(tree_moved),"before");
