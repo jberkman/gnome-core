@@ -188,7 +188,7 @@ screensaver_setup ()
         gtk_widget_show_all (capplet);
 }
 
-void
+int
 main (int argc, char **argv)
 {
 
@@ -203,7 +203,7 @@ main (int argc, char **argv)
                 temp = gnome_config_get_string ("/Screensaver/Default/command=xscreensaver");
                 system ("xscreensaver-command -exit");
                 system (temp);
-                return;
+                return 0;
         }
         gnome_capplet_init ("screensaver-properties", NULL, argc, argv, 0, NULL);
 
@@ -219,4 +219,5 @@ main (int argc, char **argv)
         sd = NULL;
 
         capplet_gtk_main ();
+	return 0;
 }
