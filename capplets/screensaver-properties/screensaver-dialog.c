@@ -2,6 +2,7 @@
 /* Copyright (C) 1998 Redhat Software Inc. 
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
+#include <config.h>
 #include "screensaver-dialog.h"
 #include "callbacks.h"
 #include "gnome.h"
@@ -21,7 +22,7 @@ make_dialog (screensaver_data *sd)
         GtkWidget *label;
         GtkWidget *align2;
 
-        dialog = gnome_dialog_new (sd->name, "Preview", GNOME_STOCK_BUTTON_OK, NULL);
+        dialog = gnome_dialog_new (sd->name, _("Preview"), GNOME_STOCK_BUTTON_OK, NULL);
         gnome_dialog_set_default (GNOME_DIALOG (dialog), 1);
         gnome_dialog_set_parent (GNOME_DIALOG (dialog), GTK_WINDOW (capplet));
         gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
@@ -42,7 +43,7 @@ make_dialog (screensaver_data *sd)
                 gtk_box_pack_start (GTK_BOX (vbox), alignment, TRUE, TRUE, 0);
         }
         avbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
-        authorframe = gtk_frame_new("About:");
+        authorframe = gtk_frame_new(_("About:"));
         temphbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
         gtk_container_border_width (GTK_CONTAINER (avbox), GNOME_PAD_SMALL);
         if (sd->author) {

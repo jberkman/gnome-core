@@ -148,7 +148,7 @@ get_demo_frame()
         GtkWidget *retval;
         GtkWidget *inner_frame;
 
-        retval = gtk_frame_new ("Screen Saver Demo");
+        retval = gtk_frame_new (_("Screen Saver Demo"));
         inner_frame = gtk_frame_new (NULL);
         gtk_frame_set_shadow_type (GTK_FRAME (inner_frame), GTK_SHADOW_IN);
 
