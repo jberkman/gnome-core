@@ -77,20 +77,26 @@ visitURL( HelpWindow win, gchar *ref,
 			s = genGhelpTocHTML(helpWindowGetToc(win));
 		} else if (!*p) {
 			gchar *hp, *q;
-			hp = gnome_help_file_path("help-browser", 
+			hp = gnome_help_file_find_file("help-browser", 
 						  "default-page.html");
-			q = g_malloc(strlen(hp)+10);
-			strcpy(q, "file:");
-			strcat(q, hp);
-			obj = docObjNew(q, useCache);
-			docObjSetHumanRef(obj, "toc:");
-			g_free(q);
-			g_free(hp);
-			if (visitDocument(win, obj)) {
+			if (!hp) {
+				s = g_string_new(_("<BODY>Could not "
+						   "load default TOC page"
+						   "</BODY>"));
+			} else {
+				q = g_malloc(strlen(hp)+10);
+				strcpy(q, "file:");
+				strcat(q, hp);
+				obj = docObjNew(q, useCache);
+				docObjSetHumanRef(obj, "toc:");
+				g_free(q);
+				g_free(hp);
+				if (visitDocument(win, obj)) {
+					docObjFree(obj);
+					return -1;
+				}
 				docObjFree(obj);
-				return -1;
 			}
-			docObjFree(obj);
 		} else {
 			s = g_string_new(_("<BODY>Unknown TOC "
 						 "argument</BODY>"));

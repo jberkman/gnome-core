@@ -71,30 +71,6 @@ gnome_helpwin_class_init(GnomeHelpWinClass *helpclass)
 	parent_class = gtk_type_class (gtk_xmhtml_get_type ()); 
 }
 
-/* this is done by calling program, not in the widget */
-#if 0
-static void
-xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs) {
-
-	printf("In activate with ref = |%s|\n",cbs->href);
-	fflush(stdout);
-#if 1
-	gnome_helpwin_goto(GNOME_HELPWIN(w), cbs->href);
-#else	
-	gnome_helpwin_goto(GNOME_HELPWIN(w), "<help>");
-#endif
-}
-#endif
-
-#if 0
-static int
-my_false(GtkWidget *w, gpointer *data)
-{
-	return FALSE;
-}
-#endif
-
-
 static void
 gnome_helpwin_init(GnomeHelpWin *help)
 {
@@ -102,8 +78,6 @@ gnome_helpwin_init(GnomeHelpWin *help)
 	help->document_path[0] = 0;
 	help->html_source = NULL;
 }
-
-
 
 guint
 gnome_helpwin_get_type(void)
@@ -126,40 +100,10 @@ gnome_helpwin_get_type(void)
 	return GnomeHelpWin_type;
 }
 
-#if 0
-static void
-arm_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs) {
-
-	printf("In activate with ref = |%s|\n",cbs->href);
-	fflush(stdout);
-}
-#endif
-
 GtkWidget *
 gnome_helpwin_new(void)
 {
-	GnomeHelpWin *help;
-
-	help = gtk_type_new(gnome_helpwin_get_type());
-
-/* let application trap this signal */
-#if 0
-	gtk_signal_connect_object(GTK_OBJECT(help), "activate",
-		   GTK_SIGNAL_FUNC(xmhtml_activate), GTK_OBJECT(help));
-#endif
-
-#if 0	
-	if (filename) {
-		gnome_helpwin_goto(help, filename);
-		help->home = g_strdup(filename);
-	}
-#endif
-#if 0
-	gtk_xmhtml_set_anchor_buttons (GTK_XMHTML (help), 0);
-	gtk_xmhtml_set_anchor_underline_type (GTK_XMHTML (help), GTK_ANCHOR_SINGLE_LINE);
-	gtk_xmhtml_set_hilight_on_enter (GTK_XMHTML (help), 0);
-#endif
-	return GTK_WIDGET(help);
+	return GTK_WIDGET(gtk_type_new(gnome_helpwin_get_type()));
 }
 
 
