@@ -1,3 +1,13 @@
+Fri Jul 24 22:58:26 1998  Havoc Pennington  <hp@pobox.com>
+
+	* property-ui.c (make_option_menu): New function to make the
+ 	option menus. Changed packing to TRUE,TRUE for hbox-into-vbox,
+ 	which fixes the too-short option menu bug. Tried to fix the
+ 	wrong-width bug, but option menu appears to be hopeless on this.
+
+	(ui_setup): Add choices for the dialog type, position, and
+ 	center-over-parent.
+
 1998-07-24  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* property-bell.c (bell_setup): Marked one string for

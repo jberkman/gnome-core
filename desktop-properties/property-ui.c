@@ -59,9 +59,36 @@ static const gchar * const buttonbox_style_names[] = {
   N_("Right-justify buttons")
 };
 
+#define NUM_DIALOG_POSITIONS 3
+
+static const gchar * const dialog_positions_names[] = {
+  N_("Let window manager decide"),
+  N_("Center of the screen"),
+  N_("At the mouse pointer")
+};
+
+#define NUM_DIALOG_TYPES 2
+
+static const gchar * const dialog_types_names[] = {
+  N_("Dialogs are like other windows"),
+  N_("Dialogs are treated specially by window manager")
+};
+
 static void buttonbox_style_cb(GtkWidget * menuitem, gint style)
 {
   gnome_preferences_set_button_layout (style);
+  property_changed();
+}
+
+static void dialog_position_cb(GtkWidget * menuitem, gint pos)
+{
+  gnome_preferences_set_dialog_position(pos);
+  property_changed();
+}
+
+static void dialog_type_cb(GtkWidget * menuitem, gint t)
+{
+  gnome_preferences_set_dialog_type(t);
   property_changed();
 }
 
@@ -75,31 +102,30 @@ static void checkbutton_cb    ( GtkWidget * button,
 }
 
 static void
-ui_setup (void)
+make_option_menu(GtkWidget * vbox, const gchar * labeltext,
+                 gint (*getfunc)(),
+                 const gchar * const names[], gint N,
+                 void (*callback)(GtkWidget*,gint))
 {
-  GtkWidget * vbox;
   GtkWidget * option_menu;
   GtkWidget * menu;
   GtkWidget * menuitem;
-  GtkWidget * label;
-  GtkWidget * button;
   GtkWidget * hbox;
+  GtkWidget * label;
   gint i;
-
-  vbox = gtk_vbox_new(TRUE, GNOME_PAD);
 
   option_menu = gtk_option_menu_new();
   menu = gtk_menu_new();
   gtk_option_menu_set_menu ( GTK_OPTION_MENU(option_menu), menu );
 
   i = 0;
-  while ( i < NUM_BUTTONBOX_STYLES ) {
-    menuitem = gtk_menu_item_new_with_label(_(buttonbox_style_names[i]));
+  while ( i < N ) {
+    menuitem = gtk_menu_item_new_with_label(_(names[i]));
     gtk_menu_append ( GTK_MENU(menu), menuitem );
     gtk_signal_connect ( GTK_OBJECT(menuitem), "activate", 
-			 GTK_SIGNAL_FUNC(buttonbox_style_cb), 
-			 (gpointer) i );
-    if ( i == gnome_preferences_get_button_layout() ) {
+                         GTK_SIGNAL_FUNC(callback), 
+                         (gpointer) i );
+    if ( i == (*getfunc)() ) {
       gtk_option_menu_set_history ( GTK_OPTION_MENU(option_menu), i );
     }
     ++i;
@@ -107,15 +133,40 @@ ui_setup (void)
 
   hbox = gtk_hbox_new (FALSE, GNOME_PAD);
 
-  label = gtk_label_new(_("Dialog buttons"));
+  label = gtk_label_new(labeltext);
 
   gtk_box_pack_start ( GTK_BOX(hbox), label, FALSE, FALSE, GNOME_PAD_SMALL );
   /* FIXME: option menu width should be just wide enough to display
      widest menu item.  Ideally the option menu code would handle this
      for us.  Also, the button is not tall enough -- descenders seem
      to get clipped on my display.  */
-  gtk_box_pack_start ( GTK_BOX(hbox), option_menu, TRUE, TRUE, GNOME_PAD_SMALL );
-  gtk_box_pack_start ( GTK_BOX(vbox), hbox, FALSE, FALSE, GNOME_PAD_SMALL);
+  gtk_box_pack_end ( GTK_BOX(hbox), option_menu, TRUE, TRUE, GNOME_PAD_SMALL );
+  gtk_box_pack_start ( GTK_BOX(vbox), hbox, TRUE, TRUE, GNOME_PAD_SMALL);
+}
+
+static void
+ui_setup (void)
+{
+  GtkWidget * vbox;
+  GtkWidget * button;
+
+  vbox = gtk_vbox_new(TRUE, GNOME_PAD);
+
+  make_option_menu(vbox,_("Dialog buttons"),
+                   gnome_preferences_get_button_layout,
+                   buttonbox_style_names, NUM_BUTTONBOX_STYLES,
+                   buttonbox_style_cb);
+
+  make_option_menu(vbox,_("Dialog position"),
+                   gnome_preferences_get_dialog_position,
+                   dialog_positions_names, NUM_DIALOG_POSITIONS,
+                   dialog_position_cb);
+
+  make_option_menu(vbox,_("Dialog hints"),
+                   gnome_preferences_get_dialog_type,
+                   dialog_types_names, NUM_DIALOG_TYPES,
+                   dialog_type_cb);
+
 
   button = 
     gtk_check_button_new_with_label(_("Use statusbar instead of dialog when possible"));
@@ -124,6 +175,16 @@ ui_setup (void)
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
                      gnome_preferences_set_statusbar_dialog);
+
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  button = 
+    gtk_check_button_new_with_label(_("Place dialogs over application window when possible"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_preferences_get_dialog_centered());
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(checkbutton_cb),
+                     gnome_preferences_set_dialog_centered);
 
   gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
 
