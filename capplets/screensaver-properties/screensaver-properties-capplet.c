@@ -53,7 +53,7 @@ get_saver_frame ()
 	swindow = gtk_scrolled_window_new (NULL, NULL);
         gtk_widget_set_usize (swindow, 150, -1 );
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (swindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (swindow), get_and_set_mode());
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (swindow), get_and_set_mode());
         gtk_box_pack_start (GTK_BOX (vbox), swindow, TRUE, TRUE, 0);
 
         setup_label = gtk_label_new (_("Settings..."));
