@@ -3,9 +3,9 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <string.h>
+#include <glib.h>
 #include <libgnome/gnome-defs.h>
 #include <libgnome/gnome-i18n.h>
-#include <glib.h>
 
 #include "toc2.h"
 #include "toc2-man.h"
