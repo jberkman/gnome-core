@@ -1,3 +1,2 @@
-- monitor the GNOME WM property window and react to window manager
-  changes with gwmh_init()
 - implement task editor
+- make ? and arrow buttons react to ::clicked not button_press
