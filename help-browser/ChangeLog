@@ -1,3 +1,10 @@
+1998-04-24  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-help-browser.c (generateConfigWidgets): Fix the right
+	alignment of the labels.
+	(generateConfigWidgets): Simplified the code by using
+	GnomePropertyBox. 
+
 1998-04-22  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* Make hiding/showing of bookmarks/history work properly

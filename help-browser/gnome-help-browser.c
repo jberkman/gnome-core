@@ -54,8 +54,8 @@ static void saveConfig(void);
 static GnomeClient *newGnomeClient(void);
 static error_t parseAnArg (int key, char *arg, struct argp_state *state);
 
-static void configOK(GtkWidget *w, GtkWidget *window);
-static void configCancel(GtkWidget *w, GtkWidget *window);
+static void configApply(GtkWidget *w, int page, GtkWidget *window);
+static int configCancel(GtkWidget *w, GtkWidget *window);
 
 /* MANPATH should probably come from somewhere */
 #define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
@@ -524,13 +524,17 @@ struct _config_entry {
 };
 
 GtkWidget *configWindow = NULL;
-struct _config_entry configs[] = {
+struct _config_entry config_sizes [] = {
     { N_("History size"),    CONFIG_INT, &historyLength, NULL },
     { N_("History file"),    CONFIG_TEXT, &historyFile, NULL },
     { N_("Cache size"),      CONFIG_INT, &memCacheSize, NULL },
     { N_("Cache file"),      CONFIG_TEXT, &cacheFile, NULL },
     { N_("Bookmark file"),   CONFIG_TEXT, &bookmarkFile, NULL },
+    
+    { NULL, 0, NULL }
+};
 
+struct _config_entry config_paths [] = {
     { N_("Man Path"),        CONFIG_TEXT, &manPath, NULL },
     { N_("Info Path"),       CONFIG_TEXT, &infoPath, NULL },
     { N_("GNOME Help Path"), CONFIG_TEXT, &ghelpPath, NULL },
@@ -539,7 +543,13 @@ struct _config_entry configs[] = {
 };
 
 static void
-generateConfigWidgets(GtkWidget *parentBox, struct _config_entry *configs)
+signal_change (GtkWidget *widget, GnomePropertyBox *property)
+{
+	gnome_property_box_changed (property);
+}
+
+static void
+generateConfigWidgets(GnomePropertyBox *property, struct _config_entry *configs, char *title)
 {
     GtkWidget *table, *label, *entry;
     struct _config_entry *p;
@@ -556,15 +566,15 @@ generateConfigWidgets(GtkWidget *parentBox, struct _config_entry *configs)
 	p++;
     }
 
-    table = gtk_table_new(rows, 2, FALSE);
-    gtk_widget_show(table);
-    gtk_box_pack_start(GTK_BOX(parentBox), table, TRUE, TRUE, 0);
+    table = gtk_table_new(0, 0, FALSE);
+    gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD);
+    gnome_property_box_append_page (property, table, gtk_label_new (title));
 
     rows = 0;
     p = configs;
     while (p->name) {
 	label = gtk_label_new(_(p->name));
-	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_RIGHT);
+	gtk_misc_set_alignment (GTK_MISC(label), 1.0, 0.5);
 	gtk_widget_show(label);
 	
 	entry = gtk_entry_new();
@@ -577,7 +587,8 @@ generateConfigWidgets(GtkWidget *parentBox, struct _config_entry *configs)
 	} else if (p->type == CONFIG_TEXT) {
 	    gtk_entry_set_text(GTK_ENTRY(entry), *(gchar **)(p->var));
 	}
-
+	gtk_signal_connect (GTK_OBJECT(entry), "changed",
+			    GTK_SIGNAL_FUNC(signal_change), property);
 	gtk_table_attach(GTK_TABLE(table), label, 0, 1, rows, rows + 1,
 			 GTK_FILL, GTK_FILL,
 			 5, 0);
@@ -593,59 +604,33 @@ generateConfigWidgets(GtkWidget *parentBox, struct _config_entry *configs)
 static void
 configCallback(HelpWindow win)
 {
-    GtkWidget *window, *box, *buttonBox, *ok, *cancel;
+    GtkWidget *window;
 
     if (configWindow) {
 	return;
     }
-    
+
     /* Main Window */
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    window = gnome_property_box_new ();
     gtk_window_set_title(GTK_WINDOW(window), _("Gnome Help Configure"));
-    gtk_widget_set_usize (window, 500, -1);
     configWindow = window;
 
-    /* Vbox */
-    box = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width (GTK_CONTAINER (box), 5);
-    gtk_container_add(GTK_CONTAINER(window), box);
-    gtk_widget_show(box);
+    generateConfigWidgets(GNOME_PROPERTY_BOX (window), config_sizes, _("History and cache"));
+    generateConfigWidgets(GNOME_PROPERTY_BOX (window), config_paths, _("Paths"));
 
-    /* Entries */
-
-    generateConfigWidgets(box, configs);
-
-    /* Buttons */
-
-    buttonBox = gtk_table_new(1, 2, TRUE);
-    gtk_widget_show(buttonBox);
-
-    ok = gnome_stock_button(GNOME_STOCK_BUTTON_OK);
-    GTK_WIDGET_SET_FLAGS (GTK_WIDGET (ok), GTK_CAN_DEFAULT);
-    gtk_widget_show(ok);
-
-    cancel = gnome_stock_button(GNOME_STOCK_BUTTON_CANCEL);
-    GTK_WIDGET_SET_FLAGS (GTK_WIDGET (cancel), GTK_CAN_DEFAULT);
-    gtk_widget_show(cancel);
-
-    gtk_table_attach(GTK_TABLE(buttonBox), ok, 0, 1, 0, 1,
-		     GTK_EXPAND, 0, 0, 0);
-    gtk_table_attach(GTK_TABLE(buttonBox), cancel, 1, 2, 0, 1,
-		     GTK_EXPAND, 0, 0, 0);
-    gtk_box_pack_start(GTK_BOX(box), buttonBox, TRUE, TRUE, 0);
-
-    gtk_signal_connect(GTK_OBJECT(ok), "clicked",
-		       (GtkSignalFunc)configOK, window);
-    gtk_signal_connect(GTK_OBJECT(cancel), "clicked",
+    gtk_signal_connect(GTK_OBJECT(window), "apply",
+		       (GtkSignalFunc)configApply, window);
+    gtk_signal_connect(GTK_OBJECT(window), "delete_event",
+		       (GtkSignalFunc)configCancel, window);
+    gtk_signal_connect(GTK_OBJECT(window), "destroy",
 		       (GtkSignalFunc)configCancel, window);
 
-    gtk_widget_show(window);
+    gtk_widget_show_all(window);
 }
 
 static void
-configOK(GtkWidget *w, GtkWidget *window)
+load_config_from_widgets (struct _config_entry *p)
 {
-    struct _config_entry *p = configs;
     gchar *s;
     gint x;
     
@@ -661,19 +646,23 @@ configOK(GtkWidget *w, GtkWidget *window)
 	    }
 	    *(gchar **)(p->var) = g_strdup(s);;
 	}
-	
 	p++;
     }
-    
-    gtk_widget_destroy(window);
-    configWindow = NULL;
+}
+
+static void
+configApply(GtkWidget *w, int page, GtkWidget *window)
+{
+    load_config_from_widgets (config_paths);
+    load_config_from_widgets (config_sizes);
+
     saveConfig();
     setConfig();
 }
 
-static void
+static int
 configCancel(GtkWidget *w, GtkWidget *window)
 {
-    gtk_widget_destroy(window);
     configWindow = NULL;
+    return FALSE;
 }
