@@ -64,7 +64,8 @@ resolveURL( docObj *obj )
 		obj->url.u = decomposeUrl(obj->ref);
 	}
 
-	printf("%s %s\n",obj->ref, obj->url.u->access);
+	printf("%s %s %s %s\n",obj->ref, obj->url.u->access, 
+	       obj->url.u->path, obj->url.u->anchor);
 	/* stupid test for transport types with currently understand */
 	if (!strncmp(obj->url.u->access, "file", 4)) {
 		obj->url.method = TRANS_FILE;
@@ -108,8 +109,8 @@ transportFile( docObj *obj )
 	gint    filenum;
 	gchar   file[1024];
 
-	gchar   *prefix;
-	gchar   *suffix;
+	gchar   prefix[1024];
+	gchar   suffix[1024];
 	gboolean doInfo;
 
 	DIR     *d;
@@ -117,7 +118,7 @@ transportFile( docObj *obj )
 
 	/* we have to handle info files specially */
 	if (!strncmp(obj->ref, "info:", 5)) {
-		gchar *p, *r, *s;
+		gchar *p, *pp, *r, *s;
 
 		doInfo = TRUE;
 		r = g_strdup(obj->url.u->path);
@@ -129,17 +130,20 @@ transportFile( docObj *obj )
 		else
 			return; /* VERY BAD - no file specified */
 
-		p = g_malloc(strlen(s)+2);
-		strcpy(p, s);
-		strcat(p, ".");
+		p = g_strdup(s);
+		pp = g_malloc(strlen(p)+2);
+		strcpy(pp, p);
+		strcat(pp, ".");
 
-		printf("Looking for info files matching ->%s<-\n",p);
+		printf("Looking for info files matching ->%s<- or ->%s<-\n",
+		       p, pp);
 		d = opendir(r);
 		while (d && (dirp = readdir(d))) {
 /*			printf("%s %s %d\n", dirp->d_name, p,
 			       strncmp(dirp->d_name, p, strlen(p)));
 */
-			if (!strncmp(dirp->d_name, p, strlen(p)))
+			if (!strncmp(dirp->d_name, pp, strlen(pp)) ||
+			    !strcmp(dirp->d_name, p))
 				break;
 		}
 
@@ -151,26 +155,27 @@ transportFile( docObj *obj )
 		/* some like -> 'wget.info'                     */
 		/* or        -> 'emacs.gz' 'emacs-1.gz', etc    */
 		/* or even   -> 'libc.info.gz' 'libc.info-1.gz' */
+                /* or        -> 'wget' 'wget-1'                 */
 
 		/* see if we have a '.gz' on the end            */
-		prefix = g_malloc(strlen(r)+strlen(dirp->d_name)+2);
-		prefix = strcpy(prefix, r);
+		strcpy(prefix, r);
 		strcat(prefix, "/");
 		strcat(prefix, dirp->d_name);
 		if (!strcmp(prefix+strlen(prefix)-3, ".gz")) {
-			suffix = g_strdup(".gz");
+			strcpy(suffix,".gz");
 			*(prefix+strlen(prefix)-3) = '\0';
 		} else {
-			suffix = g_strdup("");
+			*suffix = '\0';
 		}
 		closedir(d);
+		g_free(p);
+		g_free(pp);
 		g_free(r);
 	} else {
 		doInfo = FALSE;
-		prefix = g_strdup("");
-		suffix = g_strdup("");
+		*prefix = '\0';
+		*suffix = '\0';
 	}
-
 
 	filenum = 0;
 	out = NULL;
@@ -246,19 +251,19 @@ transportFile( docObj *obj )
 		
 		obj->freeraw = TRUE;
 		if (out) {
-			out = g_realloc(out, strlen(out)+strlen(s));
+			out = g_realloc(out, strlen(out)+strlen(s)+1);
 			strcat(out, s);
 			g_free(s);
+			s = NULL;
 		} else {
 			out = g_strdup(s);
 			g_free(s);
+			s = NULL;
 		}
 
 		filenum++;
 	} while (doInfo);
 
-	g_free(prefix);
-	g_free(suffix);
 	obj->rawData = out;
 	return;
 }

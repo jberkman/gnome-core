@@ -134,7 +134,10 @@ void expandInfoRoot(GtkWidget *item)
 	    gtk_widget_show(newitem);
 	
 	    /* Set the URL for this item */
-	    s = g_strdup(p->filename);
+/*	    s = g_strdup(p->filename); */
+	    s = g_malloc(strlen(p->basename)+16);
+	    strcpy(s,"info:");
+	    strcat(s, p->basename);
 	    gtk_object_set_data(GTK_OBJECT(newitem), "URL", s);
 	    gtk_signal_connect_object(GTK_OBJECT(newitem), "destroy",
 				      (GtkSignalFunc)g_free, (gpointer)s);
