@@ -8,7 +8,8 @@
  *
  * Other contributors: George Lebl, Jeff Garzik, Jay Painter,
  * Christopher Blizzard, Jens Lautenbacher, Tom Tromey, Tristan Tarant,
- * Jonathan Blandford, Cody Russell, and Nat Friedman
+ * Jonathan Blandford, Cody Russell, Nat Friedman, Jacob Berkman, and
+ * John Harper
  */
 #include <config.h>
 #include <unistd.h>
@@ -23,6 +24,8 @@
 #include <gdk/gdkprivate.h>
 #include <gnome.h>
 #include <zvt/zvtterm.h>
+#include <orb/orbit.h>
+#include <libgnorba/gnorba.h>
 
 #include <X11/Xatom.h>
 
@@ -73,6 +76,7 @@ enum targets_enum {
 	TARGET_COLOR
 };
 
+
 struct terminal_config {
 	int keyboard_secured :1;		/* Does this terminal have the keyboard secured? */
         int bell             :1;                /* Do we want the bell? */
@@ -115,6 +119,11 @@ GtkWidget *initial_term = NULL;
 
 /* A list of all the open terminals */
 GList *terminals = 0;
+
+
+int use_terminal_factory   = FALSE;
+int start_terminal_factory = TRUE;
+
 
 typedef struct {
 	GtkWidget *prop_win;
@@ -197,9 +206,9 @@ about_terminal_cmd (void)
         GtkWidget *about;
 
         const gchar *authors[] = {
-		"Zvt terminal widget: "
+		"Zvt terminal widget: ",
 		"    Michael Zucchi (zucchi@zedzone.mmc.com.au)",
-		"GNOME terminal: "
+		"GNOME terminal: ",
 		"    Miguel de Icaza (miguel@kernel.org)",
 		"    Erik Troan (ewt@redhat.com)",
 		NULL
@@ -2205,7 +2214,44 @@ new_terminal (GtkWidget *widget, ZvtTerm *term)
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	return new_terminal_cmd (NULL, cfg, NULL);
+	return new_terminal_cmd (NULL, cfg, initial_global_geometry);
+}
+
+GtkWidget *
+new_terminal_for_client (char *geom)
+{
+	if (terminals != 0)
+	{
+		ZvtTerm *term = ZVT_TERM (gtk_object_get_data
+					  (GTK_OBJECT(terminals->data),
+					   "term"));
+		struct terminal_config *cfg
+			= gtk_object_get_data (GTK_OBJECT (term), "config");
+		GtkWidget *w = new_terminal_cmd (NULL, cfg, geom ? geom
+						 : initial_global_geometry);
+		return w;
+	}
+	else
+		return 0;
+}
+
+static void
+load_factory_settings ()
+{
+	gchar *buf;
+
+	buf = gnome_client_get_config_prefix (gnome_master_client ());
+	gnome_config_push_prefix (buf);
+
+	buf = g_strdup_printf ("factory/start=%d", start_terminal_factory);
+	start_terminal_factory = gnome_config_get_int (buf);
+	g_free (buf);
+
+	buf = g_strdup_printf ("factory/use=%d", use_terminal_factory);
+	use_terminal_factory = gnome_config_get_int (buf);
+	g_free (buf);
+
+	gnome_config_pop_prefix ();
 }
 
 static gboolean
@@ -2261,6 +2307,11 @@ load_session ()
 			cfg->update_records |= ZVT_TERM_DO_UTMP_LOG;
 		if (gnome_config_get_bool ("do_wtmp=true"))
 			cfg->update_records |= ZVT_TERM_DO_WTMP_LOG;
+
+		start_terminal_factory = gnome_config_get_bool (
+			"start_terminal_factory=true");
+		use_terminal_factory = gnome_config_get_bool (
+			"use_terminal_factory=false");
 
 		g_free(class);
 		gnome_config_pop_prefix();
@@ -2364,6 +2415,11 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		gnome_config_set_bool("do_utmp", (cfg->update_records & ZVT_TERM_DO_UTMP_LOG) != 0);
 		gnome_config_set_bool("do_wtmp", (cfg->update_records & ZVT_TERM_DO_WTMP_LOG) != 0);
 
+		gnome_config_set_bool("start_terminal_factory", 
+				      start_terminal_factory);
+		gnome_config_set_bool("use_terminal_factory",
+				      use_terminal_factory);
+
 		gnome_config_pop_prefix ();
 		g_free (prefix);
 		
@@ -2371,6 +2427,8 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	}
 	gnome_config_push_prefix (file);
 	gnome_config_set_int ("dummy/num_terms", i);
+	gnome_config_set_int ("factory/start", start_terminal_factory);
+	gnome_config_set_int ("factory/use", use_terminal_factory);
 	gnome_config_pop_prefix ();
 
 #if 0
@@ -2414,7 +2472,9 @@ enum {
 	DOWTMP_KEY   = -11,
 	DONOWTMP_KEY = -12,
         TITLE_KEY    = -13,
-	TERM_KEY     = -14
+	TERM_KEY     = -14,
+	NOFACTORY_KEY= -15,
+	FACTORY_KEY  = -16
 };
 
 static struct poptOption cb_options [] = {
@@ -2465,6 +2525,12 @@ static struct poptOption cb_options [] = {
 	{ "termname", '\0', POPT_ARG_STRING, NULL, TERM_KEY,
           N_("Set the TERM variable"), N_("TERMNAME") },
 
+	{ "no-factory-server", '\0', POPT_ARG_NONE, NULL, NOFACTORY_KEY,
+	  N_("Do not start a TerminalFactory"), NULL },
+
+	{ "use-factory", '\0', POPT_ARG_NONE, NULL, FACTORY_KEY,
+	  N_("Try to create the terminal with the TerminalFactory"), NULL },
+
 	{ NULL, '\0', 0, NULL, 0}
 };
 
@@ -2482,17 +2548,21 @@ parse_an_arg (poptContext state,
 	case CLASS_KEY:
 		free (cfg->class);
 		cfg->class = g_strconcat ("Class-", arg, NULL);
+		use_terminal_factory = FALSE;
 		break;
 	case FONT_KEY:
 		cfg->font = (char *)arg;
+		use_terminal_factory = FALSE;
 		break;
 	case LOGIN_KEY:
 		cfg->invoke_as_login_shell = 1;
 		cmdline_login = TRUE;
+		use_terminal_factory = FALSE;
 		break;
 	case NOLOGIN_KEY:
 	        cfg->invoke_as_login_shell = 0;
 		cmdline_login = TRUE;
+		use_terminal_factory = FALSE;
 	        break;
 	case GEOMETRY_KEY:
 		initial_global_geometry = (char *)arg;
@@ -2509,37 +2579,53 @@ parse_an_arg (poptContext state,
 				  x--;
 				  initial_command[x]=foo[x];
 			  }
+		
+		use_terminal_factory = FALSE;
 		break;
 		  }
 	case FORE_KEY:
 		cfg->user_fore_str = arg;
 		cfg->have_user_colors = 1;
+		use_terminal_factory = FALSE;
 		break;
 	case BACK_KEY:
 		cfg->user_back_str = arg;
 		cfg->have_user_colors = 1;
+		use_terminal_factory = FALSE;
 		break;
 	case DOUTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_UTMP_LOG;
 		cfg->update_records_xor |= ZVT_TERM_DO_UTMP_LOG;
+		use_terminal_factory = FALSE;
 		break;
 	case DONOUTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_UTMP_LOG;
 		cfg->update_records_xor &= ~ZVT_TERM_DO_UTMP_LOG;
+		use_terminal_factory = FALSE;
 		break;
 	case DOWTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_WTMP_LOG;
 		cfg->update_records_xor |= ZVT_TERM_DO_WTMP_LOG;
+		use_terminal_factory = FALSE;
 		break;
 	case DONOWTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_WTMP_LOG;
 		cfg->update_records_xor &= ~ZVT_TERM_DO_WTMP_LOG;
+		use_terminal_factory = FALSE;
 		break;
 	case TITLE_KEY:
 	        cfg->window_title = g_strdup(arg);
+		use_terminal_factory = FALSE;
                 break;
 	case TERM_KEY:
 		cfg->termname = g_strdup_printf("TERM=%s", arg);
+		use_terminal_factory = FALSE;
+		break;
+	case NOFACTORY_KEY:
+		start_terminal_factory = FALSE;
+		break;
+	case FACTORY_KEY:
+		use_terminal_factory = TRUE;
 		break;
 	default:
 		break;
@@ -2561,6 +2647,8 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	char *class;
 	struct terminal_config *default_config, *cmdline_config;
 	int i, j;
+	CORBA_ORB orb;
+	CORBA_Environment ev;
 
 	env = environ;
 	
@@ -2592,12 +2680,25 @@ main_terminal_program (int argc, char *argv [], char **environ)
 			initial_command[j]=NULL;
 			/* 'fool' popt into thinking we have less args */
 			argc=last;
+			use_terminal_factory = FALSE;
 			break;
 		}
 	}
-	
-	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
-				   cb_options, 0, NULL);
+
+	CORBA_exception_init (&ev);
+	orb = gnome_CORBA_init_with_popt_table ("Terminal", VERSION,
+						&argc, argv,
+						cb_options, 0, NULL,
+						0, &ev);
+	if (ev._major != CORBA_NO_EXCEPTION)
+	    exit (5);
+
+	CORBA_exception_free (&ev);
+
+	/* since -x gets stripped out of the commands, this
+	   will make it override --use-factory */
+	if (use_terminal_factory && initial_command)
+		use_terminal_factory = FALSE;
 
 	if(cmdline_config->user_back_str)
 		gdk_color_parse(cmdline_config->user_back_str,
@@ -2629,13 +2730,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		else
 			class = g_strdup ("Config");
 	}
-	
-	client = gnome_master_client ();
-	gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
-			    GTK_SIGNAL_FUNC (save_session), NULL);
-	gtk_signal_connect (GTK_OBJECT (client), "die",
-			    GTK_SIGNAL_FUNC (session_die), NULL);
-	
+			
 	{
 		char *prefix = g_strdup_printf ("Terminal/%s/", class);
 		gnome_config_push_prefix (prefix);
@@ -2674,13 +2769,48 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	default_config->update_records ^= cmdline_config->update_records_xor;
 
 	terminal_config_free (cmdline_config);
+
+	load_factory_settings ();
+
+	if (start_terminal_factory) {
+		corba_init_server (orb);
+		if (!has_terminal_factory)
+			corba_activate_server ();
+	}
 	
-	if (!load_session ())
-		new_terminal_cmd (initial_command, default_config, initial_global_geometry);
+	if (!load_session ()) {
+		if (use_terminal_factory && has_terminal_factory) {
+			CORBA_Environment ev;
+			CORBA_Object term;
+
+			CORBA_exception_init (&ev);
+			term = create_terminal_via_factory
+				(initial_global_geometry
+				 ? initial_global_geometry : "80x24", &ev);
+			if (ev._major != CORBA_NO_EXCEPTION)
+				exit (5);
+			CORBA_Object_release (term, &ev);
+			CORBA_exception_free (&ev);
+		} else {
+			new_terminal_cmd (initial_command,
+					  default_config,
+					  initial_global_geometry);
+		}
+	}
 
 	terminal_config_free (default_config);
 
+	if (!terminals)
+		return 0;
+
+	client = gnome_master_client ();
+	gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
+			    GTK_SIGNAL_FUNC (save_session), NULL);
+	gtk_signal_connect (GTK_OBJECT (client), "die",
+			    GTK_SIGNAL_FUNC (session_die), NULL);
+
 	gtk_main ();
+
 	return 0;
 }
 

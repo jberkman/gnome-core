@@ -284,8 +284,23 @@
 	      TERM environment variable.
 	    </para>
 	  </listitem>
-	</itemizedlist>
-	
+
+	  <listitem>
+	    <para><symbol>--no-factory-server</symbol></para>
+	    <para>
+	      Do not try to start the TerminalFactory service for
+	      this terminal.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><symbol>--use-factory</symbol></para>
+	    <para>
+	      Try to create a terminal window from the TerminalFactory
+	      service.
+	    </para>
+	  </listitem>
+	</itemizedlist>		
       </para>
       <para>You can use more than one option at once: for example, on
             a machine with the text-based web browser Lynx installed,

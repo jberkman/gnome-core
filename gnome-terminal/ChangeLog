@@ -1,3 +1,38 @@
+2000-01-09  Jacob Berkman  <jacob@helixcode.com>
+
+	* gnome-terminal.c (main_terminal_program): if inital_command is
+	not NULL then don't use a term factory
+
+	* gnome-terminal.desktop (Exec): try to connect to the factory
+
+	* C/gnome-terminal.sgml: add descriptions of the new arguments
+
+	* gnome-terminal.c: small changes to Harper's patch.  It
+	defaults to starting a server and not connecting to a server.
+	Also save/restore the start server/use server settings across
+	sessions
+
+	* corba.c: try to avoid a possible race condition
+
+2000-01-06  John Harper  <john@dcs.warwick.ac.uk>
+
+	* gnome-terminal.c (new_terminal_for_client): new function,
+	used when creating terminals for CORBA clients
+	(cb_options): new option `--no-factory', prevents
+	contacting/creating a CORBA TerminalFactory
+	(main_terminal_program): handle CORBA initialisation unless
+	--no-factory was given
+
+	* corba.c: new file, implements the guts of the two CORBA
+	interfaces, GNOME::Terminal and GNOME::TerminalFactory, and
+	some helper functions for communicating with an existing
+	factory
+
+	* gnome-terminal.gnorba: new file
+
+	* gnome-terminal.c (new_terminal): pass initial_global_geometry
+	to new_terminal_cmd ()
+
 1999-12-28  Miguel de Icaza  <miguel@gnu.org>
 
 	* gnome-terminal.c (preferences_cmd): Use the proper directory

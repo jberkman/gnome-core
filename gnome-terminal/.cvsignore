@@ -5,3 +5,7 @@ Makefile
 *~
 .deps
 .libs
+Terminal.h
+Terminal-common.c
+Terminal-skels.c
+Terminal-stubs.c
