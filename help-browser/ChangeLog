@@ -1,3 +1,8 @@
+1999-01-20  Jim Pick  <jim@jimpick.com>
+
+	* Makefile.am: patched to install help-browser.gnorba into
+	$(sysconfdir)/CORBA/servers - not /usr/etc/CORBA/servers
+
 1999-01-12  Michael Fulbright <drmike@redhat.com>
 
 	* help/C/default-page.html: updated to use new GNOME logo, nicer look

@@ -72,10 +72,8 @@ EXTRA_DIST = toc.c toc-man.c toc-ghelp.c toc-info.c \
 	     toc.h toc-man.h toc-ghelp.h toc-info.h \
 	     $(PIXMAPS) gnome-help.desktop help-browser.gnorba
 
-install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(prefix)/etc/CORBA/servers
-	$(INSTALL_DATA)  $(srcdir)/help-browser.gnorba \
-			 $(DESTDIR)$(prefix)/etc/CORBA/servers/help-browser.gnorba
+gnorbadir = $(sysconfdir)/CORBA/servers
+gnorba_DATA = help-browser.gnorba
 
 sysdir = $(datadir)/apps
 sys_DATA = gnome-help.desktop
