@@ -21,8 +21,7 @@ LDADD = \
 
 bin_PROGRAMS = gnome-terminal
 
-EXTRA_DIST = gnome-terminal.desktop gnome-terminal.gnorba \
-             gnome-terminal-logo.jpg
+EXTRA_DIST = gnome-terminal.desktop gnome-terminal.gnorba
 
 CORBA_GENERATED =		\
 	Terminal.h		\
@@ -51,6 +50,3 @@ gnorba_DATA = gnome-terminal.gnorba
 
 utildir = $(datadir)/gnome/apps/System
 util_DATA = gnome-terminal.desktop
-
-pixmapsdir = $(datadir)/pixmaps
-util_DATA = gnome-terminal-logo.jpg

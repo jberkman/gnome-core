@@ -241,7 +241,7 @@ about_terminal_cmd (void)
 				 "(C) 1998, 1999 the Free Software Foundation",
 				 authors,
 				 _("The GNOME terminal emulation program."),
-				 "gnome-terminal-logo.jpg");
+				 NULL);
 	gtk_signal_connect (GTK_OBJECT (about), "destroy",
 			    GTK_SIGNAL_FUNC (gtk_widget_destroyed), &about);
         gtk_widget_show (about);
