@@ -31,3 +31,8 @@
  - can back/forward buttons have dropdown history?
 
  - make man2html & info (and other filters) loadable modules
+
+ - image loading needs serious work when grabbing via transport other
+   than local filesystem. Currently creates a temporary file in /tmp
+   which is then passed on to the html widget for loading. These
+   temporary files are never removed.

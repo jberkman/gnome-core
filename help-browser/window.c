@@ -4,6 +4,7 @@
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -842,6 +843,9 @@ GtkWidget
 
 
 /* HACK HACK HACK */
+/*
+ * Among problems this routine has - it leaves temp files in /tmp 
+ */
 XmImageInfo *
 load_image(GtkWidget *html_widget, gchar *ref)
 {
@@ -851,6 +855,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	XmImageInfo *info;
 	gint buflen;
 	gint fd;
+	char tmpnam[]="/tmp/GnomeHelpBrowser-tmp.XXXXXX";
 
 	win = gtk_object_get_data(GTK_OBJECT(html_widget), "HelpWindow");
 	obj = docObjNew(ref, win->useCache);
@@ -867,7 +872,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	    return NULL;
 	}
 	
-	fd = open(IMAGE_TEMPFILE, O_WRONLY | O_CREAT, 0666);
+	fd = mkstemp(tmpnam);
 	if (fd >= 0) {
 	    docObjGetRawData(obj, &buf, &buflen);
 	    write(fd, buf, buflen);
@@ -875,6 +880,5 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	}
 		
 	docObjFree(obj);
-	return XmHTMLImageDefaultProc(html_widget, IMAGE_TEMPFILE,
-				      NULL, 0);
+	return XmHTMLImageDefaultProc(html_widget, tmpnam, NULL, 0);
 }
