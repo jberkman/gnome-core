@@ -1,5 +1,10 @@
 1998-06-11  John Ellis  <johne@bellatlantic.net>
 
+	* Makefile: removed in favor of Makefile.am
+	could someone check Makefile.am?, automake is new to me.
+
+1998-06-11  John Ellis  <johne@bellatlantic.net>
+
 	* gmenu directory: Checked into CVS. Still need a Makefile.am
 	though, The current Makefile defaults to /usr
 
