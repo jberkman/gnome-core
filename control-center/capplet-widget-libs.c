@@ -215,7 +215,7 @@ gint capplet_widget_corba_init(const char *app_id,
 
         /* setup CORBA fully */
         POA_GNOME_capplet__init(&poa_capplet_servant, &ev);
-        poa = orb->root_poa;
+        poa = CORBA_ORB_resolve_initial_references(orb, "RootPOA", &ev);
         PortableServer_POAManager_activate(PortableServer_POA__get_the_POAManager(poa, &ev), &ev);
 
         PortableServer_POA_activate_object_with_id(poa, 

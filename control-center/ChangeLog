@@ -1,3 +1,8 @@
+1998-11-30  Jonathan Blandford  <jrb@redhat.com>
+
+	* capplet-widget-libs.c (capplet_widget_corba_init): quick fix to
+	handle new poa getting mechanism.
+
 1998-11-23  Christopher Blizzard  <blizzard@appliedtheory.com>
 
 	* tree.c (generate_tree): Comment out gtk_clist_set_policy().
