@@ -27,13 +27,8 @@ EXTRA_DIST = \
 	gnome-hint.png \
 	gnome-hint.desktop
 
-sysdir = $(datadir)/control-center/Session/
+sysdir = $(datadir)/control-center/capplets
 sys_DATA = gnome-hint-properties.desktop
 
 pixmapsdir = $(datadir)/pixmaps
 pixmaps_DATA = gnome-hint.png
-
-install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(datadir)/gnome/apps/Settings/Session/
-	$(INSTALL_DATA) $(srcdir)/gnome-hint-properties.desktop $(DESTDIR)$(datadir)/gnome/apps/Settings/Session/gnome-hint-properties.desktop
-

@@ -49,3 +49,4 @@ Exec=gnome-hint-properties-capplet
 Icon=gnome-hint.png
 Terminal=0
 Type=Application
+Categories=Application;Settings;

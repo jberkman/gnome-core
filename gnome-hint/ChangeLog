@@ -1,3 +1,10 @@
+2001-12-24  Seth Nickell  <snickell@stanford.edu>
+
+	* Makefile.am:
+	* gnome-hint-properties.desktop:
+
+	Add Categories field.
+
 Mon, 19 Nov 2001 01:46:04 -0500 Frank Belew <frb@ximian.com>
 
 	* gnome-hint-properties.c, gnome-hint.c:  replaced PACKAGE
