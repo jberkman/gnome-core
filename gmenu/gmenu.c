@@ -42,6 +42,7 @@ static void about_cb();
 static void destroy_cb();
 int main (int argc, char *argv[]);
 
+/* menu bar */
 GnomeUIInfo file_menu[] = {
 	{ GNOME_APP_UI_ITEM, N_("New Folder..."), NULL, create_folder_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW, 'F',
@@ -79,6 +80,26 @@ GnomeUIInfo main_menu[] = {
 	{ GNOME_APP_UI_SUBTREE, N_("Help"), NULL, help_menu, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
+};
+
+/* toolbar */
+GnomeUIInfo toolbar[] = {
+	{ GNOME_APP_UI_ITEM, N_("New Folder"), N_("Create a new folder"), create_folder_pressed, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_NEW, 0, 0, NULL },
+	{ GNOME_APP_UI_ITEM, N_("Delete"), N_("Delete selected menu item"), delete_pressed_cb, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_CUT, 0, 0, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, N_("Move up"), N_("Move selected menu up"), move_up_cb, NULL, NULL,
+	  GNOME_APP_PIXMAP_DATA, up_xpm, 0, 0, NULL },
+	{ GNOME_APP_UI_ITEM, N_("Move down"), N_("Move selected menu down"), move_down_cb, NULL, NULL,
+	  GNOME_APP_PIXMAP_DATA, down_xpm, 0, 0, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, N_("Properties"), N_("Edit selected menu item properties"), edit_pressed_cb, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_PROPERTIES, 0, 0, NULL },
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, N_("Sort Folder"), N_("Sort selected folder"), sort_single_pressed, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_SPELLCHECK, 0, 0, NULL },
+	GNOMEUIINFO_END
 };
 
 static void sort_node( GtkCTreeNode *node)
@@ -311,10 +332,8 @@ int main (int argc, char *argv[])
 {
 	GtkWidget *mainbox;
 	GtkWidget *hbox;
-	GtkWidget *hbox1;
 	GtkWidget *vbox;
 	GtkWidget *frame;
-	GtkWidget *pixmap;
 	GtkWidget *button;
 	GtkTooltips *tooltips;
 
@@ -335,12 +354,15 @@ int main (int argc, char *argv[])
 	USER_PIXMAPS = check_for_dir(gnome_util_home_file("pixmaps"));
 
 	app = gnome_app_new ("gmenu",_("GNOME menu editor"));
-	gtk_widget_set_usize (app, 600,420);
+	gtk_widget_set_usize (app, 600,460);
 	gtk_signal_connect(GTK_OBJECT(app), "delete_event", GTK_SIGNAL_FUNC(destroy_cb), NULL);
 
 	gnome_app_create_menus_with_data (GNOME_APP(app), main_menu, app);
 	gtk_menu_item_right_justify(GTK_MENU_ITEM(main_menu[2].widget));
 
+	gnome_app_create_toolbar (GNOME_APP(app), toolbar);
+/*	gtk_toolbar_set_style (GTK_TOOLBAR (GNOME_APP(app)->toolbar), GTK_TOOLBAR_ICONS);
+*/
 	tooltips = gtk_tooltips_new();
 
 	mainbox = gtk_hbox_new (FALSE, 0);
@@ -364,73 +386,6 @@ int main (int argc, char *argv[])
 	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"select_row", GTK_SIGNAL_FUNC(tree_item_selected),NULL);
 	gtk_box_pack_start(GTK_BOX(vbox),menu_tree_ctree,TRUE,TRUE,0);
 	gtk_widget_show(menu_tree_ctree);
-
-	/* tree buttons */
-	hbox1 = gtk_hbox_new(FALSE, 5);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox1,FALSE,FALSE,10);
-	gtk_widget_show(hbox1);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(create_folder_pressed), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_NEW );
-	gtk_container_add(GTK_CONTAINER(button),pixmap);
-	gtk_widget_show(pixmap);
-
-	gtk_tooltips_set_tip (tooltips, button, _("New Folder"), NULL);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(delete_pressed_cb), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_CUT );
-	gtk_container_add(GTK_CONTAINER(button),pixmap);
-	gtk_widget_show(pixmap);
-
-	gtk_tooltips_set_tip (tooltips, button, _("Delete"), NULL);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(sort_single_pressed), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_SPELLCHECK );
-	gtk_container_add(GTK_CONTAINER(button),pixmap);
-	gtk_widget_show(pixmap);
-
-	gtk_tooltips_set_tip (tooltips, button, _("Sort Folder"), NULL);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(move_up_cb), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	pixmap = gnome_pixmap_new_from_xpm_d( up_xpm );
-	gtk_container_add(GTK_CONTAINER(button),pixmap);
-	gtk_widget_show(pixmap);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(move_down_cb), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	pixmap = gnome_pixmap_new_from_xpm_d( down_xpm );
-	gtk_container_add(GTK_CONTAINER(button),pixmap);
-	gtk_widget_show(pixmap);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(edit_pressed_cb), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_PROPERTIES );
-	gtk_container_add(GTK_CONTAINER(button),pixmap);
-	gtk_widget_show(pixmap);
-
-	gtk_tooltips_set_tip (tooltips, button, _("Edit Properties"), NULL);
 
 	/* tree info area */
 	hbox = gtk_hbox_new (FALSE, 0);
@@ -469,9 +424,9 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
 	gtk_widget_show(vbox);
 
-	gtk_widget_show(app);
-
 	add_main_tree_node();
+
+	gtk_widget_show(app);
 	
 	new_edit_area();
 

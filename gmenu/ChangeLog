@@ -1,3 +1,10 @@
+Tue Aug 11 07:43:52 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c: Added gnome style toolbar in favor of the old row of
+	buttons below the tree of menus. Main window is not displayed until
+	after the menus are read, which was distracting attention from the
+	standy dialog, resulting in a cleaner looking startup.
+
 Mon Aug 10 08:41:14 1998  John Ellis  <johne@bellatlantic.net>
 
 	* tree.c: Quick hack to test a standby dialog while gmenu reads the
