@@ -1,10 +1,12 @@
 [Desktop Entry]
 Name=Appearances
+Name[de]=Aussehen
 Name[es]=Apariencia
 Name[es]=Apparence
 Name[no]=Utseende
 Name[pt]=Aparência
 Comment=Modify the look and feel of your session.
+Comment[de]=Optisches Erscheinungsbild ("Look and Feel") verändern
 Comment[es]=Modifica la apariencia de su sesión
 Comment[fr]=Modifie l'apparence de votre session
 Comment[no]=Modifiser utseende og oppførsel på sesjonen

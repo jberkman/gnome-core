@@ -1,10 +1,12 @@
 [Desktop Entry]
 Name=Desktop
+Name[de]=Arbeitsplatz
 Name[es]=Escritorio
 Name[fr]=Bureau
 Name[no]=Skrivebord
 Name[pt]=Área de trabalho
 Comment=Desktop
+Comment[de]=Arbeitsplatz
 Comment[es]=Escritorio
 Comment[fr]=Bureau
 Comment[no]=Skrivebord
