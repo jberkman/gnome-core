@@ -1,5 +1,10 @@
 1998-12-31 Jay Painter <jpaint@serv.net>
 
+	* gnome-terminal.c: fix the session_save geometry saving so that		the terminal geometry gets saved in terminal columns/rows instead
+	of pixels.
+
+1998-12-31 Jay Painter <jpaint@serv.net>
+
 	* gnome-terminal.c: use zvt_term_set_size to set the grid
 	size of the terminal.  --geometry now works correctly.
 

@@ -1699,25 +1699,45 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	
 	i = 0;
 	for (list = terminals; list != NULL; list = list->next){
-	  
-		char *geom;
+	
+	        gint width, height, x, y;
+		GString *geom;
 		struct terminal_config *cfg;			
 		ZvtTerm *term;
-		GtkWidget *top = 
-			gtk_widget_get_toplevel (GTK_WIDGET (list->data));
-		char *prefix = g_strdup_printf ("%s%d/", file, i);
+		GtkWidget *top;
+		char *prefix;
 	  
+		top = gtk_widget_get_toplevel (GTK_WIDGET (list->data));
+		prefix = g_strdup_printf ("%s%d/", file, i);
+		term = ZVT_TERM (gtk_object_get_data (GTK_OBJECT(list->data), 
+						      "term"));
+		cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
+
 		gnome_config_push_prefix (prefix);
 
 		/* NAUGHTY: The ICCCM requires that the WM stores
 		   all session data on geometry! */
-		geom = gnome_geometry_string (top->window);
-		gnome_config_set_string ("geometry", geom);
-		g_free (geom);
+
+		/* we can't use gnome_geometry_string because we need
+		 * to calculate the terminal, not window size
+		 */
+		gdk_window_get_root_origin (top->window, &x, &y);
+
+		width = 
+		  (GTK_WIDGET (term)->allocation.width - 
+		   (GTK_WIDGET (term)->style->klass->xthickness * 2)) /
+		  term->charwidth;
+
+		height = 
+		  (GTK_WIDGET (term)->allocation.height - 
+		   (GTK_WIDGET (term)->style->klass->ythickness * 2)) /
+		  term->charheight;
+
+		geom = g_string_new ("");
+		g_string_sprintf (geom, "%dx%d+%d+%d", width, height, x, y);
+		gnome_config_set_string ("geometry", geom->str);
+		g_string_free (geom, TRUE);
 		
-		term = ZVT_TERM (gtk_object_get_data (GTK_OBJECT(list->data), 
-						      "term"));
-		cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 		gnome_config_set_string("class", cfg->class);
 		
 		if (top == initial_term){
