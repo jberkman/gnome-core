@@ -11,7 +11,9 @@ Thu Feb 10 19:52:28 2000  George Lebl <jirka@5z.com>
 
 	* tree.c (menu_tree_populate): 
 	* edit.c (edit_area_set_to): sync the menu names with the 'new'
-	names in the HEAD panel
+	names in the HEAD panel.
+
+	fixes bug #6102
 
 1999-10-19  Ettore Perazzoli  <ettore@gnu.org>
 
