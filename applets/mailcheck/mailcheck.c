@@ -367,7 +367,7 @@ mailcheck_get_animation_menu (void)
 }
 
 void
-cancel (GtkWidget *widget, void *data)
+close_callback (GtkWidget *widget, void *data)
 {
 	gtk_widget_destroy (property_window);
 	property_window = NULL;
@@ -402,13 +402,11 @@ load_new_pixmap_callback (GtkWidget *widget, void *data)
 
 	/* save new setting */
 	gnome_config_sync ();
-
-	cancel (0, 0);
 }
 
 static GnomeActionAreaItem sel_actions [] = {
 	{ NULL, load_new_pixmap_callback },
-	{ NULL, cancel },
+	{ NULL, close_callback },
 };
 
 GtkWidget *
@@ -447,8 +445,8 @@ mailcheck_properties (void)
 	d = GTK_DIALOG (property_window);
 	f = mailcheck_notification_frame ();
 	
-	sel_actions [0].label = _("Ok");
-	sel_actions [1].label = _("Cancel");
+	sel_actions [0].label = _("Apply");
+	sel_actions [1].label = _("Close");
 		
 	gnome_build_action_area (d, sel_actions, 2, 0);
 
