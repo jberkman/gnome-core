@@ -1,3 +1,17 @@
+1998-05-05  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* property-background.c: New functions that wrap fill_monitor()
+	for proper usage by all callbacks.
+
+	* property-background.c (set_background_mode set_orientation):
+	Reorder things to avod filling the monitor twice.
+
+	* property-background.c (fill_monitor): Fixed XDrawRectangle ->
+	XFillRectangle confusion.  This is why tiled transparent
+	gradient-less backgrounds were not working.
+	(fill_monitor): Do not render a one-color gradient when we can
+	just draw a solid rectangle.
+
 1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* property-background.c (parse_func): Added command line handling

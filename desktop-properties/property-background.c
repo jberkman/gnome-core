@@ -122,8 +122,8 @@ fill_gradient (unsigned char *d, gint w, gint h,
 	g_free (row);
 }
 
-static gint
-fill_monitor (gpointer gp)
+static void
+fill_monitor (int prop_changed)
 {
 	GdkWindow *rootWindow;
 	ImlibImage *pi = NULL;
@@ -139,8 +139,10 @@ fill_monitor (gpointer gp)
 	gint r, g, b;
 	gint cx, cy;
 	gint cw, ch;
-	gint pc = (gint) gp;
 	GdkCursor *cursor;
+
+	if (prop_changed)
+		property_changed ();
 
 	/* Set the cursor to a nice watch.  The main_window may not exist if we are called from the
 	 * session manager, though
@@ -151,8 +153,6 @@ fill_monitor (gpointer gp)
 		gdk_window_set_cursor (main_window->window, cursor);
 		gdk_cursor_destroy (cursor);
 	}
-
-	/* printf ("fill monitor %d\n", pc); */
 
 	rootWindow = gdk_window_foreign_new (GDK_ROOT_WINDOW());
 	gdk_window_get_size (rootWindow, &rootWidth, &rootHeight);
@@ -167,15 +167,24 @@ fill_monitor (gpointer gp)
 		}
 	}
 
+	if (main_window) {
+		gnome_color_selector_get_color_int(cs1, &r, &g, &b, 0xffff);
+		bgColor1.red = r;
+		bgColor1.green = g;
+		bgColor1.blue = b;
+
+		gnome_color_selector_get_color_int(cs2, &r, &g, &b, 0xffff);
+		bgColor2.red = r;
+		bgColor2.green = g;
+		bgColor2.blue = b;
+	}
+	
 	/* are we working on root window ? */
 	if (!fillPreview) {
 		gc = gdk_gc_new (rootWindow);
 		xgc = ((GdkGCPrivate *) gc)->xgc;
 
 		if ((!grad || (bi && !bi->shape_mask)) && wpType == WALLPAPER_TILED) {
-			gdk_color_alloc (gdk_window_get_colormap (rootWindow),
-					 &bgColor1);
-			 
 			if (bgType == BACKGROUND_WALLPAPER) {
 				Pixmap bg;
 
@@ -186,16 +195,16 @@ fill_monitor (gpointer gp)
 						    bi->rgb_width, bi->rgb_height,
 						    gdkx_visual_get (Imlib_get_visual (imlib_data)->visualid)->depth);
 
+				gdk_color_alloc (gdk_window_get_colormap (rootWindow), &bgColor1);
 				gdk_gc_set_foreground (gc, &bgColor1);
 
-				XDrawRectangle (GDK_DISPLAY (), bg, xgc,
+				XFillRectangle (GDK_DISPLAY (), bg, xgc,
 						0, 0,
 						bi->rgb_width, bi->rgb_height);
 
 				if (mask) {
-					gdk_gc_set_clip_origin (gc, 0, 0);
-/* 					gdk_gc_set_clip_mask (gc, mask); */
 					XSetClipMask (GDK_DISPLAY (), xgc, mask);
+					XSetClipOrigin (GDK_DISPLAY (), xgc, 0, 0);
 				}
 
 				XCopyArea (GDK_DISPLAY (),
@@ -212,14 +221,13 @@ fill_monitor (gpointer gp)
 				Imlib_destroy_image (imlib_data, bi);
 				XClearWindow (GDK_DISPLAY (), GDK_ROOT_WINDOW ());
 				XFreePixmap (GDK_DISPLAY (), bg);
-			} else
-			  {
+			} else {
 #ifdef DEBUG
-			    g_print("Setting background in fill_monitor\n");
+				g_print("Setting background in fill_monitor\n");
 #endif
-			    gdk_window_set_background (rootWindow, &bgColor1);
-			    gdk_window_clear (rootWindow);
-			  }
+				gdk_window_set_background (rootWindow, &bgColor1);
+				gdk_window_clear (rootWindow);
+			}
 			
 			gdk_gc_unref (gc);
 
@@ -228,7 +236,7 @@ fill_monitor (gpointer gp)
 			if (main_window)
 				gdk_window_set_cursor (main_window->window, NULL);
 
-			return FALSE;
+			return;
 		}
 
 		screen = gdk_pixmap_new (rootWindow, rootWidth, rootHeight, -1);
@@ -248,42 +256,35 @@ fill_monitor (gpointer gp)
 		gc = gdk_gc_new (monitor->window);
 	}
 
-	pdata = g_new (unsigned char, cw*ch*3);
-
-	if (main_window) {
-		gnome_color_selector_get_color_int(cs1, &r, &g, &b, 0xffff);
-		bgColor1.red = r;
-		bgColor1.green = g;
-		bgColor1.blue = b;
-
-		gnome_color_selector_get_color_int(cs2, &r, &g, &b, 0xffff);
-		bgColor2.red = r;
-		bgColor2.green = g;
-		bgColor2.blue = b;
-	}
-	
-	fill_gradient (pdata, cw, ch,
-		       &bgColor1, (grad) ? &bgColor2 : &bgColor1, vertical);
-
-	pi = Imlib_create_image_from_data (imlib_data, pdata, NULL, cw, ch);
-
-	g_free (pdata);
-
-	Imlib_render (imlib_data, pi, cw, ch);
-	pix = Imlib_move_image (imlib_data, pi);
-
 	xscreen = GDK_WINDOW_XWINDOW (screen);
 	xgc = GDK_GC_XGC (gc);
 
-	XCopyArea (GDK_DISPLAY (),
-		   pix, xscreen,
-		   xgc,
-		   0, 0,
-		   cw, ch,
-		   cx, cy);
+	if (grad) {
+		pdata = g_new (unsigned char, cw*ch*3);
 
-	Imlib_free_pixmap (imlib_data, pix);
-	Imlib_destroy_image (imlib_data, pi);
+		fill_gradient (pdata, cw, ch, &bgColor1, &bgColor2, vertical);
+
+		pi = Imlib_create_image_from_data (imlib_data, pdata, NULL, cw, ch);
+
+		g_free (pdata);
+
+		Imlib_render (imlib_data, pi, cw, ch);
+		pix = Imlib_move_image (imlib_data, pi);
+
+		XCopyArea (GDK_DISPLAY (),
+			   pix, xscreen,
+			   xgc,
+			   0, 0,
+			   cw, ch,
+			   cx, cy);
+
+		Imlib_free_pixmap (imlib_data, pix);
+		Imlib_destroy_image (imlib_data, pi);
+	} else {
+		gdk_color_alloc (gdk_window_get_colormap (rootWindow), &bgColor1);
+		gdk_gc_set_foreground (gc, &bgColor1);
+		XFillRectangle (GDK_DISPLAY (), xscreen, xgc, cx, cy, cw, ch);
+	}
 
 	if (bgType == BACKGROUND_WALLPAPER) {
 		gint w, h;
@@ -402,14 +403,22 @@ fill_monitor (gpointer gp)
 		gdk_window_clear (rootWindow);
 	}
 
-	if (pc)
-		property_changed ();
-
 	/* Reset the cursor to normal */
 
 	if (main_window)
 		gdk_window_set_cursor (main_window->window, NULL);
+}
 
+static void
+color_sel_set (GnomeColorSelector *gcs, gpointer data)
+{
+	fill_monitor (TRUE);
+}
+
+static gint
+idle_fill_monitor (gpointer data)
+{
+	fill_monitor (FALSE);
 	return FALSE;
 }
 
@@ -418,49 +427,46 @@ static GtkWidget *radioh, *radiov, *radiof, *radiog, *button2;
 static void
 set_background_mode (GtkWidget *widget)
 {
-  if(widget == radiof && GTK_TOGGLE_BUTTON(widget)->active)
-    /* Flat color */
-    {
-      gtk_widget_set_sensitive(button2, FALSE);
-      gtk_widget_set_sensitive(radioh, FALSE);
-      gtk_widget_set_sensitive(radiov, FALSE);
-      grad = FALSE;
-    }
-  else if(widget == radiog && GTK_TOGGLE_BUTTON(widget)->active)
-    /* Gradient fill */
-    {
-      gtk_widget_set_sensitive(button2, TRUE);
-      gtk_widget_set_sensitive(radioh, TRUE);
-      gtk_widget_set_sensitive(radiov, TRUE);
-      grad = TRUE;
-    }
-  fill_monitor ((gpointer)TRUE);
+	if (GTK_TOGGLE_BUTTON (widget)->active) {
+		if (widget == radiof) {
+			/* Flat color */
+			gtk_widget_set_sensitive(button2, FALSE);
+			gtk_widget_set_sensitive(radioh, FALSE);
+			gtk_widget_set_sensitive(radiov, FALSE);
+			grad = FALSE;
+		} else if (widget == radiog) {
+			/* Gradient fill */
+			gtk_widget_set_sensitive(button2, TRUE);
+			gtk_widget_set_sensitive(radioh, TRUE);
+			gtk_widget_set_sensitive(radiov, TRUE);
+			grad = TRUE;
+		}
+
+		fill_monitor (TRUE);
+	}
 }
 
 static void
 set_orientation (GtkWidget *widget)
 {
-  if(widget == radioh && GTK_TOGGLE_BUTTON(widget)->active)
-    /* Horizontal gradient */
-    vertical = FALSE;
-  else if(widget == radiov && GTK_TOGGLE_BUTTON(widget)->active)
-    /* Vertical gradient */
-    vertical = TRUE;
+	if (GTK_TOGGLE_BUTTON (widget)->active) {
+		if (widget == radioh)
+			vertical = FALSE;  /* Horizontal gradient */
+		else if (widget == radiov)
+			vertical = TRUE;   /* Vertical gradient */
 
-  fill_monitor ((gpointer)TRUE);
+		fill_monitor (TRUE);
+	}
 }
 
 static void
 set_wallpaper_type (GtkWidget *widget, gpointer data)
 {
-	/* printf ("set wp %d\n", GTK_TOGGLE_BUTTON (widget)->active); */
-
 	if (GTK_TOGGLE_BUTTON (widget)->active) {
 		wpType = (gint) data;
 
-		fill_monitor ((gpointer)TRUE);
+		fill_monitor (TRUE);
 	}
-	/* printf ("%s\n", __FUNCTION__); */
 }
 
 static GtkWidget *
@@ -485,7 +491,7 @@ color_setup ()
 	gtk_container_add (GTK_CONTAINER(frame), table);
 	gtk_widget_show (table);
 
-	cs1 = gnome_color_selector_new ((SetColorFunc) fill_monitor, (gpointer)FALSE);
+	cs1 = gnome_color_selector_new ((SetColorFunc) color_sel_set, NULL);
 	gnome_color_selector_set_color_int (cs1,
 					    bgColor1.red,
 					    bgColor1.green,
@@ -505,7 +511,7 @@ color_setup ()
 	gtk_box_pack_start (GTK_BOX (vb1), radiog, FALSE, FALSE, 0);
 	gtk_widget_show(radiog);
 
-	cs2 = gnome_color_selector_new ((SetColorFunc) fill_monitor, (gpointer)FALSE);
+	cs2 = gnome_color_selector_new ((SetColorFunc) color_sel_set, NULL);
 	gnome_color_selector_set_color_int (cs2,
 					    bgColor2.red,
 					    bgColor2.green,
@@ -551,7 +557,7 @@ color_setup ()
 			    (GtkSignalFunc) set_orientation,
 			    (gpointer) ((long) FALSE));
 
-	gtk_idle_add ((GtkFunction) fill_monitor, (gpointer)FALSE);
+	gtk_idle_add ((GtkFunction) idle_fill_monitor, NULL);
 
 	return frame;
 }
@@ -579,7 +585,7 @@ browse_activated (GtkWidget *w, gchar *s)
 	bgType = (s) ? BACKGROUND_WALLPAPER : BACKGROUND_SIMPLE;
 	/* printf ("%s\n", s); */
 
-	fill_monitor ((gpointer)TRUE);
+	fill_monitor (TRUE);
 	/* printf ("%s\n", __FUNCTION__); */
 }
 
@@ -646,7 +652,7 @@ set_monitor_filename (char *str)
 
 	gtk_option_menu_set_history (GTK_OPTION_MENU (wpOMenu), found);
 
-	fill_monitor ((gpointer)TRUE);
+	fill_monitor (TRUE);
 }
 
 static void
@@ -815,7 +821,7 @@ static void
 background_apply ()
 {
 	fillPreview = FALSE;
-	fill_monitor ((gpointer)FALSE);
+	fill_monitor (FALSE);
 	fillPreview = TRUE;
 	property_applied ();
 }
