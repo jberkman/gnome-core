@@ -56,18 +56,18 @@ cb_menu (GtkWidget *widget, gpointer data)
 	case MENU_ACTION_SHADE_UNSHADE:
 		if (GWMH_TASK_SHADED (current_task->gwmh_task))
 			gwmh_task_unset_gstate_flags (current_task->gwmh_task,
-						      WIN_STATE_SHADED);
+						      GWMH_STATE_SHADED);
 		else
 			gwmh_task_set_gstate_flags (current_task->gwmh_task,
-						    WIN_STATE_SHADED);
+						    GWMH_STATE_SHADED);
 		break;
 	case MENU_ACTION_STICK_UNSTICK:
 		if (GWMH_TASK_STICKY (current_task->gwmh_task))
 			gwmh_task_unset_gstate_flags (current_task->gwmh_task,
-						      WIN_STATE_STICKY);
+						      GWMH_STATE_STICKY);
 		else
 			gwmh_task_set_gstate_flags (current_task->gwmh_task,
-						    WIN_STATE_STICKY);
+						    GWMH_STATE_STICKY);
 		break;
 	case MENU_ACTION_KILL:
 		if (Config.confirm_before_kill) {
