@@ -4,7 +4,7 @@
 
 EXTRA_DIST = default-page.html
 
-help_browser_helpdir = $(datadir)/gnome/help/help-browser/eu
+help_browser_helpdir = $(datadir)/gnome/help/help-browser/ca
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(help_browser_helpdir)
 	$(INSTALL_DATA)  $(srcdir)/default-page.html $(DESTDIR)$(help_browser_helpdir)/
