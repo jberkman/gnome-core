@@ -2,8 +2,8 @@
 <!ENTITY GNOME-APPS SYSTEM "gnome-terminal.sgml">] >
 
 
-<Book id="index">
-  <title>Guida utente per l'emulatore di termianel GNOME</title>
+<Book id="index" lang="it">
+  <title>Guida utente per l'emulatore di terminale di Gnome</title>
   <bookinfo>
     <authorgroup>
       <author>
@@ -27,14 +27,14 @@
   <toc></toc>
   
   <chapter id="terminal">
-    <title>La guida utente dell'emulatore di terminale GNOME.</title>
+    <title>La guida utente dell'emulatore di terminale di Gnome.</title>
     
     <sect1 id="Description">
       <title>Descrizione</title>
       <para>
 	gnome-terminal è un programma emulatore di terminale che fa 
-	parte del progetto GNOME. Fornisce accesso alla shell Unix 
-	all'interno dell'ambiente di lavoro di GNOME.
+	parte del progetto Gnome. Fornisce accesso alla shell Unix 
+	all'interno dell'ambiente di lavoro di Gnome.
       </para>
       <para>
 	gnome-terminal supporta la visualizzazione a colori (vedere
@@ -49,14 +49,14 @@
       <title>Emulazione</title>
 
       <para>
-	Il programma termianel di GNOME (gnome-terminal) è progettato
+	Il programma termianel di Gnome (gnome-terminal) è progettato
 	per emulare il programma 'xterm' fornito dal X Consortium.
 	Questo è, d'altra parte, una completa emulazione del terminale
 	DEC VT102.
       </para>
             
       <para>
-	Il programma terminale di GNOME supporta le stesse estensioni
+	Il programma terminale di Gnome supporta le stesse estensioni
 	del VT102 fornite da xterm, attraverso particolari sequenze
 	di escape. Il programma xterm è un programma in continua
 	evoluzione. Cambiamenti recenti a xterm sono stati aggiunti
@@ -129,38 +129,43 @@
 		terminali.
 	      </para>
 	      <para>
-		If you have selected the custom option, then all 16
-		colours (nominally 8 colours, and 8 bright colours)
-		can be customised by clicking on the colour selectors.
+		Se avete selezionato l'opzione personalizzabile, allora
+		tutti e sedici i colori (nominalmente 8 colori, e 8
+		chiari) possono essere personalizzati selezionando
+		l'apposito selettore.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Primary colour combination</term>
+	    <term>Combinazione di colori primari</term>
 	    <listitem>
-	      <para>When no colours have been requested by the
-		application running inside of gnome-terminal,
-		gnome-terminal allows you to over-ride the default
-		terminal foreground and background
-		colours.</para>
+	      <para>
+		Quando nessun colore è richiesto dall'applicazione in
+		esecuzione all'interno del gnome-terminal,
+		questi vi permette di ignorare i colori standard per
+		il testo e per lo sfondo.
+	      </para>
 	      
-	      <para>The following options are available: white on black, black
-		on white, green on black, black on light yellow, and
-		custom.  How these actually appear depends on the
-		palette selected (for the white on black and black on
-		white options).
-		Custom allows you to select the default foreground and
-		background colours individually and separate to the palette.</para>
+	      <para>
+		Sono disponibili le seguenti opzioni: bianco su nero,
+		nero su bianco, verde su nero, nero su giallo chiaro, e
+		personalizzabile. Su come queste appaiono sullo schermo
+		dipende dalla tavolozza in uso (per il bianco su nero e
+		nero su bianco).
+		Personalizzabile vi permette di selezionare il colore 
+		default per il testo e lo sfondo individualmente e 
+		separatamente dalla tavolozza.
+	      </para>
 
-	      <para>Additionally, the user can drag a colour from the
-		rectangular box beneath the colour wheel from any GNOME
-		colour selector or colour source and drop it into the
-		terminal.  If the user drops the colour on a blank space, it
-		will set the background, if the user drops the colour on a
-		cell that contains a character, it will change the
-		foreground.  This will also automatically change to
-		custom colours, and set the custom foreground or
-		background colour.
+	      <para>
+		In aggiunta, l'utente può trascinare un colore dal rettangolo
+		a fianco della ruota dei colori e rilasciarlo all'interno del
+		terminale. Se l'utente trascina il colore su uno spazio
+		vuoto, questo verrà utilizzato per lo sfondo, mentre invece
+		se verrà rilasciato su testo questo diventerà il colore per 
+		il testo. Questo inoltre modificherà automaticamente 
+		i colori personalizzabili, e impostare il nuovo colore
+		per lo sfondo e per il testo.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -170,365 +175,384 @@
     </sect1>
     
     <sect1 id="classes">
-      <title>Terminal classes</title>
-      <para>The GNOME terminal allows you to have different configuration
-	profiles to suit different uses (different background colours, 
-        presence, absence or position of scrollbars, and so on).  To set
-        these up, you invoke the preferences dialogue box from the settings
-        menu of gnome-terminal. Select the options you prefer (these changes
-        will be made to your currently-open terminal, so you can see what
-        they look like), and before closing the preferences box, make sure 
-        you have put a new name in the space marked "Terminal Class". 
+      <title>Classi di terminali</title>
+      <para>
+	Il terminale di Gnome vi permette di gestire differenti
+	configurazioni per soddisfare particolari esigenze (sfondi
+	differenti, presenza, assenza o posizione delle barre di
+	scorrimento, e così via). Per impostare queste opzioni, visualizzate
+	la finestre di dialogo delle preferenze dal menu impostazione del
+	gnome-terminal. Selezionate le vostre opzioni preferite (queste
+	modifiche avranno luogo nel terminale che state utilizzando
+	correntemente, quindi avrete una idea di cosa state modificando),
+	e prima di chiudere la finestra di dialogo, assicuratevi
+	di aver inserito un nuovo nome nello spazio "Classe del terminale".
        </para>
       
-      <para>To activate a specific class at program startup you can use
-	the --tclass command line option
+      <para>
+	Per attivare una classe specifica all'avvio del programma
+	è possibile utilizzare l'opzione da riga di comando --tclass
       </para>
     </sect1>
     
     <sect1 id="Options">
-      <title>Command line options</title>
+      <title>Opzioni da riga di comando</title>
       <para>
 	<itemizedlist>
 	  <listitem>
-	    <para><symbol>--background COLOUR</symbol></para>
+	    <para><symbol>--background COLORE</symbol></para>
 	    
-	    <para>Used to specify the 
-	      background colour for the terminal at startup.  The COLOUR can be
-	      any form accepted by your windowing system.
+	    <para>
+	      Viene utilizzata per specificare il colore di sfondo del
+	      terminale al momento dell'avvio. COLORE può essere espresso
+	      in qualunque forma sia riconosciuta dal vostro sistema 
+	      a finestre.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
-	    <para><symbol>--tclass CLASSNAME</symbol></para>
+	    <para><symbol>--tclass NOMECLASSE</symbol></para>
 	    <para>
-	      Specifies the terminal class used to configure the
-	      terminal at startup.
+	      Specifica la classe di terminale da utilizzare per
+	      configurare il terminale al momento dell'avvio.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--command CMD, -e CMD</symbol></para>
 	    <para>
-	      Runs the CMD command at startup time.
+	      Esegue il comando CMD all'avvio.
 	    </para>
 	  </listitem>
 
 	  <listitem>
 	    <para><symbol>--execute CMD ARGS, -x CMD ARGS</symbol></para>
 	    <para>
-	      Executes the command CMD with its arguments ARGS on
-	      startup.  No arguments beyond this one will be processed
-	      by the terminal.  This behaviour mimics the xterm -e
-	      behaviour.
+	      Esegue il comando CMD passandogli gli argomenti ARGS
+	      all'avvio. Nessun argomento oltre questo verrà interpretato
+	      dal gnome-terminal. Questa opzione si ispira direttamente
+	      a xterm -e
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--font FONT</symbol></para>
 	    <para>
-	      Sets the font of the terminal to FONT
+	      Imposta il font del terminale uguale a FONT.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
-	    <para><symbol>--foreground COLOUR</symbol></para>
+	    <para><symbol>--foreground COLORE</symbol></para>
 	    <para>
-	      Sets the foreground of the terminal to COLOUR.
+	      Imposta il colore del testo del terminale uguale a
+	      COLORE.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
-	    <para><symbol>--geometry GEOMETRY</symbol></para>
+	    <para><symbol>--geometry GEOMETRIA</symbol></para>
 	    <para>
-	      Specifies the startup geometry for this terminal.   The
-	      geometry specifies the desired width and height in
-	      terminal characters.  For example: --geometry=80x40 will
-	      create an eighty-column by forty-line terminal.</para>
-	      <para>FIXME:  LInk to gnome-libs document on GEOMETRY specifications
-	      when it is written
+	      Specifica la dimensione (geometria) iniziale per questo
+	      terminale. La geometria specifica l'altezza e la larghezza
+	      desiderati espressi in numero di caratteri del terminale.
+	      Ad esempio: --geometry=80x40 creerà un terminal di ottanta
+	      colonne per quaranta righe.
 	    </para>
-	  </listitem>
+      	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--login</symbol></para>
 	    <para>
-	      Make gnome-terminal launch the shell in login mode (it will run
-	      all of your login initialization scripts in this mode). 
+	      gnome-terminal avvierà la shell in modalità login (tutti
+	      i vostri script di login verranno letti e avviati in questa
+	      modalità).
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--nologin</symbol></para>
 	    <para>
-	      Make gnome-terminal only launch a shell, without running any
-              login initialization scripts.
+	      gnome-terminal eseguirà una semplice shell, senza
+	      avviare nessun script di login o inizializzazione.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--noutmp</symbol></para>
 	    <para>
-	      Indicates that this and the associated shell should not be
-	      registered in the system database of users logged into the
-	      computer. 
+	      Indica che questa e le altre shell associate non devono
+	      essere registrate nel database di sistema degli utenti
+	      collegati al computer.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--utmp</symbol></para>
 	    <para>
-	      Indicates that the user wants this terminal to be
-	      registered in the system database of users logged into
-	      the computer (the utmp database).  This is the default.
+	      Indica che l'utente esplicitamente desidera che questo
+	      terminale deve essere registrato nel database di sistema
+	      degli utenti collegati al computer (il database utmp).
+	      Questa opzione viene utilizzata per default.
 	    </para>
 	  </listitem>
 
 	  <listitem>
 	    <para><symbol>--lastlog</symbol></para>
 	    <para>
-	      Always create a lastlog entry for each terminal login.
+	      Crea sempre una voce nel log 'last' per ciascun terminale.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--lastlog</symbol></para>
 	    <para>
-	      Do not create a lastlog entry for each terminal login.
+	      Non creare una voce nel log 'last' per ciascun terminale.
 	    </para>
 	  </listitem>
 	  	  
 	  <listitem>
-	    <para><symbol>--title TITLE, -t TITLE</symbol></para>
+	    <para><symbol>--title TITOLO, -t TITOLO</symbol></para>
 	    <para>
-	      Makes GNOME terminal use TITLE for the window caption.
+	      Permette di utilizzare TITOLO come titolo della finestra
+	      del terminale Gnome.
 	    </para>
 	  </listitem>
 
 	  <listitem>
 	    <para><symbol>--termname TERMNAME</symbol></para>
 	    <para>
-	      Makes GNOME terminal use TERMNAME as the value of the
-	      TERM environment variable.
+	      Utilizza TERMNAME come variabile di ambiente TERM all'interno
+	      del terminale Gnome.
 	    </para>
 	  </listitem>
 
 	  <listitem>
 	    <para><symbol>--start-factory-server</symbol></para>
 	    <para>
-	      Try to start the TerminalFactory service for this terminal.
+	      Tenta di avviare il servizio TerminalFactory per questo
+	      terminale.
 	    </para>
 	  </listitem>
 
 	  <listitem>
 	    <para><symbol>--use-factory</symbol></para>
 	    <para>
-	      Try to create a terminal window from the TerminalFactory
-	      service.
+	      Tenta di creare una finestra terminale dal servizio
+	      TerminalFactory.
 	    </para>
 	  </listitem>
 	</itemizedlist>		
       </para>
-      <para>You can use more than one option at once: for example, on
-            a machine with the text-based web browser Lynx installed,
-            'gnome-terminal --title Web --command lynx' will open a
-            gnome-terminal which starts up Lynx and has a titlebar 
-            which says "Web". 
+      <para>
+	È possibile utilizzare,più di una opzione alla volta. Ad esempio, 
+	su un sistema munito del browser web testuale Lynx, è possibile
+	eseguire 'gnome-terminal --title Web --command lynx', il quale
+	aprirà un gnome-terminal che avvia al suo interno Lynx e che abbia
+	come titolo della finestra la stringa "Web".
       </para>
 
     </sect1>
     
     <sect1 id="pointerusage">
-      <title>Pointer usage</title>
+      <title>Uso del puntatore</title>
       <para>
-	The pointer can be used to select (copy), and extend-select
-	text, paste text from other terminals or applications, and
-	bring up a menu.
+	Il puntatore può essere utilizzato per selezionare (copiare), ed
+	estendere la selezione del testo, incollarlo da altri terminali
+	o applicazioni, e visualizzare un menu.
       </para>
       <sect2 id="pointer-select">
-	<title>Selection</title>
+	<title>Selezione</title>
         <para>
-          The following assumes a standard three-button mouse that
-          has not been made left-handed via the control center. Left-handed 
-          mice will of course work, but with the right button instead of
-          the left one, and so on.
+	  La seguente descrizione assume la presenza di un mouse standard
+	  a tre pulsanti che non è stato reso mancino tramite il centro
+	  di controllo. Ovviamete i mouse mancini funzioneranno, ma i tasti
+	  saranno invertiti.
         </para>
 	<para>
-	  The left mouse button can be used to initiate a selection.
-	  If the mouse button is clicked once, and dragged, then
-	  characters are selected individually.  If you drag past the
-	  vertical boundaries of the window it will scroll to keep
-	  up.
+	  Il pulsante sinistro del mouse può essere utilizzato per
+	  iniziare una selezione. Se il pulsante del mouse viene cliccato
+	  una volta sola, e trascinato, i caratteri verranno selezionati 
+	  individualmente. Se trascinate oltre i limiti della finestra
+	  questa scorrerà assieme al movimento del cursore.
 	</para>
 	<para>
-	  If the left mouse button is double-clicked then the selection
-	  will be by word-characters.  Hold the mouse button down on
-	  the second click to drag the mouse and enlarge the
-	  selection.  The word-characters are defined
-	  in the <link linkend="config-general">preferences
-	  dialogue</link> under the word class option.
+	  Se il pulsante sinistro del mouse viene cliccato due volte
+	  di seguito allora la selezione sarà fatta in base alle parole. 
+	  Tenere premuto il pulsante del mouse sul secondo click per 
+	  trascinare e allargare la selezione. I caratteri-parola sono definiti
+	  nella <link linkend="config-general">finestra di dialogo</link>.
 	</para>
 	<para>
-	  Finally, if the left mouse button is triple-clicked and
-	  held, whole lines are selected as you drag the mouse up and
-	  down.
+	  Infine, se il pulsante sinistro del mouse viene cliccato tre
+	  volte di seguito e rilasciato, verranno selezionate intere linee
+	  di testo al trascinamento del cursore verso l'alto e/o il basso.
 	</para>
 	<para>
-	  The middle mouse button can be used to extend the
-	  selection.  Simply scroll to where you wish to extend the
-	  selection to, and click the right mouse button whilst the
-          mouse is still in the scrollbar.  Again, single, double and 
-          triple click-drags will result in by-character, by-word, or 
-          by-line selection.
+	  Il pulsante centrale del mouse può essere utilizzato per 
+	  estendere per estendere la selezione. Scorrete semplicemente
+	  al punto dove volete estenderla e cliccate il pulsante
+	  destro del mouse mentre il mouse si trova ancora sulla 
+	  barra di scorrimento. Nuovamente, click singoli, doppi e
+	  tripli avranno un risultato a carattere, a parole o a linea.
 	</para>
 	<para>
-	  For all cases, releasing the mouse button automatically
-	  copies the selected text into the clipboard, and may be
-	  pasted to other applications.  Note that any screen output
-	  will reset the rendered selection, but this does not lose
-	  the clipboard contents.
+	  In tutti i casi, rilasciare il pulsante del mouse copierà 
+	  automaticamente il testo selezionato all'interno del
+	  clipboard, e eventualmente copiato in altre applicazioni. 
+	  Notare che qualunque nuovo inserimento nella finestra di
+	  testo annullerà le selezione fatta, ma il contenuto del clipboard
+	  non verrà perso.
 	</para>
+      </sect2>
       <sect2 id="pointer-paste">
-	<title>Pasting text</title>
+	<title>Incollare il testox</title>
 	<para>
-	  If the middle mouse button is pressed, then the current
-	  selection is pasted into the window.  This can be used to
-	  transfer text from other applications.
+	  Se il pulsante centrale del mouse viene premuto, allora
+	  la selezione corrente viene incollata nella finestra. Questa
+	  funzionalità può essere sfruttata per trasferire del testo
+	  tra applicazioni.
 	</para>
 	<para>
-	  If you only have a two-button mouse, then your X server
-	  probably has a method of emulating the middle mouse button.
-	  Refer to your X server documentation for further
-	  information.
+	  Se avete un mouse con solo due pulsanti, allora il vostro
+	  server X può emulare il pulsante centrale. Fate riferimento
+	  alla documentazione del vostro server X per maggiori
+	  informazioni.
 	</para>
+      </sect2>
       <sect2 id="pointer-wheel">
-	<title>Mouse Wheels</title>
+	<title>Mouse con rotella</title>
 	<para>
-	  If you have a wheel'd mouse (which sends mouse button 4 and
-	  mouse button 5 events), then you can use the wheel to scroll
-	  up and down through the scrollback buffer.
+	  Se il vostro mouse possiede una rotella (che emula gli eventi
+	  del quarto e quinto pulsante del mouse), allora è possibile
+	  utilizzare questa per scorrere in alto e in basso il buffer
+	  di testo.
 	</para>
+      </sect2>
       <sect2 id="pointer-menu">
-	<title>Control Menu</title>
+	<title>Menu di controllo</title>
 	<para>
-	  The pointer can also be used to bring up a <link linkend="menu-popup">control-menu</link>,
-	  which can be used to reset the terminal, or bring back the
-	  main menu bar, if it has been hidden.
+	  Il puntatore può inoltre essere utilizzato per visualizzare un
+	  <link linkend="menu-popup">menu di controllo</link>,
+	  il quale può essere utilizzato per resettare il terminale,
+	  oppure mostrare la barra del menu, se questa è stata 
+	  precedentemente nascosta.
 	</para>
 	<para>
-	  While holding down the CTRL key, the right mouse button can
-	  be used to display this menu.
+	  Durante la pressione del tasto CTRL, il pulsante destro del
+	  mouse può essere utilizzato per mostrare questo menu.
 	</para>
+      </sect2>
       <sect2 id="url-highlight">
-        <title>Launching URL's</title>
+        <title>Aprire URL</title>
         <para>
-          Gnome terminal can be used to select URL's from the text
-          display, simply by moving the mouse over the URL text.  The
-          URL will be highlighted, by being redrawn with an underline,
-          and the mouse pointer will change to a pointing hand.
+	  Il terminale di Gnome può essere utilizzato per selezionare
+	  URL dal testo visualizzato, semplicemente spostando il mouse
+	  sopra il testo relativo. L'URL verrà allora evidenziato, 
+	  ridisegnato con una leggera sottolineatura e il cursore del mouse
+	  cambiarà forma.
         </para> 
         <para>
-          Invoking the <link linkend="menu-popup">control-menu</link>
-          while over a highlighted URL will add a new option to load
-          that url into a browser.
+          Chiamando il <link linkend="menu-popup">menu di controllo</link>
+          al di sopra di un URL evidenziato verrà aggiunta una nuova
+	  voce a questo per permettere l'apertura dell'URL in un browser.
 	</para>
 	<para>
-	  Pressing the left mouse button, while holding down the CTRL
-	  key is a shortcut to launch the url immediately.
+	  La pressione del tasto sinistro del mouse durante la pressione
+	  del tasto CTRL permette di aprire direttamente la URL senza
+	  passare dal menu.
         </para>
+      </sect2>
       <sect2 id="pointer-dnd">
 	<title>Drag and Drop</title>
 	<para>
-	  Drag and drop can be used for a number of operations within
-	  the terminal.
+	  Il drag and drop può essere utilizzato per una serie di
+	  operazioni all'interno del terminale.
 	</para>
 	<variablelist>
 	  <varlistentry>
-	    <term>Dragging files</term>
+	    <term>Trascinare file</term>
 	    <listitem>
-	      <para>If files are dragged into the terminal, then their
-		full filename is pasted into the window.  URL's can also
-		be dropped in this way.
+	      <para>
+		Se dei file vengono trascinati sul terminale, allora il
+		loro nome completo verrà incollato nella finestra.
+		Anche gli URL possono essere gestiti in questo modo.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Dragging colours</term>
+	    <term>Trascinare i colori</term>
 	    <listitem>
 	      <para>
-		A colour can be dragged from another gnome
-		application, or from the
-		<link linkend="menu-settings">colour selector</link> into the
-		display.  If they land on a character, it sets the
-		foreground colour, otherwise it sets the background
-		colour.  Refer to the
-		<link linkend="config-colour">colour configuration</link> section.
+		Un colore può essere trascinata da un'altra applicazione gnome,
+		oppure dal <link linkend="menu-settings">selettore di colori
+		</link> all'interno dello schermo. Se questi vengono trascinati
+		su di un carattere, allora il testo assumerà questo nuovo
+		colore, altrimenti sarà lo sfondo ad assumere la nuova
+		colorazione. Fate riferimento alla sezione
+		<link linkend="config-colour">configurazione dei colori</link>
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	</variablelist>
       </sect2>
-   </sect1>
+    </sect1>
     
     <sect1 id="menus">
-      <title>Menus</title>
+      <title>Menu</title>
       <para>
-	Gnome-terminal provides a number of control features via the
-	main menu, and a pop-up menu available by pressing the right
-	mouse button while holding the CTRL key. (It is sometimes not
-        necessary to hold down the CTRL key to get the pop-up menu, but 
-        do not assume this is always so.)
+	Il terminale di Gnome fornisce una serie di controlli
+	attraverso la barra del menu e il menu a tendina.
       </para>
       <sect2 id="menu-file">
-	<title>File menu</title>
+	<title>Menu File</title>
 	<variablelist>
 	  <varlistentry>
-	    <term>New terminal</term>
+	    <term>Nuovo terminale</term>
 	    <listitem>
 	      <para>
-		Create a new terminal.  This is an efficient way to
-		create multiple terminals, as they are all processed
-		by the same program and PID.  Each starts its own sub-shell
-		process however.
+		Crea un nuovo terminale. Questo è un modo molto efficiente
+		per creare terminali multipli, visto che vengono identificati
+		nello stesso processo e PID. D'altra parte, ciascun terminale
+		avvia un nuovo processo per la shell.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Hide menubar</term>
+	    <term>Nascondi barra del menu</term>
 	    <listitem>
 	      <para>
-		Hides the main menu bar on the terminal, creating a
-		neater, smaller terminal.  The menu bar can be
-		retrieved using the control menu, which can be
-		displayed by holding down the CTRL key, and pressing
-		the right mouse button.
+		Nasconde la barra principale del menu nel terminale,
+		rendendolo più piccolo. La barra del menu può essere
+		nuovamente visualizzata utilizzato il menu di controllo,
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Close terminal</term>
+	    <term>Chiudi il terminal</term>
 	    <listitem>
 	      <para>
-		Closes the current terminal. It also closes any other 
-                terminals opened via the command line in that terminal.
-                If this is the last terminal to be closed, then the 
-                gnome-terminal program exits. 
+		Chiude il terminale corrente. Chiude inoltre qualunque
+		altro terminale aperto attraverso la linea di comando
+		di quel terminale.
+		Se questo è l'ultimo terminale presente, allora il programma
+		terminerà.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	</variablelist>
       </sect2>
-
+      
       <sect2 id="menu-edit">
-	<title>Edit menu</title>
+	<title>Menu Modifica</title>
 	<variablelist>
 	  <varlistentry>
-	    <term>Paste</term>
+	    <term>Incolla</term>
 	    <listitem>
 	      <para>
-		Pastes the current selection or clipboard into the
-		terminal.  This can also be achieved using the middle
-		mouse button.
+		Incolla la selezione corrente o il clipboard nel 
+		terminale. Operazione eseguibile anche attraverso
+		la pressione del tasto centrale del mouse.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -536,69 +560,70 @@
       </sect2>
 
       <sect2 id="menu-settings">
-	<title>Settings menu</title>
+	<title>Menu Opzioni</title>
 	<variablelist>
 	  <varlistentry>
-	    <term>Preferences ...</term>
+	    <term>Preferenze ...</term>
 	    <listitem>
 	      <para>
-		Displays the preferences dialogue.  The settings
-		which can be controlled from this dialogue are
-		described in the <link linkend="config">config
-		section</link>.
+		Mostra la finestra di dialogo per le preferenze. Le
+		impostazioni che possono essere controllate da questa
+		finestra sono descritte nella sezione 
+		<link linkend="config">configurazione</link>.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Reset Terminal</term>
+	    <term>Ripristina il terminale</term>
 	    <listitem>
 	      <para>
-		Resets the terminal parameters.  This will not clear
-		the screen or move the cursor, but any subsequent
-		terminal output will be reset to the default font and
-		attributes.
+		Ripristina i parametri del terminale. Queste non cancellerà
+		lo schermo o sposterà l cursore, ma ogni terminale aperto
+		successivamente sarà resettato con i font e attributi di
+		default.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Reset and Clear</term>
+	    <term>Ripristina e cancella</term>
 	    <listitem>
 	      <para>
-		Resets the terminal parameters, also clearing the
-		screen.  All character fonts and attributes are reset.
+		Ripristina i parametri del terminale, cancellando
+		inoltre il contenuto dello schermo. Tutti i caratteri
+		e attributi vengono annullati.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Colour selector ...</term>
+	    <term>Selettori colori...</term>
 	    <listitem>
 	      <para>
-		Can be used to drag-and-drop colours into the
-		terminal.  Refer to the <link
-		linkend="config-colour">colour selector</link> description.
+		Può essere utilizzato per trascinare i colori nel terminale.
+		Fate riferimento alla descrizione del
+		<link linkend="config-colour">selettore dei colori</link>.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	</variablelist>
       </sect2>
-
+      
       <sect2 id="menu-help">
-	<title>Help menu</title>
+	<title>Menu Aiuto</title>
 	<variablelist>
 	  <varlistentry>
 	    <term>GNOME terminal users guide ...</term>
 	    <listitem>
 	      <para>
-		How to get to this document from within gnome-terminal.
+		Come leggere questo documento attraverso il gnome-terminal.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>About ...</term>
+	    <term>Informazioni su...</term>
 	    <listitem>
 	      <para>
-		A little bit of kudos for all of the very hard working
-		guys who made it all possible.
+		Una piccola lista delle persone che hanno lavorato 
+		duramente per rendere tutto questo possibile.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -606,72 +631,68 @@
       </sect2>
 
       <sect2 id="menu-popup">
-	<title>Pop-up menu</title>
+	<title>Menu a tendina</title>
 	<para>
-	  The pop-up control menu can be shown by pressing the right
-	  mouse button with the CTRL key depressed.  It is provided as
-	  a simple short-cut to the main menu, or for when the main
-	  menu is hidden.  The following items are available:
+	  Il menu a tendina di controllo può essere visualizzato
+	  premendo il tasto destro del mouse durante la pressione del
+	  tasto CTRL. Fornisce una sorta di abbreviazione al menu 
+	  principale, o da usare quando questo non è visualizzato.
+	  Sono presenti le seguenti voci:
 	</para>
 	<variablelist>
 	  <varlistentry>
-	    <term>New terminal ...</term>
+	    <term>Nuovo terminale...</term>
 	    <listitem>
 	      <para>
-		Creates a new terminal window.
+		Crea una nuova finestra di terminale.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Preferences ...</term>
+	    <term>Preferenze...</term>
 	    <listitem>
 	      <para>
-		Displays the preferences dialogue.
+		Mostra la finestra di dialogo per le preferenze.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Hide/Show menubar</term>
+	    <term>Mostra la barra del menu</term>
 	    <listitem>
 	      <para>
-		Either hide or show the main menu bar, depending on
-		its current state.
+		Nasconda/visualizza la barra principale del menu.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Reset terminal</term>
+	    <term>Reset terminale</term>
 	    <listitem>
 	      <para>
-		Resets the terminal attributes without clearing the
-		screen.
+		Ripristina gli attributi del terminale senza cancellare
+		il contenuto dello schermo.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Reset and Clear</term>
+	    <term>Riprista e cancella</term>
 	    <listitem>
 	      <para>
-		Resets the terminal attributes and clears the
-		screen.
+		Ripristina gli attributi del terminale e 
+		cancella il contenuto dello schermo.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Open in browser</term>
+	    <term>Apri nel browser</term>
 	    <listitem>
 	      <para>
-	        If the mouse pointer was over a URL when the popup
-		menu is invoked, then this option is available to
-		launch a browser to view the URL.  Using
-		CTRL-left mouse button is a shortcut for this menu item.
+		Se il puntatore del mouse si trova sopra un URL
+		quando il menu a tendina viene visualizzato, allora
+		questa opzione sarà disponibile per aprire il browser
+		all'URL selezionato. Utilizzando il tasto CTRL assieme
+		al pulsante sinistro del mouse si ottiene il medesimo
+		effetto.
 	      </para>
-
-
-
-
-
-
 	    </listitem>
 	  </varlistentry>
 	</variablelist>
@@ -680,22 +701,22 @@
     </sect1>
     
     <sect1 id="environment">
-      <title>Environment</title>
+      <title>Ambiente</title>
       <para>
-	The following variables are set by gnome-terminal: 
+	Le seguenti variabili sono impostate dal gnome-terminal:
 	<itemizedlist>
 	  <listitem>
 	    <para><symbol>TERM</symbol></para>
-
 	    <para>
-	      This variable is set to "xterm" by default.  Some curses
-	      implementations and applications based on curses might want
-	      the value to be xterm-color, color-xterm or xterm-debian to
-	      support colour.  You might need to change this setting if
-	      your application does not display in colour to one of those
-	      values.  This can now be set via the
-	      --termname <link linkend="Options">command
-	      line option</link>.
+	      Questa variabile viene impostata uguale a "xterm" per
+	      default. Alcune implementazioni di curses e applicazioni
+	      basate su queste possono richiedere un valore uguale a 
+	      "xterm-color", "color-xterm" oppure "xterm-debian" per
+	      sfruttare il supporto dei colori. Potreste aver bisogno
+	      di modificare questo valore se la vostra applicazione
+	      non visualizza correttamente i colori. Può essere impostata
+	      anche attraverso l'opzione --termname alla <link
+	      linkend="Options">linea di comando</link>.
 	    </para>
 	  </listitem>
 
@@ -703,10 +724,11 @@
 	    <para><symbol>COLORTERM</symbol></para>
 
 	    <para>
-	      This variable is set to "gnome-terminal".
-	      Various applications (especially the
-	      Slang-based applications) use this setting to determine 
-	      whether the terminal supports colour.
+	      Questa variabile è impostata da gnome-terminal.
+	      Svariate applicazioni (specialmente le applicazioni
+	      basate su Slang) utilizzano questa opzione per
+	      determinare se il terminal fornisce o meno un supporto
+	      per i colori.
 	    </para>
 	  </listitem>
 
@@ -714,9 +736,10 @@
 	    <para><symbol>WINDOWID</symbol></para>
 
 	    <para>
-	      This variable contains the X11 Window identifier.
-	      This is used sometimes by applications to modify the
-	      contents of this window or provide special effects.
+	      Questa variabile contiene l'identificativo della finestra
+	      di X11. Questa viene talvolta utilizzata dalle applicazioni
+	      per modificare il contenuto di questa finestra oppure
+	      per creare particolari effetti grafici.
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -724,31 +747,32 @@
     </sect1>
     
     <sect1 id="Authors">
-      <title>Authors</title>
+      <title>Autori</title>
 
       <para>
-	A large number of people work together to bring you the
-	gnome-terminal:</para>
+	Un gran numero di persone hanno lavorato assieme per
+	creare il gnome-terminal:</para>
 
       <para>
-	Michael Zucchi coded the Zvt widget engine; Miguel de Icaza
-	and Jay Painter improved it and did further debugging and
-	maintenance.   George Lebl added transparency and backing
-	pixmap support to the widget.  Michael Zucchi later
-	significantly improved the transparency and pixmap support,
-	adding smoother/faster display and an optional scrolling mode.
-	</para>
+	Michael Zucchi ha scritto il motore del widget Zvt. Miguel
+	de Icaza e Jay Painter l'hanno migliorato ed eseguito
+	un lungo debug e una attiva manutenzione. George Lebl ha aggiunto
+	la trasparenza e il supporto per le immagini di sfondo al widget.
+	Micheal Zucchi ha successivamente migliorato le trasparenza e
+	il supporto delle immagini, aggiungendo le sfumature e incrementando
+	notevolmente le velocità di scorrimento e visualizzazione.
+      </para>
 
       <para>
-	Miguel did the main gnome terminal program, and Erik Troan
-	provided the terminal class support along with various other
-	features.  Jeff Garzik, Jay, Christopher Blizzard, Michael,
-	Jens Lautenbacher, Tom Tromey, Tristan Tarrant, Jonathan
-	Blandford and Michael Zucchi provided extra bug fixes and
-	minor enhancements.  Nat Friedman review the user interface to
-	conform to the GNOME guidelines.  Felix Bellaby, Tom Tromey
-	and Manish Vachharajani implemented and improved the session
-	management code.
+	Miguel ha scritto il programma del terminale gnome, Erik Troan
+	ha fornito il supporto per le classi del terminale assieme
+	ad altre particolarità. Jeff Garzik, Jay, Christopher Blizzard, 
+	Michael, Jens Lautenbacher, Tom Tromey, Tristan Tarrant, Jonathan
+	Blandford e Michael Zucchi hanno fornito ulteriori miglioramenti
+	e correzioni. Nat Friedman ha riveduto l'interfaccia utente per
+	renderla conforme allo stile di Gnome. Felix Bellaby, Tom Tromey
+	e Manish Vachharajani hanno implementato e migliorato il codice
+	per la gestione di sessione.
       </para>
     </sect1>
     
@@ -770,3 +794,9 @@ sgml-local-catalogs:nil
 sgml-local-ecat-files:nil
 End:
 -->
+
+
+
+
+
+
