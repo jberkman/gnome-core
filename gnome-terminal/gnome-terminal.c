@@ -320,12 +320,11 @@ set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg)
 }
 
 static struct terminal_config * 
-load_config (char *class)
+load_config (char *class, gchar *prefix)
 {
 	char *p;
 	char *fore_color = NULL;
 	char *back_color = NULL;
- 	char *prefix = alloca (strlen (class) + 20);
 	struct terminal_config *cfg = g_malloc (sizeof (*cfg));
 
 	/* It's very odd that these are here */
@@ -333,7 +332,6 @@ load_config (char *class)
 	cfg->invoke_as_login_shell = 0;
 	cfg->class = g_strdup (class);
 
-	sprintf (prefix, "/Terminal/%s/", class);
 	gnome_config_push_prefix (prefix);
 
 	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
@@ -527,7 +525,9 @@ switch_terminal_cb (GnomeMessageBox *mbox, gint button, void *term)
 
 	if (button == 0){
 		/* yes */
-		loaded_cfg = load_config (newcfg->class);
+         	char *prefix = alloca (strlen (newcfg->class) + 20);
+	        sprintf (prefix, "/Terminal/%s/", newcfg->class);
+		loaded_cfg = load_config (newcfg->class,prefix);
 		apply_changes (term, loaded_cfg);
 		terminal_config_free (loaded_cfg);
 	} else if (button == 1){
@@ -1073,12 +1073,8 @@ get_color_string (GdkColor c)
 }
 
 static void
-save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg)
+save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg, gchar *prefix)
 {
- 	char *prefix = alloca (strlen (cfg->class) + 20);
-
-	printf("cfg->class = %s\n",cfg->class);
-	sprintf (prefix, "/Terminal/%s/", cfg->class);
 	gnome_config_push_prefix (prefix);
 
 	if (cfg->font)
@@ -1111,8 +1107,10 @@ static void
 save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
+ 	char *prefix = alloca (strlen (cfg->class) + 20);
 
-	save_preferences (widget, term, cfg);
+	sprintf (prefix, "/Terminal/%s/", cfg->class);
+	save_preferences (widget, term, cfg, prefix);
 }
 
 static void
@@ -1142,12 +1140,12 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 #define DEFINE_TERMINAL_MENU(name,text,cmd) \
 \
 static GnomeUIInfo name [] = {								\
-	GNOMEUIINFO_ITEM_NONE (N_("_New terminal"),      NULL, new_terminal),		\
-	GNOMEUIINFO_ITEM_NONE (N_("_Save preferences"),  NULL, save_preferences_cmd),	\
-	GNOMEUIINFO_SEPARATOR,								\
-	GNOMEUIINFO_ITEM_NONE (text,                     NULL, cmd),			\
-	GNOMEUIINFO_ITEM_STOCK (N_("_Properties..."),    NULL, preferences_cmd, GNOME_STOCK_MENU_PROP), \
-	/* GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd), */	      	\
+	GNOMEUIINFO_ITEM_NONE (N_("_New terminal"), NULL, new_terminal),\
+	GNOMEUIINFO_ITEM_NONE (N_("_Save properties as Defaults"), NULL, save_preferences_cmd),	\
+	GNOMEUIINFO_SEPARATOR,\
+	GNOMEUIINFO_ITEM_NONE (text, NULL, cmd),\
+	GNOMEUIINFO_ITEM_STOCK (N_("_Properties..."), NULL, preferences_cmd, GNOME_STOCK_MENU_PROP), \
+	/* GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd), */\
 	GNOMEUIINFO_SEPARATOR, \
 	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd), 	\
 	GNOMEUIINFO_END \
@@ -1436,6 +1434,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
+	gtk_object_set_data(GTK_OBJECT(app), "term", term);
 	gtk_widget_show (GTK_WIDGET (term));
 	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
 				  GTK_SIGNAL_FUNC(term_change_pos),
@@ -1594,20 +1593,27 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		i = 0;
 		for (list = terminals; list != NULL; list = list->next){
 			
-			/* FIXME: we really ought to be able to set
-			 * the font and other information on a
-			 * per-terminal basis.  But that means a lot
-			 * of rewriting of this whole file, which I
-			 * don't feel like doing right now.  Global
-			 * variables are evil.
-			 */
-			char buffer [50], *geom;
+		        char buffer [50], *geom;
+			char *prefix;
+			struct terminal_config *cfg;			
+			ZvtTerm *term;
+
 			GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (list->data));
 
 			sprintf (buffer, "%d/geometry", i);
 			geom = gnome_geometry_string (top->window);
 			gnome_config_set_string (buffer, geom);
 			g_free (geom);
+
+			sprintf (buffer, "%d/", i);
+			prefix = alloca(strlen(section) + strlen(buffer) + 1);
+			strcpy(prefix,section);
+			strcat(prefix,buffer);
+			term=ZVT_TERM(gtk_object_get_data(GTK_OBJECT(list->data), "term"));
+			cfg=gtk_object_get_data (GTK_OBJECT (term), "config");
+
+			printf("Saving preferences for terminal %d, with prefix %s\n",i,prefix);
+			save_preferences(list->data,term,cfg,prefix);
 
 			if (top == initial_term){
 				int n;
@@ -1817,8 +1823,13 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	gtk_signal_connect (GTK_OBJECT (client), "die",
 			    GTK_SIGNAL_FUNC (die), NULL);
 
-	default_config = load_config (class);
-	g_free (class);
+	{
+	  char *prefix = g_malloc (strlen (class) + 20);
+	  sprintf (prefix, "/Terminal/%s/", class);
+	  default_config = load_config (class,prefix);
+	  g_free (class);
+	  g_free (prefix);
+	}
 
 	/* now to override the defaults */
 	if (cmdline_config->font){
