@@ -1,3 +1,9 @@
+1998-03-08  Marc Ewing  <marc@tasmanian.redhat.com>
+
+	* Fix bug in relative URL parsing.
+
+	* Image callbacks now use docObj and transport().
+	
 Sun Mar  8 18:44:55 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* sample.c (main): Use new gnome_init.

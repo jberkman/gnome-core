@@ -248,6 +248,10 @@ PUBLIC char * HTParse (const char *aName, const char *relatedName, int wanted)
 #endif
 	    }
 	} else if(given.relative) {
+	    p = result + strlen(result);
+	    if (*p != '/') {
+		strcat(result, "/");
+	    }
 	    strcat(result, given.relative);		/* what we've got */
 	} else if(related.relative) {
 	    strcat(result, related.relative);

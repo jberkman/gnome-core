@@ -1,11 +1,8 @@
- - http
-   names
+ - cache needs to cache mime type as well
+
+ - names
    disk cache
    config panel
-   data lengths in docobj
-   image loading through docobj mechanism
-
- - get rid of bad function type casts
 
  - add configuration stuff:
     filters, paths, etc

@@ -19,6 +19,7 @@
 #include "history.h"
 #include "bookmarks.h"
 #include "toc2.h"
+#include "transport.h"
 #include "docobj.h"
 #include "queue.h"
 #include "visit.h"
@@ -30,6 +31,8 @@
 #include "left_arrow.xpm"
 #include "contents.xpm"
 #include "help.xpm"
+
+#define IMAGE_TEMPFILE "/tmp/gnome-help-browser.tmpfile"
 
 struct _helpWindow {
     /* Main app widget */
@@ -600,6 +603,9 @@ helpWindowShowURL(HelpWindow win, gchar *ref)
 	}
 	update_toolbar(win);
 	setCurrent(win);
+
+	/* XXX This should work, but it doesn't */
+	/* printf("TITLE: %s\n", XmHTMLGetTitle(win->helpWidget)); */
 }
 
 /**********************************************************************/
@@ -610,61 +616,36 @@ XmImageInfo *
 load_image(GtkWidget *html_widget, gchar *ref)
 {
         HelpWindow win;
-	gchar *tmpfile;
-	gchar *argv[4];
-
-	guchar *buf=NULL;
-	gint   buflen;
-	gint   fd;
-	gint   cached = 0;
-
-	DecomposedUrl du;
-	
-	gchar  theref[1024];
-	gchar  *p;
+	docObj obj;
+	guchar *buf;
+	gint buflen;
+	gint fd;
 
 	win = gtk_object_get_data(GTK_OBJECT(html_widget), "HelpWindow");
-	du = decomposeUrlRelative(ref, win->currentRef, &p);
-	g_message("%s + %s = %s", ref, win->currentRef, p);
-	freeDecomposedUrl(du);
-	strcpy(theref, p);
-	g_message("loading image: %s", theref);
 
-	if (strstr(theref, "file:")) {
-		return XmHTMLImageDefaultProc(html_widget, theref+5, NULL, 0);
-	} else {
-		tmpfile = "/tmp/gnome-help-browser.tmpfile";
-		
-		if (win->cache) {
-		    buf = lookupInDataCacheWithLen(win->cache, theref,
-						   &buflen);
-		}
-
-		if (buf) {
-		    g_message("cache hit: %s", theref);
-		    cached = 1;
-		} else {
-		    argv[0] = "lynx";
-		    argv[1] = "-source";
-		    argv[2] = theref;
-		    argv[3] = NULL;
-		
-		    getOutputFrom(argv, NULL, 0, &buf, &buflen);
-		}
-		
-		fd = open(tmpfile, O_WRONLY | O_CREAT, 0666);
-		if (fd >= 0) {
-		    write(fd, buf, buflen);
-		    close(fd);
-		}
-		
-		if (win->cache && !cached) {
-		    addToDataCache(win->cache, theref, buf, buflen);
-		}
-
-		return XmHTMLImageDefaultProc(html_widget, 
-					      tmpfile, NULL, 0);
+	obj = docObjNew(ref);
+	docObjResolveURL(obj, helpWindowCurrentRef(win));
+	if (strstr(docObjGetAbsoluteRef(obj), "file:")) {
+	    docObjFree(obj);
+	    return XmHTMLImageDefaultProc(html_widget,
+					  docObjGetAbsoluteRef(obj) + 5,
+					  NULL, 0);
 	}
+	if (transport(obj, helpWindowGetCache(win))) {
+	    docObjFree(obj);
+	    return NULL;
+	}
+	
+	fd = open(IMAGE_TEMPFILE, O_WRONLY | O_CREAT, 0666);
+	if (fd >= 0) {
+	    docObjGetRawData(obj, &buf, &buflen);
+	    write(fd, buf, buflen);
+	    close(fd);
+	}
+		
+	docObjFree(obj);
+	return XmHTMLImageDefaultProc(html_widget, IMAGE_TEMPFILE,
+				      NULL, 0);
 		
 	return NULL;
 }

@@ -134,6 +134,7 @@ transportHTTP( docObj obj )
     gchar *outbuf;
     gchar *copy;
     gchar *s;
+    gchar *mimeType, *mimeTypeEnd;
     int bytes;
     int outbuflen;
     gint copylen;
@@ -167,8 +168,6 @@ transportHTTP( docObj obj )
     sprintf(buf, "GET %s HTTP/1.0\n\n", docObjGetDecomposedUrl(obj)->path);
     write(sock, buf, strlen(buf));
 
-    /* XXX should set mime type here */
-    
     /* This is not efficient */
     outbuf = NULL;
     outbuflen = 0;
@@ -179,7 +178,27 @@ transportHTTP( docObj obj )
     }
     close(sock);
 
-    s = strstr(outbuf, "\n\n") + 2;
+    if ((s = strstr(outbuf, "\n\n"))) {
+	*s = '\0';
+	s += 2;
+    } else {
+	s = strstr(outbuf, "\r\n\r\n");
+	*s = '\0';
+	s += 4;
+    }
+
+    /* Mime type */
+    mimeType = strstr(outbuf, "Content-Type:");
+    if (mimeType) {
+	mimeType += 14;
+	mimeTypeEnd = mimeType;
+	while (! isspace(*mimeTypeEnd)) {
+	    mimeTypeEnd++;
+	}
+	*mimeTypeEnd = '\0';
+	docObjSetMimeType(obj, mimeType);
+    }
+    
     copylen = outbuflen - (s - outbuf);
     copy = g_malloc(copylen);
     memcpy(copy, s, copylen);
