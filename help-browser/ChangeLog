@@ -1,3 +1,8 @@
+1998-03-13  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* Makefile.am (gnome_help_browser_LDADD): Use $(RES_LIBS) found in
+	configure.in. 
+
 1998-03-12  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* Clean up toolbar a bit.

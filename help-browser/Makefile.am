@@ -31,7 +31,7 @@ gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 			     visit.c visit.h magic.c magic.h \
 			     bookmarks.c bookmarks.h
 
-gnome_help_browser_LDADD = $(LDADD) $(GTKXMHTML_LIBS)
+gnome_help_browser_LDADD = $(LDADD) $(RES_LIBS) $(GTKXMHTML_LIBS)
 
 CFLAGS += -Wall
 
