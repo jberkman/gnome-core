@@ -344,6 +344,9 @@ static void save_dialog_cb( gint button, gpointer data)
 				save_order_of_dir(node);
 				}
 			}
+
+		edit_area_reset_revert(d);
+
 		update_tree_highlight(menu_tree_ctree, current_node, node, FALSE);
 		current_node = node;
 		g_free(path);

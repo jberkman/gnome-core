@@ -32,7 +32,29 @@ static void button_revert_enable(gboolean enabled)
 
 static void edit_area_set_editable(gboolean enabled)
 {
-	gtk_entry_set_editable(GTK_ENTRY(filename_entry), enabled);
+	gtk_widget_set_sensitive(filename_entry, enabled);
+	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->exec_entry, enabled);
+	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->tryexec_entry, enabled);
+	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->doc_entry, enabled);
+	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->type_combo, enabled);
+	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->terminal_button, enabled);
+}
+
+void edit_area_reset_revert(Desktop_Data *d)
+{
+	if (d)
+		{
+		if (revert_dentry) gnome_desktop_entry_destroy(revert_dentry);
+		revert_dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
+		edit_area_orig_data = d;
+		}
+	else
+		{
+		if (revert_dentry) gnome_desktop_entry_destroy(revert_dentry);
+		revert_dentry = NULL;
+		edit_area_orig_data = NULL;
+		}
+	button_revert_enable(FALSE);
 }
 
 gchar * edit_area_get_filename()
@@ -75,7 +97,7 @@ void update_edit_area(Desktop_Data *d)
 		edit_area_set_editable(TRUE);
 		}
 
-	button_save_enable(FALSE);
+	button_save_enable(TRUE);
 	button_revert_enable(FALSE);
 
 	if (revert_dentry) gnome_desktop_entry_destroy(revert_dentry);
@@ -92,7 +114,6 @@ void revert_edit_area()
 		gtk_entry_set_text(GTK_ENTRY(filename_entry),
 			edit_area_orig_data->path + g_filename_index (edit_area_orig_data->path));
 
-	button_save_enable(FALSE);
 	button_revert_enable(FALSE);
 }
 

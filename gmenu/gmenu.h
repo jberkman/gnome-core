@@ -80,6 +80,7 @@ void add_main_tree_node();
 
 /* edit.c ---------------- */
 
+void edit_area_reset_revert(Desktop_Data *d);
 gchar * edit_area_get_filename();
 void update_edit_area(Desktop_Data *d);
 void revert_edit_area();

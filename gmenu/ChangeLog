@@ -1,3 +1,10 @@
+Tue Jul 21 00:39:15 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.h, edit.c, dialogs.c: fixed bug that caused a segfault or
+	duplicate directory tree cration when an entry is saved multiple
+	times successively. Desktop entry items that do not apply when editing
+	a directory's properties are greyed out.
+
 Mon Jul 20 22:50:21 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch], edit.c, order.c, tree.c, dialogs.c: added ability to
