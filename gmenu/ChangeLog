@@ -1,3 +1,7 @@
+Sun Jul 19 03:20:21 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c: used N_ instead of _ for internationalization.
+
 Sun Jul 19 02:25:24 1998  John Ellis  <johne@bellatlantic.net>
 
 	* Makefile.am: removed old reference icon-sel.[ch]

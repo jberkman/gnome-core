@@ -39,13 +39,13 @@ static void destroy_cb();
 int main (int argc, char *argv[]);
 
 GnomeUIInfo file_menu[] = {
-	{ GNOME_APP_UI_ITEM, _("New Folder..."), NULL, create_folder_pressed, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("New Folder..."), NULL, create_folder_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW, 'F',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, _("Delete..."), NULL, delete_pressed_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("Delete..."), NULL, delete_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CUT, 'D',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, _("Quit"), NULL, destroy_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("Quit"), NULL, destroy_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT, 'Q',
 	  GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
@@ -53,15 +53,15 @@ GnomeUIInfo file_menu[] = {
 GnomeUIInfo help_menu[] = {
 	{ GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	{ GNOME_APP_UI_ITEM, _("About..."), NULL, about_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("About..."), NULL, about_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0,
 	  NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 GnomeUIInfo main_menu[] = {
-	{ GNOME_APP_UI_SUBTREE, _("File"), NULL, file_menu, NULL, NULL,
+	{ GNOME_APP_UI_SUBTREE, N_("File"), NULL, file_menu, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
-	{ GNOME_APP_UI_SUBTREE, _("Help"), NULL, help_menu, NULL, NULL,
+	{ GNOME_APP_UI_SUBTREE, N_("Help"), NULL, help_menu, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
