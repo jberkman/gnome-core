@@ -17,5 +17,5 @@ sound_properties_LDADD = ../../control-center/libcapplet.la \
 EXTRA_DIST = \
 	sound-properties.desktop
 
-sysdir = $(datadir)/control-center/Inputdevs
+sysdir = $(datadir)/control-center/Multimedia
 sys_DATA = sound-properties.desktop
