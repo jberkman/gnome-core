@@ -23,7 +23,7 @@
 	<surname>Zucchi</surname>
       </author>
     </authorgroup>
-    <legalnotice>
+    <legalnotice id="legalnotice">
       <para>
         Permission is granted to make and distribute verbatim copies of this
         manual provided the copyright notice and this permission notice are
