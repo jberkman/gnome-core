@@ -56,6 +56,7 @@ static gulong XA_WM_DELETE_WINDOW = 0;
 static gulong XA_WM_TAKE_FOCUS = 0;
 static gulong XA_ENLIGHTENMENT_DESKTOP = 0;
 static gulong XA_KWM_WIN_ICON = 0;
+static gulong XA_COMPOUND_TEXT = 0;
 
 static const struct {
   gulong      *atom;
@@ -83,6 +84,7 @@ static const struct {
   { &XA_WM_TAKE_FOCUS,			"WM_TAKE_FOCUS", },
   { &XA_ENLIGHTENMENT_DESKTOP,		"ENLIGHTENMENT_DESKTOP", },
   { &XA_KWM_WIN_ICON,                   "KWM_WIN_ICON", },
+  { &XA_COMPOUND_TEXT,                  "COMPOUND_TEXT", },
 };
 
 
@@ -417,10 +419,28 @@ get_typed_property_data (Display *xdisplay,
 	}
       if (!data && *size_p)
 	{
-	  guint8 *mem = g_malloc (*size_p + 1);
+	  guint8 *mem = NULL;
 
-	  memcpy (mem, prop_data, *size_p);
-	  mem[*size_p] = 0;
+	  if (format_returned == 8 && type_returned == XA_COMPOUND_TEXT)
+	    {
+	      gchar **tlist = NULL;
+	      gint count = gdk_text_property_to_text_list (type_returned, 8, prop_data,
+							   nitems_return, &tlist);
+
+	      if (count && tlist && tlist[0])
+		{
+		  mem = g_strdup (tlist[0]);
+		  *size_p = strlen (mem);
+		}
+	      if (tlist)
+		gdk_free_text_list (tlist);
+	    }
+	  if (!mem)
+	    {
+	      mem = g_malloc (*size_p + 1);
+	      memcpy (mem, prop_data, *size_p);
+	      mem[*size_p] = 0;
+	    }
 	  data = mem;
 	}
     }
@@ -1134,6 +1154,11 @@ gwmh_task_update (GwmhTask        *task,
 				      XA_WM_NAME,
 				      XA_STRING,
 				      &size, 8);
+      if (!name && !size)
+	name = get_typed_property_data (xdisplay, xwindow,
+					XA_WM_NAME,
+					XA_COMPOUND_TEXT,
+					&size, 8);
       if (!gwmh_string_equals (task->name, name))
 	{
 	  g_free (task->name);
@@ -2069,8 +2094,8 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
   Display *xdisplay;
 
   g_return_if_fail (task != NULL);
-  g_return_if_fail (pixmap);
-  g_return_if_fail (mask);
+  g_return_if_fail (pixmap != NULL);
+  g_return_if_fail (mask != NULL);
 
   xdisplay = GDK_WINDOW_XDISPLAY (task->gdkwindow);
 
@@ -2080,19 +2105,16 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
 				      XA_KWM_WIN_ICON,
 				      &size,
 				      32);
+  if (!atomdata || !atomdata[0] || !size)
+    {
+      *pixmap = NULL;
+      *mask = NULL;
 
-  if (!atomdata) {
-    *pixmap = NULL;
-    return;
-  }
-
-  if (!atomdata[0]) {
-    *pixmap = NULL;
-    return;
-  }
+      return;
+    }
 
   /* Get icon size and depth */
-  XGetGeometry (xdisplay, (Drawable)atomdata[0], &root, &x, &y, 
+  XGetGeometry (xdisplay, (Drawable) atomdata[0], &root, &x, &y, 
 		&width, &height, &b, &depth);
   
   /* Create a new GdkPixmap and copy the mini icon pixmap to it */
@@ -2108,7 +2130,7 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
   *mask = gdk_pixmap_new (NULL, 16, 16, 1);
   gc = gdk_gc_new (*mask);
   gc_private = (GdkGCPrivate*) gc;
-  private = (GdkPixmapPrivate*) (*mask);
+  private = (GdkPixmapPrivate*) *mask;
   XCopyArea (private->xdisplay, atomdata[1], private->xwindow, gc_private->xgc,
 	     0, 0, 16, 16, 0, 0);
   gdk_gc_destroy (gc);

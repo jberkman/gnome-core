@@ -1,3 +1,18 @@
+Sun Feb  6 06:19:31 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c:
+	applied changes to support COMPOUND_TEXT window names which is
+	often used for internationalized window names, based on a patch
+	by TANIGUCHI Toru <g97p0639@mn.waseda.ac.jp>.
+	(get_typed_property_data): for COMPOUND_TEXT list returns, return
+	the first text string.
+	(gwmh_task_update): feature XA_COMPOUND_TEXT return types besides
+	XA_STRING for XA_WM_NAME.
+	(gwmh_task_get_mini_icon): cosmetic fixups.
+	
+	* deskguide_applet.c: adapt config options to newer sawmill
+	versions.
+
 2000-01-29  Anders Carlsson  <andersca@gnu.org>
 
 	* gwmh.c (gwmh_task_get_mini_icon): Added a check for NULL

@@ -132,13 +132,13 @@ static ConfigItem gp_config_items[] = {
   CONFIG_SECTION (sect_workarounds,         	     	N_ ("Window Manager Workarounds")),
   CONFIG_BOOL (skip_movement_offset,		TRUE,
 	       N_ ("Window manager moves decoration window instead\n"
-		   "(AfterStep, Enlightenment, FVWM, IceWM, SawMill)")),
+		   "(AfterStep, Enlightenment, FVWM, IceWM, Sawmill)")),
   CONFIG_BOOL (unified_areas,			TRUE,
 	       N_ ("Window manager changes active area on all desktops\n"
-		   "(FVWM, SawMill)")),
-  CONFIG_BOOL (violate_client_msg,			TRUE,
+		   "(FVWM, Sawmill)")),
+  CONFIG_BOOL (violate_client_msg,		FALSE,
 	       N_ ("Window manager expects pager to modify area+desktop properties directly\n"
-		   "(Enlightenment, FVWM, SawMill)")),
+		   "(Enlightenment, FVWM)")),
 };
 static guint  gp_n_config_items = (sizeof (gp_config_items) /
 				   sizeof (gp_config_items[0]));
