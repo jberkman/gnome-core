@@ -159,19 +159,32 @@ sound_properties_create(void)
 
     gtk_clist_set_selection_mode(GTK_CLIST(retval->ctree), GTK_SELECTION_BROWSE);
 
-    gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 0, 100);
-    gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 1, 150);
-    gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 2, 200);
-    gtk_widget_set_usize(GTK_WIDGET(retval->ctree), 100+150+200+20,
-                         200);
-
     gtk_ctree_set_expander_style(GTK_CTREE(retval->ctree),
                                  GTK_CTREE_EXPANDER_SQUARE);
 
     sound_properties_regenerate_ctree(retval);
 
+    /* Set size _after_ putting contents in */
+#if 0
+    gtk_clist_set_column_auto_resize(GTK_CLIST(retval->ctree), 0, TRUE);
+    gtk_clist_set_column_auto_resize(GTK_CLIST(retval->ctree), 1, TRUE);
+    gtk_clist_set_column_auto_resize(GTK_CLIST(retval->ctree), 2, TRUE);
+#else
+    gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 0, 150);
+    gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 1, 200);
+    gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 2, 200);
+#endif
+    gtk_widget_set_usize(GTK_WIDGET(wtmp), 150+200+200+20,
+                         250);
+
     gtk_container_set_border_width(GTK_CONTAINER(table), GNOME_PAD_SMALL);
-    gtk_table_attach_defaults(GTK_TABLE(table), retval->ctree, 0, 2, 0, 1);
+    wtmp = gtk_scrolled_window_new(NULL, NULL);
+    gtk_widget_set_usize(GTK_WIDGET(wtmp), 150+200+200+20,
+                         250);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(wtmp), retval->ctree);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(wtmp), GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_ALWAYS);
+    gtk_table_attach_defaults(GTK_TABLE(table), wtmp, 0, 2, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(table),
                               (retval->btn_play = gtk_button_new_with_label(_("Play"))),
                               0, 1, 1, 2);
@@ -263,10 +276,21 @@ sound_properties_read_path(SoundProps *props,
             || !strcmp(dent->d_name, ".."))
 		    continue;
 
-        arow[0] = g_strdup(dent->d_name); arow[1] = NULL; arow[2] = NULL;
+        g_string_sprintf(tmpstr, "=%s/%s=", path, dent->d_name);
 
-        if(strstr(arow[0], ".soundlist")) {
-            *strstr(arow[0], ".soundlist") = '\0';
+        gnome_config_push_prefix(tmpstr->str);
+
+        arow[1] = NULL; arow[2] = NULL;
+
+        ctmp = gnome_config_get_string("__section_info__/description");
+        if(ctmp && *ctmp) {
+            arow[0] = ctmp;
+        } else {
+            g_free(ctmp);
+            arow[0] = g_strdup(dent->d_name);
+            if(strstr(arow[0], ".soundlist")) {
+                *strstr(arow[0], ".soundlist") = '\0';
+            }
         }
 
         category_node = gtk_ctree_insert_node(GTK_CTREE(props->ctree),
@@ -276,23 +300,35 @@ sound_properties_read_path(SoundProps *props,
                                               FALSE);
         gtk_ctree_node_set_selectable(GTK_CTREE(props->ctree), category_node,
                                       FALSE);
+
         g_free(arow[0]);
 
-        g_string_sprintf(tmpstr, "=%s/%s=/events", path, dent->d_name);
-
-        gnome_config_push_prefix(tmpstr->str);
-
         event_node = NULL;
-        event_iter = gnome_config_init_iterator(tmpstr->str);
+        event_iter = gnome_config_init_iterator_sections(tmpstr->str);
         while((event_iter = gnome_config_iterator_next(event_iter,
                                                        &sample_name,
-                                                       &sample_file))) {
-            arow[0] = NULL; arow[1] = sample_name; arow[2] = sample_file;
+                                                       NULL))) {
+            if(!strcmp(sample_name, "__section_info__")) {
+                g_free(sample_name);
+                continue;
+            }
+
+            arow[0] = NULL;
+            g_string_sprintf(tmpstr, "%s/description", sample_name);
+            arow[1] = gnome_config_get_string(tmpstr->str);
+            if(!arow[1] || !*arow[1]) {
+                g_free(arow[1]);
+                arow[1] = g_strdup(sample_name);
+            }
+            g_string_sprintf(tmpstr, "%s/file", sample_name);
+            arow[2] = sample_file = gnome_config_get_string(tmpstr->str);
+
             event_node = gtk_ctree_insert_node(GTK_CTREE(props->ctree),
                                                category_node, event_node,
                                                arow, GNOME_PAD_SMALL,
                                                NULL, NULL, NULL, NULL, TRUE,
                                                FALSE);
+            g_free(arow[1]);
             new_entry = g_new0(SoundEvent, 1);
             new_entry->category = g_strdup(dent->d_name);
             new_entry->name = sample_name;
@@ -343,6 +379,9 @@ sound_properties_event_select(GtkCTree *ctree,
     char *ctmp;
 
     ctmp = GTK_CLIST_ROW(&row->list)->cell[2].u.text;
+    if(!ctmp)
+        ctmp = "";
+
     props->ignore_changed++;
     gtk_entry_set_text(GTK_ENTRY(gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(props->btn_filename))), ctmp);
     props->ignore_changed--;
@@ -369,7 +408,8 @@ sound_properties_event_apply(GtkCTreeNode *node,
     if(!strcmp(cur_filename, ev->file))
         return;
 
-    ctmp = g_copy_strings("/sound/events/", ev->category, "/events/", ev->name);
+    ctmp = g_copy_strings("/sound/events/", ev->category, "/",
+                          ev->name, "/file");
     gnome_config_set_string(ctmp, cur_filename);
     g_free(ctmp);
 }
