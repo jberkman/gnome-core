@@ -33,6 +33,7 @@ background_properties_SOURCES =	\
 	app-background.c
 
 LDADD = \
+	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
         @XF86MISC_LIBS@					\
 	$(DL_LIB)					\
