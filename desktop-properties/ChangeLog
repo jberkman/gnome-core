@@ -1,3 +1,8 @@
+Sat Feb 14 01:46:44 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (LDADD): Don't include DL_LIB or LEXLIB.  Do include
+	INTLLIBS.
+
 1998-02-14  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* Makefile.am (INCLUDES): Add $(X_CFLAGS).

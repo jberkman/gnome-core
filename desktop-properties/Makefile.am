@@ -36,8 +36,7 @@ LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
         @XF86MISC_LIBS@					\
-	$(DL_LIB)					\
-	@LEXLIB@
+	$(INTLLIBS)
 
 EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop
 
