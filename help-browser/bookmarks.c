@@ -29,6 +29,7 @@ static void freeEntry(gchar *key, struct _bookmarks_entry *val, gpointer bar);
 static int hideBookmarksInt(GtkWidget *window);
 static void loadBookmarks(Bookmarks h);
 static void appendEntry(Bookmarks h, gchar *ref);
+static void removeBookmark(GtkWidget *w, Bookmarks b);
 
 Bookmarks newBookmarks(GSearchFunc callback, gpointer data, gchar *file)
 {
@@ -158,6 +159,22 @@ static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
     }
 }
 
+static void removeBookmark(GtkWidget *w, Bookmarks b)
+{
+    GList *l;
+    struct _GtkCListRow *row;
+    gint x;
+
+    l = GTK_CLIST(b->clist)->selection;
+    if (!l) {
+	return;
+    }
+
+    row = (struct _GtkCListRow *) l->data;
+    x = gtk_clist_find_row_from_data(GTK_CLIST(b->clist), row->data);
+    gtk_clist_remove(GTK_CLIST(b->clist), x);
+}
+
 void showBookmarks(Bookmarks h)
 {
     gtk_widget_show(GTK_WIDGET(h->window));
@@ -178,7 +195,7 @@ static int hideBookmarksInt(GtkWidget *window)
 static void createBookmarksWindow(Bookmarks h, GtkWidget **window,
 				GtkWidget **clist)
 {
-    GtkWidget *box;
+    GtkWidget *box, *button;
     gchar *titles[1] = { "Bookmark" };
 
     /* Main Window */
@@ -192,6 +209,11 @@ static void createBookmarksWindow(Bookmarks h, GtkWidget **window,
     gtk_container_border_width (GTK_CONTAINER (box), 5);
     gtk_container_add(GTK_CONTAINER(*window), box);
     gtk_widget_show(box);
+
+    /* Buttons */
+    button = gtk_button_new_with_label("Remove");
+    gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
+    gtk_widget_show(button);
 
     /* The clist */
     *clist = gtk_clist_new_with_titles(1, titles);
@@ -208,6 +230,8 @@ static void createBookmarksWindow(Bookmarks h, GtkWidget **window,
     gtk_widget_show(*clist);
 
     /* Set callbacks */
+    gtk_signal_connect(GTK_OBJECT (button), "clicked",
+		       GTK_SIGNAL_FUNC(removeBookmark), h);
     gtk_signal_connect(GTK_OBJECT (*window), "destroy",
 		       GTK_SIGNAL_FUNC(hideBookmarksInt), NULL);
     gtk_signal_connect(GTK_OBJECT (*window), "delete_event",
