@@ -346,6 +346,8 @@ int main (int argc, char *argv[])
 
 	infolabel = gtk_label_new("");
 	gtk_container_add(GTK_CONTAINER(frame), infolabel);
+	gtk_widget_set_usize(infolabel, 1, -1);
+	gtk_misc_set_alignment (GTK_MISC (infolabel), 0.0, 0.0);
 	gtk_widget_show(infolabel);
 
 	/* edit area */

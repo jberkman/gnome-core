@@ -1,3 +1,11 @@
+1999-10-19  Ettore Perazzoli  <ettore@gnu.org>
+
+	* main.c (main): Set the infolabel's horizontal usize to 1 so that
+	it does not horribly change its size while browsing menus anymore.
+	Also, set the alignment so that it's left justified.  Likewise for
+	the directory.
+	* edit.c (edit_area_new): Likewise for the path label.
+
 1999-10-05  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* edit.c (edit_area_new): make the revert button

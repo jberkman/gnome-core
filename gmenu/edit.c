@@ -342,6 +342,8 @@ static Edit_Area *edit_area_new()
 	gtk_widget_show(frame);
 
 	ea->pathlabel = gtk_label_new(user_apps_dir);
+	gtk_widget_set_usize(ea->pathlabel, 1, -1);
+	gtk_misc_set_alignment (GTK_MISC (ea->pathlabel), 0.0, 0.0);
 	gtk_container_add(GTK_CONTAINER(frame), ea->pathlabel);
 	gtk_widget_show(ea->pathlabel);
 
