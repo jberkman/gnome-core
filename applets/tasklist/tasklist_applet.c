@@ -24,6 +24,7 @@ void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
 GdkPixbuf *create_minimized_icon (GdkPixbuf *pixbuf);
+gint get_horz_rows(void);
 
 GNOME_Panel_OrientType tasklist_orient; /* Tasklist orient */
 GtkWidget *handle; /* The handle box */
@@ -36,10 +37,22 @@ TasklistIcon *unknown_icon; /* The unknown icon */
 gint vert_height=0; /* Vertical height, used for resizing */
 gint horz_width=0;  /* Horizontal width, used for resizing */
 
+gint panel_size = 48;
+
 extern TasklistConfig Config;
 
 /* from gtkhandlebox.c */
 #define DRAG_HANDLE_SIZE 10
+
+/* get the horz_rows depending on the configuration settings */
+gint
+get_horz_rows(void)
+{
+	if(Config.follow_panel_size)
+		return panel_size/ROW_HEIGHT;
+	else
+		return Config.horz_rows;
+}
 
 /* Create a minimized version of a mini icon.
    This code is stolen from gnome-pixmap2.
@@ -326,7 +339,7 @@ layout_tasklist (void)
 		}
 
 		while (p < num) {
-			if (num < Config.horz_rows)
+			if (num < get_horz_rows())
 				num_rows = num;
 			
 			j++;
@@ -335,7 +348,7 @@ layout_tasklist (void)
 			if (num_rows < k + 1)
 				num_rows = k + 1;
 			
-			if (j >= ((num + Config.horz_rows - 1) / Config.horz_rows)) {
+			if (j >= ((num + get_horz_rows() - 1) / get_horz_rows())) {
 				j = 0;
 				k++;
 			}
@@ -343,11 +356,11 @@ layout_tasklist (void)
 		}
 		
 		if (Config.horz_fixed) {
-			curheight = (ROW_HEIGHT * Config.horz_rows - 4) / num_rows;
+			curheight = (ROW_HEIGHT * get_horz_rows() - 4) / num_rows;
 			curwidth = (Config.horz_width - 4) / num_cols;
 
 		} else {
-			curheight = (ROW_HEIGHT * Config.horz_rows - 4) / num_rows;
+			curheight = (ROW_HEIGHT * get_horz_rows() - 4) / num_rows;
 			curwidth = Config.horz_taskwidth;
 
 			/* If the total width is higher than allowed, 
@@ -419,7 +432,10 @@ layout_tasklist (void)
 		}
 
 		curheight = ROW_HEIGHT;
-		curwidth = Config.vert_width - 4;
+		if(Config.follow_panel_size)
+			curwidth = panel_size - 4;
+		else
+			curwidth = Config.vert_width - 4;
 		
 		num_cols = 1;
 		num_rows = num;
@@ -443,7 +459,10 @@ layout_tasklist (void)
 			task->height = curheight;
 			
 			curx += curwidth;
-			if (curx >= Config.vert_width - 4) {
+
+			if (curx >= (Config.follow_panel_size?
+				     panel_size:
+				     Config.vert_width) - 4) {
 				cury += curheight;
 				curx = 2;
 			}
@@ -686,19 +705,23 @@ change_size (gboolean layout)
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
 		gtk_widget_set_usize (handle, 
 				      DRAG_HANDLE_SIZE + horz_width,
-				      Config.horz_rows * ROW_HEIGHT);
+				      get_horz_rows() * ROW_HEIGHT);
 		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
 				       horz_width,
-				       Config.horz_rows * ROW_HEIGHT);
+				       get_horz_rows() * ROW_HEIGHT);
 		break;
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
 		gtk_widget_set_usize (handle, 
-				      Config.vert_width,
+				      (Config.follow_panel_size?
+				       panel_size:
+				       Config.vert_width),
 				      DRAG_HANDLE_SIZE + vert_height);
 		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       Config.vert_width,
+				       (Config.follow_panel_size?
+					panel_size:
+					Config.vert_width),
 				       vert_height);
 	}
 	if (layout)
@@ -706,7 +729,7 @@ change_size (gboolean layout)
 }
 
 /* Called when the panel's orient changes */
-static gboolean
+static void
 cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
 {
 	
@@ -714,8 +737,16 @@ cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
 
 	/* Change size accordingly */
 	change_size (TRUE);
+}
 
-	return FALSE;
+static void
+cb_change_pixel_size (GtkWidget *widget, int size)
+{
+	panel_size = size;
+	
+	/* Change size accordingly */
+	if(Config.follow_panel_size)
+		change_size (TRUE);
 }
  
 /* Create the applet */
@@ -753,6 +784,8 @@ create_applet (void)
 			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
 	gtk_signal_connect (GTK_OBJECT (applet), "save-session",
 			    GTK_SIGNAL_FUNC (write_config), NULL);
+	gtk_signal_connect (GTK_OBJECT (applet), "change-pixel-size",
+			    GTK_SIGNAL_FUNC (cb_change_pixel_size), NULL);
 
 	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "about",
@@ -811,11 +844,3 @@ main (gint argc, gchar *argv[])
 
 	return 0;
 }
-
-
-
-
-
-
-
-

@@ -43,6 +43,9 @@ struct _TasklistConfig {
 	gboolean all_desks_minimized; /* Show minimized tasks on all desktops */
 	gboolean confirm_before_kill; /* Confirm before killing windows */
 
+	/* Follow the panel sizes */
+	gboolean follow_panel_size;
+
 	/* Stuff for horizontal mode */
 	gint horz_width; /* The width of the tasklist */
 	gint horz_rows; /* Number of rows */

@@ -10,7 +10,7 @@ TasklistConfig PropsConfig;
 GtkWidget *prop;
 
 /* Callback for apply */
-static gboolean
+static void
 cb_apply (GtkWidget *widget, gint page, gpointer data)
 {
 
@@ -19,12 +19,10 @@ cb_apply (GtkWidget *widget, gint page, gpointer data)
 
 	/* Redraw everything */
 	change_size (TRUE);
-
-	return FALSE;
 }
 
 /* Callback for radio buttons */
-static gboolean
+static void
 cb_radio_button (GtkWidget *widget, gint *data)
 {
 
@@ -33,31 +31,34 @@ cb_radio_button (GtkWidget *widget, gint *data)
 							      "number"));
 		gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
 	}
-
-	return FALSE;
 }
 
 /* Callback for spin buttons */
-static gboolean
+static void
 cb_spin_button (GtkAdjustment *adj, gint *data)
 {
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
 
 	*data = (gint) (adj->value);
-
-	return FALSE;
 }
 
 /* Callback for check buttons */
-static gboolean
+static void
 cb_check_button (GtkWidget *widget, gboolean *data)
 {
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
 
 	*data = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-
-	return FALSE;
 }
+
+static void
+cb_check_button_disable (GtkWidget *widget, GtkWidget *todisable)
+{
+	gboolean active;
+	active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	gtk_widget_set_sensitive (todisable, !active);
+}
+
  
 /* Create a spin button */
 static GtkWidget *
@@ -83,8 +84,6 @@ create_spin_button (gchar *name,
 
 	spin = gtk_spin_button_new (GTK_ADJUSTMENT (adj), 1, 0);
 	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
-			    GTK_SIGNAL_FUNC (cb_spin_button), init_value);
-	gtk_signal_connect (GTK_OBJECT (spin), "changed",
 			    GTK_SIGNAL_FUNC (cb_spin_button), init_value);
 
 	label = gtk_label_new (name);
@@ -135,11 +134,21 @@ create_check_button (gchar *name, gboolean *change_value)
 static void
 create_size_page (void)
 {
-	GtkWidget *hbox,/* *table,*/ *frame, *vbox;
+	GtkWidget *hbox,/* *table,*/ *frame, *vbox, *topbox;
 	GSList *vertgroup = NULL, *horzgroup = NULL;
+	GtkWidget *autobutton, *w;
 	
+	topbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+	gtk_container_border_width (GTK_CONTAINER (topbox), GNOME_PAD_SMALL);
+	
+	autobutton = create_check_button (_("Follow panel size"),
+					  &PropsConfig.follow_panel_size);
+	gtk_box_pack_start (GTK_BOX (topbox),
+			    autobutton,
+			    FALSE, TRUE, 0);
+
 	hbox = gtk_hbox_new (TRUE, GNOME_PAD_SMALL);
-	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD_SMALL);
+	gtk_box_pack_start_defaults (GTK_BOX (topbox), hbox);
 
 	frame = gtk_frame_new (_("Horizontal"));
 
@@ -155,13 +164,16 @@ create_size_page (void)
 						8192,
 						10),
 			    FALSE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Rows of tasks:"),
-						&PropsConfig.horz_rows,
-						1,
-						8,
-						1),
-			    FALSE, TRUE, 0);
+	w = create_spin_button (_("Rows of tasks:"),
+				&PropsConfig.horz_rows,
+				1,
+				8,
+				1);
+	gtk_box_pack_start (GTK_BOX (vbox), w, FALSE, TRUE, 0);
+	gtk_signal_connect (GTK_OBJECT (autobutton), "toggled",
+			   GTK_SIGNAL_FUNC (cb_check_button_disable),
+			   w);
+	cb_check_button_disable (autobutton, w);
 
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_spin_button (_("Default task size:"),
@@ -197,13 +209,16 @@ create_size_page (void)
 						10),
 			    FALSE, TRUE, 0);
 
-	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Tasklist width:"),
-						&PropsConfig.vert_width,
-						48,
-						512,
-						10),
-			    FALSE, TRUE, 0);
+	w = create_spin_button (_("Tasklist width:"),
+				&PropsConfig.vert_width,
+				48,
+				512,
+				10);
+	gtk_box_pack_start (GTK_BOX (vbox), w, FALSE, TRUE, 0);
+	gtk_signal_connect (GTK_OBJECT (autobutton), "toggled",
+			   GTK_SIGNAL_FUNC (cb_check_button_disable),
+			   w);
+	cb_check_button_disable (autobutton, w);
 
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_radio_button (_("Tasklist height is fixed"),
@@ -216,7 +231,7 @@ create_size_page (void)
 
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 
-	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), hbox,
+	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), topbox,
 					gtk_label_new (_("Size")));
 }
 

@@ -1,3 +1,14 @@
+Thu Jan 27 17:14:57 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch],tasklist_config.c,tasklist_properties.c: Add
+	  a new configuration field, follow_panel_size which is on by
+	  default.  If so then the horizontal rows and vertical width are
+	  autocalculated and the tasklist follows the size hints.  On the
+	  properties page kill the binding of "changed" on the spin button
+	  as that was not working right (it was casting spinbutton to
+	  adjustment).  Also for many of the signals follow the correct
+	  prototype.
+
 2000-01-27  Ettore Perazzoli  <ettore@helixcode.com>
 
 	* Makefile.am: Oops, the previous change was wrong.  Fixed.

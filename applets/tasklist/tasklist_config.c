@@ -14,6 +14,9 @@ gboolean write_config (gpointer data,
 				  ? privcfgpath
 				  : APPLET_WIDGET (applet)->privcfgpath);
 
+	gnome_config_set_bool ("tasklist/follow_panel_size",
+			       Config.follow_panel_size);
+
 	gnome_config_set_bool ("tasklist/horz_fixed",
 			       Config.horz_fixed);
 	gnome_config_set_int ("tasklist/horz_width", 
@@ -54,6 +57,8 @@ gboolean write_config (gpointer data,
 void read_config (void)
 {
 	gnome_config_push_prefix (APPLET_WIDGET (applet)->privcfgpath);
+
+	Config.follow_panel_size = gnome_config_get_bool ("tasklist/follow_panel_size=true");
 
 	Config.horz_fixed = gnome_config_get_bool ("tasklist/horz_fixed=true");
 	/* if the screen is not too wide, make it default to 300 */
