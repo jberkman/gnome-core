@@ -78,18 +78,18 @@ EXTRA_DIST = gnome-help-browser-help.html \
 
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
 install-data-local:
-	$(mkinstalldirs) $(help_browser_helpdir)
-	$(mkinstalldirs) $(prefix)/etc/CORBA/servers
+	$(mkinstalldirs) $(DESTDIR)$(help_browser_helpdir)
+	$(mkinstalldirs) $(DESTDIR)$(prefix)/etc/CORBA/servers
 	$(INSTALL_DATA)  $(srcdir)/help-browser.gnorba \
-			 $(prefix)/etc/CORBA/servers/help-browser.gnorba
+			 $(DESTDIR)$(prefix)/etc/CORBA/servers/help-browser.gnorba
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-help.html \
-			 $(help_browser_helpdir)/help-browser.html
+			 $(DESTDIR)$(help_browser_helpdir)/help-browser.html
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-topic.dat \
-			 $(help_browser_helpdir)/topic.dat
-	$(INSTALL_DATA)  $(srcdir)/default-page.html $(help_browser_helpdir)/
-	$(INSTALL_DATA)  $(srcdir)/bg.png $(help_browser_helpdir)/
-	$(INSTALL_DATA)  $(srcdir)/gnome-logo2.png $(help_browser_helpdir)/
-	cd $(help_browser_helpdir); \
+			 $(DESTDIR)$(help_browser_helpdir)/topic.dat
+	$(INSTALL_DATA)  $(srcdir)/default-page.html $(DESTDIR)$(help_browser_helpdir)/
+	$(INSTALL_DATA)  $(srcdir)/bg.png $(DESTDIR)$(help_browser_helpdir)/
+	$(INSTALL_DATA)  $(srcdir)/gnome-logo2.png $(DESTDIR)$(help_browser_helpdir)/
+	cd $(DESTDIR)$(help_browser_helpdir); \
 	     rm -f index.html; ln -s help-browser.html index.html
 
 sysdir = $(datadir)/apps
