@@ -6,14 +6,12 @@
 #include "folder.xpm"
 #include "unknown.xpm"
 
-GList *get_order_of_dir(char *dir)
+GList *get_order_of_dir(gchar *dir)
 {
-	char buf[256];
+	gchar buf[256];
 	GList *list = NULL;
-	char *order_file = g_copy_strings(dir, "/.order", NULL);
+	gchar *order_file = g_copy_strings(dir, "/.order", NULL);
 	FILE *f;
-
-/*	g_print("reading .order file: %s\n", order_file);*/
 
 	f = fopen(order_file,"r");
 	if (!f)
@@ -27,13 +25,10 @@ GList *get_order_of_dir(char *dir)
 		char *buf_ptr;
 		buf_ptr = strchr(buf,'\n');
 		if (buf_ptr) buf_ptr[0] = '\0';
-/*		g_print("%s,",buf);*/
-		if (strlen(buf) > 0) list = g_list_append(list,strdup(buf));
+		if (strlen(buf) > 0) list = g_list_append(list,g_strdup(buf));
 		}
 
 	fclose(f);
-
-/*	g_print("\n");*/
 
 	g_free(order_file);
 	return list;
@@ -45,7 +40,7 @@ void save_order_of_dir(GtkCTreeNode *node)
 	gboolean leaf;
 	GtkCTreeNode *parent;
 	GtkCTreeNode *row;
-	char *row_file;
+	gchar *row_file;
 	FILE *f;
 
 	gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),node,
@@ -57,8 +52,6 @@ void save_order_of_dir(GtkCTreeNode *node)
 
 	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
 	row_file = g_copy_strings(d->path, "/.order", NULL);
-
-/*	g_print("saving .order file: %s\n", row_file);*/
 
 	row = GTK_CTREE_ROW(parent)->children;
 
@@ -85,7 +78,6 @@ void save_order_of_dir(GtkCTreeNode *node)
 		/* the folder is empty, so delete the .order file */
 		if (g_file_exists(row_file))
 			{
-/*			g_print(_("removing .order file: %s\n"),row_file);*/
 			if (unlink (row_file) < 0)
 				g_print(_("unable to remove .order file: %s\n"),row_file);
 			}
@@ -94,27 +86,10 @@ void save_order_of_dir(GtkCTreeNode *node)
 	g_free(row_file);
 }
 
-void free_order_list(GList *orderlist)
-{
-	if (orderlist)
-		{
-		int i;
-		int l = g_list_length(orderlist);
-		for (i=0;i<l;i++)
-			{
-			GList *list = g_list_nth(orderlist, i);
-			g_free(list->data);
-			}
-		g_list_free(orderlist);
-		}
-}
-
-Desktop_Data * get_desktop_file_info (char *file)
+Desktop_Data * get_desktop_file_info (gchar *file)
 {
 	Desktop_Data *d;
 	GnomeDesktopEntry *dentry;
-
-/*	g_print("reading file: %s\n",file);*/
 
 	if (!g_file_exists(file))
 		{
@@ -124,7 +99,7 @@ Desktop_Data * get_desktop_file_info (char *file)
 
 	d = g_new0(Desktop_Data, 1);
 
-	d->path = strdup(file);
+	d->path = g_strdup(file);
 	d->name = NULL;
 	d->comment = NULL;
 	d->dentry = NULL;
@@ -142,11 +117,11 @@ Desktop_Data * get_desktop_file_info (char *file)
 		if (dentry)
 			{
 			if (dentry->name)
-				d->name = strdup(dentry->name);
+				d->name = g_strdup(dentry->name);
 			else
-				d->name = strdup(file + g_filename_index(file));
+				d->name = g_strdup(file + g_filename_index(file));
 			if (dentry->comment)
-				d->comment = strdup(dentry->comment);
+				d->comment = g_strdup(dentry->comment);
 			else
 				d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
 			if (dentry->icon)
@@ -161,7 +136,7 @@ Desktop_Data * get_desktop_file_info (char *file)
 			}
 		else
 			{
-			d->name = strdup(file + g_filename_index(file));
+			d->name = g_strdup(file + g_filename_index(file));
 			d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
 			d->pixmap = gnome_pixmap_new_from_xpm_d (folder_xpm);
 			}
@@ -174,13 +149,13 @@ Desktop_Data * get_desktop_file_info (char *file)
 	if (!dentry) return NULL;
 
 	if (dentry->name)
-		d->name = strdup(dentry->name);
+		d->name = g_strdup(dentry->name);
 	else
-		d->name = strdup(file + g_filename_index(file));
+		d->name = g_strdup(file + g_filename_index(file));
 	if (dentry->comment)
-		d->comment = strdup(dentry->comment);
+		d->comment = g_strdup(dentry->comment);
 	else
-		d->comment = strdup("");
+		d->comment = g_strdup("");
 	if (dentry->icon)
 		{
 		d->pixmap = gnome_pixmap_new_from_file_at_size (dentry->icon, 20, 20);
@@ -203,7 +178,6 @@ void free_desktop_data(Desktop_Data *d)
 	if (d->name) g_free (d->name);
 	if (d->comment) g_free (d->comment);
 	if (d->dentry) gnome_desktop_entry_destroy (d->dentry);
-	free (d);
+	g_free (d);
 }
-
 

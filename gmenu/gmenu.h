@@ -60,10 +60,10 @@ extern Desktop_Data *edit_area_orig_data;
 
 /* gmenu.c --------------- */
 
-int isfile(char *s);
-int isdir(char *s);
-char *filename_from_path(char *t);
-char *strip_one_file_layer(char *t);
+gint isfile(char *s);
+gint isdir(char *s);
+gchar *filename_from_path(char *t);
+gchar *strip_one_file_layer(char *t);
 gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename);
 
 /* tree.c ---------------- */
@@ -76,11 +76,11 @@ gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
 			GtkCTreeNode *new_parent, GtkCTreeNode *new_sibling);
 void move_down_cb(GtkWidget *w, gpointer data);
 void move_up_cb(GtkWidget *w, gpointer data);
-int is_node_editable(GtkCTreeNode *node);
+gint is_node_editable(GtkCTreeNode *node);
 void edit_pressed_cb();
 void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data);
 GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file);
-void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent);
+void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkWidget *pbar);
 void add_main_tree_node();
 
 /* edit.c ---------------- */
@@ -94,10 +94,10 @@ GtkWidget * create_edit_area();
 
 /* order.c --------------- */
 
-GList *get_order_of_dir(char *dir);
+GList *get_order_of_dir(gchar *dir);
 void save_order_of_dir(GtkCTreeNode *node);
 void free_desktop_data(Desktop_Data *d);
-Desktop_Data * get_desktop_file_info (char *file);
+Desktop_Data * get_desktop_file_info (gchar *file);
 
 /* dialogs.c ------------- */
 

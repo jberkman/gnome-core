@@ -60,8 +60,8 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 
 				dentry = g_new0(GnomeDesktopEntry, 1);
 				dentry->location = g_concat_dir_and_file(d->path, ".directory");
-				dentry->name = strdup(d->name);
-				dentry->type = strdup("Directory");
+				dentry->name = g_strdup(d->name);
+				dentry->type = g_strdup("Directory");
 				gnome_desktop_entry_save(dentry);
 				gnome_desktop_entry_destroy(dentry);
 
@@ -90,14 +90,17 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 				if (d->isfolder)
 					node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 						GNOME_PIXMAP(d->pixmap)->pixmap,
-						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
+						GNOME_PIXMAP(d->pixmap)->mask,
+						GNOME_PIXMAP(d->pixmap)->pixmap,
+						GNOME_PIXMAP(d->pixmap)->mask,
+						FALSE, FALSE);
 				else
 					node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 						GNOME_PIXMAP(d->pixmap)->pixmap,
 						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
 				gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
 				save_order_of_dir(parent);
-				add_tree_node(GTK_CTREE(menu_tree_ctree), node);
+				add_tree_node(GTK_CTREE(menu_tree_ctree), node, NULL);
 				update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
 				current_node = node;
 				}
@@ -259,7 +262,7 @@ static void save_dialog_cb( gint button, gpointer data)
 
 		if (edit_area_orig_data && edit_area_orig_data->isfolder)
 			{
-			path = strdup(edit_area_get_filename());
+			path = g_strdup(edit_area_get_filename());
 			overwrite = TRUE;
 			}
 		else
@@ -270,14 +273,14 @@ static void save_dialog_cb( gint button, gpointer data)
 			}
 
 		dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
-		dentry->location = strdup(path);
+		dentry->location = g_strdup(path);
 		gnome_desktop_entry_save (dentry);
 		gnome_desktop_entry_destroy (dentry);
 
 		if (overwrite && edit_area_orig_data && edit_area_orig_data->isfolder)
 			{
 			g_free(path);
-			path = strdup(edit_area_orig_data->path);
+			path = g_strdup(edit_area_orig_data->path);
 			}
 
 		d = get_desktop_file_info (path);
@@ -340,7 +343,10 @@ static void save_dialog_cb( gint button, gpointer data)
 			if (d->isfolder)
 				node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 					GNOME_PIXMAP(d->pixmap)->pixmap,
-					GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
+					GNOME_PIXMAP(d->pixmap)->mask, 
+					GNOME_PIXMAP(d->pixmap)->pixmap,
+					GNOME_PIXMAP(d->pixmap)->mask, 
+					FALSE, FALSE);
 			else
 				node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 					GNOME_PIXMAP(d->pixmap)->pixmap,

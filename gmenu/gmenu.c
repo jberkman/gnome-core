@@ -32,12 +32,7 @@ static void sort_node( GtkCTreeNode *node);
 static void sort_single_pressed();
 static void sort_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void sort_recursive_pressed();
-int isfile(char *s);
-int isdir(char *s);
-char *filename_from_path(char *t);
-char *strip_one_file_layer(char *t);
-gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename);
-static char *check_for_dir(char *d);
+static gchar *check_for_dir(char *d);
 static void about_cb();
 static void destroy_cb();
 int main (int argc, char *argv[]);
@@ -144,84 +139,7 @@ static void sort_recursive_pressed()
 	gtk_ctree_post_recursive(GTK_CTREE(menu_tree_ctree), node, sort_recurse_cb, NULL);
 }
 
-/* ------------------ */
-
-static void dnd_data_request(GtkWidget *widget, GdkEvent *event)
-{
-	Desktop_Data *d;
-
-	d = gtk_ctree_node_get_row_data(GTK_CTREE(widget),current_node);
-
-	gtk_widget_dnd_data_set (widget, event, d->path, strlen (d->path) + 1);
-	g_print("drag request %s\n",d->path);
-}
-
-
-static void dnd_data_begin(GtkWidget *widget, GdkEventDragBegin *event)
-{
-	Desktop_Data *d;
-
-	if (!current_node) return;
-
-	d = gtk_ctree_node_get_row_data(GTK_CTREE(widget),current_node);
-
-	g_print("drag begin %s\n",d->path);
-}
-
-static void dnd_data_dropped(GtkWidget *widget, GdkEventDropDataAvailable *event)
-{
-/*	int count = event->data_numbytes;
-	char *ptr = event->data;*/
-	int row, col;
-	int winx, winy;
-	GtkCTreeNode *node;
-	Desktop_Data *d;
-
-	g_print("drop");
-
-	if (!current_node) return;
-
-	gdk_window_get_origin (GTK_CLIST (widget)->clist_window, &winx, &winy);
-	gtk_clist_get_selection_info (GTK_CLIST (menu_tree_ctree), event->coords.x - winx, event->coords.y - winy, &row, &col);
-
-	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (menu_tree_ctree)->row_list, row));
-
-	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),node);
-
-	g_print(" on %s\n",d->path);
-}
-
-static void dnd_set_drop(GtkWidget *widget, GdkWindow *window)
-{
-	static char *drop_types[]=
-	{
-	"url:ALL"
-	};
-
-	gdk_window_dnd_drop_set(window,TRUE,drop_types,1,FALSE);
-	gtk_signal_connect(GTK_OBJECT(widget),"drop_data_available_event",
-		GTK_SIGNAL_FUNC (dnd_data_dropped), NULL);
-}
-
-static void dnd_set_drag(GtkWidget *widget, GdkWindow *window)
-{
-	static char *drop_types[]=
-	{
-	"url:ALL"
-	};
-
-	gtk_widget_realize(widget);
-	gdk_window_dnd_drag_set(window,TRUE,drop_types,1);
-	gtk_signal_connect(GTK_OBJECT(widget),"drag_request_event",
-		GTK_SIGNAL_FUNC (dnd_data_request), NULL);
-	gtk_signal_connect(GTK_OBJECT(widget),"drag_begin_event",
-		GTK_SIGNAL_FUNC (dnd_data_begin), NULL);
-
-}
-
-/* ------------------ */
-
-int isfile(char *s)
+gint isfile(char *s)
 {
    struct stat st;
 
@@ -231,7 +149,7 @@ int isfile(char *s)
    return 0;
 }
 
-int isdir(char *s)
+gint isdir(char *s)
 {
    struct stat st;
    
@@ -241,9 +159,9 @@ int isdir(char *s)
    return 0;
 }
 
-char *filename_from_path(char *t)
+gchar *filename_from_path(char *t)
 {
-        char *p;
+        gchar *p;
 
         p = t + strlen(t);
         while(p > &t[0] && p[0] != '/') p--;
@@ -251,10 +169,10 @@ char *filename_from_path(char *t)
         return p;
 }
 
-char *strip_one_file_layer(char *t)
+gchar *strip_one_file_layer(char *t)
 {
-	char *ret;
-	char *p;
+	gchar *ret;
+	gchar *p;
 
 	ret = strdup(t);
 	p = ret + strlen(ret);
@@ -263,7 +181,7 @@ char *strip_one_file_layer(char *t)
         return ret;
 }
 
-static char *check_for_dir(char *d)
+static gchar *check_for_dir(char *d)
 {
 	if (!g_file_exists(d))
 		{
@@ -300,9 +218,6 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename)
 	correct_path = NULL;
 	return correct_path;
 }
-
-
-/* ------------------ */
 
 static void about_cb()
 {
@@ -435,9 +350,6 @@ int main (int argc, char *argv[])
 	
 	new_edit_area();
 
-/*	dnd_set_drag(menu_tree_ctree, GTK_CLIST(menu_tree_ctree)->clist_window);
-	dnd_set_drop(menu_tree_ctree, GTK_CLIST(menu_tree_ctree)->clist_window);
-*/
 	gtk_main();
 	return 0;
 }

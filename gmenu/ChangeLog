@@ -1,3 +1,16 @@
+Wed Sep  9 02:40:03 1998  John Ellis  <johne@bellatlantic.net>
+
+	* dialogs.c, gmenu.[ch], order.c tree.c: minor fixups and removed
+	some warnings. changed to using gnome_stock_set_icon(), free/strdup to
+	g_free/g_strdup, etc.
+	* tree.c: changed to using a progressbar in activity mode for startup
+	dialog.
+	* wait-feet.h: removed, was a waste of space anyway.
+	* gmenu.c: removed unused functions related to drag and drop.
+	* order.c(free_order_list): removed unused function.
+	* top.xpm: updated xpm to match gnome logo.
+	* Makefile.am: removed reference to wait-feet.h
+
 Tue Aug 18 16:51:32 1998  John Ellis  <johne@bellatlantic.net>
 
 	* dialogs.c, gmenu.c, order.c tree.c: Applyed patch from Lars Hamann
