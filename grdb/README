@@ -1,0 +1,174 @@
+grdb 
+----
+grdb provides a simple way to set the X resources of legacy
+applications consistenly with your chosen gtk theme. You must run
+grdb at startup, each time you change themes, and each time you add
+new app-defaults config files.
+
+grdb serves the same purpose as krdb from kde.
+
+Please see the NEWS file for a list of changes in this release.
+
+(The following paragraph has largely been copied from the krdb README)
+You can easily write application default files for your own
+applications. To see how, follow the example of the
+supplied application default file for XV which specifies
+
+xv*foreground: FOREGROUND
+xv*background: BACKGROUND
+xv*highlight: HIGHLIGHT
+xv*lowlight: LOWLIGHT
+
+The available variables are described below.
+
+grdb comes with a set of general purpose configuration files for the 
+Motif, Xaw and TK toolkits (originally borrowed from krdb).
+
+You can add new system-wide app-defaults files in $datadir/grdb.
+$datadir defaults to $prefix/share. As usual, $datadir or $prefix
+may be specified during the configure stage. Without any special
+changes, the default app-defaults directory will be /usr/local/share/grdb.
+These new files must end with the .ad suffix.
+
+You can add user-specific app-defaults files in two ways.
+
+Files ending with .ad which are placed in a directory named $HOME/.grdb
+will be processed by grdb in the same way as system files. If a file in
+$HOME/.grdb has the same name as a file in $datadir/grdb, only the
+user-specific one will be processed.
+
+If you wish to change only a few of the system settings, you can either
+copy the system file into $HOME/.grdb and edit it, or you can add
+the customizations to $HOME/.Xdefaults. This file is processed last, and
+will override any settings in the .ad files.
+
+grdb resource files will apply more generally if you do not have
+application specific entries for similar resources in ~/.Xdefaults
+or in the system app-defaults directory e.g.  /usr/lib/X11R6/app-defaults.
+
+Variables Available to App-Defaults Files
+----------------------------------------
+
+The applications resources assign constants which will be
+defined by grdb. The complete list of possible variables to
+choose from and their theme mappings is:
+
+BACKGROUND           bg[NORMAL]
+FOREGROUND           fg[NORMAL]
+SELECT_BACKGROUND    bg[SELECTED]
+SELECT_FOREGROUND    fg[SELECTED]
+WINDOW_BACKGROUND    base[NORMAL]
+WINDOW_FOREGROUND    text[NORMAL]
+INACTIVE_BACKGROUND  bg[INSENSITIVE]
+INACTIVE_FOREGROUND  fg[INSENSITIVE]
+ACTIVE_BACKGROUND    bg[SELECTED]
+ACTIVE_FOREGROUND    fg[SELECTED]
+HIGHLIGHT            computed from other values
+LOWLIGHT             computed from other values
+
+These two are not used by grdb, although krdb defines them. They were
+never present in the existing .ad files:
+INACTIVE_BLEND       bg[INSENSITIVE]
+ACTIVE_BLEND         bg[SELECTED]
+
+Font support has been extended, the following fonts are defined:
+FONT        the default font for the theme.
+BOLD_FONT   forces -bold- in the xlfd. If that font is not found,
+            BOLD_FONT fallsback to FONT.
+ITALIC_FONT forces -i- in the xlfd. If that font is not found,
+	    try -o- to get an oblique font (close enough?), and
+            if that font is not found, ITALIC_FONT falls back to FONT.
+FONTLIST    FONT,BOLD_FONT=BOLD,ITALIC_FONT=ITALIC
+FIXED_FONT  gtk doesn't haven't the concept of a fixed font.
+	    Currently, FIXED_FONT is determined in the following order.
+	    If the user specifies the "-f/--fixed" command line,
+	    whatever value passed in is assumed correct and used.
+	    Otherwise, if the environment variable "GRDB_FIXED_FONT" is
+	    set, whatever value it has is used for the font. Finally,
+	    if none of the above is true, the fallback "fixed" is used.
+
+The following is not used by grdb, although krdb defines it:
+TITLE_FONT  was not present in existing .ad files, and I believe
+            krdb uses this for window titles, which is beyond the
+            scope of a gtk theme.
+
+There is now a --nofonts/-f command line option which completely
+bypasses the font code. This is a relic from early testing, and may
+go away someday.
+
+License
+-------
+Gnu Public License, see COPYING for details.
+
+Building
+--------
+./configure
+make
+
+xrdb must be in your PATH in order for configure to complete.
+
+see INSTALL for generic configure information
+
+Installation
+------------
+make install
+
+Usage
+-----
+Just run "grdb"
+grdb currently supports no command line arguments, if it finishes quietly
+it worked!
+
+Command Line Arguments
+----------------------
+-V, --verbose,    Output progress as program runs
+-n, --nofonts,    Disable setting fonts
+-f, --fixed=XLFD  Fixed Font to use
+--help,    -?  Standard help blurb
+--usage        Standard usage blurb
+
+Grdb Capplet
+------------
+Starting with version 0.2.0, a gnome control center capplet will be
+compiled and installed if gnome is detected (this can be turned of
+with --disable-gnome). This capplet creates an entry labelled "Legacy
+Applications" in the "Desktop" grouping of the Control Center.
+
+The capplet interface is fairly simple. There is a "Apply GTK theme
+to legacy applications" check box and a "Fixed Font" group. The
+"Fixed Font" group is required because gtk themes currently don't
+distinguish between fixed and proportional fonts. In this group there
+is a "Use custom fixed font" check box and a font picker button which
+allows the user to pick the custom font.
+
+The capplet will run grdb when gnome starts, so you should remove
+any manual method you are using to run grdb (after you have run the
+capplet, which will register the appropriate startup information).
+
+If you uncheck "Apply GTK theme to legacy applications", you will
+have to restart gnome to undo grdb's changes. This probably won't
+change.
+
+Also, if you change your theme settings, you must rerun grdb. The
+recommended method is to open the Legacy Applications capplet,
+uncheck and then recheck "Apply GTK theme to legacy applications"
+and then select OK. A better solution will appear for this.
+
+Caveats
+-------
+See TODO for an inkling of what's not available.
+
+This shouldn't do any permanent damage to your system, but then again it
+might. I am not responsible for any damage done.
+
+Credits
+-------
+Chris Ausbrooks made the post which led me to write grdb. He not only
+asked about it, but spelled out the process involved clearly enough that I
+decided I could give it a go. He's also done an rpm spec file, and will be
+creating i386 and, possibly, alpha rpms.
+
+Mark Donohoe, the author of krdb, which grdb is inspired by and modelled
+after. He also wrote most of the .ad files included with grdb.
+
+Christian Schaller provided the nice pyramid icon for the capplet.

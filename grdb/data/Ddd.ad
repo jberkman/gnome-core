@@ -1,0 +1,32 @@
+Ddd*foreground:			   FOREGROUND
+Ddd*background:			   BACKGROUND
+Ddd*XmText.background:		   WINDOW_BACKGROUND
+Ddd*XmTextField.background:	   WINDOW_BACKGROUND
+Ddd*GraphEdit.background:	   WINDOW_BACKGROUND
+Ddd*XmList.background:		   WINDOW_BACKGROUND
+Ddd*topShadowColor:		   HIGHLIGHT
+Ddd*bottomShadowColor:		   LOWLIGHT
+
+! Leave these unchanged until I experiment some more
+!Ddd*graph_edit_panner.background:  grey
+!Ddd*graph_edit_panner.foreground:  grey
+!Ddd*graph_edit_panner.shadowColor: black
+
+! The default font to use for labels, etc.
+Ddd*defaultFont:       FONT
+
+! The font to use for help texts.
+Ddd*variableWidthFont: FONT
+
+! The base font size; overrides the point settings as set above.
+! Users must currently set this in their ~/.Xdefaults file if
+! they are not using 120 (in 8th position of xlfd)
+!
+! This also will affect size of fixed font.
+!
+! Ddd*FontSize:          120
+
+! The font to use for fixed-width fields, such as the source code.
+! (not planning on keeping FIXED_FONT for grdb, so leave this
+! commented out)
+!Ddd*fixedWidthFont:    FIXED_FONT

@@ -1,0 +1,75 @@
+0.2.4 : 28AUG2000
+* Added --constants command line. This just prints the constants grdb
+  defines and exits. If, for example, you want to match you gtk theme
+  colors to your windowmanager, you could use this and perl to
+  massage the output. Andre Bonhote asked about this for fvwm2, and I
+  think  this is a really good way to go.
+* Incorporated patch from Peter Teichman to complete netscape font
+  theming and use fixed fonts in Motif. If you don't like this second
+  change, look at the bottom of AAAMotif.ad and follow the comments.
+
+0.2.3 : 25JUN2000 
+* This will be last release till august as I am 5 weeks away
+  from my CS degree (and still working fulltime)
+* fixed bug causing files in ~/.grdb to essentially be ignored
+* changed RVPlayer.ad to not have global settings and therefore not
+  give netscape a huge download dialog.
+
+0.2.2 : 12JUN2000
+* fixed .spec file to include new icon
+
+0.2.1 : 11JUN2000
+* fix crash caused by opening font selection dialog and pressing
+  OK without selecting a font.
+* Added capplet icon provided by Christian Schaller
+
+0.2.0 : 10JUN2000
+* added control center capplet
+* removed usage of GdkFontPrivate, instead we fall back to
+  using the GtkRcStyle, as the theme-selector capplet does
+
+0.1.2 : 21MAY2000
+* moved main.c into grdb subdirectory and split it into 
+  main.c, fonts.c, colors.c and grdb.h
+
+0.1.1 : 15MAY2000
+* added command line and env. variable to specify fixed font.
+  (not an optimal solution, but it works)
+* determing italic and bold fonts is done more reliably.
+* added a Ddd.ad for the ddd debugger, see comments in the file
+  for limitations.
+* Removed the support for unused #define values. These were 
+  INACTIVE_BLEND, ACTIVE_BLEND, and TITLE_FONT.
+
+
+0.1.0 : 28APR2000
+* initial font support, this is not finished yet
+* added command line arguments via popt
+* fixed problems with configure --with-included-gettext
+* now using grdb.spec.in to generate grdb.spec
+  (courtesy Chris Ausbrooks)
+
+
+0.0.3 : 18MAR2000
+* internationalization added, no translations yet.
+* use a top level window, instead of button, to get the style.
+* fixed some bugs in releasing gtk resources when done with them.
+* added support for user .ad files in $HOME/.grdb
+* changed code to guesstimate HIGHLIGHT and LOWLIGHT values.
+* grdb.spec file for RPMS (courtesy Chris Ausbrooks)
+
+0.0.2 : 24FEB2000
+* initial automake/autoconf
+* we now process .Xdefaults if it exists
+* changed WINDOW_BACKGROUND to use style->base[GTK_STATE_NORMAL]
+* some code formatting tweaks
+
+0.0.1 : 19FEB2000
+* Use popen() instead of temporary file.
+* Sort .ad directory entries after we read them.
+* use `gnome-config --datadir`/grdb as location of .ad files,
+   this is set in the Makefile
+* added GPL License information and crude attempt at documentation
+
+
+Proof of Concept release : 18FEB2000 
