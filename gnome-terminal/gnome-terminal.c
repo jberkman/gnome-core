@@ -352,6 +352,7 @@ load_config (char *class)
 		cfg->color_type = 1;
 	else
 		cfg->color_type = 2;
+	cfg->bell      = gnome_config_get_bool ("bell_silenced=0");
 	cfg->blink     = gnome_config_get_bool ("blinking=0");
 	cfg->swap_keys = gnome_config_get_bool ("swap_del_and_backspace=0");
 	
@@ -1076,6 +1077,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg)
 {
  	char *prefix = alloca (strlen (cfg->class) + 20);
 
+	printf("cfg->class = %s\n",cfg->class);
 	sprintf (prefix, "/Terminal/%s/", cfg->class);
 	gnome_config_push_prefix (prefix);
 
