@@ -114,6 +114,7 @@ typedef enum
 #define	GWMH_TASK_SKIP_TASKBAR(t)    ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_SKIP_TASKBAR) != 0)
 #define	GWMH_TASK_GROUP_TRANSIENT(t) ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_GROUP_TRANSIENT) != 0)
 #define	GWMH_TASK_FOCUS_ON_CLICK(t)  ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_FOCUS_ON_CLICK) != 0)
+#define	GWMH_TASK_DO_NOT_COVER(t)    ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_DO_NOT_COVER) != 0)
 #define	GWMH_TASK_UPDATE_QUEUED(t)   ((GWMH_TASK (t)->imask_queued | \
 				       GWMH_TASK (t)->imask_notify) != 0)
 
@@ -345,6 +346,13 @@ GList*		gwmh_task_list_stack_sort	(GList		*task_list);
 
 
 /* --- internal --- */
+void		gwmh_window_send_client_message (GdkWindow *window,
+						 gulong     atom,
+						 gulong	    long1,
+						 gulong	    long2,
+						 gulong	    long3,
+						 gulong	    long4,
+						 gulong	    long5);
 GdkWindow*	gwmh_root_put_atom_window	(const gchar   *atom_name,
 						 GdkWindowType  window_type,
 						 GdkWindowClass window_class,

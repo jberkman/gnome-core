@@ -18,6 +18,7 @@
 #include <config.h>	/* PACKAGE, i18n */
 #include "deskguide_applet.h"
 #include "gwmdesktop.h"
+#include "gwmtaskview.h"
 
 
 #define CONFIG_OBOX_BORDER 6
@@ -570,11 +571,96 @@ gp_check_task_visible (GwmDesktop *desktop,
 }
 
 static void
-gp_widget_button_popup_task_editor (GtkWidget *widget,
-				    gpointer   data)
+gp_widget_button_toggle_task_list (GtkWidget *widget,
+				   gpointer   data)
 {
-  g_message ("Task Editor unimplemented yet!");
-  gdk_beep ();
+  static GtkWidget *dialog = NULL;
+
+  if (!dialog)
+    {
+      GtkWidget *task_view;
+
+      dialog = gtk_widget_new (GTK_TYPE_WINDOW,
+			       "auto_shrink", FALSE,
+			       "allow_shrink", FALSE,
+			       "allow_grow", TRUE,
+			       "signal::delete_event", gtk_widget_hide_on_delete, NULL,
+			       "signal::destroy", gtk_widget_destroyed, &dialog,
+			       "signal::destroy", gtk_widget_destroyed, &dialog,
+			       "type", GTK_WINDOW_POPUP,
+			       NULL);
+      task_view = gtk_widget_new (GWM_TYPE_TASK_VIEW,
+				  "visible", TRUE,
+				  "parent", gtk_widget_new (GTK_TYPE_FRAME,
+							    "visible", TRUE,
+							    "shadow", GTK_SHADOW_IN,
+							    "parent", gtk_widget_new (GTK_TYPE_FRAME,
+										      "visible", TRUE,
+										      "shadow", GTK_SHADOW_OUT,
+										      "parent", dialog,
+										      NULL),
+							    NULL),
+				  NULL);
+      gwm_task_view_rebuild (GWM_TASK_VIEW (task_view));
+      gtk_widget_size_request (dialog, NULL);
+      gtk_widget_realize (dialog);
+    }
+  if (!GTK_WIDGET_VISIBLE (dialog))
+    {
+      GwmhTask *task;
+
+      gtk_container_check_resize (GTK_CONTAINER (dialog));
+      if (gp_applet && GTK_WIDGET_REALIZED (gp_applet))
+	{
+	  GtkAllocation dsize;
+	  gint x1, y1, x2, y2, x, y;
+
+	  dsize = dialog->allocation; /* gtk_widget_get_child_requisition (dialog, &dsize); */
+	  gdk_window_get_origin (gp_applet->window, &x1, &y1);
+	  x2 = x1 + gp_applet->allocation.width;
+	  y2 = y1 + gp_applet->allocation.height;
+	  if (GP_ARROW_DIR == GTK_ARROW_UP)
+	    y = MAX (y1 - dsize.height, 0);
+	  else if (GP_ARROW_DIR == GTK_ARROW_DOWN)
+	    y = MIN (y2, gdk_screen_height () - dsize.height);
+	  else
+	    y = CLAMP (y1, 0, gdk_screen_height () - dsize.height);
+	  if (GP_ARROW_DIR == GTK_ARROW_LEFT)
+	    x = MAX (x1 - dsize.width, 0);
+	  else if (GP_ARROW_DIR == GTK_ARROW_RIGHT)
+	    x = MIN (x2, gdk_screen_width () - dsize.width);
+	  else
+	    x = CLAMP (x1, 0, gdk_screen_width () - dsize.width);
+	  gtk_widget_set_uposition (dialog, x, y);
+	}
+      gtk_widget_show (dialog);
+      gdk_flush ();
+      gwmh_window_send_client_message (dialog->window,
+				       GWMHA_WIN_STATE,
+				       GWMH_STATE_STICKY | GWMH_STATE_HIDDEN,
+				       GWMH_STATE_STICKY | GWMH_STATE_HIDDEN,
+				       GDK_CURRENT_TIME,
+				       GDK_CURRENT_TIME,
+				       GDK_CURRENT_TIME);
+      gwmh_window_send_client_message (dialog->window,
+				       GWMHA_WIN_LAYER,
+				       GWMH_LAYER_ABOVE_DOCK,
+				       GDK_CURRENT_TIME,
+				       GDK_CURRENT_TIME,
+				       GDK_CURRENT_TIME,
+				       GDK_CURRENT_TIME);
+      gwmh_window_send_client_message (dialog->window,
+				       GWMHA_WIN_HINTS,
+				       GWMH_HINTS_DO_NOT_COVER,
+				       GWMH_HINTS_DO_NOT_COVER,
+				       GDK_CURRENT_TIME,
+				       GDK_CURRENT_TIME,
+				       GDK_CURRENT_TIME);
+      gdk_window_raise (dialog->window);
+      task = gwmh_task_from_window (dialog->window);
+    }
+  else
+    gtk_widget_hide (dialog);
 }
 
 static inline gboolean
@@ -699,14 +785,14 @@ gp_init_gui (void)
   /* add arrow and button
    */
   arrow = gtk_widget_new (GTK_TYPE_ARROW,
-			  "arrow_type", GP_ARROW_DIR,
 			  "visible", TRUE,
+			  "arrow_type", GP_ARROW_DIR,
 			  NULL);
   button = gtk_widget_new (GTK_TYPE_BUTTON,
 			   "visible", TRUE,
 			   "can_focus", FALSE,
 			   "child", arrow,
-			   "signal::clicked", gp_widget_button_popup_task_editor, NULL,
+			   "signal::clicked", gp_widget_button_toggle_task_list, NULL,
 			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
 			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
 			   NULL);

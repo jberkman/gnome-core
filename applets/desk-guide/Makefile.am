@@ -8,7 +8,7 @@ INCLUDES = -I. -I$(srcdir) 				\
 
 bin_PROGRAMS = deskguide_applet
 
-deskguide_applet_SOURCES = gstc.c gwmh.c gwmdesktop.c deskguide_applet.c
+deskguide_applet_SOURCES = gstc.c gwmh.c gwmdesktop.c gwmtaskview.c deskguide_applet.c
 
 deskguide_applet_LDADD = ../../panel/libpanel_applet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS)         \
@@ -19,6 +19,7 @@ EXTRA_DIST = \
 	gstc.h \
 	gwmh.h \
 	gwmdesktop.h \
+	gwmtaskview.h \
 	deskguide_applet.h \
 	deskguide_applet.gnorba \
 	deskguide_applet.desktop \

@@ -110,6 +110,15 @@ static gboolean		send_client_message_3L	  (Window     recipient,
 						   glong      long1,
 						   glong      long2,
 						   glong      long3);
+static gboolean		send_client_message_5L	  (Window     recipient,
+						   Window     event_window,
+						   Atom       message_type,
+						   long       event_mask,
+						   glong      long1,
+						   glong      long2,
+						   glong      long3,
+						   glong      long4,
+						   glong      long5);
 static void 		get_task_root_and_frame   (GwmhTask    *task);
 static GdkWindow*	gdk_window_ref_from_xid	  (Window       xwin);
 static guint            gwmh_property_atom2info   (Atom         atom,
@@ -508,7 +517,7 @@ send_client_message_2L (Window recipient,
 			glong  long1,
 			glong  long2)
 {
-  return send_client_message_3L (recipient, event_window, message_type, event_mask, long1, long2, 0);
+  return send_client_message_5L (recipient, event_window, message_type, event_mask, long1, long2, 0, 0, 0);
 }
 
 static gboolean
@@ -519,6 +528,20 @@ send_client_message_3L (Window recipient,
 			glong  long1,
 			glong  long2,
 			glong  long3)
+{
+  return send_client_message_5L (recipient, event_window, message_type, event_mask, long1, long2, long3, 0, 0);
+}
+
+static gboolean
+send_client_message_5L (Window recipient,
+			Window event_window,
+			Atom   message_type,
+			long   event_mask,
+			glong  long1,
+			glong  long2,
+			glong  long3,
+			glong  long4,
+			glong  long5)
 {
   XEvent xevent = { 0, };
 
@@ -531,6 +554,8 @@ send_client_message_3L (Window recipient,
   xevent.xclient.data.l[0] = long1;
   xevent.xclient.data.l[1] = long2;
   xevent.xclient.data.l[2] = long3;
+  xevent.xclient.data.l[3] = long4;
+  xevent.xclient.data.l[4] = long5;
 
   gdk_error_trap_push ();
 
@@ -2175,10 +2200,9 @@ gwmh_task_set_area (GwmhTask *task,
        harea == task->harea &&
        varea == task->varea))
     return;
-
+  
   gwmh_sync ();
-  gwmh_freeze_syncs ();
-
+  
   /* ugly hack for buggy window managers
    * that violate the spec and expect us to modify properties directly
    */
@@ -2192,16 +2216,17 @@ gwmh_task_set_area (GwmhTask *task,
       if (desktop != task->desktop)
 	XChangeProperty (GDK_DISPLAY (), task->xwin, GWMHA_WIN_WORKSPACE,
 			 XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, 1);
-
+      
       data[0] = harea;
       data[1] = varea;
       XChangeProperty (GDK_DISPLAY (), task->xwin, GWMHA_WIN_AREA,
 		       XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, 2);
-
+      
       gdk_error_trap_pop ();
     }
   else
     {
+      gwmh_freeze_syncs ();
       if (desktop != task->desktop)
 	send_client_message_2L (GDK_ROOT_WINDOW (), task->xwin,
 				GWMHA_WIN_WORKSPACE,
@@ -2211,9 +2236,8 @@ gwmh_task_set_area (GwmhTask *task,
 			      GWMHA_WIN_AREA,
 			      SubstructureNotifyMask,
 			      harea, varea, CurrentTime);
+      gwmh_thaw_syncs ();
     }
-  
-  gwmh_thaw_syncs ();
 }
 
 void
@@ -2253,6 +2277,26 @@ GwmhDesk*
 gwmh_desk_get_config (void)
 {
   return &gwmh_desk;
+}
+
+void
+gwmh_window_send_client_message (GdkWindow *window,
+				 gulong     atom,
+				 gulong	    long1,
+				 gulong	    long2,
+				 gulong	    long3,
+				 gulong	    long4,
+				 gulong	    long5)
+{
+  g_return_if_fail (window != NULL);
+  g_return_if_fail (atom > 0);
+
+  if (!GDK_WINDOW_IS_DESTROYED (window))
+    send_client_message_5L (GDK_ROOT_WINDOW (),
+			    GDK_WINDOW_XWINDOW (window),
+			    atom,
+			    SubstructureNotifyMask,
+			    long1, long2, long3, long4, long5);
 }
 
 void

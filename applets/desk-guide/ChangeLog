@@ -1,3 +1,21 @@
+Wed Feb 23 08:10:52 2000  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: show the task list upon arrow clicks.
+
+	* gwmtaskview.c: the list doesn't do much yet, basically it
+	only shows tasks that are clicked (upon button_releases
+	<shudder>). discovered more clist problems and a bunch of
+	sawmill bugs on the way, this is really getting frustrating.
+
+Wed Feb 23 03:24:53 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmh.[hc]: added gwmh_window_send_client_message() to send
+	arbitrary client messages for a GdkWindow to the root window.
+
+	* gwmtaskview.[hc]: new widget displaying a task list, heck if
+	clist wouldn't be so badly designed this list could actually
+	make some sense.
+
 Sat Feb 12 14:50:52 2000  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_save_session): plugged a leak, based
