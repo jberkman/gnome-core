@@ -16,6 +16,8 @@
 #include <sys/wait.h>
 #include "gnome-terminal.h"
 
+extern char **environ;		/* The program environment */
+
 char **env;
 
 #define DEFAULT_FONT "-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1"
@@ -616,9 +618,10 @@ new_terminal_cmd (char **cmd)
 		i = p - env;
 		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
-			if (strncmp (*p, "TERM", 4) == 0)
+			if (strncmp (*p, "TERM=", 5) == 0)
 				env_copy [i++] = "TERM=xterm";
-			else if ((strncmp (*p, "COLUMNS", 7) == 0) || (strncmp (*p, "LINES", 5) == 0)){
+			else if ((strncmp (*p, "COLUMNS=", 8) == 0)
+				 || (strncmp (*p, "LINES=", 6) == 0)) {
 				/* nothing: do not copy those */
 			} else
 				env_copy [i++] = *p;

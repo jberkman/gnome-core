@@ -1,3 +1,10 @@
+1998-05-16  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* gnome-terminal.c (environ): Declare.  Not all systems declare
+	this global variable in their header files.
+	(new_terminal_cmd): Don't get false positives on env. vars. that
+	begin with, but are longer than, TERM, COLUMNS or LINES.
+
 Sat May 16 02:55:35 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* gnome-terminal.c (initial_command): Now a vector.
