@@ -6,7 +6,7 @@
 <!ENTITY mini-c "<application>Mini-Commander</application>">
 ]>
 
-<book id="index" revision="$Revision: 1.9 $">
+<book id="index" revision="$Revision: 1.10 $">
 
   <!-- Title information -->
   <bookinfo>
@@ -19,7 +19,7 @@
 	<surname>Maruhn</surname>
 	<affiliation>
 	  <address>
-             <email>om@linuxhq.com</email>
+             <email>oliver@maruhn.com</email>
            </address> 
 	</affiliation>
       </author>
@@ -30,15 +30,15 @@
       <holder>Oliver Maruhn</holder>
     </copyright>
 
-    <date>$Date: 1999/01/19 15:21:11 $</date>
+    <date>$Date: 1999/05/29 10:33:48 $</date>
     
     <abstract id="abstract">
       <para>This is the description of the <ulink url="http://www.gnome.org/">GNOME</ulink>
-      applet &mini-c;.  The latest
+      applet &mini-c;.  A online
       version of this document and
-      &mini-c; itself are at <ulink url="http://om.filewatcher.org/mini-commander/">http://om.filewatcher.org/mini-commander/</ulink>.</para>
+      &mini-c; itself are at <ulink url="http://www.maruhn.com/mini-commander/">http://www.maruhn.com/mini-commander/</ulink>.</para>
 
-      <para>This is $Revision: 1.9 $ from $Date: 1999/01/19 15:21:11 $.</para>
+      <para>This is $Revision: 1.10 $ from $Date: 1999/05/29 10:33:48 $.</para>
 
     </abstract>
 
@@ -89,7 +89,7 @@
       download and compile separate sources.  Only if you are looking
       for the latest features or bugfixes this could be interesting
       for you.  In this case you should first take a look at <ulink
-      url="http://om.filewatcher.org/mini-commander/">http://om.filewatcher.org/mini-commander/</ulink>
+      url="http://www.maruhn.com/mini-commander/">http://www.maruhn.com/mini-commander/</ulink>
       to see if there is a new version at all.</para>
 
       <para>Perhaps you also want to take a look at the history (<xref
@@ -97,7 +97,7 @@
 
       <para>The currently known latest separate sources package is
       <ulink
-      url="http://om.filewatcher.org/mini-commander/mini-commander_applet-0.0.14.tar.gz">http://om.filewatcher.org/mini-commander/mini-commander_applet-0.0.14.tar.gz</ulink>.</para>
+      url="http://www.maruhn.com/mini-commander/mini-commander_applet-0.0.14.tar.gz">http://www.maruhn.com/mini-commander/mini-commander_applet-0.0.14.tar.gz</ulink>.</para>
 
       <para>But think twice before you download this package. The
       developement of GNOME is currently very fast. Probably this
