@@ -20,7 +20,7 @@
    <title>Desk Guide</title>
    <screenshot>
     <screeninfo>Desk Guide</screeninfo>
-    <graphic format="png" fileref="deskguide-fig" srccredit="John Fleck">
+    <graphic format="png" fileref="figures/deskguide-fig" srccredit="John Fleck">
     </graphic>
    </screenshot>
    </figure>
@@ -89,7 +89,7 @@
    <title>Desk Guide Task List</title>
    <screenshot>
     <screeninfo>Lista de Tareas de Desk Guide</screeninfo>
-    <graphic format="png" fileref="deskguide-tasklist-fig" srccredit="John Fleck">
+    <graphic format="png" fileref="figures/deskguide-tasklist-fig" srccredit="John Fleck">
     </graphic>
    </screenshot>
    </figure>
@@ -154,7 +154,7 @@ cualquiera
      <title>Dialogo de Propiedades </title>
      <screenshot>
       <screeninfo>Dialogo de Propiedades </screeninfo> 
-      <graphic format="png" fileref="deskguide-properties"
+      <graphic format="png" fileref="figures/deskguide-properties"
                srccredit="John Fleck">
       </graphic>
      </screenshot>
@@ -240,7 +240,7 @@ cualquiera
      <title>Dialogo de Propiedades - Tareas</title>
      <screenshot>
       <screeninfo>Dialogo de Propiedades - Tareas</screeninfo> 
-      <graphic format="png" fileref="deskguide-properties-tasks-fig"
+      <graphic format="png" fileref="figures/deskguide-properties-tasks-fig"
                srccredit="John Fleck">
       </graphic>
      </screenshot>
@@ -280,7 +280,7 @@ ejecutando con "marcas" que
      <title>Dialogo de Propiedades - Geometría</title>
      <screenshot>
       <screeninfo>Dialogo de Propiedades - Geometría</screeninfo> 
-      <graphic format="png" fileref="deskguide-properties-geometry-fig"
+      <graphic format="png" fileref="figures/deskguide-properties-geometry-fig"
                srccredit="John Fleck">
       </graphic>
      </screenshot>
@@ -352,7 +352,7 @@ ejecutando con "marcas" que
      <title>Dialogo de Propiedades - Avanzadas</title>
      <screenshot>
       <screeninfo>Dialogo de Propiedades - Avanzadas</screeninfo> 
-      <graphic format="png" fileref="deskguide-properties-advanced-fig"
+      <graphic format="png" fileref="figures/deskguide-properties-advanced-fig"
                srccredit="John Fleck">
       </graphic>
      </screenshot>

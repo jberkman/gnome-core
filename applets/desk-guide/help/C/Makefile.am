@@ -5,9 +5,10 @@ figs = \
 	deskguide-properties.png		\
 	deskguide-properties-geometry-fig.png	\
 	deskguide-tasklist-fig.png
-applet = desk-guide
+docname = desk-guide_applet
 lang = C
-omffiles = desk-guide_applet-C.omf
-sgml_ents = $(applet).sgml
-include $(top_srcdir)/applet-docs.make
-dist-hook: applet-dist-hook
+omffile = desk-guide_applet-C.omf
+sgml_ents = desk-guide.sgml
+include $(top_srcdir)/sgmldocs.make
+dist-hook: app-dist-hook
+

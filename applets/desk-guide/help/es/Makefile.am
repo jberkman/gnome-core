@@ -6,8 +6,8 @@ figs = \
 	deskguide-properties-geometry-fig.png	\
 	deskguide-tasklist-fig.png
 docname = desk-guide_applet
-lang = de
-omffile = desk-guide_applet-de.omf
+lang = es
+omffile = desk-guide_applet-es.omf
 sgml_ents = desk-guide.sgml
 include $(top_srcdir)/sgmldocs.make
 dist-hook: app-dist-hook
