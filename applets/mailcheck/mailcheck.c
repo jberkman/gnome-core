@@ -149,7 +149,7 @@ static void
 mailcheck_load_animation (char *fname)
 {
 	int width, height;
-	GdkImlib *im;
+	GdkImlibImage *im;
 
 	im = gdk_imlib_load_image (fname);
 
