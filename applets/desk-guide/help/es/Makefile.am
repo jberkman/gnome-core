@@ -1,10 +1,10 @@
 figs = \
-	deskguide-fig.png			\
-	deskguide-properties-tasks-fig.png	\
-	deskguide-properties-advanced-fig.png	\
-	deskguide-properties.png		\
-	deskguide-properties-geometry-fig.png	\
-	deskguide-tasklist-fig.png
+	figures/deskguide-fig.png			\
+	figures/deskguide-properties-tasks-fig.png	\
+	figures/deskguide-properties-advanced-fig.png	\
+	figures/deskguide-properties.png		\
+	figures/deskguide-properties-geometry-fig.png	\
+	figures/deskguide-tasklist-fig.png
 docname = desk-guide_applet
 lang = es
 omffile = desk-guide_applet-es.omf
