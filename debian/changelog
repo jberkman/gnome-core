@@ -1,3 +1,24 @@
+gnome-core (0.27-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added /usr/doc/gnome
+
+ -- Jim Pick <jim@jimpick.com>  Sat, 15 Aug 1998 14:21:06 -0700
+
+gnome-core (0.25-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Jim Pick <jim@jimpick.com>  Thu,  6 Aug 1998 22:51:22 -0700
+
+gnome-core (0.20-2) unstable; urgency=low
+
+  * Added Debian menu-method for gnome-panel.  Fixed Bug #24025
+    (Thanks to Ray Dassen for reporting the bug, and Riku Voipio
+     who wrote the menu method for Gnome 0.12)
+
+ -- Jim Pick <jim@jimpick.com>  Wed, 22 Jul 1998 20:22:00 -0700
+
 gnome-core (0.20-1) unstable; urgency=low
 
   * New upstream release.

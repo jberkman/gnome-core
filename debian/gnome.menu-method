@@ -1,0 +1,30 @@
+#!/usr/sbin/install-menu
+compat="menu-1"
+
+!include menu.h
+
+function default($var,$com)= \
+       "[Desktop Entry]\n" \
+        "Name=" title() "\n" \
+        "Comment=" ifelse($longtitle,$longtitle,$title) "\n" \
+       "Exec=" $command "\n" \
+        $var  \
+        ifnempty($icon,"Icon=" $icon "\n") \
+        "Type=Application\n" 
+
+supported
+  x11=  default("Terminal=0\n",$command)
+  text= default("Terminal=1\n",$command)
+endsupported
+
+genmenu=parent($section) "/" $title ".desktop" ""
+startmenu=""
+endmenu=""
+#submenutitle=""
+rootsection=""
+rootprefix="/var/lib/gnome/Debian/"
+userprefix=".gnome"
+prerun="rm -rf " prefix() "/* "
+#treewalk="c()"
+treewalk="M"
+preoutput=""

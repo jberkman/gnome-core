@@ -13,7 +13,7 @@ if [ ! -r rules.in ]; then
 fi
 
 debtype='official'
-prefix='/usr/X11R6'
+prefix='/usr'
 gtkprefix='/usr'
 pkgsuffix=''
 
@@ -91,17 +91,17 @@ do
        sed "s,%$debtype>,," | sed '/^%/d' > $tofile
 done
 
-#for postinst in libgnome0$pkgsuffix libgtktty0$pkgsuffix libzvt0$pkgsuffix libgtkxmhtml0$pkgsuffix
-#do
-#
-#cat > $postinst.postinst <<EOF
-##! /bin/sh
-#
-#set -e
-#ldconfig
-#
-##DEBHELPER#
-#EOF
-#
-#done
+for postinst in gnome-panel$pkgsuffix
+do
+
+cat > $postinst.postinst <<EOF
+#! /bin/sh
+
+set -e
+ldconfig
+
+#DEBHELPER#
+EOF
+
+done
 

@@ -4,6 +4,20 @@ Priority: optional
 Maintainer: Jim Pick <jim@jimpick.com>
 Standards-Version: 2.4.0.0
 
+Package: gnome-core@SUFFIX@
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Common files for Gnome core apps and help browser
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package includes some files that are shared between several
+ Gnome apps.  It also contains the Gnome online help browser application.
+ Based on the gtk-xmhtml widget, it allows you to view documentation
+ in the form of HTML, man pages, or GNU info pages.
+
 Package: gnome-panel@SUFFIX@
 Architecture: any
 Depends: ${shlibs:Depends}
@@ -18,28 +32,6 @@ Description: Launch and/or dock Gnome applications
  applets are supplied: an application menu, a clock, a mail checker,
  a network monitor, etc.  You can customize the location, and the
  "autohide" animations.
-
-Package: gnome-icons@SUFFIX@
-Architecture: all
-Description: Icons for Gnome
- Gnome is the "GNU Network Object Model Environment"
- .
- It is a project to build a complete, user-friendly desktop based
- entirely on free software.
- .
- This package includes icons for gnome. they are not included by
- default because they use too many colors to be usable on a low-color system
-
-Package: gnome-core@SUFFIX@
-Architecture: all
-Description: Common files for Gnome core apps
- Gnome is the "GNU Network Object Model Environment"
- .
- It is a project to build a complete, user-friendly desktop based
- entirely on free software.
- .
- This package includes some files that are shared between several
- Gnome apps.
 
 Package: gnome-session@SUFFIX@
 Architecture: any
@@ -60,7 +52,7 @@ Description: The Gnome Session Manager
 
 Package: gnome-terminal@SUFFIX@
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: gnome-core@SUFFIX@ (>= ${Source-Version}), ${shlibs:Depends}
 Description: The Gnome terminal emulator application
  Gnome is the "GNU Network Object Model Environment"
  .
@@ -70,22 +62,9 @@ Description: The Gnome terminal emulator application
  This package contains the Gnome Gtk-based terminal application (based
  on the zvt widget).
 
-Package: gnome-help@SUFFIX@
-Architecture: any
-Depends: ${shlibs:Depends}
-Description: The Gnome help browser
- Gnome is the "GNU Network Object Model Environment"
- .
- It is a project to build a complete, user-friendly desktop based
- entirely on free software.
- .
- This package contains the Gnome online help browser application.
- Based on the gtk-xmhtml widget, it allows you to view documentation
- in the form of HTML, man pages, or GNU info pages.
-
 Package: gnome-desktop@SUFFIX@
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: gnome-core@SUFFIX@ (>= ${Source-Version}), ${shlibs:Depends}
 Description: The Gnome desktop customization utilities
  Gnome is the "GNU Network Object Model Environment"
  .

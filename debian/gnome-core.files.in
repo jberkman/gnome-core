@@ -1,2 +1,7 @@
 @PREFIX@/share/locale*
 @PREFIX@/share/apps*
+@PREFIX@/share/pixmaps*
+@PREFIX@/share/gnome/help*
+@PREFIX@/bin/gnome-help-browser
+@PREFIX@/bin/gnome-man2html
+@PREFIX@/bin/gnome-info2html

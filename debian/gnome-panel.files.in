@@ -1,6 +1,9 @@
 @PREFIX@/bin/panel
+@PREFIX@/bin/gmenu
 @PREFIX@/bin/*_applet
-@PREFIX@/lib/libpanel*
+@PREFIX@/lib/libpanel_applet.so.[0-9].[0-9].[0-9]
+@PREFIX@/lib/libpanel_applet.so.[0-9]
+@PREFIX@/lib/appletsConf.sh
 @PREFIX@/share/panelrc
 @PREFIX@/share/applets*
 @PREFIX@/include/applet*

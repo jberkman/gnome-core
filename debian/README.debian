@@ -5,7 +5,7 @@ The gnome-core source package contains the code for the following
 programs:
 
 * desktop-properties - for customizing your X desktop, mouse and keyboard
-* gemvt - a terminal emulator
+* gnome-terminal - a terminal emulator
 * the gnome session manager - this will save the state of Gnome apps when
   you log out, and restart them when you log back in.
 * panel - an application launcher / menu / dock

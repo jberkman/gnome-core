@@ -1,2 +1,4 @@
 @PREFIX@/bin/gnome-session
 @PREFIX@/bin/save-session
+@PREFIX@/bin/session-properties
+@PREFIX@/share/default.session
