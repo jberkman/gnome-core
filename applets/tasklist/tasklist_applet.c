@@ -105,7 +105,7 @@ create_minimized_icon (GdkPixbuf *pixbuf)
 gchar *
 fixup_task_label (TasklistTask *task)
 {
-	gchar *str;
+	gchar *str, *tempstr;
 	gint len, label_len;
 
 	label_len = gdk_string_width (area->style->font,
@@ -138,7 +138,9 @@ fixup_task_label (TasklistTask *task)
 		str = g_strdup (task->gwmh_task->name);
 
 	if (GWMH_TASK_ICONIFIED (task->gwmh_task)) {
-		str = g_strdup_printf ("[%s]", str);
+		tempstr = g_strdup_printf ("[%s]", str);
+		g_free(str);
+		str = tempstr;
 	}
 
 	return str;
@@ -580,6 +582,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	case GWMH_NOTIFY_DESTROY:
 		task = find_gwmh_task (gwmh_task);
 		tasks = g_list_remove (tasks, task);
+		g_free (task->icon);
 		g_free (task);
 		layout_tasklist ();
 		break;

@@ -7,7 +7,7 @@ extern TasklistConfig Config;
 TasklistConfig PropsConfig;
 
 /* The Property box */
-GtkWidget *prop;
+GtkWidget *prop = NULL;
 
 /* Callback for apply */
 static void
@@ -289,6 +289,13 @@ create_display_page (void)
 void
 display_properties (void)
 {
+	if (prop != NULL)
+	{
+		gdk_window_show (prop->window);
+		gdk_window_raise (prop->window);
+		return;
+
+	}
 	/* Copy memory from the tasklist config 
 	   to the tasklist properties config. */
 	memcpy (&PropsConfig, &Config, sizeof (TasklistConfig));
@@ -297,6 +304,9 @@ display_properties (void)
 	gtk_window_set_title (GTK_WINDOW (prop), _("Tasklist properties"));
 	gtk_signal_connect (GTK_OBJECT (prop), "apply",
 			    GTK_SIGNAL_FUNC (cb_apply), NULL);
+	gtk_signal_connect (GTK_OBJECT (prop), "destroy",
+			    GTK_SIGNAL_FUNC (gtk_widget_destroyed),
+			    &prop);
 
 	create_display_page ();
 	create_size_page ();
