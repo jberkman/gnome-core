@@ -137,12 +137,14 @@ close_terminal_cmd (void *unused, void *data)
 		gtk_main_quit ();
 }
 
+#if 0
 static void
 close_all_cmd (void)
 {
 	while (terminals)
 		close_terminal_cmd (0, terminals->data);
 }
+#endif
 
 /*
  * Keep a copy of the current font name
@@ -668,7 +670,6 @@ static GnomeUIInfo gnome_terminal_terminal_menu [] = {
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP },
 	{ GNOME_APP_UI_ITEM, N_("Color selector..."),   NULL, color_cmd },
 	{ GNOME_APP_UI_SEPARATOR },
-	{ GNOME_APP_UI_ITEM, N_("Close all terminals"),  NULL, close_all_cmd },
 	GNOMEUIINFO_END
 };
 

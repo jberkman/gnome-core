@@ -1,3 +1,8 @@
+1998-08-06  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (close_all_cmd): Removed close all terminals
+	option. 
+
 1998-07-15  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c: Add support for hidden menubars.
