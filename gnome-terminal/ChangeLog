@@ -1,3 +1,8 @@
+1999-09-14  Michael Zucchi  <zucchi@zedzone.mmc.com.au>
+
+	* Merged gnome-core-1-0 to HEAD.  Doh, did this the wrong way
+	around, no matter I guess.
+
 1999-09-13  Cody Russell <bratsche@dfw.net>
 	* gnome-terminal.c: Changed GnomeUIInfo gnome_terminal_menu so
 	that the underscores are removed. e.g., "_File" -> "File". They
@@ -7,6 +12,22 @@
 
 	* gnome-terminal.c (button_press): Shift-button-3 launches the
 	browser. 
+
+1999-09-14  Michael Zucchi  <zucchi@zedzone.mmc.com.au>
+
+	* gnome-terminal.c: Fixes for bug #1690
+	(struct terminal_config): Moved update_records from global, and
+	fixed its type (was gboolean!).
+	(new_terminal_cmd): Pass cfg->update_records to forkpty().
+	(parse_an_arg): Update cfg->update_records for u/wtmp options.
+	(main_terminal_program): Override default config for
+	update_records with cmdline config.
+	(load_session): Load utmp/wtmp logging defaults only for session.
+	(save_session): Save utmp/utmp logging for session.
+	(save_session): Save window_title in session.
+	(load_session): Load window_title for session.
+	(save_session): Get the sign of the window position from the x and
+	y value, dont just assume it is +!
 
 1999-09-12  Michael Zucchi  <mzucchi@denr.sa.gov.au>
 

@@ -37,9 +37,6 @@ char **env;
 /* Initial geometry */
 char *geometry = 0;
 
-/* By default record utmp logins */
-gboolean update_records = ZVT_TERM_DO_UTMP_LOG | ZVT_TERM_DO_WTMP_LOG;
-
 /* is there pixmap compiled into zvt */
 static gboolean zvt_pixmap_support = FALSE;
 
@@ -92,6 +89,7 @@ struct terminal_config {
 	char *class;
 	enum scrollbar_position_enum scrollbar_position;
 	int invoke_as_login_shell; 		/* How to invoke the shell */
+	int update_records;
 	const char *user_back_str, *user_fore_str;
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int have_user_colors;			/* Only used for command line parsing */
@@ -494,6 +492,8 @@ load_config (char *class)
 	cfg->window_title = NULL;
 
 	cfg->termname = NULL;
+
+	cfg->update_records = ZVT_TERM_DO_UTMP_LOG|ZVT_TERM_DO_WTMP_LOG;
 
 	if (strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
@@ -2091,7 +2091,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 
 	errno = 0;
-	switch (zvt_term_forkpty (term, update_records)){
+	switch (zvt_term_forkpty (term, cfg->update_records)){
 	case -1:
 		show_pty_error_dialog(errno);
 		/* should we exit maybe? */
@@ -2170,6 +2170,11 @@ load_session ()
 		/* do this now, since it is only done in a session */
 		cfg->invoke_as_login_shell = gnome_config_get_bool("invoke_as_login_shell");
 		cfg->termname = gnome_config_get_string("termname");
+		cfg->window_title = gnome_config_get_string("window_title");
+		if (gnome_config_get_bool ("do_utmp=true"))
+			cfg->update_records |= ZVT_TERM_DO_UTMP_LOG;
+		if (gnome_config_get_bool ("do_wtmp=true"))
+			cfg->update_records |= ZVT_TERM_DO_WTMP_LOG;
 
 		g_free(class);
 		gnome_config_pop_prefix();
@@ -2235,7 +2240,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		  term->charheight;
 
 		geom = g_string_new ("");
-		g_string_sprintf (geom, "%dx%d+%d+%d", width, height, x, y);
+		g_string_sprintf (geom, "%dx%d%+d%+d", width, height, x, y);
 		gnome_config_set_string ("geometry", geom->str);
 		g_string_free (geom, TRUE);
 		
@@ -2251,10 +2256,11 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		save_preferences(list->data, term, cfg);
 		
 		/* do this now, since it is only done in a session */
-		gnome_config_set_bool("invoke_as_login_shell",
-				      cfg->invoke_as_login_shell);
-		gnome_config_set_string("termname",
-					cfg->termname);
+		gnome_config_set_bool("invoke_as_login_shell", cfg->invoke_as_login_shell);
+		gnome_config_set_string("termname", cfg->termname);
+		gnome_config_set_string("window_title", cfg->window_title);
+		gnome_config_set_bool("do_utmp", (cfg->update_records & ZVT_TERM_DO_UTMP_LOG) != 0);
+		gnome_config_set_bool("do_wtmp", (cfg->update_records & ZVT_TERM_DO_WTMP_LOG) != 0);
 
 		gnome_config_pop_prefix ();
 		g_free (prefix);
@@ -2410,16 +2416,16 @@ parse_an_arg (poptContext state,
 		cfg->have_user_colors = 1;
 		break;
 	case DOUTMP_KEY:
-		update_records |= ZVT_TERM_DO_UTMP_LOG;
+		cfg->update_records |= ZVT_TERM_DO_UTMP_LOG;
 		break;
 	case DONOUTMP_KEY:
-		update_records &= ~ZVT_TERM_DO_UTMP_LOG;
+		cfg->update_records &= ~ZVT_TERM_DO_UTMP_LOG;
 		break;
 	case DOWTMP_KEY:
-		update_records |= ZVT_TERM_DO_WTMP_LOG;
+		cfg->update_records |= ZVT_TERM_DO_WTMP_LOG;
 		break;
 	case DONOWTMP_KEY:
-		update_records &= ~ZVT_TERM_DO_WTMP_LOG;
+		cfg->update_records &= ~ZVT_TERM_DO_WTMP_LOG;
 		break;
 	case TITLE_KEY:
 	        cfg->window_title = g_strdup(arg);
@@ -2551,6 +2557,8 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		cmdline_login ? cmdline_config->invoke_as_login_shell : 
 		default_config->login_by_default;
 	default_config->termname = g_strdup(cmdline_config->termname);
+
+	default_config->update_records = cmdline_config->update_records;
 
 	terminal_config_free (cmdline_config);
 	
