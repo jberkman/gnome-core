@@ -1,3 +1,7 @@
+Mon Mar 12 15:31:03 2001  George Lebl <jirka@5z.com>
+
+	* gnome-terminal.desktop:  Add DocPath
+
 2001-02-14  Christophe Merlet  <redfox@eikonex.org>
 
 	* gnome-terminal.c: Marqued string for translation.

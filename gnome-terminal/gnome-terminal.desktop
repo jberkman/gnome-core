@@ -69,3 +69,4 @@ Exec=gnome-terminal --use-factory --start-factory-server
 Icon=gnome-terminal.png
 Terminal=0
 Type=Application
+DocPath=gnome-terminal/index.html
