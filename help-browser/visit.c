@@ -4,6 +4,7 @@
 #include "docobj.h"
 #include "window.h"
 #include "cache.h"
+#include "magic.h"
 #include "mime.h"
 #include "transport.h"
 #include "visit.h"
@@ -26,6 +27,7 @@ void visitURL_nohistory(HelpWindow win, gchar *ref )
 static void
 visitDocument(HelpWindow win, docObj obj )
 {
+	resolveMagicURL( obj );
 	docObjResolveURL(obj, helpWindowCurrentRef(win));
 	transport(obj, helpWindowGetCache(win));
 	resolveMIME(obj);

@@ -81,33 +81,7 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	    return;
 
 	/* HACKHACKHACK for info support */
-	if (!strncmp(obj->ref, "info:", 5)) {
-		gchar *r, *s;
-
-	        g_message("got info reference: %s", obj->ref);
-
-		decomp = g_malloc(sizeof(*(obj->decomposedUrl)));
-
-		r = g_strdup(obj->ref + 5);
-		s = r + strlen(r) - 1;
-		while (s > r && *s != '#')
-			s--;
-		if (*s == '#') {
-			decomp->anchor = g_strdup(s+1);
-			*s = '\0';
-		} else {
-			decomp->anchor = g_strdup("");
-		}
-		decomp->access = g_strdup("file");
-		decomp->host   = g_strdup("");
-		decomp->path   = g_malloc(strlen(r) + 16);
-		strcpy(decomp->path, "/usr/info/");
-		strcat(decomp->path, r);
-		obj->absoluteRef = g_malloc(strlen(decomp->path)+10);
-		sprintf(obj->absoluteRef, "file:%s", decomp->path);
-		
-		g_free(r);
-	} else if (isRelative(obj->ref)) {
+	if (isRelative(obj->ref)) {
 	    g_message("got relative reference: %s", obj->ref);
 	    decomp = decomposeUrlRelative(obj->ref, currentRef,
 					  &(obj->absoluteRef));
@@ -133,6 +107,14 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	}
 
 	obj->decomposedUrl = decomp;
+}
+
+void
+docObjSetRef(docObj obj, gchar *ref)
+{
+	if (obj->ref)
+		g_free(obj->ref);
+	obj->ref = g_strdup(ref);
 }
 
 gchar *docObjGetRef(docObj obj)

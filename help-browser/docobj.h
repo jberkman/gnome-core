@@ -12,6 +12,7 @@ docObj docObjNew(gchar *ref);
 void docObjFree(docObj obj);
 void docObjResolveURL(docObj obj, gchar *currentRef);
 
+void   docObjSetRef(docObj obj, gchar *ref);
 gchar *docObjGetRef(docObj obj);
 gchar *docObjGetAbsoluteRef(docObj obj);
 gchar *docObjGetMimeType(docObj obj);

@@ -13,13 +13,13 @@ struct _decomposed_url {
 typedef struct _decomposed_url *DecomposedUrl;
 
 /* Return newly alloc-ed decomposedUrl with url bits */
-DecomposedUrl decomposeUrl(char *url);
+DecomposedUrl decomposeUrl(gchar *url);
 
 /* Frees a decomposed url */
 void freeDecomposedUrl(DecomposedUrl decomposedUrl);
 
 /* Decompose a url relative to ref */
-DecomposedUrl decomposeUrlRelative(char *url, char *ref, char **resolved);
+DecomposedUrl decomposeUrlRelative(gchar *url, gchar *ref, gchar **resolved);
 
 int isRelative(gchar *url);
 

@@ -6,7 +6,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
+#include <zlib.h>
 #include <glib.h>
 
 #include "misc.h"
@@ -238,4 +238,57 @@ getOutputFromBin(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	*outbuf    = tmpoutbuf;
 	*outbuflen = outpos;
 	return outpos;
+}
+
+
+guchar
+*loadFileToBuf( gchar *file )
+{
+	guchar buf[8193];
+	guchar *out=NULL;
+	gzFile *f;
+	gint bytes, len=0;
+
+	if ((f=gzopen(file, "r"))==NULL)
+		return NULL;
+
+	bytes=gzread(f, buf, 8192);
+	while (bytes > 0) {
+		if (!out)
+			out = g_malloc(bytes);
+		else 
+			out = g_realloc(out, len+bytes);
+
+		memcpy(out+len, buf, bytes);
+		len += bytes;
+		bytes=gzread(f, buf, 8192);
+	}
+	gzclose(f);
+	return out;
+}
+
+
+
+
+void map_spaces_to_underscores( gchar *str )
+{
+  gchar *p;
+
+  g_return_if_fail(str != NULL );
+  for (p=str; *p; p++)
+    switch (*p)
+      {
+      case ' ':
+      case '\n':
+      case '\t':
+      case '`':
+      case '\'':
+      case '/':
+      case '\\':
+      case '"':
+      case '.':
+      case '!':
+        *p = '_';
+        break;
+      }
 }

@@ -9,7 +9,7 @@
 
 #define COPY_OR_EMPTY(x) g_strdup((x) ? (x) : "")
 
-DecomposedUrl decomposeUrl(char *url)
+DecomposedUrl decomposeUrl(gchar *url)
 {
     DecomposedUrl res;
     gchar buf[BUFSIZ];
@@ -49,7 +49,7 @@ int isRelative(gchar *url)
     return HTURL_isAbsolute(url) ? 0 : 1;
 }
 
-DecomposedUrl decomposeUrlRelative(char *url, char *ref, char **resolved)
+DecomposedUrl decomposeUrlRelative(gchar *url, gchar *ref, gchar **resolved)
 {
     gchar urlBuf[BUFSIZ];
     gchar refBuf[BUFSIZ];

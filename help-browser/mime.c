@@ -123,17 +123,52 @@ convertMan( docObj obj )
 static void
 convertINFO( docObj obj )
 {
-	char *argv[2];
+	char *argv[6];
 	gchar *s;
+	gchar *a;
+	gchar *base;
+	gchar *basepath;
 
 	argv[0] = "gnome-info2html";
-	argv[1] = NULL;
+	argv[1] = "-a";
+	a = docObjGetDecomposedUrl(obj)->anchor;
+	if (a && *a) {
+		gchar *p;
+		a = alloca(strlen(a)+5);
+		strcpy(a,"\"");
+		strcat(a, docObjGetDecomposedUrl(obj)->anchor);
+		strcat(a, "\"");
+		/* unmap '_' to ' ' */
+		for (p=a; *p; p++)
+			if (*p == '_')
+				*p = ' ';
+	} else {
+		a = "\"Top\"";
+	}
+	argv[2] = a;
+	argv[3] = "-b";
+	basepath = g_strdup(docObjGetAbsoluteRef(obj));
+
+	base = strrchr(basepath, '/');
+	base++;
+	if ((s=strstr(base, ".info")))
+		*s = '\0';
+	if ((s=strstr(base, ".gz")))
+		*s = '\0';
+	for (s=base+strlen(base)-1; isdigit(*s) && s > base; s--);
+	if (*s == '-')
+		*s = '\0';
+
+	argv[4] = base;
+	argv[5] = NULL;
+
+printf("Running command %s %s %s %s %s\n",argv[0],argv[1],argv[2],argv[3], argv[4]);
 
 	if (! (s = docObjGetRawData(obj)))
 	    return;
-	
+
 	docObjSetConvData(obj, getOutputFrom(argv, s, strlen(s)), TRUE);
-	
+	g_free(basepath);
 }
 
 
