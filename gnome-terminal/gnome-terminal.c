@@ -1214,7 +1214,7 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 
 	glade_file = GNOME_TERMINAL_GLADEDIR "/gnome-terminal.glade2";
 
-	gui = glade_xml_new (glade_file, "prefs", PACKAGE);
+	gui = glade_xml_new (glade_file, "prefs", NULL);
 	if (!gui) {
 		g_warning ("Error loading `%s'", glade_file);
 		return;
