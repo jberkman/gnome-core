@@ -127,7 +127,8 @@ draw_task (TasklistTask *task)
 		return;
 
 	gtk_paint_box (area->style, area->window,
-		       GTK_STATE_NORMAL,
+		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
+		       GTK_STATE_ACTIVE : GTK_STATE_NORMAL, 
 		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
 		       GTK_SHADOW_IN: GTK_SHADOW_OUT,
 		       NULL, area, "button",
@@ -401,7 +402,7 @@ cb_about (void)
 	};
 	
 	dialog = gnome_about_new ("Gnome Tasklist",
-				  "0.1",
+				  VERSION,
 				  "Copyright (C) 1999 Anders Carlsson",
 				  authors,
 				  "A tasklist for the GNOME desktop environment",
