@@ -1,3 +1,8 @@
+1998-09-15    <jrb@redhat.com>
+
+	* capplet-manager.c (revert_button_callback): Now revert
+	desensitizes Try and Revert buttons
+
 1998-09-07    <jrb@redhat.com>
 
 	* main.c (main): removed the splash-screen code temporarily.

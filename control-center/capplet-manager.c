@@ -52,6 +52,7 @@ launch_capplet (node_data *data)
         GtkWidget *vbox;
         GtkWidget *separator;
         GtkWidget *bbox;
+        GtkWidget *frame;
         
         /* set up the notebook if needed */
         /* This capplet has not been started yet.  We need to do that. */
@@ -97,7 +98,11 @@ launch_capplet (node_data *data)
                 gtk_signal_connect (GTK_OBJECT (data->help_button), "clicked", GTK_SIGNAL_FUNC (help_button_callback), data);
                 
                 /* put it all together */
-                gtk_box_pack_start (GTK_BOX (vbox), data->socket, TRUE, TRUE, 0);
+                frame = gtk_frame_new (NULL);
+                gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
+                gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
+                gtk_container_add (GTK_CONTAINER (frame), data->socket);
+                gtk_box_pack_start (GTK_BOX (vbox), frame, TRUE, TRUE, 0);
                 gtk_box_pack_end (GTK_BOX (vbox), bbox, FALSE, FALSE, 5);
                 gtk_box_pack_end (GTK_BOX (vbox), separator, FALSE, FALSE, 0);
                 data->label = gtk_label_new (data->gde->name);
@@ -141,6 +146,8 @@ void try_button_callback(GtkWidget *widget, gpointer data)
 void revert_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
+        gtk_widget_set_sensitive (nd->try_button, FALSE);
+        gtk_widget_set_sensitive (nd->revert_button, FALSE);
         GNOME_capplet_revert (nd->capplet,nd->id, &ev);
 }
 void ok_button_callback(GtkWidget *widget, gpointer data)
