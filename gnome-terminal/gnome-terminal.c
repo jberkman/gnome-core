@@ -2813,6 +2813,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	}
 	
 	if (!load_session ()) {
+		gboolean has_term = FALSE;
 		if (use_terminal_factory) {
 			CORBA_Environment ev;
 			CORBA_Object term;
@@ -2823,12 +2824,16 @@ main_terminal_program (int argc, char *argv [], char **environ)
 				 ? initial_global_geometry : "80x24", &ev);
 			if (ev._major != CORBA_NO_EXCEPTION)
 				exit (5);
-			if (term)
+			if (term) {
 				CORBA_Object_release (term, &ev);
+				has_term = TRUE;
+			}
 			CORBA_exception_free (&ev);
 		}
-		if (!has_terminal_factory) {
-			new_terminal_cmd (initial_command, default_config, initial_global_geometry, terminal_id++);
+		if (!has_term) {
+			new_terminal_cmd (initial_command, default_config,
+					  initial_global_geometry,
+					  terminal_id++);
 		}
 	}
 

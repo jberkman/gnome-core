@@ -164,6 +164,9 @@ TerminalFactory_create_terminal (PortableServer_Servant servant,
 	TerminalServant *ts;
 
 	term = new_terminal_for_client (geometry);
+	if (term == CORBA_OBJECT_NIL)
+		return term;
+	
 	ts = terminal_servant_from_terminal (term, ev);
 
 	return PortableServer_POA_servant_to_reference (poa, ts, ev);
@@ -421,14 +424,14 @@ create_terminal_via_factory (char *geometry, CORBA_Environment *ev)
 	CORBA_Object obj, term;
 
 	obj = get_terminal_factory ();
+	has_terminal_factory = (obj != CORBA_OBJECT_NIL);
+
 	if (obj == CORBA_OBJECT_NIL)
 		return CORBA_OBJECT_NIL;
 
 	g_assert (geometry != NULL);
 
 	term = GNOME_Terminal_TerminalFactory_create_terminal (obj, geometry, ev);
-	has_terminal_factory = (term != CORBA_OBJECT_NIL);
-
 	CORBA_Object_release (obj, ev);
 	return term;
 }
