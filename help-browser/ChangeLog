@@ -1,3 +1,9 @@
+1998-12-08  Michael Lausch  <mla@gams.at>
+
+	* help-caller.c (main): changed the
+	goad_server_activate_with_repo_id call to comply with new
+	version. 
+
 1998-12-01  Jeff Garzik  <jgarzik@pobox.com>
 
 	* gnome-info2html/html.c:

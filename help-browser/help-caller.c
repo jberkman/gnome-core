@@ -37,7 +37,7 @@ main(int argc, char* argv[])
   orb = gnome_CORBA_init("help-caller", VERSION, &argc, argv, 0, &ev);
   Exception(&ev);
 
-  browser = goad_server_activate_with_repo_id(0, "IDL:help_browser/simple_browser:1.0", GOAD_ACTIVATE_REMOTE, NULL);
+  browser = goad_server_activate_with_repo_id(0, "IDL:help_browser/simple_browser:1.0", GOAD_ACTIVATE_REMOTE);
 
   if (browser == CORBA_OBJECT_NIL)
     {
