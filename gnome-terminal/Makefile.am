@@ -69,11 +69,8 @@ EXTRA_DIST =				\
 	$(man_MANS)			\
 	$(ui_DATA)
 
-
-DONT_DIST_SOURCE = \
-	$(CORBA_SOURCE)
+BUILT_SOURCES = $(CORBA_SOURCE)
+CLEANFILES    = $(BUILT_SOURCES)
 
 dist-hook:
-	for file in $(DONT_DIST_SOURCE) ; do \
-	    rm -f $(distdir)/$$file ; \
-	done
+	cd $(distdir) ; rm -f $(CLEANFILES)
