@@ -1,6 +1,0 @@
-#!/bin/sh
-EDITOR=emacs
-if test -e ~/.gnome/editor; then
-    . ~/.gnome/editor
-fi
-exec $EDITOR $*
