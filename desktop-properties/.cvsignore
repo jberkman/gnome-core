@@ -2,4 +2,6 @@ Makefile.in
 Makefile
 .deps
 _libs
-desktop_properties
+mouse-properties
+keyboard-properties
+background-properties

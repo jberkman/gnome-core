@@ -2,6 +2,5 @@ Makefile.in
 Makefile
 .deps
 _libs
-panel
-module_test
-panelrc
+*.la
+*.lo
