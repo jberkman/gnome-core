@@ -104,11 +104,12 @@ newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
 GString
 *genManTocHTML(Toc toc)
 {
-    GString *res, *s;
+    GString *res, *s, *tablestart=NULL;
     GList *l;
     gchar *name;
     gchar *link;
     gchar ext, last_ext, last_initial;
+    gint numcol, numrow;
 
     res = g_string_new(_("<h1>Table of Contents</h1>\n"));
 
@@ -119,29 +120,126 @@ GString
     last_ext = ' ';
     last_initial = ' ';
     l = toc->manTable;
+    g_string_append(res, "<ul>\n");
+    while (l) {
+	ext = ((struct _big_table_entry *)l->data)->ext;
+        if (ext != last_ext) {
+	    s = g_string_new(NULL);
+	    g_string_sprintf(s, "\t<li><a href=\"toc:man#%c\">",ext);
+	    g_string_append(res, s->str );
+	    g_string_free(s, TRUE);
+      	    g_string_append(res, getManSection(ext));
+	    g_string_append(res,"</a>\n");
+            last_ext = ext;
+        }
+	l = g_list_next(l);
+    }
+    g_string_append(res, "</ul>\n");
+
+    last_ext = ' ';
+    last_initial = ' ';
+    l = toc->manTable;
+    numrow = 0;
+    numcol = 3;
+
+#define ONE_HONKING_TABLE
+#ifdef ONE_HONKING_TABLE
+    tablestart = g_string_new(NULL);
+    g_string_sprintf(tablestart, "<table col=%d width=100%%>\n",numcol);
+#endif
     while (l) {
 	name = ((struct _big_table_entry *)l->data)->name;
 	link = ((struct _big_table_entry *)l->data)->filename;
 	ext = ((struct _big_table_entry *)l->data)->ext;
 
 	if (ext != last_ext) {
-	    g_string_append(res, "<p><br><h3>");
+  	    if (numrow) {
+	        for (;numrow < numcol; numrow++)
+                    g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
+                g_string_append(res, "\n</tr>\n");
+/*#ifndef ONE_HONKING_TABLE */
+   	    g_string_append(res, "</table>\n");
+/*#endif */
+            }
+#if 1
+	    s = g_string_new(NULL);
+	    g_string_sprintf(s, "<a name=\"%c\">",ext);
+	    g_string_append(res, s->str );
+	    g_string_free(s, TRUE);
+	    g_string_append(res, "<p><br><h3>"); 
 	    g_string_append(res, getManSection(ext));
-	    g_string_append(res, "</h3><p>\n\n");
+	    g_string_append(res, "</h3><p></a>\n\n");
+#endif
+/*#ifndef ONE_HONKING_TABLE */
+            g_string_append(res, tablestart->str);
+/*#endif */
+            numrow = 0;
 	} else if (last_initial != *name) {
+  	    if (numrow) {
+	        for (;numrow < numcol; numrow++)
+                    g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
+	    g_string_append(res, "</tr>\n");
+	    s = g_string_new(NULL);
+	    g_string_sprintf(s, "<tr><td colspan=%d><hr></td></tr>\n",numcol);
+	    g_string_append(res, s->str);
+	    g_string_free(s,TRUE);
+#ifndef ONE_HONKING_TABLE 
+            g_string_append(res,"</table>\n");
+            g_string_append(res, tablestart->str);
+#endif
+            }
+#if 0
 	    g_string_append(res, "<p>\n");
+#endif
+            numrow = 0;
 	}
-	
+
+        if (numrow == numcol) {
+		 g_string_append(res, "</tr>\n");
+#ifndef ONE_HONKING_TABLE
+		 g_string_append(res, "</table>\n"); 
+#endif
+            numrow = 0;
+        }
+	if (numrow == 0) {
+#ifndef ONE_HONKING_TABLE
+  	    g_string_append(res, tablestart->str);
+#endif
+	    g_string_append(res, "<tr>\n");
+	}
+
 	s = g_string_new(NULL);
 	/* XXX should also have mime type info */
-	g_string_sprintf(s, "<a href=\"man:%s(%c)\">%s</a> ", name, ext, name);
+	g_string_sprintf(s, "\t<td width=33%%><a href=\"man:%s(%c)\">%s</a></td>\n", name, ext, name);
 	g_string_append(res, s->str);
 	g_string_free(s, TRUE);
 
+	numrow++;
 	last_initial = *name;
 	last_ext = ext;
 	l = g_list_next(l);
     }
+
+/*#ifdef ONE_HONKING_TABLE*/
+    if (numrow) {
+ 	for (;numrow < numcol; numrow++)
+             g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
+ 	g_string_append(res, "</tr>\n");
+    }
+    g_string_append(res, "</table>\n");
+    if (tablestart)
+        g_string_free(tablestart, TRUE);
+/*#endif */
+
+#if 0
+    if (1) {
+	    FILE *f;
+	    printf("writing /tmp/tocman.html\n");
+	    f = fopen("/tmp/tocman.html", "w");
+	    fwrite(res->str, strlen(res->str), 1, f);
+	    fclose(f);
+    }
+#endif
     return res;
 }
 
@@ -152,12 +250,19 @@ GString
     GList *l;
     gchar *name;
     gchar *link;
-
+    gint numrow, numcol;
 
     res = g_string_new(_("<h1>Table of Contents</h1>\n"));
     g_string_append(res, _("<br><br><h2>Info Pages</h2>\n"));
 
     l = toc->infoTable;
+    numrow = 0;
+    numcol = 3;
+    s = g_string_new(NULL);
+    g_string_sprintf(s, "<table col=%d width=100%%>\n",numcol);
+    g_string_append(res, s->str);
+    g_string_free(s,TRUE);
+
     while (l) {
 	name = ((struct _big_table_entry *)l->data)->name;
 	link = ((struct _big_table_entry *)l->data)->filename;
@@ -166,14 +271,37 @@ GString
 	if (!((struct _big_table_entry *)l->data)->section) {
 		s = g_string_new(NULL);
 		/* XXX should also have mime type info */
-		g_string_sprintf(s, "<a href=\"info:%s\">%s</a> ", name, name);
-		g_string_append(res, s->str);
-		g_string_free(s, TRUE);
+               if (numrow == numcol) {
+		   g_string_append(res, "</tr>\n");
+		   numrow = 0;
+	       }
+	       if (numrow == 0)
+		   g_string_append(res, "<tr>\n");
+	       g_string_sprintf(s, "\t<td width=33%%><a href=\"info:%s\">"
+				"%s</a></td>\n", name, name);
+	       g_string_append(res, s->str);
+	       g_string_free(s, TRUE);
+	       numrow++;
 	}
 
 	l = g_list_next(l);
     }
 
+    if (numrow) {
+ 	for (;numrow < numcol; numrow++)
+             g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
+ 	g_string_append(res, "</tr>\n");
+    }
+    g_string_append(res, "</table>\n");
+#if 0
+    if (1) {
+	    FILE *f;
+	    printf("writing /tmp/tocinfo.html\n");
+	    f = fopen("/tmp/tocinfo.html", "w");
+	    fwrite(res->str, strlen(res->str), 1, f);
+	    fclose(f);
+    }
+#endif
     return res;
 }
 
@@ -184,24 +312,45 @@ GString
     GList *l;
     gchar *name;
     gchar *link;
-
+    gint numcol, numrow;
 
     res = g_string_new(_("<h1>Table of Contents</h1>\n"));
     g_string_append(res, _("<br><br><h2>GNOME Help</h2>\n"));
 
     l = toc->ghelpTable;
+    numrow = 0;
+    numcol = 3;
+    s = g_string_new(NULL);
+    g_string_sprintf(s, "<table col=%d width=100%%>\n",numcol);
+    g_string_append(res, s->str);
+    g_string_free(s,TRUE);
     while (l) {
 	name = ((struct _big_table_entry *)l->data)->name;
 	link = ((struct _big_table_entry *)l->data)->filename;
 
+        if (numrow == numcol) {
+	    g_string_append(res, "</tr>\n");
+	    numrow = 0;
+	}
+	if (numrow == 0)
+	    g_string_append(res, "<tr>\n");
+
 	s = g_string_new(NULL);
 	/* XXX should also have mime type info */
-	g_string_sprintf(s, "<a href=\"ghelp:%s\">%s</a> ", name, name);
+	g_string_sprintf(s, "\t<td width=33%%><a href=\"ghelp:%s\">"
+			 "%s</a></td> ", name, name);
 	g_string_append(res, s->str);
 	g_string_free(s, TRUE);
 
 	l = g_list_next(l);
+        numrow++;
     }
+    if (numrow) {
+ 	for (;numrow < numcol; numrow++)
+             g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
+ 	g_string_append(res, "</tr>\n");
+    }
+    g_string_append(res, "</table>\n");
 
     return res;
 }

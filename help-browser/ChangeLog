@@ -1,3 +1,8 @@
+1998-04-29  Michael Fulbright  <msf@redhat.com>
+
+	* toc2.c: fixed man/info/ghelp toc HTML generation to use 3 col table
+	* visit.c: fixed 'toc:' magic URL to jump to anchor if present
+
 1998-04-27  Michael Fulbright  <msf@redhat.com>
 
 	* gnome-helpwin.c: remove unused functions

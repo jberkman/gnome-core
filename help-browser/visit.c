@@ -103,9 +103,17 @@ visitURL( HelpWindow win, gchar *ref,
  		}
 
 		if (s) {
+			gchar *p;
+
 			helpWindowHTMLSource(win, s->str, strlen(s->str),
 					     paranoid, paranoid);
-			helpWindowJumpToLine(win, 1);
+			p = strrchr(ref, '#');
+			if (p) {
+				p++;
+				helpWindowJumpToAnchor(win, p);
+			} else {
+				helpWindowJumpToLine(win, 1);
+			}
 			g_string_free(s, TRUE);
 		}
 		
