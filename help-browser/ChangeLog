@@ -1,3 +1,8 @@
+1998-27-07  Jaka Mocnik  <jaka.mocnik@kiss.uni-lj.si>
+ 	
+	* window.c: conditional compilation now checks for #defined symbol
+	GTK_HAVE_FEATURES_1_1_0 instead of GTK_HAVE_ACCEL_GROUP
+	
 Sun Jul 19 18:53:48 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* toc2-info.c: Include <stdlib.h>.
