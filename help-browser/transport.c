@@ -29,9 +29,10 @@ transport( docObj obj, DataCache cache )
     gint  rc;
     gint len;
 
+    url = docObjGetDecomposedUrl(obj);
+    sprintf(key, "%s://%s%s", url->access, url->host, url->path);
+
     if (docObjUseCache(obj) && cache) {
-	url = docObjGetDecomposedUrl(obj);
-	sprintf(key, "%s://%s%s", url->access, url->host, url->path);
 	p = lookupInDataCacheWithLen(cache, key, &len);
 	if (p) {
 	    g_message("cache hit: %s", key);
@@ -53,7 +54,7 @@ transport( docObj obj, DataCache cache )
 	docObjGetRawData(obj, &p, &len);
 	copy = g_malloc(len);
 	memcpy(copy, p, len);
-	addToDataCache(cache, key, copy, len);
+	addToDataCache(cache, key, copy, len, ! docObjUseCache(obj));
     }
     
     return 0;

@@ -19,7 +19,10 @@ gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len);
 /* addToDataCache() will strdup() the key, so you should free */
 /* it if you need to.  The value is *not* copied, but it *is* */
 /* passed to destroyFunc() when it falls off the stack.       */
-void addToDataCache(DataCache cache, gchar *key, gpointer value, guint size);
+/* If overWrite is TRUE, replace any existing entry.          */
+/* Otherwise, make no change.                                 */
+void addToDataCache(DataCache cache, gchar *key, gpointer value,
+		    guint size, gboolean overWrite);
 
 void saveCache(DataCache cache);
 

@@ -1,3 +1,8 @@
+1998-05-05  Marc Ewing  <marc@redhat.com>
+
+	* clean up cache - do not have multiple cache entries
+	  for one key
+
 1998-05-05  Michael Fulbright  <msf@redhat.com>
 
 	* window.c: help_onhelp() - use "ghelp:help-browser" magic URL

@@ -117,7 +117,8 @@ gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len)
     return hit->value;
 }
 
-void addToDataCache(DataCache cache, gchar *key, gpointer value, guint size)
+void addToDataCache(DataCache cache, gchar *key, gpointer value,
+		    guint size, gboolean overWrite)
 {
     struct _data_cache_entry *hit;
 
@@ -129,7 +130,30 @@ void addToDataCache(DataCache cache, gchar *key, gpointer value, guint size)
     while (cache->memSize + size > cache->maxMemSize) {
 	removeElement(cache);
     }
-    
+
+    /* See if entry is already there */
+    hit = g_hash_table_lookup(cache->hashTable, key);
+    if (hit) {
+	if (! overWrite) {
+	    return;
+	}
+
+	/* Replace the value */
+	if (cache->destroyFunc) {
+	    (cache->destroyFunc)(hit->value);
+	}
+	hit->value = value;
+	hit->size = size;
+
+	/* Let's move this element to the end of the list */
+	/* so it won't get tossed soon.                   */
+	cache->queue = g_list_remove(cache->queue, hit);
+	cache->queue = g_list_append(cache->queue, hit);
+
+	return;
+    }
+
+    /* It is not there - make a new entry */
     hit = g_new(struct _data_cache_entry, 1);
     hit->key = g_strdup(key);
     hit->value = value;

@@ -87,10 +87,10 @@ visitURL( HelpWindow win, gchar *ref,
 				q = g_malloc(strlen(hp)+10);
 				strcpy(q, "file:");
 				strcat(q, hp);
+				g_free(hp);
 				obj = docObjNew(q, useCache);
 				docObjSetHumanRef(obj, "toc:");
 				g_free(q);
-				g_free(hp);
 				if (visitDocument(win, obj)) {
 					docObjFree(obj);
 					return -1;
