@@ -1194,7 +1194,7 @@ static GnomeUIInfo gnome_terminal_settings_menu [] = {
 };
 
 static GnomeUIInfo gnome_terminal_menu [] = {
-	GNOMEUIINFO_SUBTREE (N_("Terminal"), &gnome_terminal_terminal_menu_hide_menubar),
+	GNOMEUIINFO_MENU_FILE_TREE(gnome_terminal_terminal_menu_hide_menubar),
 	GNOMEUIINFO_MENU_SETTINGS_TREE(gnome_terminal_settings_menu),
 	GNOMEUIINFO_MENU_HELP_TREE(gnome_terminal_help_menu),
 	GNOMEUIINFO_END

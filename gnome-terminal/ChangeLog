@@ -1,3 +1,7 @@
+1999-01-09  Nat Friedman  <nat@nat.org>
+
+	* gnome-terminal.c: Replaced the Terminal menu with a File menu.
+
 1999-01-08  Jay Painter <jpaint@serv.net>
 
 	* gnome-terminal.c: go crazy jrb, I'll have my border width!
