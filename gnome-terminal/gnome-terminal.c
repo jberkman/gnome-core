@@ -67,6 +67,7 @@ GList *terminals = 0;
 typedef struct {
 	GtkWidget *prop_win;
 	GtkWidget *blink_checkbox;
+	GtkWidget *menubar_checkbox;
 	GtkWidget *font_entry;
 	GtkWidget *color_scheme;
 	GtkWidget *def_fore_back;
@@ -344,6 +345,7 @@ gather_changes (ZvtTerm *term) {
 	memset(newcfg, 0, sizeof(*newcfg));
 
 	newcfg->blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
+	newcfg->menubar_hidden = GTK_TOGGLE_BUTTON (prefs->menubar_checkbox)->active;
 	newcfg->scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin)); 
 	(int) newcfg->scrollbar_position = gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 
@@ -381,6 +383,7 @@ apply_changes (ZvtTerm *term, struct terminal_config * newcfg)
 {
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
+	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 
 	if (strcmp(cfg.terminal_class, newcfg->terminal_class)) {
 		switch_terminal_class(term, newcfg);
@@ -403,6 +406,11 @@ apply_changes (ZvtTerm *term, struct terminal_config * newcfg)
 	}
 
 	set_color_scheme (term, cfg.color_type);
+
+	if (cfg.menubar_hidden)
+		gtk_widget_hide (app->menubar);
+	else
+		gtk_widget_show (app->menubar);
 
 	return 0;
 }
@@ -633,7 +641,8 @@ enum {
 	SCROLL_ROW    = 2,
 	SCROLLBACK_ROW = 3,
 	FONT_ROW      = 4,
-	BLINK_ROW     = 5
+	BLINK_ROW     = 5,
+	MENUBAR_ROW    = 6
 };
 
 /* called back to free the ColorSelector */
@@ -665,7 +674,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", prefs);
 
 	/* general page */
-	table = gtk_table_new (3, 4, FALSE);
+	table = gtk_table_new (3, 5, FALSE);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("General")));
 
@@ -732,6 +741,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->blink_checkbox,
 			  2, 3, BLINK_ROW, BLINK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Show menu bar */
+	prefs->menubar_checkbox = gtk_check_button_new_with_label (_("Hide menu bar"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->menubar_checkbox),
+				     cfg.menubar_hidden ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->menubar_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
+			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Scroll back */
 	l = aligned_label (_("Scrollback lines"));
@@ -855,13 +873,21 @@ save_preferences_cmd (GtkWidget *widget, ZvtTerm *term) {
 }
 
 static void
-hide_cmd (GtkWidget *widget, ZvtTerm *term)
+show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
+{
+	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+
+	cfg.menubar_hidden = 0;
+	gtk_widget_show (app->menubar);
+}
+
+static void
+hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 
 	cfg.menubar_hidden = 1;
 	gtk_widget_hide (app->menubar);
-	save_preferences (widget, term, &cfg);
 }
 
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
@@ -869,7 +895,7 @@ static GnomeUIInfo gnome_terminal_terminal_menu [] = {
 	{ GNOME_APP_UI_ITEM, N_("Save preferences"),NULL, save_preferences_cmd },
 	{ GNOME_APP_UI_ITEM, N_("Close terminal"),  NULL, close_terminal_cmd },
 	{ GNOME_APP_UI_SEPARATOR },
-	{ GNOME_APP_UI_ITEM, N_("Hide menubar..."), NULL, hide_cmd },
+	{ GNOME_APP_UI_ITEM, N_("Hide menubar"), NULL, hide_menu_cmd },
 	{ GNOME_APP_UI_ITEM, N_("Properties..."),   NULL, preferences_cmd, 0, 0,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP },
 	{ GNOME_APP_UI_ITEM, N_("Color selector..."),   NULL, color_cmd },
@@ -1007,13 +1033,34 @@ configure_term_dnd (ZvtTerm *term)
 static int
 button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 {
-	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	GtkWidget * menu;
+	GtkWidget * menu_item;
+	GnomeUIInfo * item;
 
 	/* FIXME: this should popup a menu instead */
 	if (event->state & GDK_CONTROL_MASK){
-		cfg.menubar_hidden = 0;
-		gtk_widget_show (app->menubar);
-		save_preferences (widget, term, &cfg);
+		menu = gtk_menu_new (); 
+
+		for (item = gnome_terminal_terminal_menu; item->type != GNOME_APP_UI_ENDOFINFO;
+		     item++) {
+			if (item->type != GNOME_APP_UI_ITEM) continue;
+
+			if (!strcmp(item->label, "Hide menubar") && cfg.menubar_hidden) {
+				menu_item = gtk_menu_item_new_with_label("Show menubar");
+				gtk_signal_connect (GTK_OBJECT (menu_item), "activate", 
+						    show_menu_cmd, term);
+			} else {
+				menu_item = gtk_menu_item_new_with_label(item->label);
+				gtk_signal_connect (GTK_OBJECT (menu_item), "activate", 
+						    item->moreinfo, term);
+			}
+
+			gtk_menu_append(GTK_MENU(menu), menu_item);
+			gtk_widget_show(menu_item);
+		}
+
+		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, 0, NULL, 3, event->time);
+
 		return 1;
 	}
 
