@@ -2201,7 +2201,7 @@ static struct poptOption cb_options [] = {
 	  N_("Execute this program instead of a shell"), N_("COMMAND")},
 
 	{ "execute", 'x', POPT_ARG_STRING, NULL, COMMAND_KEY,
-	  N_("Execute this program the same was as xterm does"), N_("COMMAND")},
+	  N_("Execute this program the same way as xterm does"), N_("COMMAND")},
 
 	{ "foreground", '\0', POPT_ARG_STRING, NULL, FORE_KEY,
 	  N_("Foreground color"), N_("COLOR")},

@@ -1,3 +1,7 @@
+1999-07-22  Herbert Valerio Riedel  <hvr@hvrlab.dhs.org>
+
+	* gnome-terminal.c: --help: s/same was as/same way as/
+
 1999-07-19  Nat Friedman  <nat@gnome-support.com>
 
 	* gnome-terminal.c (gnome_term_set_font): Cast the terminal to a
