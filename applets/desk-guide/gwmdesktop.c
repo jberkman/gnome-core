@@ -19,8 +19,17 @@
  * implementation of The Rasterman (Carsten Haitzler) <raster@rasterman.com>
  */
 #include "gwmdesktop.h"
-#include "stripe.xbm"
 #include <gtk/gtkprivate.h>
+
+
+/* --- area bitmap --- */
+#define xbm_area_width 4
+#define xbm_area_height 4
+static const gchar xbm_area_bits[] = {
+  0x03, 0x03, 0x0C, 0x0C,	/* checker board */
+  /* 0x08, 0x04, 0x02, 0x01, */	/* stripe */
+};
+
 
 /* --- signals --- */
 enum {
@@ -220,9 +229,9 @@ gwm_desktop_realize (GtkWidget *widget)
   GTK_WIDGET_CLASS (parent_class)->realize (widget);
 
   desktop->bitmap = gdk_bitmap_create_from_data (widget->window,
-						 stripe_bits,
-						 stripe_width,
-						 stripe_height);
+						 xbm_area_bits,
+						 xbm_area_width,
+						 xbm_area_height);
   if (class->double_buffer)
     desktop->pixmap = gdk_pixmap_new (widget->window,
 				      widget->allocation.width,

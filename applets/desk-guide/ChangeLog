@@ -1,3 +1,9 @@
+Fri Aug 20 12:36:57 1999  Tim Janik  <timj@gtk.org>
+
+	* stripe.xbm: removed
+
+	* gwmdesktop.c: use a checker board to indicate active area.
+
 Fri Aug 20 11:09:48 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmdesktop.[hc]: added a ::check-task signal to determine

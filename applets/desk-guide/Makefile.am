@@ -21,8 +21,7 @@ EXTRA_DIST = \
 	gwmdesktop.h \
 	deskguide_applet.h \
 	deskguide_applet.gnorba \
-	deskguide_applet.desktop \
-	stripe.xbm
+	deskguide_applet.desktop
 
 sysdir = $(datadir)/applets/Utility
 sys_DATA = deskguide_applet.desktop
