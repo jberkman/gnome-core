@@ -1,0 +1,27 @@
+Gnome Help Browser & Sample Code
+--------------------------------
+
+This is a very basic help browser and a sample program (ripped from
+gnome-hello) showing how to use it. The basic idea is there is a
+topic.dat file which contains section names and the file which it
+corresponds to. These cause the creation of menu entries under the 'Help'
+menu of the main menubar of a GnomeApp. Look at the sample.c for more
+details.
+
+This requires you to check out a version of gnome-libs so that the 
+gnome_app_create_menus() will work properly.
+
+
+TODO
+----
+ - Make a better scheme to reference files/section than using a real filename?
+ - Make the help browser do something interesting!
+ - work on DocBook output to generate topic.dat automatically (need to use
+   special tags in DocBook to denote links which should go into the 'Help' 
+   menu).
+ - Need to have help browser<->application communication for better
+   integration into GNOME apps in the future
+
+
+Dr Mike <msf@redhat.com>
+Marc Ewing <marc@redhat.com>
