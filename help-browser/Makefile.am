@@ -82,4 +82,4 @@ sys_DATA = gnome-help.desktop
 
 install-exec-local:
 	$(INSTALL_PROGRAM) $(top_srcdir)/help-browser/gnome-download \
-		$(top_srcdir)/help-browser/gnome-convert $(bindir)/
+		$(top_srcdir)/help-browser/gnome-convert $(DESTDIR)$(bindir)/
