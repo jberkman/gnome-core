@@ -36,11 +36,11 @@ cb_radio_button (GtkWidget *widget, gint *data)
 
 /* Callback for spin buttons */
 static void
-cb_spin_button (GtkAdjustment *adj, gint *data)
+cb_spin_button (GtkWidget *widget, gint *data)
 {
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
-
-	*data = (gint) (adj->value);
+	
+	*data = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
 }
 
 /* Callback for check buttons */
@@ -80,12 +80,14 @@ create_spin_button (gchar *name,
 				  1,
 				  page_value,
 				  page_value);
-
+	
 	hbox = gtk_hbox_new (TRUE, GNOME_PAD_SMALL);
 
 	spin = gtk_spin_button_new (GTK_ADJUSTMENT (adj), 1, 0);
-	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
+	gtk_signal_connect (GTK_OBJECT (spin), "changed",
 			    GTK_SIGNAL_FUNC (cb_spin_button), init_value);
+						
+
 
 	label = gtk_label_new (name);
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);

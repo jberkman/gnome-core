@@ -1,3 +1,8 @@
+2000-04-16  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_properties.c (cb_spin_button): connect to "changed" on the
+	spin button instead of the adjustment. This fixes bug #9053.
+
 2000-04-15  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.h: Remove mask from TasklistIcon since we now use
