@@ -400,8 +400,10 @@ apply_changes (ZvtTerm *term, struct terminal_config * newcfg)
 	if (cfg.scrollbar_position == SCROLLBAR_HIDDEN)
 		gtk_widget_hide (scrollbar);
 	else {
-		gtk_box_reorder_child (GTK_BOX (box), scrollbar,
-			       (cfg.scrollbar_position == SCROLLBAR_LEFT) ? 0 : 1);
+		gtk_box_set_child_packing (GTK_BOX (box), scrollbar,
+					   FALSE, TRUE, 0,
+					   (cfg.scrollbar_position == SCROLLBAR_LEFT) ?
+					       GTK_PACK_START : GTK_PACK_END);
 		gtk_widget_show (scrollbar);
 	}
 

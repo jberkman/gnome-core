@@ -1,3 +1,10 @@
+Mon Aug 31 15:02:01 1998  Owen Taylor  <otaylor@redhat.com>
+
+	* gnome-terminal.c (apply_changes): Use
+	gtk_box_set_child_packing() to move the scrollbar, instead of
+	gtk_box_reorder_child(), since we initially set up the order using
+	gtk_box_pack_start()/end().
+
 1998-59-28  Erik Troan  <ewt@redhat.com>
 
 	* gnome_terminal.c: store all configuration information
@@ -20,9 +27,6 @@
 
 	* gnome_terminal.c (set_active): the color_style attribute wasn't 
 	tied the color_style preferences menu
-
-* Wed Aug 26 1998 Erik Troan <ewt@redhat.com>
-d
 
 1998-08-06  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
