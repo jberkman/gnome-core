@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Menu editor
 Name[cs]=Editor menu
-Name[de]=Menueditor
+Name[de]=Menüeditor
 Name[es]=Editor de menues
 Name[eu]=Menuen editorea
 Name[fi]=Valikkoeditori
@@ -18,6 +18,7 @@ Name[ru]=òÅÄÁËÔÏÒ ÍÅÎÀ
 Name[sk]=Editor menu
 Name[sv]=Menyeditor
 Comment=the GNOME menu editor
+Comment[de]=Der GNOME-Menüeditor
 Comment[es]=Editar los menues del panel de GNOME
 Comment[eu]=GNOMEren menu editorea
 Comment[fr]=Editeur de menus GNOME
