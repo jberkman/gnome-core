@@ -211,7 +211,7 @@ generate_tree ()
         
         gtk_clist_set_row_height(GTK_CLIST (retval),20);
         gtk_clist_set_column_width(GTK_CLIST (retval), 0, 150);
-        gtk_clist_set_policy (GTK_CLIST (retval), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+        /*gtk_clist_set_policy (GTK_CLIST (retval), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);*/
         gtk_ctree_set_line_style (GTK_CTREE (retval), GTK_CTREE_LINES_DOTTED);
         gtk_ctree_set_indent (GTK_CTREE (retval), 10);
         gtk_widget_set_usize (retval, 200, 375);

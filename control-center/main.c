@@ -85,7 +85,7 @@ create_exit_dialog (GList *apps)
         /*...the list */
         list = gtk_clist_new (1);
         gtk_clist_set_selection_mode (GTK_CLIST (list), GTK_SELECTION_BROWSE);
-        gtk_clist_set_policy (GTK_CLIST (list), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+        /*gtk_clist_set_policy (GTK_CLIST (list), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);*/
         text[1] = NULL;
         for (;apps ;apps = apps->next) {
                 text[0] = ((node_data*)apps->data)->gde->name;

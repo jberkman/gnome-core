@@ -1,3 +1,11 @@
+1998-11-23  Christopher Blizzard  <blizzard@appliedtheory.com>
+
+	* tree.c (generate_tree): Comment out gtk_clist_set_policy().
+  	This should compile now.
+
+	* main.c (create_exit_dialog): Comment out gtk_clist_set_policy().
+  	This should compile now.
+	
 1998-11-21  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* callbacks.c: Include <config.h>
