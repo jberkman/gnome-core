@@ -3,9 +3,9 @@
 
  
   <!-- ###############   Desk Guide Applet   ############### -->
-  <sect1 id="deskguide-applet">
-   <title>Desk Guide Applet</title> 
-
+<sect1 id="deskguide-applet">
+  <title>Desk Guide Applet</title> 
+  
    <para> 
     <application>Desk Guide</application> applet, shown in <xref
     linkend="deskguide-applet-fig">, is an applet that allows you to
@@ -512,27 +512,83 @@
     
     </para>
    </sect2>
+  <!-- ============= Authors ================================ -->
 
-   <sect2 id="deskguide-applet-authors">
-    <title>Authors</title>
-    <para>
-     This applet was writen by Tim Janik
-     <email>timj@gtk.org</email>.  The documentation for this applet
-     which you are reading now was written by
-     John Fleck <email>jfleck@inkstain.net</email>.</para>
+  <sect2 id="deskguide-applet-authors">
+   <title>Authors</title>
+   <para>
+    <application>Desk Guide</application> applet was written by Tim Janik
+    (<email>timj@gtk.org</email>).  Please send all comments,
+    suggestions, and bug 
+    reports to the <ulink url="http://bugs.gnome.org" type="http">GNOME
+    bug tracking database</ulink>. (Instructions for submitting bug
+    reports can be found <ulink
+    url="http://bugs.gnome.org/Reporting.html" type="http">
+    on-line</ulink>. If you are using
+    GNOME 1.1 or later, you can also use <application>Bug Report
+    Tool</application> (<command>bug-buddy</command>), available in the
+    <guisubmenu>Utilities</guisubmenu> submenu of <guimenu>Main
+    Menu</guimenu>, for submitting bug reports.
+   </para>
 
-    <para>
-      Please report bugs in the applet to the
-      <ulink type="http" url="http://bugs.gnome.org">GNOME bug
-      tracking system</ulink>. You can do this by following the
-      guidelines on that site or by using
-      <application>bug-buddy</application>
-      from the command-line. For the package, put gnome-applets.
-    </para>
- 
-   </sect2>
+   <para>
+    This manual was written by John Fleck
+    (<email>jfleck@inkstain.net</email>). Please send all comments and
+    suggestions regarding this manual to the <ulink type="http"
+    url="http://www.gnome.org/gdp">GNOME Documentation Project</ulink> 
+    by sending an email to <email>docs@gnome.org</email>. You can also
+    submit comments online by using the <ulink type="http"
+    url="http://www.gnome.org/gdp/doctable/">GNOME Documentation Status
+    Table</ulink>.
+   </para>
 
-  </sect1>
+   <!-- For translations: uncomment this:
+
+   <para>
+    Latin translation was done by ME
+    (<email>MYNAME@MYADDRESS</email>). Please send all  comments  and
+    suggestions regarding this translation to SOMEWHERE.
+   </para>
+
+   -->
+
+  </sect2>
+
+
+  <!-- ============= Application License ============================= -->
+
+  <sect2 id="deskguide-applet-license">
+   <title>License</title>
+   <para>
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the <citetitle>GNU General Public
+    License</citetitle> as published by the Free Software Foundation;
+    either version 2 of the License, or (at your option) any later
+    version.
+   </para>
+   <para>
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    <citetitle>GNU General Public License</citetitle> for more details.
+   </para>
+   <para>
+    A copy of the <citetitle>GNU General Public License</citetitle> is
+    included as an appendix to the <citetitle>GNOME Users
+    Guide</citetitle>.  You may also obtain a copy of the
+    <citetitle>GNU General Public License</citetitle> from the Free
+    Software Foundation by visiting <ulink type="http"
+    url="http://www.fsf.org">their Web site</ulink> or by writing to
+    <address>
+     Free Software Foundation, Inc.
+     <street>59 Temple Place</street> - Suite 330
+     <city>Boston</city>, <state>MA</state> <postcode>02111-1307</postcode>
+     <country>USA</country>
+    </address>
+   </para>
+  </sect2>
+
+</sect1>
 
 
 
