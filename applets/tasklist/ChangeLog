@@ -1,3 +1,8 @@
+1999-09-27  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c (is_task_visible): check for harea and varea
+	as well as current desktop
+
 1999-09-23  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_menu.c: #if 0 out the send to desktop feature since it 

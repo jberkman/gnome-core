@@ -121,7 +121,9 @@ is_task_visible (TasklistTask *task)
 		return FALSE;
 	
 
-	if (task->gwmh_task->desktop != desk_info->current_desktop) {
+	if (task->gwmh_task->desktop != desk_info->current_desktop ||
+	    task->gwmh_task->harea != desk_info->current_harea ||
+	    task->gwmh_task->varea != desk_info->current_varea) {
 		if (!GWMH_TASK_STICKY (task->gwmh_task)) {
 			if (!Config.all_desks_minimized && 
 			    !Config.all_desks_normal)
