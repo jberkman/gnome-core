@@ -1,3 +1,9 @@
+2002-02-12  jacob berkman  <jacob@ximian.com>
+
+	* POTFILES.skip: 
+	* POTFILES.in: only the .server.in.in should be in POTFILES.in, as the
+	.server.in file is generated at build time.
+
 2002-02-12  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* POTFILES.in: Add more missing files.
