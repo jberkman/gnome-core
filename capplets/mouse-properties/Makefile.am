@@ -10,7 +10,8 @@ mouse_properties_SOURCES = mouse-properties.c
 
 mouse_properties_LDADD = ../../control-center/libcapplet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS) \
-		     $(GNOMEUI_LIBS) $(INTLLIBS) 
+		     $(GNOMEUI_LIBS) $(INTLLIBS) -lgnorba
+
 
 EXTRA_DIST = \
 	mouse-properties.desktop

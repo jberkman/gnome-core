@@ -10,7 +10,7 @@ keyboard_properties_SOURCES = keyboard-properties.c
 
 keyboard_properties_LDADD = ../../control-center/libcapplet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS) \
-		     $(GNOMEUI_LIBS) $(INTLLIBS) @XF86MISC_LIBS@
+		     $(GNOMEUI_LIBS) $(INTLLIBS) @XF86MISC_LIBS@ -lgnorba
 
 EXTRA_DIST = \
 	keyboard-properties.desktop

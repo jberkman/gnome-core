@@ -16,7 +16,7 @@ background_properties_capplet_SOURCES =	\
 
 background_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 		$(GNOME_LIBDIR) $(ORB_LIBS) -lImlib\
-		$(GNOMEUI_LIBS) $(INTLLIBS) 
+		$(GNOMEUI_LIBS) $(INTLLIBS) -lgnorba
 
 EXTRA_DIST = background-properties.desktop
 
