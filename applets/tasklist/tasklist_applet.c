@@ -15,7 +15,7 @@ static void cb_properties (void);
 static void cb_about (void);
 gchar *fixup_task_label (TasklistTask *task);
 gboolean is_task_visible (TasklistTask *task);
-void draw_task (TasklistTask *task);
+void draw_task (TasklistTask *task, GdkRectangle *rect);
 TasklistTask *find_gwmh_task (GwmhTask *gwmh_task);
 gboolean desk_notifier (gpointer func_data, GwmhDesk *desk, GwmhDeskInfoMask change_mask);
 gboolean task_notifier (gpointer func_data, GwmhTask *gwmh_task, GwmhTaskNotifyType ntype, GwmhTaskInfoMask imask);
@@ -209,7 +209,7 @@ is_task_visible (TasklistTask *task)
 
 /* Draw a single task */
 void
-draw_task (TasklistTask *task)
+draw_task (TasklistTask *task, GdkRectangle *rect)
 {
 	gchar *tempstr;
 	gint text_height, text_width;
@@ -226,7 +226,7 @@ draw_task (TasklistTask *task)
 		       GTK_STATE_ACTIVE : GTK_STATE_NORMAL,
 		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
 		       GTK_SHADOW_IN : GTK_SHADOW_OUT,
-		       NULL, area, "button",
+		       rect, area, "button",
 		       task->x, task->y,
 		       task->width, task->height);
 
@@ -498,9 +498,9 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 		if (imask & GWMH_TASK_INFO_ICONIFIED)
 			layout_tasklist ();
 		if (imask & GWMH_TASK_INFO_FOCUSED)
-			draw_task (find_gwmh_task (gwmh_task));
+			draw_task (find_gwmh_task (gwmh_task), NULL);
 		if (imask & GWMH_TASK_INFO_MISC)
-			draw_task (find_gwmh_task (gwmh_task));
+			draw_task (find_gwmh_task (gwmh_task), NULL);
 		if (imask & GWMH_TASK_INFO_DESKTOP) {
 			if (Config.all_desks_minimized && 
 			    Config.all_desks_normal)
@@ -589,17 +589,23 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 	TasklistTask *task;
 
 	temp_tasks = get_visible_tasks ();
-#if 0
-	gtk_paint_box (area->style, area->window,
-		       GTK_STATE_NORMAL, GTK_SHADOW_IN,
-		       NULL, area, "button",
-		       0, 0,
-		       area->allocation.width,
-		       area->allocation.height);
-#endif
+
+	gtk_paint_flat_box (area->style, area->window,
+			    area->state, GTK_SHADOW_NONE,
+			    &event->area, area, "button",
+			    0, 0, -1, -1);
+	
 	while (temp_tasks) {
+		GdkRectangle rect, dest;
 		task = (TasklistTask *)temp_tasks->data;
-		draw_task (task);
+
+		rect.x = task->x;
+		rect.y = task->y;
+		rect.width = task->width;
+		rect.height = task->height;
+
+		if(gdk_rectangle_intersect(&event->area, &rect, &dest))
+			draw_task (task, &dest);
 		temp_tasks = temp_tasks->next;
 	}
 
@@ -830,9 +836,7 @@ main (gint argc, gchar *argv[])
 	gtk_widget_show (applet);
 
 	unknown_icon = g_new (TasklistIcon, 1);
-	/* XXX: why do we need to cast unknown_xpm here,
-	   I don't get it -George*/
-	unknown_icon->normal = gdk_pixbuf_new_from_xpm_data ((const gchar **)unknown_xpm);
+	unknown_icon->normal = gdk_pixbuf_new_from_xpm_data (unknown_xpm);
 	unknown_icon->minimized = tasklist_icon_create_minimized_icon (unknown_icon->normal);
 
 	applet_widget_gtk_main ();

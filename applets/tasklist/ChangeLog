@@ -1,3 +1,12 @@
+Sat May 06 00:14:01 2000  George Lebl <jirka@5z.com>
+
+	* unknown.xpm: add const so that we don't have to cast inside source
+
+	* tasklist_applet.c: put in gtk_paint_flat_box with no shadow so that
+	  we actually clear old tasks.  minimize flicker by only drawing
+	  what's being exposed, including only drawing tasks that are being
+	  exposed.
+
 2000-05-04  Jacob Berkman  <jacob@helixcode.com>
 
 	* tasklist_icon.c: 
