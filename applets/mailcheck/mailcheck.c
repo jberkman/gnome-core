@@ -485,7 +485,7 @@ mailcheck_properties (AppletWidget *applet, gpointer data)
 }
 
 
-static int
+static gint
 applet_session_save(GtkWidget *w,
 		    const char *cfgpath,
 		    const char *globcfgpath)
@@ -499,7 +499,7 @@ applet_session_save(GtkWidget *w,
 	gnome_config_sync();
 	gnome_config_drop_all();
 
-	return TRUE;
+	return FALSE;
 }
 
 static gint
