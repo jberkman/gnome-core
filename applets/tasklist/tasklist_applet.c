@@ -142,6 +142,7 @@ draw_task (TasklistTask *task)
 				 task->x + 8 + ((task->width - text_width) / 2),
 				 task->y + ((task->height - text_height) / 2) + text_height,
 				 tempstr);
+#if 0
 		gdk_draw_rectangle (area->window,
 				    area->style->black_gc,
 				    FALSE,
@@ -149,7 +150,7 @@ draw_task (TasklistTask *task)
 				    task->y + ((task->height - text_height) / 2),
 				    text_width,
 				    text_height);
-
+#endif
 		g_free (tempstr);
 	}
 
