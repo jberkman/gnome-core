@@ -28,6 +28,6 @@ Comment[no]=Terminalemulator for GNOME
 Comment[pt]=Emulador de terminal GNOME
 Comment[ru]=Программа эмуляции терминала
 Exec=gnome-terminal
-Icon=gnome-term.png
+Icon=gnome-terminal.png
 Terminal=0
 Type=Application

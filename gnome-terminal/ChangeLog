@@ -1,3 +1,7 @@
+1999-05-15  Jacob Berkman  <jberk+@cmu.edu>
+
+	* gnome-terminal.desktop (Icon): use gnome-terminal.png
+
 1999-04-25  Ettore Perazzoli  <ettore@comm2000.it>
 
 	* gnome-terminal.desktop: Added Italian translations.
