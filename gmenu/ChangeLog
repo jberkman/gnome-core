@@ -1,3 +1,7 @@
+1999-02-06  Changwoo Ryu  <cwryu@adam.kaist.ac.kr>
+
+	* gmenu.desktop: Added Korean translation.
+
 1999-01-25  Jonathan Blandford  <jrb@redhat.com>
 
 	* gmenu.c (main): Some very miniscule UI changes to the ctree.

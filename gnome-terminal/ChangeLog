@@ -1,3 +1,7 @@
+1999-02-06  Changwoo Ryu  <cwryu@adam.kaist.ac.kr>
+
+	* gnome-terminal.desktop: Updated Korean translation.
+
 1999-02-04  Owen Taylor  <otaylor@redhat.com>
 
 	* gnome-terminal.c (preferences_cmd): If a preferences
