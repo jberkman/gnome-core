@@ -29,6 +29,11 @@
 #include "toc2.h"
 #include "cache.h"
 
+#define UGLY_LE_HACK 1
+#ifdef UGLY_LE_HACK
+#include "check-running.h"
+#endif
+
 extern char *program_invocation_name;
 
 #define NAME "GnomeHelp"
@@ -122,8 +127,19 @@ static gint defposy=0;
 static gint defwidth =0;
 static gint defheight=0;
 
+#ifdef UGLY_LE_HACK
+
+HelpWindow ahelpwindow;
+
+void
+show_requested_url(char *url)
+{
+  helpWindowShowURL(ahelpwindow, url, TRUE, TRUE);
+}
+#endif
+
 int
-main(gint argc, gchar *argv[])
+main(int argc, char *argv[])
 {
     HelpWindow window;
 
@@ -143,6 +159,13 @@ main(gint argc, gchar *argv[])
 
     gnome_init(NAME, &parser, argc, argv, 0, NULL);
 
+#ifdef UGLY_LE_HACK
+    if(send_command_to_running(helpURL, show_requested_url))
+      {
+	exit(0);
+      }
+#endif
+
     initConfig();
     
     setErrorHandlers();
@@ -159,6 +182,9 @@ main(gint argc, gchar *argv[])
     bookmarkWindow = newBookmarks(bookmarkCallback, NULL, bookmarkFile);
 
     window = makeHelpWindow(defposx, defposy, defwidth, defheight );
+#ifdef UGLY_LE_HACK
+    ahelpwindow=window;
+#endif
 
     if (helpURL)
 	    helpWindowShowURL(window, helpURL, TRUE, TRUE);
