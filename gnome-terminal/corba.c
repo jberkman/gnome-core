@@ -1,6 +1,5 @@
 /* corba.c -- CORBA interface and clients for gnome-terminal
-   $Id$
-
+  
    mostly adapted from mc/gnome/gcorba.c and mc/gnome/gmc-client.c
 
    todo:
@@ -70,7 +69,6 @@ static POA_GNOME_Terminal_TerminalFactory__vepv terminal_factory_vepv;
 
 static GNOME_Terminal_TerminalFactory terminal_factory_server = CORBA_OBJECT_NIL;
 
-
 /* Terminal implementation */
 
 /* XXX define Terminal method implementions here.. */
@@ -154,17 +152,6 @@ terminal_servant_from_terminal (GtkWidget *term, CORBA_Environment *ev)
 	return ts;
 }
 
-/* Creates an object reference for a terminal */
-static GNOME_Terminal_Terminal
-terminal_reference_from_terminal (GtkWidget *term, CORBA_Environment *ev)
-{
-	TerminalServant *ts;
-
-	ts = terminal_servant_from_terminal (term, ev);
-	return PortableServer_POA_servant_to_reference (poa, ts, ev);
-}
-
-
 /* TerminalFactory implementation */
 
 /* TerminalFactory::create_terminal method */
@@ -272,7 +259,7 @@ TerminalFactory_destory (GNOME_Terminal_TerminalFactory factory,
 	g_free (tfs);
 }
 
-
+
 /* Initialisation */
 
 static CORBA_Object get_terminal_factory (void);
@@ -410,7 +397,7 @@ corba_activate_server (void)
 	CORBA_exception_free (&ev);
 }
 
-
+
 /* Client-side helper functions */
 
 /* Tries to contact the terminal factory */
@@ -440,6 +427,8 @@ create_terminal_via_factory (char *geometry, CORBA_Environment *ev)
 	g_assert (geometry != NULL);
 
 	term = GNOME_Terminal_TerminalFactory_create_terminal (obj, geometry, ev);
+	has_terminal_factory = (term != CORBA_OBJECT_NIL);
+
 	CORBA_Object_release (obj, ev);
 	return term;
 }

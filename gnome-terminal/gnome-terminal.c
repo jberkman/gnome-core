@@ -1,6 +1,7 @@
 /*
  * The GNOME terminal, using Michael Zucchi's zvt widget.
  * (C) 1998, 1999 The Free Software Foundation
+ * Copyright 2000 Helix Code, Inc.
  *
  * Authors: Miguel de Icaza (GNOME terminal)
  *          Erik Troan      (various configuration enhancements)
@@ -186,9 +187,6 @@ void toggle_menubar_cmd   (GtkWidget *widget, ZvtTerm *term);
 void paste_cmd            (GtkWidget *widget, ZvtTerm *term);
 void preferences_cmd      (GtkWidget *widget, ZvtTerm *term);
 void toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term);
-
-static int popup_menu_cmd (ZvtTerm *term, GdkEventButton *event,
-			   GtkWidget *menu, GnomeUIInfo *uiinfo);
 
 GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry);
 GtkWidget *new_terminal     (GtkWidget *widget, ZvtTerm *term);
@@ -2792,7 +2790,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	}
 	
 	if (!load_session ()) {
-		if (use_terminal_factory && has_terminal_factory) {
+		if (use_terminal_factory) {
 			CORBA_Environment ev;
 			CORBA_Object term;
 
@@ -2802,9 +2800,11 @@ main_terminal_program (int argc, char *argv [], char **environ)
 				 ? initial_global_geometry : "80x24", &ev);
 			if (ev._major != CORBA_NO_EXCEPTION)
 				exit (5);
-			CORBA_Object_release (term, &ev);
+			if (term)
+				CORBA_Object_release (term, &ev);
 			CORBA_exception_free (&ev);
-		} else {
+		}
+		if (!has_terminal_factory) {
 			new_terminal_cmd (initial_command,
 					  default_config,
 					  initial_global_geometry);

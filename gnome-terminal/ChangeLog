@@ -1,3 +1,20 @@
+2000-01-23  Jacob Berkman  <jacob@helixcode.com>
+
+	* corba.c: remove ^L's
+	
+	* corba.c (terminal_reference_from_terminal): remove unused
+	function
+
+	* gnome-terminal.c (popup_menu_cmd): remove unimplemented definition
+
+	* corba.c (create_terminal_via_factory): set has_terminal_factory
+	if we have a terminal factory
+
+	* gnome-terminal.c (main_terminal_program): fix bug where
+	we wouldn't try to connect to the server unless we were
+	starting a server.  also fix possible crash if we don't
+	get a terminal server.
+
 2000-01-12  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-terminal.c: don't default to starting a server
