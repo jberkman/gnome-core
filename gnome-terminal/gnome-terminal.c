@@ -642,7 +642,7 @@ font_changed (GtkWidget *w, preferences_t *prefs)
 {
 	char *font;
 	GtkWidget *peer;
-	if (GNOME_IS_FONT_PICKER(w)) {
+	if (GNOME_IS_FONT_PICKER(w)){
 		font = gnome_font_picker_get_font_name (GNOME_FONT_PICKER(w));
 		peer = gtk_object_get_user_data (GTK_OBJECT(w));
 		gtk_entry_set_text (GTK_ENTRY(peer), font);
@@ -1239,16 +1239,16 @@ terminal_kill (GtkWidget *widget, void *data)
 static void
 title_changed(ZvtTerm *term, VTTITLE_TYPE type, char *newtitle)
 {
-  GnomeApp *window = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	GnomeApp *window = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 
-  switch(type) {
-  case VTTITLE_WINDOW:
-  case VTTITLE_WINDOWICON:
-    gtk_window_set_title((GtkWindow *)window, newtitle);
-    break;
-  default:
-    break;
-  }
+	switch(type){
+	case VTTITLE_WINDOW:
+	case VTTITLE_WINDOWICON:
+		gtk_window_set_title((GtkWindow *)window, newtitle);
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -1714,10 +1714,13 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 
 		gnome_config_push_prefix (prefix);
 
-		/* NAUGHTY: The ICCCM requires that the WM stores
-		   all session data on geometry! */
+		/*
+		 * NAUGHTY: The ICCCM requires that the WM stores
+		 * all session data on geometry!
+		 */
 
-		/* we can't use gnome_geometry_string because we need
+		/*
+		 * we can't use gnome_geometry_string because we need
 		 * to calculate the terminal, not window size
 		 */
 		gdk_window_get_root_origin (top->window, &x, &y);
@@ -1999,3 +2002,9 @@ main (int argc, char *argv [], char **environ)
 {
 	return main_terminal_program (argc, argv, environ);
 }
+
+/*
+ * Local variables:
+ * c-basic-offset: 8
+ * End:
+ */
