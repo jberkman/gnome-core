@@ -7,8 +7,11 @@ bin_PROGRAMS = gnomecc
 gnomecc_SOURCES =	\
 	main.c		\
 	tree.c		\
+	tree.h		\
 	callbacks.c	\
+	callback.h	\
 	control-center-widget.c \
+	control-center-widget.h \
 	$(CORBA_SRCLIST)
 
 
@@ -20,7 +23,7 @@ gnomecc_LDADD = \
 	$(INTLLIBS)					\
 	$(ORB_LIBS)
 
-EXTRA_DIST = gnomecc.desktop
+EXTRA_DIST = gnomecc.desktop control-center.idl
 
 sysdir = $(datadir)/apps/System
 sys_DATA = gnomecc.desktop
