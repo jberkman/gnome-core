@@ -1,5 +1,9 @@
 1999-01-07  Nat Friedman  <nat@nat.org>
 
+	* gmenu.c: Added a separator to the File menu.
+	
+1999-01-07  Nat Friedman  <nat@nat.org>
+
 	* gmenu.c: Use GNOMEUIINFO_MENU_ABOUT_ITEM.  Pass the menu item
  	description to GNOMEUIINFO_MENU_NEW_ITEM.
 

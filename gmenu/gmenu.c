@@ -50,9 +50,11 @@ GnomeUIInfo file_menu[] = {
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CUT, 'D',
 	  GDK_CONTROL_MASK, NULL },
 
+	GNOMEUIINFO_SEPARATOR,
+
 	GNOMEUIINFO_MENU_EXIT_ITEM(destroy_cb, NULL),
 
-	{ GNOME_APP_UI_ENDOFINFO }
+	GNOMEUIINFO_END
 };
 GnomeUIInfo sort_menu[] = {
 	{ GNOME_APP_UI_ITEM, N_("_Sort Folder"), NULL, sort_single_pressed, NULL, NULL,
