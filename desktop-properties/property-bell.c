@@ -118,7 +118,7 @@ bell_setup(void)
 	GtkObject *vadj, *padj, *dadj;
 
 	vbox = gtk_vbox_new(FALSE, GNOME_PAD_SMALL);
-	gtk_container_border_width(GTK_CONTAINER(vbox), GNOME_PAD);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), GNOME_PAD);
 
 	frame = gtk_frame_new(_("Sound"));
 	gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
