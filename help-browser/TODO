@@ -3,13 +3,15 @@
    toc:
    toc:{man,info,ghelp}
    toc:man(x)
+   sort entries and then insert into g_list, g_list_insert_sorted() is
+     inefficient
 
  - fix LANG handling
    needs to check C (or LINGUAS?) to find file
 
  - cache
    cache mime types
-   cace over rides
+   cache over rides
    disk cache
 
  - names
