@@ -3,6 +3,7 @@
 #include "unknown.xpm"
 
 /* Prototypes */
+static void cb_properties (void);
 static void cb_about (void);
 gchar *fixup_task_label (TasklistTask *task);
 gboolean is_task_visible (TasklistTask *task);
@@ -436,6 +437,13 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
+/* This routine gets called when the user selects "properties" */
+static void
+cb_properties (void)
+{
+	display_properties ();
+}
+
 /* This routine gets called when the user selects "about" */
 static void
 cb_about (void)
@@ -472,7 +480,7 @@ ignore_1st_click (GtkWidget *widget, GdkEvent *event)
 }
 
 /* Changes size of the applet */
-static void
+void
 change_size (void)
 {
 	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
@@ -548,6 +556,12 @@ create_applet (void)
 					       _("About..."),
 					       (AppletCallbackFunc) cb_about,
 					       NULL);
+	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
+					       "properties",
+					       GNOME_STOCK_MENU_PROP,
+					       _("Properties..."),
+					       (AppletCallbackFunc) cb_properties,
+					       NULL);
 	change_size ();
 	gtk_widget_show (applet);
 }
@@ -563,12 +577,13 @@ main (gint argc, gchar *argv[])
 			    VERSION,
 			    argc, argv,
 			    NULL, 0, NULL);
-	read_config ();
 	gwmh_init ();
 	gwmh_task_notifier_add (task_notifier, NULL);
 	gwmh_desk_notifier_add (desk_notifier, NULL);
 	
 	create_applet ();
+
+	read_config ();
 
 	/* FIXME: Move this elsewhere */
 	unknown_icon = gdk_pixmap_create_from_xpm_d (area->window, &unknown_mask,

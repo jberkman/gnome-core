@@ -1,3 +1,11 @@
+1999-09-11  Anders carlsson  <anders.carlsson@tordata.se>
+
+	* Makefile.am
+	  tasklist_applet.c
+	  tasklist_applet.h
+	  tasklist_config.c
+	  tasklist_properties.c: Added basic properties
+
 1999-09-09  Anders Carlsson   <anders.carlsson@tordata.se>
 
 	* tasklist_applet.c

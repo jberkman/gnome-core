@@ -39,7 +39,9 @@ struct _TasklistConfig {
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);
+void display_properties (void);
 void read_config (void);
-
+void write_config (void);
+void change_size (void);
 
 
