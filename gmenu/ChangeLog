@@ -1,3 +1,7 @@
+Sun Feb 11 21:19:41 2001  George Lebl <jirka@5z.com>
+
+	* edit.c: fix a possible segfault
+
 Wed Jan 10 20:24:48 2001  George Lebl <jirka@5z.com>
 
 	* main.c: Only make the merge path the merge path

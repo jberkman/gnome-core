@@ -353,10 +353,10 @@ GtkWidget * edit_area_create(void)
 
 void edit_area_set_to(const Desktop_Data *dd)
 {
-	edit_area_sync_to(dd, edit);
-
 	if (!dd)
 		return;
+
+	edit_area_sync_to(dd, edit);
 
 	/* do not allow user to change the USER/SYSTEM menu name/comment, since
 	 * the panel does not seem to honor them, only the icon.
