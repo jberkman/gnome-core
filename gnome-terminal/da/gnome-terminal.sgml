@@ -230,7 +230,7 @@
 	    <para><symbol>--login</symbol></para>
 	    <para>
 	      Lader gnome-terminal starte skallen i login modus (det vil køre
-	      alle dine indlogningsopstartskripter i dette modus).
+	      alle dine indlogningsopstartskripts i denne modus).
 	    </para>
 	  </listitem>
 	  
@@ -244,8 +244,8 @@
 	  <listitem>
 	    <para><symbol>--noutmp</symbol></para>
 	    <para>
-	      Indikerer at dette og assosierte skall ikke skal registreres
-	      i systemets database av brukere som er logget inn på 
+	      Indikerer at denne og associerede skal ikke skal registreres
+	      i systemets database af brugere som er logget ind på 
 	      maskinen. 
 	    </para>
 	  </listitem>
@@ -253,9 +253,9 @@
 	  <listitem>
 	    <para><symbol>--utmp</symbol></para>
 	    <para>
-	      Indikerer at brukeren ønsker at denne terminalen skal
-	      registreres i systemets database av brukere som er logget
-	      inn på maskinen (utmp databasen).  Dette er satt som standard.
+	      Fortæller at brugeren ønsker at denne terminalen skal
+	      registreres i systemets database af brugere som er logget
+	      ind på maskinen (utmp databasen).  Dette er valgt som standard.
 	    </para>
 	  </listitem>
 	  
@@ -281,22 +281,22 @@
     <sect1 id="pointerusage">
       <title>Musepilen</title>
       <para>
-        Pekeren kan brukes til å velge (kopiere), og gjøre utvidet
-	utvalg av tekst, lime inn tekst fra andre terminaler eller
-	applikasjoner, og til å hente opp en meny.
+        Markøren kan bruges til at markere (kopiere), og gjøre utvidet
+	utvalg av tekst, indsætte tekst fra andre terminaler eller
+	applikationer, og til at hente en menu frem.
       </para>
       <sect2 id="pointer-select">
         <title>Markering</title>
 	<para>
-	  Venstre museknap kan bruges til å begynne et utvalg.
-	  Hvis musknappen klikkes en gang, for så å dra, så
+	  Venstre museknap kan bruges til å begynde en markering.
+	  Hvis museknapen klikkes en gang, for så å dra, så
 	  blir tegnene valgt individuelt. Hvis du drar utenfor de
-	  vertikale kantene av vinduet, vil terminalen rulle for
-	  å holde følge.
+	  vertikale kantene af vinduet, vil terminalen rulle for
+	  at følge med.
 	</para>
 	<para>
-	  Hvis venstre musknapp dobbeltklikkes vil utvalget bli gjort
-	  etter ord-tegn. Hold musknappen nede ved det andre klikket og
+	  Hvis venstre museknap dobbeltklikkes vil udvalget bli gjort
+	  etter ord-tegn. Hold museknapen nede ved det andre klikket og
 	  dra for å utvide utvalget. Ord-tegnene er definert i
 	  <link linkend="config-general">Generelt</link>
 	  under Vælg-ved-ord bogstaver.
@@ -306,73 +306,74 @@
 	  hele linjer merkes når du drar musen opp og ned.
 	</para>
 	<para>
-	  Den midterste musknappen kan brukes til å utvide utvalget.
+	  Den midterste museknapen kan bruges til at udvide utvalget.
 	  Bare rull til det stedet du ønsker å utvide utvalget til,
-	  og klikk høyre musknapp. Igjen vil enkelt, dobbelt og
-	  trippelklikk og dra resultere i tegn, ord, eller linjeutvalg.
+	  og klikk højre museknap. Igjen vil enkelt, dobbelt og
+	  tredobbeltklik og dra resultere i tegn, ord, eller linjeutvalg.
 	</para>
 	<para>
-	  For alle tilfeller vil slipp av musknappen automatisk medføre
-	  kopiering av tekst til utklippstavlen, og kan også medføre
-	  kopiering av tekst til andre applikasjoner. Merk at enhver
-	  utskrift på skjermen vil nullstille det viste utvalget, men
-	  det vil ikke medføre tap av innholdet på utklippstavlen.
+	  I alle tilfælde vil slip af museknappen automatisk medføre
+	  kopiering af tekst til klipbordet og kan også medføre
+	  kopiering af tekst til andre applikationer. Bemærk at enhver
+	  udskrift på skærmen vil fjerne den viste markering, men
+	  det vil ikke medføre tab af indholdet på klipbordet.
 	</para>	
       <sect2 id="pointer-paste">
         <title>Lim inn tekst</title>
 	<para>
-	  Hvis den midterste musknappen er nedtrykt, vil det aktive
-	  utvalget limes inn i vinduet. Dette kan brukes til å
-	  overføre tekst fra andre applikasjoner.
+	  Hvis den midterste museknapen er nedtrykt, vil den aktive
+	  markering indsættes i vinduet. Dette kan bruges til at
+	  overføre tekst fra andre applikationer.
 	</para>
 	<para>
-	  Hvis du bare har en 2-knappers mus, vil X-tjeneren din
-	  sannsynligvis ha en måte å emulere den midterste musknappen.
-	  Se i dokumentationen for X-serveren for merr information.
+	  Hvis du bare har en 2-knaps mus, vil din X-serveren
+	  sandsynligvis have en måde at emulere den midterste museknap på.
+	  Se i dokumentationen for X-serveren for mere information.
 	</para>
       <sect2 id="pointer-wheel">
-        <title>Mushjul</title>
+        <title>Musehjul</title>
 	<para>
-	  Hvis du har en mus med hjul (som sender hendelser for musknapp
-	  4 og 5), så kan du bruke hjulet til å rulle opp og ned i tilbake-
+	  Hvis du har en mus med hjul (som sender hændelser for museknap
+	  4 og 5), så kan du bruge hjulet til at rulle op og ned i tilbage-
 	  rullingsbufferen.
 	</para>
       <sect2 id="pointer-menu">
-        <title>Kontrollmeny</title>
+        <title>Kontrollmenu</title>
 	<para>
-	  Pekeren kan også brukes for å hente opp en <link 
-	  linkend="menu-popup">kontrollmeny</link>, som kan brukes til
-	  å nullstille terminalen, eller å hente tilbake hovedmenylinjen
+	  Markøren kan også bruges for til at hente en <link 
+	  linkend="menu-popup">højrekliksmenu</link> ind, som kan bruges til
+	  at nulstille terminalen, eller få hovedmenulinien tilbage
 	  hvis den er skjult.
 	</para>
 	<para>
-	  Ved å holde nede CTRL tasten, kan høyre musknapp brukes
-	  til å vise denne menyen.
+	  Ved at holde CTRL tasten nede, kan højre museknap bruges
+	  til at vise denne menu.
 	</para>
       <sect2 id="pointer-dnd"
         <Title>Træk-og-slip</title>
 	<para>
-	  Træk-og-slip kan bruges til en række operationer i innenfor
+	  Træk-og-slip kan bruges til en række operationer indeni
 	  terminalen.
 	</para>
 	<variablelist>
 	  <varlistentry>
-	    <term>Dra filer</term>
+	    <term>Træk filer</term>
 	    <listitem>
-	      <para>Hvis filer dras inn i terminalen vil filnavnet
-		til filen limes inn i vinduet. URL'er kan også slippes
-		inn på denne måten.</para>
+	      <para>Hvis filer trækkes ind i terminalen vil filnavnet
+		på filen blive indsat i vinduet. URL'er kan også
+		indsættes på denne måde.</para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Dra farger</term>
+	    <term>Træk farver</term>
 	    <listitem>
-	      <para>En farge kan dras fra en annen GNOME applikasjon,
-		eller fra <link linkend="menu-settings">fargevelgeren</link>
-		inn på skjermen. Hvis de slippes på et tegn, settes
-		forgrunnsfargen, ellers settes bakgrunnsfargen. Se i
-		<link linkend="config-colour">fargekonfigurasjon</link>
-		seksjonen.
+	      <para>En farve kan trækkes ind på skærmen fra en anden GNOME
+	        applikation
+		eller fra <link linkend="menu-settings">farvevælgeren</link>.
+		Hvis de slippes på et tegn, sættes
+		forgrundsfarven, ellers sættes baggrundsfarven. Se i
+		<link linkend="config-colour">farvekonfiguration</link>
+		sektionen.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -381,35 +382,35 @@
    </sect1>
     
     <sect1 id="menus">
-      <title>Menyer</title>
+      <title>Menuer</title>
       <para>
-        Gnome-terminal presenterer et antall kontrollfunksjoner
-	via hovedmenyen, og en oppsprettmeny som er tilgjengelig
-	ved å trykke høyre musknapp mens man holder nede CTRL
-	tasten.
+        Gnome-terminal præsenterer et antal kontrolfunktioner
+	via hovedmenuen, og en højrekliksmenu som er tilgængelig
+	ved at trykke på højre museknap mens man holder CTRL
+	tasten nede.
       </para>
       <sect2 id="menu-file">
-        <title>Filmeny</title>
+        <title>Filmenu</title>
 	<variablelist>
 	  <varlistentry>
 	    <term>Ny terminal</term>
 	    <listitem>
 	      <para>
-	        Åpner en ny terminal. Dette er en effektiv måte å
-	        starte flere terminaler, siden de håndteres av
-	        samme prosess. Hver terminal starter likevel sin egen 
-	        underskallprosess.
+	        Åbner en ny terminal. Dette er en effektiv måde at
+	        starte flere terminaler, så de håndteres af
+	        samme proces. Hver terminal starter alligevel sin egen 
+	        underskalsproces.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Skjul menylinje</term>
+	    <term>Skjul menulinie</term>
 	    <listitem>
 	      <para>
-	        Skjuler hovedmenylinjen i terminalen, som gir en
-	        mindre terminal. Menylinjen kan hentes frem igjen
-	        ved å bruke kontrollmenyen, som kan vises ved å holde
-	        nede CTRL tasten og samtidig trykke høyre musknapp.
+	        Skjuler hovedmenulinien i terminalen, hvilket giver en
+	        mindre terminal. Menulinien kan hentes frem igen
+	        ved at bruge højrekliksmenuen, som fåes frem ved at holde
+	        CTRL tasten nede og samtidig trykke på højre museknap.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -432,9 +433,9 @@
 	    <term>Indsæt</term>
 	    <listitem>
 	      <para>
-	        Limer inn utvalg eller innholdet på utklippstavlen
-	        i terminalen. Dette kan også oppnås ved å bruke den
-	        midterste musknappen.
+	        Indsætter markering eller indholdet af klipbordet
+	        i terminalen. Dette kan også opnåes ved at bruge den
+	        midterste museknap.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -442,7 +443,7 @@
       </sect2>
     
       <sect2 id="menu-settings">
-        <title>Inntillinger menyen</title>
+        <title>Inntillinger menuen</title>
         <variablelist>
 	  <varlistentry>
 	    <term>Brukervalg ...</term>
@@ -496,7 +497,7 @@
 	    <term>GNOME terminal brugermanual ...</term>
 	    <listitem>
 	      <para>
-	        Hvordan man henter dette dokumentet fra gnome-terminal.
+	        Hvordan man indhenter dette dokument fra gnome-terminal.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -504,8 +505,8 @@
 	    <term>Om ...</term>
 	    <listitem>
 	      <para>
-	        Takk til alle hardt arbeidende mennesker som gjorde det
-		hele mulig.
+	        Tak til alle de hårdt arbejdende mennesker som gjorde det
+		hele muligt.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -513,13 +514,13 @@
       </sect2>
       
       <sect2 id="menu-popup">
-        <title>Oppsprettmeny</title>
+        <title>Højrekliksmenu</title>
 	<para>
-	  Oppsprettmenyen kan vises ved å trykke ned høyre
-	  musknapp mens CTRL tasten er nedtrykt. Den skal være
-	  en enkel snarvei til hovedmenyen, eller til bruk når
-	  hovedmenyen er skjult. Følgende oppføringer er
-	  tilgjengelige:
+	  Højrekliksmenuen fåes frem ved at trykke på højre
+	  museknap mens CTRL tasten holdes nede. Den skal være
+	  en enkel genvej til hovedmenuen, eller til når
+	  hovedmenuen er skjult. Følgende menupunkter er
+	  tilgængelige:
 	</para>
 	<variablelist>
 	  <varlistentry>
@@ -531,10 +532,10 @@
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Brukervalg ...</term>
+	    <term>Indstillinger ...</term>
 	    <listitem>
 	      <para>
-	        Viser brukervalg dialogen.
+	        Viser indstillingsdialogboksen.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -542,8 +543,8 @@
 	    <term>Skjul/vis menulinie ...</term>
 	    <listitem>
 	      <para>
-	        Skjuler eller viser hovedmenylinjen, avhengig
-		av dens tilstand.
+	        Skjuler eller viser hovedmenulinien, afhængig
+		af de forrige valg.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -579,12 +580,13 @@
 	    <para><symbol>TERM</symbol></para>
 
 	    <para>
-	      Denne variabelen er satt til "xterm" som standard. Noen curses
-	      implementasjoner og applikasjoner basert på curses ønsker kanskje
-	      at verdien skal være xterm-color, color-xterm eller xterm-debian
-	      for å støtte farger.  Du må kanskje endre denne innstillingen
-	      til en av disse verdiene hvis ikke dine applikasjoner viser 
-	      farger. Denne kan nå settes via
+	      Denne variabel er sat til "xterm" som standard. Nogen curses
+	      implementationer og applikationer baseret på curses ønsker måske
+	      at værdien skal være xterm-color, color-xterm eller xterm-debian
+	      for at understøtte farver.  Du bliver måske nødt til at ændre
+	      denne indstilling
+	      til en af disse værdier hvis dine applikationer ikke er i 
+	      farver. Dette kan gøres via
 	      --termname <link linkend="Options">kommandolinieflaggene</link>
 	    </para>
 	  </listitem>
@@ -593,7 +595,7 @@
 	    <para><symbol>COLORTERM</symbol></para>
 
 	    <para>
-	      Denne variabelen er angivet som "gnome-terminal".
+	      Denne variabel er angivet som "gnome-terminal".
 	      Flere applikationer (specielt Slang baserede) 
 	      bruger denne indstilling til at
 	      afgøre om terminalen understøtter farver.
@@ -604,9 +606,9 @@
 	    <para><symbol>WINDOWID</symbol></para>
 
 	    <para>
-	      Denne variabelen inneholder X11 vindusidentifikatoren.
-	      Denne brukes noen ganger av applikasjoer til å modifisere
-	      innholdet av dette vinduet eller til å tilby spesialeffekter.
+	      Denne variabel indeholder X11 vinduesidentifikatoren.
+	      Denne bruges nogen gange av applikationer til at modificere
+	      indholdet af dette vindue eller til at tilbyde specialeffekter.
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -625,18 +627,18 @@
 	og Jay Painter forbedret den og udførte videre aflusning og 
 	vedlifehold.   George Lebl tilførte gennemsigtighed og støtte
 	for baggrundsbilleder til widget'et. Senere forbedrede Michael
-	Zucchi gennomsigtigheden og billedeunderstøttelsen, noget som gav pænere
-        og hurtigere visning og et alternativt rullemodus.</para>
+	Zucchi gennemsigtigheden og billedeunderstøttelsen, hvilket gav pænere
+        og hurtigere visning og en alternativ rullemodus.</para>
 
       <para>
-	Miguel skrev hoveddelen af gnome-terminal programmet, og Erik Troan
-	tilførte terminalklasse-støtten sammen med forskellige andre
+	Miguel skrev hovedparten af gnome-terminal programmet, og Erik Troan
+	tilførte terminalklasse-understøttelse sammen med forskellige andre
 	funktioner. Jeff Garzik, Jay, Christopher Blizzard, Michael,
 	Jens Lautenbacher, Tom Tromey, Tristan Tarrant og Jonathan
 	Blandford kom med ekstra fejlrettelser.  Nat Friedman reviderede
-	brugergrænsefladen til at følge retningslinjene til GNOME.  Felix
+	brugergrænsefladen til at følge retningslinierne for GNOME.  Felix
 	Bellaby, Tom Tromey og Manish Vachharajani implementerede
-	og forbedret koden for sessionsbehandling.
+	og forbedrede koden for sessionsbehandling.
 	</para>
     </sect1>
     
