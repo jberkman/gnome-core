@@ -1,3 +1,8 @@
+1998-12-23 Jay Painter <jpaint@serv.net>
+	* gnome-terminal.c: resize in incriments equal to the charactor
+	size, and also inform the window manager with proper hints so it
+	can display the correct terminal grid size.
+
 1998-12-18 Felix Bellaby  <felix@pooh.u-net.com>
 	* gnome-terminal.c: various updates to session management code.
 

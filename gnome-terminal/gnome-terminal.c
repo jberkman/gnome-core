@@ -8,12 +8,15 @@
  */
 #include <config.h>
 #include <unistd.h>
-#include <gnome.h>
-#include <zvt/zvtterm.h>
-#include <gdk/gdkprivate.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include <gdk/gdkx.h>
+#include <gdk/gdkprivate.h>
+#include <gnome.h>
+#include <zvt/zvtterm.h>
+
 #include "gnome-terminal.h"
 
 /* The program environment */
@@ -1195,24 +1198,6 @@ static GnomeUIInfo gnome_terminal_menu [] = {
 	GNOMEUIINFO_END
 };
 
-static void
-set_shell_to (char *the_shell, char **shell, char **name, int isLogin)
-{
-	char *only_name;
-	int len;
-
-	only_name = strrchr (the_shell, '/');
-	only_name++;
-	
-	if (isLogin){
-		len = strlen (only_name);
-		
-		*name  = g_malloc (len + 2);
-		**name = '-';
-		strcpy ((*name)+1, only_name); 
-	} else
-		*name = only_name;
-}
 
 /*
  * Puts in *shell a pointer to the full shell pathname
@@ -1222,8 +1207,25 @@ set_shell_to (char *the_shell, char **shell, char **name, int isLogin)
 static void
 get_shell_name (char **shell, char **name, int isLogin)
 {
+	char *only_name;
+	int len;
+
 	*shell = gnome_util_user_shell ();
-	set_shell_to (*shell, shell, name, isLogin);
+	g_assert (*shell != NULL);
+
+	only_name = strrchr (*shell, '/');
+	only_name++;
+	
+	if (isLogin){
+		len = strlen (only_name);
+		
+		/* memory leak! */
+		*name  = g_malloc (len + 2);
+		**name = '-';
+		strcpy ((*name)+1, only_name); 
+	} else {
+		*name = only_name;
+	}
 }
 
 static void
@@ -1399,6 +1401,44 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	return 0;
 }
 
+
+static void
+size_allocate (GtkWidget *widget)
+{
+        ZvtTerm *term;
+	GnomeApp *app;
+	XSizeHints sizehints;
+
+	g_assert (widget != NULL);
+	term = ZVT_TERM (widget);
+
+	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	g_assert (app != NULL);
+
+	sizehints.base_width = 
+	  (GTK_WIDGET (app)->allocation.width) +
+	  (GTK_WIDGET (term)->style->klass->xthickness * 2) -
+	  (GTK_WIDGET (term)->allocation.width);
+
+	sizehints.base_height =
+	  (GTK_WIDGET (app)->allocation.height) +
+	  (GTK_WIDGET (term)->style->klass->ythickness * 2) -
+	  (GTK_WIDGET (term)->allocation.height);
+
+	sizehints.width_inc = term->charwidth;
+	sizehints.height_inc = term->charheight;
+	sizehints.min_width = sizehints.base_width + sizehints.width_inc;
+	sizehints.min_height = sizehints.base_height + sizehints.height_inc;
+
+	sizehints.flags = (PBaseSize|PMinSize|PResizeInc);
+
+	XSetWMNormalHints (GDK_DISPLAY(),
+			   GDK_WINDOW_XWINDOW (GTK_WIDGET (app)->window),
+			   &sizehints);
+	gdk_flush ();
+}
+
+
 static void
 term_change_pos(GtkWidget *widget)
 {
@@ -1509,6 +1549,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	gtk_signal_connect (GTK_OBJECT (term), "button_press_event",
 			    GTK_SIGNAL_FUNC (button_press), term);
+
+	gtk_signal_connect_after (GTK_OBJECT (term), "size_allocate",
+				  GTK_SIGNAL_FUNC (size_allocate), term);
 	
 	gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
 	if (cfg->menubar_hidden)
@@ -1589,7 +1632,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	}
 	}
 
-	g_free (shell);
+        /* IS THIS BEING DOUBLE-FREED??? --JMP g_free (shell); */
 }
 
 static void
