@@ -65,6 +65,13 @@ static void buttonbox_style_cb(GtkWidget * menuitem, gint style)
   property_changed();
 }
 
+static void statusbar_dialog_cb(GtkWidget * button, gpointer ignored)
+{
+  gboolean b = GTK_TOGGLE_BUTTON(button)->active;
+  gnome_preferences_set_statusbar_dialog (b);
+  property_changed();
+}
+
 static void
 ui_setup (void)
 {
@@ -73,6 +80,7 @@ ui_setup (void)
   GtkWidget * menu;
   GtkWidget * menuitem;
   GtkWidget * label;
+  GtkWidget * button;
   gint i;
 
   vbox = gtk_vbox_new(TRUE, GNOME_PAD);
@@ -98,6 +106,20 @@ ui_setup (void)
 
   gtk_box_pack_start ( GTK_BOX(vbox), label, FALSE, FALSE, GNOME_PAD_SMALL );
   gtk_box_pack_start ( GTK_BOX(vbox), option_menu, FALSE, FALSE, GNOME_PAD_SMALL );
+  
+  button = 
+    gtk_check_button_new_with_label(_("Use statusbar instead of dialog when possible"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_preferences_get_statusbar_dialog());
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(statusbar_dialog_cb),
+                     NULL);
+
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  /* 
+     radio = gtk_radio_button_new_with_label(NULL, _("Use interactive statusbar.));
+     */ 
 
   gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
 				  vbox, gtk_label_new (_("Dialogs")));
