@@ -1,3 +1,8 @@
+1998-04-27  Michael Fulbright  <msf@redhat.com>
+
+	* gnome-helpwin.c: remove unused functions
+	  visit.c: cleanly handle case where default_page.html isnt found
+
 1998-04-24  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-help-browser.c (generateConfigWidgets): Fix the right
