@@ -1,3 +1,7 @@
+Thu Dec 31 18:19:45 1998  George Lebl  <jirka@5z.com>
+
+	* tree.c: replace an extremely wasteful routine with a simple one
+
 Sun Dec 13 08:10:00 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c (help_menu): Added underscore accelerator `_` to About...

@@ -454,13 +454,7 @@ void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkWidget *pbar)
 
 	if (orderlist)
 		{
-		int i;
-		int l = g_list_length(orderlist);
-		for (i=0;i<l;i++)
-			{
-			GList *list = g_list_nth(orderlist, i);
-			g_free(list->data);
-			}
+		g_list_foreach(orderlist,(GFunc)g_free,NULL);
 		g_list_free(orderlist);
 		}
 
