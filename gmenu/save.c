@@ -91,7 +91,8 @@ void save_desktop_entry(GnomeDesktopEntry *dentry, gchar *old_path, gint isfolde
 	if (isfolder)
 		{
 		if (strcmp(old_path, user_apps_dir) == 0 ||
-		    strcmp(old_path, system_apps_dir) == 0 )
+		    strcmp(old_path, system_apps_dir) == 0 ||
+		    strcmp(old_path, system_applets_dir) == 0 )
 			new_path = g_strdup(old_path);
 		else
 			new_path = g_strconcat(buf, "/", name, NULL);

@@ -282,6 +282,7 @@ static Edit_Area *edit_area_new()
 	GtkWidget *label;
 	GtkWidget *pixmap;
 	GtkWidget *frame;
+	GList *types = NULL;
 
 	ea = g_new0(Edit_Area, 1);
 
@@ -295,6 +296,14 @@ static Edit_Area *edit_area_new()
 
 	ea->dee = gnome_dentry_edit_new_notebook (GTK_NOTEBOOK(notebook));
 	gtk_signal_connect(GTK_OBJECT(ea->dee), "changed", GTK_SIGNAL_FUNC(edit_area_changed_cb), ea);
+
+	types = g_list_append(types, "Application");
+	types = g_list_append(types, "URL");
+	types = g_list_append(types, "PanelApplet");
+	types = g_list_append(types, "Directory");
+	gtk_combo_set_popdown_strings(GTK_COMBO(GNOME_DENTRY_EDIT(ea->dee)->type_combo), types);
+	g_list_free(types);
+
 
 	hbox1 = gtk_hbox_new(TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(ea->vbox),hbox1,FALSE,FALSE,10);
@@ -373,11 +382,15 @@ void edit_area_set_to(Desktop_Data *dd)
          */
 	if (dd->editable && strcmp(dd->path, user_apps_dir) == 0)
 		{
-		edit_area_set_as_top_menu(_("Favorites"), edit);
+		edit_area_set_as_top_menu(_("Favorites (user menus)"), edit);
 		}
 	if (dd->editable && strcmp(dd->path, system_apps_dir) == 0)
 		{
-		edit_area_set_as_top_menu(_("System"), edit);
+		edit_area_set_as_top_menu(_("Programs (system menus)"), edit);
+		}
+	if (dd->editable && strcmp(dd->path, system_applets_dir) == 0)
+		{
+		edit_area_set_as_top_menu(_("Applets (system menus)"), edit);
 		}
 }
 

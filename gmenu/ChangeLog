@@ -1,3 +1,12 @@
+Thu Feb 10 19:52:28 2000  George Lebl <jirka@5z.com>
+
+	* tree.c,main.c,gmenu.h,treedel.c,treednd.c,save.c:  Add all four
+	  types of dentries just like the panel dentry editting.  Make menu
+	  naming consistent with the panel.  Add ability to edit the
+	  system applets menu.  And convert one g_print into
+	  gnome_error_dialog.  Whoops a conflict, oh well this patch does
+	  a bit more anyhow.
+
 2000-02-10  Jacob Berkman  <jacob@helixcode.com>
 
 	* tree.c (menu_tree_populate): 

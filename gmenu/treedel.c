@@ -111,7 +111,8 @@ void menu_tree_delete_item(GtkWidget *ctree)
 	if (!dd) return;
 
 	if (strcmp(dd->path, user_apps_dir) == 0 ||
-	    strcmp(dd->path, system_apps_dir) == 0)
+	    strcmp(dd->path, system_apps_dir) == 0 ||
+	    strcmp(dd->path, system_applets_dir) == 0)
 		{
 		gnome_warning_dialog (_("You can not delete a top level submenu."));
 		return;

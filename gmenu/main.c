@@ -21,6 +21,7 @@ GtkWidget *infolabel;
 GtkWidget *infopixmap;
 
 gchar *system_apps_dir;
+gchar *system_applets_dir;
 gchar *user_apps_dir;
 gchar *system_pixmap_dir;
 gchar *user_pixmap_dir;
@@ -269,11 +270,13 @@ int main (int argc, char *argv[])
 
 	gnome_init ("GNOME menu editor", VERSION, argc, argv);
 
-	system_apps_dir = gnome_unconditional_datadir_file("gnome/apps");
-	system_pixmap_dir = gnome_unconditional_datadir_file("pixmaps");
-	if (!g_file_exists(system_apps_dir) || !g_file_exists(system_pixmap_dir))
+	system_apps_dir = gnome_datadir_file("gnome/apps");
+	system_applets_dir = gnome_datadir_file("applets");
+	system_pixmap_dir = gnome_datadir_file("pixmaps");
+	if (!system_apps_dir || !system_pixmap_dir || !system_applets_dir)
 		{
-		g_print("unable to retrieve GNOME installation directory\n");
+		gnome_error_dialog(_("Unable to retrieve GNOME installation directory\n"));
+		gtk_main();
 		return 1;
 		}
 
