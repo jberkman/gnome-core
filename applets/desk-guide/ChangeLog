@@ -1,3 +1,15 @@
+Mon Oct 25 00:57:42 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_init_gui): translate the result from
+	applet_widget_get_panel_size() into *hardcoded* pixel sizes:
+	static guint panel_sizes[] = { 24, 48, 64, 80 };
+	gp_panel_size = panel_sizes[applet_widget_get_panel_size (applet_widget)];
+	i can smell this blowing up some day, definitely ;(
+
+	* deskguide_applet.c: added configuration options to specify that
+	the pixels sizes should actually be fetched from the panel.
+	added divide-by-# of rows/columns feature for george and boc.
+
 Sun Oct 24 21:55:06 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c: exposed violate_client_msg in configuration

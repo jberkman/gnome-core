@@ -59,6 +59,7 @@ static GtkWidget	*gp_desk_widget[MAX_DESKTOPS] = { NULL, };
 static guint             gp_n_desk_widgets = 0;
 static GdkWindow	*gp_atom_window = NULL;
 static GtkOrientation    gp_orientation = GTK_ORIENTATION_HORIZONTAL;
+static guint             gp_panel_size = 12;
 static guint		 GP_TYPE_HBOX = 0;
 static guint		 GP_TYPE_VBOX = 0;
 static guint		 GP_ARROW_DIR = 0;
@@ -101,17 +102,25 @@ static ConfigItem gp_config_items[] = {
   CONFIG_SECTION (sect_horizontal,                     	     	N_ ("Horizontal Layout")),
   CONFIG_RANGE (area_height,	44,	4,	1024,
 		N_ ("Desktop Height [pixels]")),
-  CONFIG_RANGE (row_stackup,	1,	1,	64,
-		N_ ("Rows of Desktops")),
+  CONFIG_BOOL (abandon_area_height,		TRUE,
+	       N_ ("Override desktop height with panel size")),
   CONFIG_BOOL (div_by_vareas,		TRUE,
 	       N_ ("Divide height by number of vertical areas")),
+  CONFIG_RANGE (row_stackup,	1,	1,	64,
+		N_ ("Rows of Desktops")),
+  CONFIG_BOOL (div_by_nrows,		TRUE,
+	       N_ ("Divide height by number of rows")),
   CONFIG_SECTION (sect_vertical,                       	     	N_ ("Vertical Layout")),
   CONFIG_RANGE (area_width,	44,	4,	1024,
 		N_ ("Desktop Width [pixels]")),
-  CONFIG_RANGE (col_stackup,	1,	1,	64,
-		N_ ("Columns of Desktops")),
+  CONFIG_BOOL (abandon_area_width,		TRUE,
+	       N_ ("Override desktop width with panel size")),
   CONFIG_BOOL (div_by_hareas,		TRUE,
 	       N_ ("Divide width by number of horizontal areas")),
+  CONFIG_RANGE (col_stackup,	1,	1,	64,
+		N_ ("Columns of Desktops")),
+  CONFIG_BOOL (div_by_ncols,		TRUE,
+	       N_ ("Divide width by number of columns")),
 
   CONFIG_PAGE (N_ ("Advanced")),
   CONFIG_SECTION (sect_drawing,                   	     	N_ ("Drawing")),
@@ -210,6 +219,8 @@ main (gint   argc,
 		  "signal::change-orient", fixme_applet_widget_get_panel_orient, NULL,
 		  "signal::change-orient", gp_destroy_gui, NULL,
 		  "signal::change-orient", gp_init_gui, NULL,
+		  "signal::change-size", gp_destroy_gui, NULL,
+		  "signal::change-size", gp_init_gui, NULL,
 		  "object_signal::save-session", gp_save_session, NULL,
 		  "signal::destroy", gtk_main_quit, NULL,
 		  NULL);
@@ -459,13 +470,28 @@ gp_create_desk_widgets (void)
     return;
 
   /* configure Desktop widget class for us */
-  area_size = (gp_orientation == GTK_ORIENTATION_HORIZONTAL
-	       ? RANGE_CONFIG (area_height)
-	       : RANGE_CONFIG (area_width));
-  if (gp_orientation == GTK_ORIENTATION_HORIZONTAL && BOOL_CONFIG (div_by_vareas))
-    area_size /= (gdouble) N_VAREAS;
-  if (gp_orientation == GTK_ORIENTATION_VERTICAL && BOOL_CONFIG (div_by_hareas))
-    area_size /= (gdouble) N_HAREAS;
+  if (gp_orientation == GTK_ORIENTATION_HORIZONTAL)
+    {
+      if (BOOL_CONFIG (abandon_area_height))
+	area_size = gp_panel_size;
+      else
+	area_size = RANGE_CONFIG (area_height);
+      if (BOOL_CONFIG (div_by_vareas))
+	area_size /= (gdouble) N_VAREAS;
+      if (BOOL_CONFIG (div_by_nrows))
+	area_size /= (gdouble) RANGE_CONFIG (row_stackup);
+    }
+  else /* gp_orientation == GTK_ORIENTATION_VERTICAL */
+    {
+      if (BOOL_CONFIG (abandon_area_width))
+	area_size = gp_panel_size;
+      else
+	area_size = RANGE_CONFIG (area_width);
+      if (BOOL_CONFIG (div_by_hareas))
+	area_size /= (gdouble) N_HAREAS;
+      if (BOOL_CONFIG (div_by_ncols))
+	area_size /= (gdouble) RANGE_CONFIG (col_stackup);
+    }
   gwm_desktop_class_config (gtk_type_class (GWM_TYPE_DESKTOP),
 			    BOOL_CONFIG (double_buffer),
 			    gp_orientation,
@@ -589,11 +615,13 @@ gp_widget_ignore_button (GtkWidget      *widget,
 static void 
 gp_init_gui (void)
 {
+  static guint panel_sizes[] = { 24, 48, 64, 80 };
   GtkWidget *button, *abox;
   gboolean arrow_at_end = FALSE;
   GtkWidget *main_box;
   
   gtk_widget_set_usize (gp_container, 0, 0);
+  gp_panel_size = panel_sizes[applet_widget_get_panel_size (APPLET_WIDGET (gp_applet))];
   switch (applet_widget_get_panel_orient (APPLET_WIDGET (gp_applet)))
     {
     case ORIENT_UP:
