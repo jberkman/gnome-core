@@ -1,6 +1,7 @@
 /* This file should encapsulate all the HTML widget functionality. */
 /* No other files should be accessing HTML widget functions!       */
 
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -569,8 +570,11 @@ helpWindowClose(HelpWindow win)
 
 static void init_accel(HelpWindow win)
 {
+#ifdef HAVE_DEVGTK
     GtkAccelGroup *accelGroup;
-
+#else
+    GtkAcceleratorTable *accelTable;
+#endif
     /* What a hack this is.  I'm sure there is a better way */
     win->accelWidget = gtk_button_new_with_label("accelWidget");
     gtk_widget_realize(win->accelWidget);
@@ -582,7 +586,7 @@ static void init_accel(HelpWindow win)
 		       GTK_SIGNAL_FUNC(pageDown), win);
     gtk_signal_connect(GTK_OBJECT(win->accelWidget), "enter",
 		       GTK_SIGNAL_FUNC(focusEnter), win);
-    
+#ifdef HAVE_DEVGTK    
     accelGroup = gtk_object_get_data(GTK_OBJECT(win->app),
 				     "GtkAccelGroup");
     gtk_widget_add_accelerator(win->accelWidget,
@@ -597,6 +601,19 @@ static void init_accel(HelpWindow win)
 		    "enter",
 		    accelGroup,
 		    'g', 0, 0);
+#else
+    accelTable = gtk_object_get_data(GTK_OBJECT(win->app),
+                                     "GtkAcceleratorTable");
+    gtk_accelerator_table_install(accelTable,
+                                  GTK_OBJECT(win->accelWidget), "pressed",
+                                  'b', 0);
+    gtk_accelerator_table_install(accelTable,
+                                  GTK_OBJECT(win->accelWidget), "released",
+                                  ' ', 0);
+    gtk_accelerator_table_install(accelTable,
+                                  GTK_OBJECT(win->accelWidget), "enter",
+                                  'g', 0);
+#endif
 }
 
 static void pageUp(GtkWidget *w, HelpWindow win)

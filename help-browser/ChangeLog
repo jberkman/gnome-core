@@ -1,3 +1,7 @@
+Wed Jun 10 17:22:59 EDT 1998 Gregory McLean <gregm@comstar.net>
+
+	* window.c : updated window.c to work with both gtk versions.
+
 1998-06-10  Carsten Schaar  <nhadcasc@fs-maphy.uni-hannover.de>
 
 	* gnome-help-browser.c (main): Call 'newGnomeClient' after
