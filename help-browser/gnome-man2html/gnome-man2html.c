@@ -2560,8 +2560,9 @@ static char
 						scan_troff(wordlist[2], 
 							   1, NULL);
 					} else
-						out_html(")");
 #endif
+						out_html(")");
+
 					out_html("\n");
 #if 0
 					printf("<BR><A HREF=\"");

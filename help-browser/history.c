@@ -6,6 +6,7 @@
 #include <glib.h>
 #include <libgnome/gnome-defs.h>
 #include <libgnome/gnome-i18n.h>
+#include <libgnomeui/gnome-window-icon.h>
 #include <gtk/gtk.h>
 
 #include "history.h"
@@ -268,6 +269,7 @@ static void createHistoryWindow(History h, GtkWidget **window,
     /* Main Window */
     *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(*window), _("Gnome Help History"));
+    gnome_window_icon_set_from_default (GTK_WINDOW (window));
     gtk_widget_set_usize (*window, 500, 200);
 
     /* Vbox */

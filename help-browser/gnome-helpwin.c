@@ -199,7 +199,7 @@ gtk_html_source (GtkHTML *html, char *url, char *source)
 	gtk_html_write (html, handle, source, strlen (source));
 
 	GNOME_HELPWIN (html)->writing = FALSE;
-	gtk_html_end (html, handle, GTK_HTML_STREAM_OK);
+	/*gtk_html_end (html, handle, GTK_HTML_STREAM_OK);*/
 }
 #endif /* HELP_USE_GTKHTML */
 

@@ -1,3 +1,11 @@
+2000-05-04  Jacob Berkman  <jacob@helixcode.com>
+
+	* gnome-help-browser.c (main): set the default icon
+
+	* history.c (createHistoryWindow): 
+	* toc.c (createToc): 
+	* bookmarks.c (createBookmarksWindow): use the default icon
+
 2000-05-03  Michael Meeks  <michael@helixcode.com>
 
 	* gnome-info2html/html.c (write_node_link_html): s/strcasecmp/g_strcasecmp/

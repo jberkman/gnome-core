@@ -1,6 +1,7 @@
 #include <config.h>
 #include <gtk/gtk.h>
 #include <glib.h>
+#include <libgnomeui/gnome-window-icon.h>
 
 #include <unistd.h>
 #include <dirent.h>
@@ -175,6 +176,7 @@ GtkWidget *createToc(GtkSignalFunc selectCallback)
     /* Main Window */
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Gnome Help TOC");
+    gnome_window_icon_set_from_default (GTK_WINDOW (window));
     gtk_widget_set_usize (window, 300, 200);
     /*gtk_widget_set_uposition (window, 20, 20);*/
 

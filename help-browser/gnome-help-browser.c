@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <orb/orbit.h>
 #include <libgnorba/gnorba.h>
-/*#include <libgnomeui/gnome-window-icon.h>*/
+#include <libgnomeui/gnome-window-icon.h>
 #include <errno.h>
 
 #ifdef HAVE_ALLOCA_H
@@ -191,7 +191,7 @@ main(int argc, char *argv[])
     gtk_widget_set_default_colormap (gdk_rgb_get_cmap ());
     gtk_widget_set_default_visual (gdk_rgb_get_visual ());
 
-    /*gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-help.png");*/
+    gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-help.png");
 
     leftovers = poptGetArgs(ctx);
     if(leftovers && leftovers[0]) {
@@ -351,6 +351,7 @@ aboutCallback (HelpWindow win)
 	const gchar *authors[] = {
 		"Mike Fulbright",
 		"Marc Ewing",
+		"Jacob Berkman",
 		NULL
 	};
 
