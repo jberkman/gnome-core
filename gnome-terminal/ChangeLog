@@ -1,3 +1,8 @@
+1999-07-13  Tom Tromey  <tromey@cygnus.com>
+
+	* C/Makefile.am (gnome-terminal/index.html): Ignore errors from
+	`cp'.
+
 1999-07-11  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* gnome-terminal.c (parse_an_arg): ANSI C patch provided by Drazen 
