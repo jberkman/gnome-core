@@ -1,3 +1,13 @@
+1998-05-27  Carsten Schaar  <nhadcasc@fs-maphy.uni-hannover.de>
+
+	* toc2-ghelp.c: Included <gnome.h>.
+ 	(newGhelpTable): Changed to use gnome_i18n_get_language_list. This
+ 	way, only manual pages are shown, that are in the users language
+ 	search path. This includes alwas the "C" language. This way,
+ 	users, that have some of there LANG-variables set, can read gnome
+ 	help pages.
+	
+
 1998-05-25  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* check-running.c: fix up
