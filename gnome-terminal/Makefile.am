@@ -68,10 +68,10 @@ man_MANS = gnome-terminal.1
 EXTRA_DIST =				\
 	$(util_DATA)			\
 	$(glade_DATA)			\
+	$(glade_src)			\
 	$(glade_msgs)			\
 	$(man_MANS)			\
-	$(ui_DATA)			\
-	gnome-terminal.glade
+	$(ui_DATA)
 
 # BUILT_SOURCES = $(CORBA_SOURCE)
 CLEANFILES    = $(BUILT_SOURCES)
