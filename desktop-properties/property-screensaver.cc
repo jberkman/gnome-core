@@ -159,7 +159,7 @@ ConfigScreenSaver::settings_frame ()
 	hb1 = gtk_hbox_new (FALSE, 0);
 
 	lock = gtk_check_button_new_with_label (_("Requires Password"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (lock),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (lock),
 				     lockV);
 	gtk_signal_connect (GTK_OBJECT (lock),
 			    "toggled",
@@ -168,7 +168,7 @@ ConfigScreenSaver::settings_frame ()
 
 	
 	check_dodpms = gtk_check_button_new_with_label (_("Use DPMS"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (check_dodpms),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_dodpms),
 				     dpmsV);
 	gtk_signal_connect (GTK_OBJECT (check_dodpms),
 			    "toggled",
@@ -193,7 +193,7 @@ ConfigScreenSaver::settings_frame ()
 			    this);
      
 	vbox = gtk_vbox_new (FALSE, GNOME_PAD);
-	gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
 
 	gtk_box_pack_start (GTK_BOX (hb1), l1, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (hb1), waitMin, TRUE, TRUE, GNOME_PAD);
@@ -234,7 +234,7 @@ ConfigScreenSaver::modes_frame ()
 	f  = gtk_frame_new (_("Screensavers"));
 
 	hb1 = gtk_hbox_new (FALSE, GNOME_PAD);
-	gtk_container_border_width (GTK_CONTAINER (hb1), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (hb1), GNOME_PAD);
 
 	sw = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw),
@@ -315,9 +315,9 @@ ConfigScreenSaver::setup ()
 	
 	vbox = gtk_vbox_new (FALSE, 0);
 	hbox = gtk_hbox_new (FALSE, 0);
-	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
 	bottom = gtk_hbox_new (FALSE, GNOME_PAD);
-	gtk_container_border_width (GTK_CONTAINER (bottom), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (bottom), GNOME_PAD);
 
 	align = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
 

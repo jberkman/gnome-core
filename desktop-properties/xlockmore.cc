@@ -219,13 +219,13 @@ XLockMore::prepareSetupWindow ()
 		gtk_notebook_append_page (GTK_NOTEBOOK (setupNotebook), modePage, l1);
 		gtk_notebook_append_page (GTK_NOTEBOOK (setupNotebook), hb2, l2);
 
-		gtk_container_border_width (GTK_CONTAINER (setupFrame), GNOME_PAD);
-		gtk_container_border_width (GTK_CONTAINER (sw), GNOME_PAD);
-		gtk_container_border_width (GTK_CONTAINER (vb3), GNOME_PAD);
-		gtk_container_border_width (GTK_CONTAINER (modePage), GNOME_PAD);
+		gtk_container_set_border_width (GTK_CONTAINER (setupFrame), GNOME_PAD);
+		gtk_container_set_border_width (GTK_CONTAINER (sw), GNOME_PAD);
+		gtk_container_set_border_width (GTK_CONTAINER (vb3), GNOME_PAD);
+		gtk_container_set_border_width (GTK_CONTAINER (modePage), GNOME_PAD);
 		gtk_box_pack_start (GTK_BOX (vbox), setupNotebook, FALSE, FALSE, 0);
 
-		gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
+		gtk_container_set_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
 		gtk_box_pack_end (GTK_BOX (hbox), bhelp, FALSE, FALSE, 0);
 		gtk_box_pack_end (GTK_BOX (hbox), bcl, FALSE, FALSE, 0);
 		gtk_box_pack_end (GTK_BOX (hbox), bapl, FALSE, FALSE, 0);
@@ -435,8 +435,8 @@ XLockMode::setup ()
 	xm->prepareSetupWindow ();
 	gtk_notebook_set_page (GTK_NOTEBOOK (xm->setupNotebook), 0);
 
-	gtk_label_set (GTK_LABEL (xm->setupName), name);
-	// gtk_label_set (GTK_LABEL (xm->setupComment), comment);
+	gtk_label_set_text (GTK_LABEL (xm->setupName), name);
+	// gtk_label_set_text (GTK_LABEL (xm->setupComment), comment);
 	//gtk_text_insert (GTK_TEXT (xm->setupComment), NULL,
 	//	      &xm->setupComment->style->white, NULL, comment, -1);
 
@@ -481,7 +481,7 @@ XLockMode::setup ()
 				break;
 			case XLMP_BOOL_ARG:
 				w = gtk_check_button_new_with_label (par->option);
-				gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (w),
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (w),
 							     par->getBoolVal ());
 
 				break;
