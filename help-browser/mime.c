@@ -28,6 +28,7 @@
 
 static void convertMan(docObj obj);
 static void convertHTML(docObj obj);
+static void convertImage (docObj obj);
 static void convertAll(docObj obj);
 static void convertINFO(docObj obj);
 /*
@@ -79,6 +80,8 @@ convertMIME( docObj obj )
 	} else if (!strcmp(m, "text/plain")) {
 		convertText(obj);
 #endif
+	} else if (!strncmp(m, "image/", 6)) {
+		convertImage (obj);
 	} else {
 		convertAll(obj);
 	}
@@ -148,6 +151,15 @@ convertText( docObj obj )
 	docObjSetConvData(obj, s, len + 27, TRUE);
 }
 #endif
+
+static void
+convertImage (docObj obj)
+{
+	gchar *s;
+
+	s = g_strconcat ("<html><body><img src=\"", docObjGetAbsoluteRef(obj), "\"></body></html>", NULL);
+	docObjSetConvData (obj, s, strlen (s), TRUE);
+}
 
 static void
 convertMan( docObj obj )

@@ -1,5 +1,8 @@
 2000-05-06  Radek Doulik  <rodo@helixcode.com>
 
+	* mime.c (convertImage): new function to convert images
+	(convertMIME): use convertImage
+
 	* transport.c (getDocBegin): new function, splits buf into header
 	and doc data parts, sets doc begin to *s parameter
 	(loadSock): use getDocBegin, this fixes case when server ends
