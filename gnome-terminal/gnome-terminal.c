@@ -504,9 +504,9 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	set_color_scheme (term, cfg);
 
 	if (cfg->menubar_hidden)
-		gtk_widget_hide (app->menubar);
+		gtk_widget_hide (app->menubar->parent);
 	else
-		gtk_widget_show (app->menubar);
+		gtk_widget_show (app->menubar->parent);
 
 	return 0;
 }
@@ -1151,7 +1151,7 @@ show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 	cfg->menubar_hidden = 0;
-	gtk_widget_show (app->menubar);
+	gtk_widget_show (app->menubar->parent);
 }
 
 static void
@@ -1163,7 +1163,7 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 	cfg->menubar_hidden = 1;
-	gtk_widget_hide (app->menubar);
+	gtk_widget_hide (app->menubar->parent);
 }
 
 #define DEFINE_TERMINAL_MENU(name,text,cmd) \
@@ -1559,11 +1559,11 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	
 	gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
 	if (cfg->menubar_hidden)
-		gtk_widget_hide (GNOME_APP (app)->menubar);
+		gtk_widget_hide (GNOME_APP (app)->menubar->parent);
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
-	/*gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);*/
+	gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);
 	gtk_box_set_spacing (GTK_BOX (hbox), 3);
 	gtk_widget_show (hbox);
 	get_shell_name (&shell, &name, cfg->invoke_as_login_shell);
