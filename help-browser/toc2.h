@@ -34,4 +34,6 @@ void hideToc(Toc toc);
 
 gchar *tocLookupInfo(Toc toc, gchar *name, gchar *anchor);
 gchar *tocLookupMan(Toc toc, gchar *name, gchar ext);
+gchar *tocLookupGhelp(Toc toc, gchar *name);
+
 #endif

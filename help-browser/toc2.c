@@ -228,7 +228,7 @@ static GString *generateHTML(Toc toc)
 
 	s = g_string_new(NULL);
 	/* XXX should also have mime type info */
-	g_string_sprintf(s, "<a href=\"file:%s\">%s</a> ", link, name);
+	g_string_sprintf(s, "<a href=\"ghelp:%s\">%s</a> ", name, name);
 	g_string_append(res, s->str);
 	g_string_free(s, TRUE);
 
@@ -267,6 +267,18 @@ gchar *tocLookupMan(Toc toc, gchar *name, gchar ext)
     }
 
     return NULL;
+}
+
+gchar *tocLookupGhelp(Toc toc, gchar *name)
+{
+    GList *p;
+    
+    p = findFirstEntryByName(toc->ghelpTable, name);
+    if (!p) {
+	return NULL;
+    }
+    
+    return ((struct _big_table_entry *)p->data)->filename;
 }
 
 gchar *tocLookupInfo(Toc toc, gchar *name, gchar *anchor)

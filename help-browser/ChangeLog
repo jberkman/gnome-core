@@ -1,3 +1,9 @@
+1998-03-09  Marc Ewing  <marc@redhat.com>
+
+	* Add ghelp: magic URL.
+	
+	* Change TOC to send "ghelp:<>".
+
 1998-03-08  Marc Ewing  <marc@tasmanian.redhat.com>
 
 	* Fix bug in relative URL parsing.

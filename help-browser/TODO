@@ -1,7 +1,9 @@
- - cache needs to cache mime type as well
+ - cache
+   cache mime types
+   cace over rides
+   disk cache
 
  - names
-   disk cache
    config panel
 
  - add configuration stuff:
