@@ -1,3 +1,13 @@
+1999-02-13  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (load_session): Load the configuration from the
+	local names. 
+
+1999-01-03  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (main_terminal_program): We do not use the popt
+	context. 
+	
 1999-02-14  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
 
 	* gnome-terminal.c (about_terminal_cmd): Fixed my email address
@@ -128,7 +138,8 @@
 
 1998-12-31 Jay Painter <jpaint@serv.net>
 
-	* gnome-terminal.c: fix the session_save geometry saving so that		the terminal geometry gets saved in terminal columns/rows instead
+	* gnome-terminal.c: fix the session_save geometry saving so that
+	the terminal geometry gets saved in terminal columns/rows instead
 	of pixels.
 
 1998-12-31 Jay Painter <jpaint@serv.net>

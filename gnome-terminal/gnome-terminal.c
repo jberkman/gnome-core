@@ -1,10 +1,14 @@
 /*
  * The GNOME terminal, using Michael Zucchi's zvt widget.
- * (C) 1998 The Free Software Foundation
+ * (C) 1998, 1999 The Free Software Foundation
  *
  * Authors: Miguel de Icaza (GNOME terminal)
  *          Erik Troan      (various configuration enhancements)
- *          Michael Zucchi (zvt widget, font code).
+ *          Michael Zucchi  (zvt widget, font code).
+ *
+ * Other contributors: George Lebl, Jeff Garzik, Jay Painter,
+ * Christopher Blizzard, Jens Lautenbacher, Tom Tromey, Tristan Tarant
+ * and Jonathan Blandford
  */
 #include <config.h>
 #include <unistd.h>
@@ -136,7 +140,7 @@ about_terminal_cmd (void)
 	};
 
         about = gnome_about_new (_("GNOME Terminal"), VERSION,
-				 "(C) 1998 the Free Software Foundation",
+				 "(C) 1998, 1999 the Free Software Foundation",
 				 authors,
 				 _("The GNOME terminal emulation program."),
 				 NULL);
@@ -1722,7 +1726,7 @@ load_session ()
 	for (i = 0; i < num_terms; ++i){
 		char *geom, **argv;
 		struct terminal_config *cfg;
-		char *class;
+		char *class, *class_path;
 		int argc;
 		char *prefix = g_strdup_printf ("%s%d/", file, i);
 	  
@@ -1732,7 +1736,10 @@ load_session ()
 		   all session data on geometry! */
 		geom = gnome_config_get_string ("geometry");
 		gnome_config_get_vector ("command", &argc, &argv);
-		class = gnome_config_get_string("class=Default");
+
+		class_path = g_strconcat ("class=", _("Default"), NULL);
+		class = gnome_config_get_string(class_path);
+		g_free (class_path);
 
 		cfg = load_config (class);
 		g_free(class);
@@ -1993,7 +2000,6 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	char *program_name;
 	char *class;
 	struct terminal_config *default_config, *cmdline_config;
-	poptContext ctx;
 
 	env = environ;
 	
@@ -2005,7 +2011,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	cb_options[0].descrip = (char *)cmdline_config;
 	
 	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
-				   cb_options, 0, &ctx);
+				   cb_options, 0, NULL);
 
 #if 1
 	if(cmdline_config->user_back_str)
