@@ -1,3 +1,9 @@
+
+        This branch is dead. If you're looking to GNOME 2.0 work
+you should check out gnome-panel, gnome-desktop and gnome-session.
+
+        Mark McLoughlin, 11/02/2002
+
 2002-02-12  jacob berkman  <jacob@ximian.com>
 
 	* POTFILES.skip: 
