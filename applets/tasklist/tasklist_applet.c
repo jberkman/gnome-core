@@ -3,7 +3,10 @@
 
 #include <config.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#warning NOT USING KWM MINI ICONS
+#if 0
 #include <gdk-pixbuf/gdk-pixbuf-drawable.h>
+#endif
 #include "tasklist_applet.h"
 #include "unknown.xpm"
 
