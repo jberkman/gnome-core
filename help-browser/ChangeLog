@@ -1,3 +1,8 @@
+2000-05-24  Dan Mueth <d-mueth@uchicago.edu>
+
+	* help/C/default-page.html: Removed line:
+	"The user's guide isn't available yet".
+
 Sat May 13 10:13:06 2000  George Lebl <jirka@5z.com>
 
 	* gnome-help-browser.c: apply patch from
