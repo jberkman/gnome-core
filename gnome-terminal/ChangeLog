@@ -1,3 +1,9 @@
+1999-04-20  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (new_terminal_cmd): No, we are not going to
+	have this border.  I finally saw this in action.  No way we are
+	having this. 
+
 1999-04-16 Owen Taylor   <otaylor@redhat.com>
 
 	* gnome-terminal.c (preferences_cmd): Connect signal

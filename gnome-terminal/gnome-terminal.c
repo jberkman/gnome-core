@@ -86,9 +86,9 @@ struct terminal_config {
 	int transparent;
 	int shaded;
 	int background_pixmap;
-	char * pixmap_file;
-        char * window_title;                    /* the window title */
-	char * wordclass;			/* select-by-word character class */
+	char *pixmap_file;
+        char *window_title;                     /* the window title */
+	char *wordclass;			/* select-by-word character class */
 } ;
 
 /* Initial command */
@@ -1748,7 +1748,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
 
-	gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);
+/*	gtk_container_set_border_width (GTK_CONTAINER (hbox), 2); */
 	gtk_box_set_spacing (GTK_BOX (hbox), 3);
 
 	gtk_widget_show (hbox);
