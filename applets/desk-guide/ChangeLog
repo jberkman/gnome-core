@@ -1,3 +1,8 @@
+1999-10-08  Matthias Warkus  <mawa@iname.com>
+
+	* gnome-deskguide.png: Slightly polished pixmap. Stefan's a
+	perfectionist.
+
 Fri Oct  8 00:56:10 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_desk_notifier): uh oh, fixed a bad bad bug that
