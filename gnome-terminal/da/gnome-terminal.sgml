@@ -21,13 +21,13 @@
   <toc></toc>
   
   <chapter id="terminal">
-    <title>GNOME terminal brugermanual.</title>
+    <title>Gnome terminal brugermanual.</title>
     
     <sect1 id="Description">
       <title>Beskrivelse</title>
       <para>
-	Gnome-terminal er en terminalemulator som er en del af GNOME
-	projektet.  Den giver adgang til Unix-kommandoskallen i GNOME
+	Gnome-terminal er en terminalemulator som er en del af Gnome
+	projektet.  Den giver adgang til Unix-kommandoskallen i Gnome
 	miljøet. </para>
 
       <para>
@@ -40,12 +40,12 @@
     <sect1 id="Emulation">
       <title>Emulering</title>
 
-      <para>Den emulering som understøttes af GNOME terminal er den samme
+      <para>Den emulering som understøttes af Gnome terminal er den samme
         som findes i
 	det xterm-program som leveres af X-konsortiet (som igen er en næsten
-	komplet softwareefterligning af en VT102 DEC terminal).</para>
+	komplet programefterligning af en VT102 DEC terminal).</para>
       
-      <para>GNOME terminal understøtter de samme udvidelser til VT102
+      <para>Gnome terminal understøtter de samme udvidelser til VT102
 	som x-termer giver (gennem specielle "eskape-sekvenser").
 	Senere ændringer i xterm er også integreret i gnome-terminal
 	eftersom de er blevet opdaget. Dette inkluderer
@@ -131,7 +131,7 @@
 	        baggrundsfarve individuelt og uafhængigt af paletten.</para>
 	  
 	      <para>Derudover kan brugeren gribe en farve fra den rektangulære
-	        boks under farvehjulet fra enhver GNOME farvevælger eller
+	        boks under farvehjulet fra enhver Gnome farvevælger eller
 	        farvekilde, trække den ind  og slippe den ovenpå terminalen. 
                 Hvis brugeren slipper 
 	        farven på et hvidt område vil den bestemme baggrundsfarven, 
@@ -151,14 +151,14 @@
     
     <sect1 id="classes">
       <title>Terminalklasser</title>
-      <para>GNOME-terminal lader dig have forskellige konfigurationsprofiler 
+      <para>Gnome-terminal lader dig have forskellige konfigurationsprofiler 
         for at kunne tilpasse den til forskellige anvendelser. For at
 	gøre dette skal du bare navngive din nye 
         konfigurationsklasse ved at indtaste et nyt navn i 
         feltet 'Terminalklasse'.</para>
       
       <para>For at aktivere en bestemt klasse ved programmets start kan
-	du bruge '--class' kommandolinieflagget. </para>
+	du bruge '--class' kommandolinjeflagget. </para>
     </sect1>
     
     <sect1 id="Options">
@@ -220,7 +220,7 @@
 	      Geometri angiver ønsket bredde og højde i antal
 	      terminaltegn.  For eksempel: --geometry=80x40 vil 
 	      lave en terminal med firs kolonner og fyrre linier.</para>
-	      <para>FIXME:  Henvisning til gnome-libs dokument om GEOMETRY 
+	      <para>FIKSMIG:  Henvisning til gnome-libs dokument om GEOMETRY 
               specifikationer
 	      når den er færdig
 	    </para>
@@ -229,8 +229,9 @@
 	  <listitem>
 	    <para><symbol>--login</symbol></para>
 	    <para>
-	      Lader gnome-terminal starte skallen i login modus (det vil køre
-	      alle dine indlogningsopstartskripts i denne modus).
+	      Lader gnome-terminal starte skallen i logind-tilstand (det
+	      vil køre alle dine indlogningsopstartskript i denne
+	      tilstand).
 	    </para>
 	  </listitem>
 	  
@@ -262,14 +263,14 @@
 	  <listitem>
 	    <para><symbol>--title TITEL, -t TITEL</symbol></para>
 	    <para>
-	      Lader GNOME-terminal bruge TITEL som vindusoverskrift.
+	      Lader Gnome-terminal bruge TITEL som vinduesoverskrift.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--termname TERMNAVN</symbol></para>
 	    <para>
-	      Gør at GNOME-terminal bruger TERMNAVN som værdi i
+	      Gør at Gnome-terminal bruger TERMNAVN som værdi i
 	      TERM miljøvariabelen.
 	    </para>
 	  </listitem>
@@ -281,23 +282,23 @@
     <sect1 id="pointerusage">
       <title>Musepilen</title>
       <para>
-        Markøren kan bruges til at markere (kopiere), og gjøre utvidet
-	utvalg av tekst, indsætte tekst fra andre terminaler eller
+        Markøren kan bruges til at markere (kopiere), og gøre udvidet
+	udvalg af tekst, indsætte tekst fra andre terminaler eller
 	applikationer, og til at hente en menu frem.
       </para>
       <sect2 id="pointer-select">
         <title>Markering</title>
 	<para>
-	  Venstre museknap kan bruges til å begynde en markering.
-	  Hvis museknapen klikkes en gang, for så å dra, så
-	  blir tegnene valgt individuelt. Hvis du drar utenfor de
-	  vertikale kantene af vinduet, vil terminalen rulle for
+	  Venstre museknap kan bruges til at begynde en markering.
+	  Hvis museknapen klikkes en gang, for så at trække, så
+	  bliver tegnene valgt individuelt. Hvis du trækker udenfor de
+	  lodrette kanter af vinduet, vil terminalen rulle for
 	  at følge med.
 	</para>
 	<para>
 	  Hvis venstre museknap dobbeltklikkes vil udvalget bli gjort
-	  etter ord-tegn. Hold museknapen nede ved det andre klikket og
-	  dra for å utvide utvalget. Ord-tegnene er definert i
+	  efter ord-tegn. Hold museknapen nede ved det andre klikket og
+	  trække for at udvide udvalget. Ord-tegnene er defineret i
 	  <link linkend="config-general">Generelt</link>
 	  under Vælg-ved-ord bogstaver.
 	</para>
@@ -306,10 +307,10 @@
 	  hele linjer merkes når du drar musen opp og ned.
 	</para>
 	<para>
-	  Den midterste museknapen kan bruges til at udvide utvalget.
-	  Bare rull til det stedet du ønsker å utvide utvalget til,
-	  og klikk højre museknap. Igjen vil enkelt, dobbelt og
-	  tredobbeltklik og dra resultere i tegn, ord, eller linjeutvalg.
+	  Den midterste museknapen kan bruges til at udvide udvalget.
+	  Bare rul til det stedet du ønsker at udvide udvalget til,
+	  og klik højre museknap. Igen vil enkelt, dobbelt og
+	  tredobbeltklik og træk resultere i tegn, ord, eller linjeudvalg.
 	</para>
 	<para>
 	  I alle tilfælde vil slip af museknappen automatisk medføre
@@ -326,9 +327,9 @@
 	  overføre tekst fra andre applikationer.
 	</para>
 	<para>
-	  Hvis du bare har en 2-knaps mus, vil din X-serveren
+	  Hvis du bare har en 2-knaps mus, vil din X-tjeneren
 	  sandsynligvis have en måde at emulere den midterste museknap på.
-	  Se i dokumentationen for X-serveren for mere information.
+	  Se i dokumentationen for X-tjeneren for mere information.
 	</para>
       <sect2 id="pointer-wheel">
         <title>Musehjul</title>
@@ -342,11 +343,11 @@
 	<para>
 	  Markøren kan også bruges for til at hente en <link 
 	  linkend="menu-popup">højrekliksmenu</link> ind, som kan bruges til
-	  at nulstille terminalen, eller få hovedmenulinien tilbage
+	  at nulstille terminalen, eller få hovedmenulinjen tilbage
 	  hvis den er skjult.
 	</para>
 	<para>
-	  Ved at holde CTRL tasten nede, kan højre museknap bruges
+	  Ved at holde CTRL-tasten nede, kan højre museknap bruges
 	  til at vise denne menu.
 	</para>
       <sect2 id="pointer-dnd"
@@ -360,14 +361,14 @@
 	    <term>Træk filer</term>
 	    <listitem>
 	      <para>Hvis filer trækkes ind i terminalen vil filnavnet
-		på filen blive indsat i vinduet. URL'er kan også
+		på filen blive indsat i vinduet. Url'er kan også
 		indsættes på denne måde.</para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
 	    <term>Træk farver</term>
 	    <listitem>
-	      <para>En farve kan trækkes ind på skærmen fra en anden GNOME
+	      <para>En farve kan trækkes ind på skærmen fra en anden Gnome
 	        applikation
 		eller fra <link linkend="menu-settings">farvevælgeren</link>.
 		Hvis de slippes på et tegn, sættes
@@ -386,8 +387,7 @@
       <para>
         Gnome-terminal præsenterer et antal kontrolfunktioner
 	via hovedmenuen, og en højrekliksmenu som er tilgængelig
-	ved at trykke på højre museknap mens man holder CTRL
-	tasten nede.
+	ved at trykke på højre museknap mens man holder CTRL-tasten nede.
       </para>
       <sect2 id="menu-file">
         <title>Filmenu</title>
@@ -418,8 +418,8 @@
 	    <term>Lukk terminal</term>
 	    <listitem>
 	      <para>
-	        Lukker aktiv terminal. Hvis dette er den siste terminalen
-	        som lukkes, vil gnome-terminal programmet avslutte.
+	        Lukker aktiv terminal. Hvis dette er den sidste terminal
+	        som lukkes, vil gnome-terminal programmet afslutte.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -494,7 +494,7 @@
         <title>Hjælpemenuen</title>
 	<variablelist>
 	  <varlistentry>
-	    <term>GNOME terminal brugermanual ...</term>
+	    <term>Gnome terminal brugermanual ...</term>
 	    <listitem>
 	      <para>
 	        Hvordan man indhenter dette dokument fra gnome-terminal.
@@ -517,7 +517,7 @@
         <title>Højrekliksmenu</title>
 	<para>
 	  Højrekliksmenuen fåes frem ved at trykke på højre
-	  museknap mens CTRL tasten holdes nede. Den skal være
+	  museknap mens CTRL-tasten holdes nede. Den skal være
 	  en enkel genvej til hovedmenuen, eller til når
 	  hovedmenuen er skjult. Følgende menupunkter er
 	  tilgængelige:
@@ -607,7 +607,7 @@
 
 	    <para>
 	      Denne variabel indeholder X11 vinduesidentifikatoren.
-	      Denne bruges nogen gange av applikationer til at modificere
+	      Denne bruges nogen gange af applikationer til at modificere
 	      indholdet af dette vindue eller til at tilbyde specialeffekter.
 	    </para>
 	  </listitem>
@@ -628,7 +628,7 @@
 	vedlifehold.   George Lebl tilførte gennemsigtighed og støtte
 	for baggrundsbilleder til widget'et. Senere forbedrede Michael
 	Zucchi gennemsigtigheden og billedeunderstøttelsen, hvilket gav pænere
-        og hurtigere visning og en alternativ rullemodus.</para>
+        og hurtigere visning og en alternativ rulletilstand.</para>
 
       <para>
 	Miguel skrev hovedparten af gnome-terminal programmet, og Erik Troan
@@ -636,7 +636,7 @@
 	funktioner. Jeff Garzik, Jay, Christopher Blizzard, Michael,
 	Jens Lautenbacher, Tom Tromey, Tristan Tarrant og Jonathan
 	Blandford kom med ekstra fejlrettelser.  Nat Friedman reviderede
-	brugergrænsefladen til at følge retningslinierne for GNOME.  Felix
+	brugergrænsefladen til at følge retningslinjerne for Gnome.  Felix
 	Bellaby, Tom Tromey og Manish Vachharajani implementerede
 	og forbedrede koden for sessionsbehandling.
 	</para>
@@ -645,7 +645,7 @@
   </chapter>
   
   <chapter id="termtech">
-    <title>GNOME terminal, teknisk manual.</title>
+    <title>Gnome terminal, teknisk manual.</title>
     <sect1 id="test">
       <title>Test</title>
       <para>test
