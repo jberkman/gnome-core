@@ -72,7 +72,7 @@ transportFile( docObj obj )
 		return -1;
 	
 	/* Hack to handle .so in man pages */
-	if (!strcmp(docObjGetMimeType(obj), "application/x-info")) {
+	if (!strcmp(docObjGetMimeType(obj), "application/x-troff-man")) {
 	    if (!strncmp(buf, ".so ", 4)) {
 		strcpy(filename, docObjGetDecomposedUrl(obj)->path);
 		if ((s = strrchr(filename, '/'))) {
@@ -90,8 +90,10 @@ transportFile( docObj obj )
 			}
 			*end = '\0';
 			strcat(filename, s);
-			if (loadFileToBuf(docObjGetDecomposedUrl(obj)->path,
-					  &buf))
+			g_free(buf);
+			g_message(".so: %s -> %s",
+				  docObjGetDecomposedUrl(obj)->path, filename);
+			if (loadFileToBuf(filename, &buf))
 			    return -1;
 		    }
 		}

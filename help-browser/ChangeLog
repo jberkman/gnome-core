@@ -1,5 +1,9 @@
 1998-03-03  Marc Ewing  <marc@germ.labs.redhat.com>
 
+	* magic man: url
+
+	* .so magic (only for file:)
+
 	* new toc code.  uses html widget
 	
 	* moved info magic stuff to toc
