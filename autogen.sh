@@ -1,4 +1,17 @@
 #!/bin/sh
+
+cat <<END
+
+	This branch is dead. If you're looking to GNOME 2.0 work you
+	should check out gnome-panel, gnome-desktop and gnome-session
+
+		Signed,
+			The spawn of Satan.
+
+END
+
+exit
+
 # Run this to generate all the initial makefiles, etc.
 
 srcdir=`dirname $0`
