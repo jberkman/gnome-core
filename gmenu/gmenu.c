@@ -127,8 +127,6 @@ static void possible_drag_item_pressed (GtkCTree *ctree, GdkEventButton *event, 
 
 	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (ctree)->row_list, row));
 
-	g_free(drop_data);
-
 	if (!node || node == topnode)
 		{
 		drop_data = NULL;
