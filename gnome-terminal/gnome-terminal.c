@@ -57,6 +57,7 @@
 #include <libgnomeui/gnome-client.h>
 #include <libgnomeui/gnome-color-picker.h>
 #include <libgnomeui/gnome-dialog.h>
+#include <libgnomeui/gnome-ui-init.h>
 #include <libgnomeui/gnome-file-entry.h>
 #include <libgnomeui/gnome-propertybox.h>
 #ifdef HAVE_GNOME_FONT_PICKER
@@ -1009,6 +1010,7 @@ check_color_sensitivity (preferences_t *prefs)
 	gtk_widget_set_sensitive (GTK_WIDGET (prefs->fore_label), sensc);
 	gtk_widget_set_sensitive (GTK_WIDGET (prefs->back_label), sensc);
 	gtk_widget_set_sensitive (GTK_WIDGET (prefs->palette_label), sens);
+
 	for (i=0;i<18;i++)
 		gtk_widget_set_sensitive (GTK_WIDGET (prefs->palette[i]), i<16?sens:sensc);
 }
@@ -2994,13 +2996,12 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		}
 	}
 
-#if 0
-	gnome_init_with_popt_table ("Terminal", VERSION,
-				    &argc, argv,
-				    cb_options, 0, NULL);
-#else
-	bonobo_ui_init ("Terminal", VERSION, &argc, argv);
-#endif
+	if (!gnome_program_init ("Terminal", VERSION,
+				 LIBGNOMEUI_MODULE,
+                                 argc, argv,
+				 GNOME_PARAM_POPT_TABLE, cb_options,
+				 NULL))
+		g_error (_("Cannot gnome_program_init ()"));
 
 	env = environ;
 	
