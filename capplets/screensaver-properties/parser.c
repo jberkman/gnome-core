@@ -499,9 +499,11 @@ init_screensaver_data (screensaver_data *sd)
         tempstring = gnome_config_get_string ("Screensaver Data/DefaultFlags");
         gnome_config_pop_prefix ();
         tempstring2 = g_copy_strings ("/Screensaver/", sd->name, "/args=", tempstring ,NULL);
-        sd->args = gnome_config_get_string (tempstring2);
         g_free (tempstring);
+        tempstring = gnome_config_get_string (tempstring2);
         g_free (tempstring2);
+        sd->args = g_copy_strings (sd->tryexec, " ", tempstring, NULL);
+        g_free (tempstring);
 
         /* We determine the setup layout. */
         sec_iter = gnome_config_init_iterator_sections (prefix);

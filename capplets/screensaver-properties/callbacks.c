@@ -566,7 +566,12 @@ ok_callback ()
                 if (password)
                         g_string_append (command, " -lock-mode");
                 g_string_append (command," -xrm \"*programs:\t");
-                g_string_append (command, sd->args);
+                if (sd->args) {
+                        g_print ("%s", sd->args);
+                        g_string_append (command, sd->args);
+                } else
+                        g_string_append (command, sd->tryexec);
+                g_print ("tryexec:\t%s\n", sd->tryexec);
                 if (sd->root) {
                         g_string_append (command, " ");
                         g_string_append (command, sd->root);
