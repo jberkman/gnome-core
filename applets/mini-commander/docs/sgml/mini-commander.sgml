@@ -6,7 +6,7 @@
 <!ENTITY mini-c "<application>Mini-Commander</application>">
 ]>
 
-<book id="index" revision="$Revision: 1.8 $">
+<book id="index" revision="$Revision: 1.9 $">
 
   <!-- Title information -->
   <bookinfo>
@@ -30,7 +30,7 @@
       <holder>Oliver Maruhn</holder>
     </copyright>
 
-    <date>$Date: 1999/01/16 15:24:42 $</date>
+    <date>$Date: 1999/01/19 15:21:11 $</date>
     
     <abstract id="abstract">
       <para>This is the description of the <ulink url="http://www.gnome.org/">GNOME</ulink>
@@ -38,7 +38,7 @@
       version of this document and
       &mini-c; itself are at <ulink url="http://om.filewatcher.org/mini-commander/">http://om.filewatcher.org/mini-commander/</ulink>.</para>
 
-      <para>This is $Revision: 1.8 $ from $Date: 1999/01/16 15:24:42 $.</para>
+      <para>This is $Revision: 1.9 $ from $Date: 1999/01/19 15:21:11 $.</para>
 
     </abstract>
 
@@ -97,7 +97,7 @@
 
       <para>The currently known latest separate sources package is
       <ulink
-      url="http://om.filewatcher.org/mini-commander/mini-commander_applet-0.0.12.tar.gz">http://om.filewatcher.org/mini-commander/mini-commander_applet-0.0.12.tar.gz</ulink>.</para>
+      url="http://om.filewatcher.org/mini-commander/mini-commander_applet-0.0.14.tar.gz">http://om.filewatcher.org/mini-commander/mini-commander_applet-0.0.14.tar.gz</ulink>.</para>
 
       <para>But think twice before you download this package. The
       developement of GNOME is currently very fast. Probably this
@@ -188,7 +188,7 @@
 
 
 
-  <chapter id="customization">
+  <chapter id="properties-0">
     <title>Customization</title> 
 
     <para>This section is currently empty.  Later here will be
