@@ -588,10 +588,35 @@ gp_check_task_visible (GwmDesktop *desktop,
 }
 
 static void
-gp_task_view_popdown_request (GwmTaskView *task_view,
-			      GtkWidget   *dialog)
+gp_task_view_popdown_request (GtkWidget *dialog)
 {
   if (BOOL_CONFIG (task_view_popdown_request))
+    gtk_widget_hide (dialog);
+}
+
+static void
+gp_task_view_dialog_event (GtkWidget *dialog,
+			   GdkEvent  *event)
+{
+  gboolean popdown = FALSE;
+
+  switch (event->type)
+    {
+      GtkWidget *ewidget;
+    case GDK_KEY_PRESS:
+      if (event->key.keyval == GDK_Escape)
+	popdown = TRUE;
+      break;
+    case GDK_BUTTON_PRESS:
+      ewidget = gtk_get_event_widget (event);
+      if (event->any.window == dialog->window || !ewidget ||
+	  gtk_widget_get_toplevel (ewidget) != dialog)
+	popdown = TRUE;
+      break;
+    default:
+      break;
+    }
+  if (popdown && BOOL_CONFIG (task_view_popdown_request))
     gtk_widget_hide (dialog);
 }
 
@@ -613,7 +638,10 @@ gp_widget_button_toggle_task_list (GtkWidget *widget,
 			       "signal::delete_event", gtk_widget_hide_on_delete, NULL,
 			       "signal::destroy", gtk_widget_destroyed, &dialog,
 			       "signal::destroy", gtk_widget_destroyed, &dialog,
+			       "signal::button_press_event", gp_task_view_dialog_event, NULL,
+			       "signal::key_press_event", gp_task_view_dialog_event, NULL,
 			       "type", GTK_WINDOW_POPUP,
+			       "events", (GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK),
 			       NULL);
       task_view = gtk_widget_new (GWM_TYPE_TASK_VIEW,
 				  "visible", TRUE,
@@ -626,7 +654,7 @@ gp_widget_button_toggle_task_list (GtkWidget *widget,
 										      "parent", dialog,
 										      NULL),
 							    NULL),
-				  "signal::popdown_request", gp_task_view_popdown_request, dialog,
+				  "object_signal::popdown_request", gp_task_view_popdown_request, dialog,
 				  NULL);
       gwm_task_view_rebuild (GWM_TASK_VIEW (task_view));
       gtk_widget_size_request (dialog, NULL);
@@ -660,6 +688,7 @@ gp_widget_button_toggle_task_list (GtkWidget *widget,
 	    x = CLAMP (x1, 0, gdk_screen_width () - dsize.width);
 	  gtk_widget_set_uposition (dialog, x, y);
 	}
+      gtk_window_set_modal (GTK_WINDOW (dialog), BOOL_CONFIG (task_view_popdown_request));
       gtk_widget_show (dialog);
       gdk_flush ();
       gwmh_window_send_client_message (dialog->window,
@@ -685,6 +714,17 @@ gp_widget_button_toggle_task_list (GtkWidget *widget,
 				       GDK_CURRENT_TIME);
       gdk_window_raise (dialog->window);
       task = gwmh_task_from_window (dialog->window);
+      if (gdk_pointer_grab (dialog->window, TRUE,
+			    (GDK_POINTER_MOTION_HINT_MASK |
+			     GDK_BUTTON1_MOTION_MASK |
+			     GDK_BUTTON2_MOTION_MASK |
+			     GDK_BUTTON3_MOTION_MASK |
+			     GDK_BUTTON_PRESS_MASK |
+			     GDK_BUTTON_RELEASE_MASK),
+			    NULL,
+			    NULL,
+			    GDK_CURRENT_TIME) != 0)
+	gtk_widget_hide (dialog);
     }
   else
     gtk_widget_hide (dialog);

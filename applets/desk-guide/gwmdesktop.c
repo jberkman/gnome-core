@@ -682,41 +682,44 @@ gwm_desktop_expose (GtkWidget      *widget,
 static gboolean
 thumb_queue_step (gpointer data)
 {
-  GwmDesktopClass *class;
-  GwmhDesk *desk;
-  GSList *rest_queue = NULL;
-  
   GDK_THREADS_ENTER ();
-  
-  class = gtk_type_class (GWM_TYPE_DESKTOP);
-  desk = gwmh_desk_get_config ();
-  while (thumb_queue)
+
+  if (gtk_grab_get_current () == NULL)
     {
-      GSList *node = thumb_queue;
-      GwmThumbNail *nail = node->data;
-      GwmhTask *task = nail->user_data;
+      GwmDesktopClass *class;
+      GwmhDesk *desk;
+      GSList *rest_queue = NULL;
       
-      thumb_queue = node->next;
-      node->next = rest_queue;
-      rest_queue = node;
-      
-      if (task->desktop == desk->current_desktop &&
-	  gwm_thumb_nail_update_drawable (nail, task->gdkwindow, task->win_x, task->win_y))
+      class = gtk_type_class (GWM_TYPE_DESKTOP);
+      desk = gwmh_desk_get_config ();
+      while (thumb_queue)
 	{
-	  GSList *slist;
+	  GSList *node = thumb_queue;
+	  GwmThumbNail *nail = node->data;
+	  GwmhTask *task = nail->user_data;
 	  
-	  for (slist = class->objects; slist; slist = slist->next)
+	  thumb_queue = node->next;
+	  node->next = rest_queue;
+	  rest_queue = node;
+	  
+	  if (task->desktop == desk->current_desktop &&
+	      gwm_thumb_nail_update_drawable (nail, task->gdkwindow, task->win_x, task->win_y))
 	    {
-	      GwmDesktop *desktop = slist->data;
+	      GSList *slist;
 	      
-	      if (desktop->index == task->desktop)
-		gwm_desktop_draw_task_area (desktop, task);
+	      for (slist = class->objects; slist; slist = slist->next)
+		{
+		  GwmDesktop *desktop = slist->data;
+		  
+		  if (desktop->index == task->desktop)
+		    gwm_desktop_draw_task_area (desktop, task);
+		}
+	      break;
 	    }
-	  break;
 	}
+      thumb_queue = g_slist_concat (thumb_queue, g_slist_reverse (rest_queue));
     }
-  thumb_queue = g_slist_concat (thumb_queue, g_slist_reverse (rest_queue));
-  
+
   GDK_THREADS_LEAVE ();
   
   return TRUE;

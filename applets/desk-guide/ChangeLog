@@ -1,3 +1,14 @@
+Wed Aug  9 02:04:05 2000  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_widget_button_toggle_task_list): popdown
+	taskview automatically if this option is enabled at pointer clicks
+	outside of the task view dialog.
+
+Wed Aug  9 01:39:07 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmdesktop.c (thumb_queue_step): disable incremental thumb updates
+	during gtk grabs.
+
 Sat Aug  5 22:55:49 2000  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c: scratched the double_buffering option.
