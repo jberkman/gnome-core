@@ -153,6 +153,8 @@ main(int argc, char *argv[])
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
+    gnome_init(NAME, &parser, argc, argv, 0, NULL);
+
 /* enable session management here */
 #if 0
     smClient = NULL;
@@ -160,8 +162,6 @@ main(int argc, char *argv[])
 #else
     smClient = newGnomeClient();
 #endif
-
-    gnome_init(NAME, &parser, argc, argv, 0, NULL);
 
 #ifdef UGLY_LE_HACK
     if (send_command_to_running(helpURL, show_requested_url)) {
@@ -477,7 +477,7 @@ static GnomeClient
 
 	GnomeClient *client;
 
-        client = gnome_client_new_default();
+        client = gnome_master_client ();
 
 	if (!client)
 		return NULL;

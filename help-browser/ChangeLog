@@ -1,3 +1,10 @@
+1998-06-10  Carsten Schaar  <nhadcasc@fs-maphy.uni-hannover.de>
+
+	* gnome-help-browser.c (main): Call 'newGnomeClient' after
+ 	'gnome_init' now.
+	(newGnomeClient): Use 'gnome_master_client' instead of
+ 	'gnome_client_new_default'.
+
 1998-05-27  Carsten Schaar  <nhadcasc@fs-maphy.uni-hannover.de>
 
 	* toc2-ghelp.c: Included <gnome.h>.
