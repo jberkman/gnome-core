@@ -2,4 +2,4 @@ Makefile.in
 Makefile
 .deps
 .libs
-mouse-properties
+mouse-properties-capplet
