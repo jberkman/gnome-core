@@ -15,7 +15,8 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
-#include <config.h>	/* PACKAGE, i18n */
+#include <config.h>		/* PACKAGE, i18n */
+
 #include "deskguide_applet.h"
 #include "gwmdesktop.h"
 #include "gwmtaskview.h"
@@ -27,35 +28,32 @@
 #define CONFIG_IBOX_SPACING 4
 #define CONFIG_ITEM_BORDER 0
 #define CONFIG_ITEM_SPACING 4
-  
+
 
 /* --- prototypes --- */
-static void	gp_init_gui		(void);
-static void	gp_destroy_gui		(void);
-static void	gp_create_desk_widgets	(void);
-static gboolean	gp_desk_notifier	(gpointer	    func_data,
-					 GwmhDesk	   *desk,
-					 GwmhDeskInfoMask   change_mask);
-static gboolean	gp_task_notifier	(gpointer	    func_data,
-					 GwmhTask	   *task,
-					 GwmhTaskNotifyType ntype,
-					 GwmhTaskInfoMask   imask);
-static void     gp_help                 (GtkWidget         *w,
-					 gpointer           data);
-static void     gp_phelp                (GtkWidget         *w,
-					 gint               tab,
-					 gpointer           data);
-static void	gp_about		(void);
-static void	gp_config_popup		(void);
-static gpointer	gp_config_find_value	(const gchar       *path,
-					 gboolean           tmp_value);
-static void	gp_load_config		(const gchar	   *privcfgpath);
-static gboolean	gp_save_session		(gpointer	    func_data,
-					 const gchar	   *privcfgpath,
-					 const gchar	   *globcfgpath);
-static gboolean	gp_check_task_visible	(GwmDesktop	   *desktop,
-					 GwmhTask	   *task,
-					 gpointer	    user_data);
+static void	gp_init_gui		 (void);
+static void	gp_destroy_gui		 (void);
+static void	gp_create_desk_widgets	 (void);
+static gboolean gp_desk_notifier	 (gpointer	     func_data,
+					  GwmhDesk	    *desk,
+					  GwmhDeskInfoMask   change_mask);
+static gboolean gp_task_notifier	 (gpointer	     func_data,
+					  GwmhTask	    *task,
+					  GwmhTaskNotifyType ntype,
+					  GwmhTaskInfoMask   imask);
+static void	gp_about		 (void);
+static void	gp_help_popup_deskguide	 (void);
+static void	gp_help_popup_properties (void);
+static void	gp_config_popup		 (void);
+static gpointer gp_config_find_value	 (const gchar	    *path,
+					  gboolean	     tmp_value);
+static void	gp_load_config		 (const gchar	    *privcfgpath);
+static gboolean gp_save_session		 (gpointer	     func_data,
+					  const gchar	    *privcfgpath,
+					  const gchar	    *globcfgpath);
+static gboolean gp_check_task_visible	 (GwmDesktop	    *desktop,
+					  GwmhTask	    *task,
+					  gpointer	     user_data);
 
 static GtkWidget	*gp_applet = NULL;
 static GtkTooltips	*gp_tooltips = NULL;
@@ -63,10 +61,10 @@ static GtkTooltips	*gp_desktips = NULL;
 static GtkWidget	*gp_container = NULL;
 static GtkWidget	*gp_desk_box = NULL;
 static GtkWidget	*gp_desk_widget[MAX_DESKTOPS] = { NULL, };
-static guint             gp_n_desk_widgets = 0;
+static guint		 gp_n_desk_widgets = 0;
 static GdkWindow	*gp_atom_window = NULL;
-static GtkOrientation    gp_orientation = GTK_ORIENTATION_HORIZONTAL;
-static guint             gp_panel_size = 12;
+static GtkOrientation	 gp_orientation = GTK_ORIENTATION_HORIZONTAL;
+static guint		 gp_panel_size = 12;
 static guint		 GP_TYPE_HBOX = 0;
 static guint		 GP_TYPE_VBOX = 0;
 static guint		 GP_ARROW_DIR = 0;
@@ -74,29 +72,31 @@ static gchar		*DESK_GUIDE_NAME = NULL;
 
 static ConfigItem gp_config_items[] = {
   CONFIG_PAGE (N_ ("Display")),
-  CONFIG_SECTION (sect_layout,				  	N_ ("Layout")),
+  CONFIG_SECTION (sect_layout,					N_ ("Layout")),
   CONFIG_BOOL (switch_arrow,	FALSE,
 	       N_ ("Switch tasklist arrow")),
-  CONFIG_BOOL (show_properties_button,	FALSE,
-	       N_ ("Show properties `?' button")),
-  CONFIG_BOOL (show_pager,	TRUE,
-	       N_ ("Show desktop pager")),
+  /* FIXME: remove this:
+   * CONFIG_BOOL (show_properties_button,	FALSE,
+   *  	          N_ ("Show properties `?' button")),
+   * CONFIG_BOOL (show_pager,	TRUE,
+   * N_ ("Show desktop pager")),
+   */
   CONFIG_BOOL (current_only,	FALSE,
 	       N_ ("Only show current desktop in pager")),
   CONFIG_BOOL (raise_grid,		FALSE,
 	       N_ ("Raise area grid over tasks")),
-  CONFIG_SECTION (sect_tooltips,			 	N_ ("Tooltips")),
+  CONFIG_SECTION (sect_tooltips,				N_ ("Tooltips")),
   CONFIG_BOOL (tooltips,	TRUE,
 	       N_ ("Show Desk-Guide tooltips")),
-  CONFIG_RANGE (tooltips_delay,	500,	1,	5000,
+  CONFIG_RANGE (tooltips_delay, 500,	1,	5000,
 		N_ ("Desk-Guide tooltip delay [ms]")),
   CONFIG_BOOL (desktips,	TRUE,
 	       N_ ("Show desktop name tooltips")),
-  CONFIG_RANGE (desktips_delay,	10,	1,	5000,
+  CONFIG_RANGE (desktips_delay, 10,	1,	5000,
 		N_ ("Desktop name tooltip delay [ms]")),
   
   CONFIG_PAGE (N_ ("Tasks")),
-  CONFIG_SECTION (sect_task_visibility,			  	N_ ("Visibility")),
+  CONFIG_SECTION (sect_task_visibility,				N_ ("Visibility")),
   CONFIG_BOOL (show_hidden_tasks,	TRUE,
 	       N_ ("Show hidden tasks (HIDDEN)")),
   CONFIG_BOOL (show_shaded_tasks,	TRUE,
@@ -108,7 +108,7 @@ static ConfigItem gp_config_items[] = {
   /*  CONFIG_SECTION (sect_null_1, NULL), */
   
   CONFIG_PAGE (N_ ("Geometry")),
-  CONFIG_SECTION (sect_horizontal,                     	     	N_ ("Horizontal Layout")),
+  CONFIG_SECTION (sect_horizontal,				N_ ("Horizontal Layout")),
   CONFIG_RANGE (area_height,	44,	4,	1024,
 		N_ ("Desktop Height [pixels]")),
   CONFIG_BOOL (abandon_area_height,		TRUE,
@@ -119,7 +119,7 @@ static ConfigItem gp_config_items[] = {
 		N_ ("Rows of Desktops")),
   CONFIG_BOOL (div_by_nrows,		TRUE,
 	       N_ ("Divide height by number of rows")),
-  CONFIG_SECTION (sect_vertical,                       	     	N_ ("Vertical Layout")),
+  CONFIG_SECTION (sect_vertical,				N_ ("Vertical Layout")),
   CONFIG_RANGE (area_width,	44,	4,	1024,
 		N_ ("Desktop Width [pixels]")),
   CONFIG_BOOL (abandon_area_width,		TRUE,
@@ -132,10 +132,10 @@ static ConfigItem gp_config_items[] = {
 	       N_ ("Divide width by number of columns")),
 
   CONFIG_PAGE (N_ ("Advanced")),
-  CONFIG_SECTION (sect_drawing,                   	     	N_ ("Drawing")),
+  CONFIG_SECTION (sect_drawing,					N_ ("Drawing")),
   CONFIG_BOOL (double_buffer,	TRUE,
 	       N_ ("Draw desktops double-buffered (recommended)")),
-  CONFIG_SECTION (sect_workarounds,         	     	N_ ("Window Manager Workarounds")),
+  CONFIG_SECTION (sect_workarounds,			N_ ("Window Manager Workarounds")),
   CONFIG_BOOL (skip_movement_offset,		TRUE,
 	       N_ ("Window manager moves decoration window instead\n"
 		   "(AfterStep, Enlightenment, FVWM, IceWM, Sawmill)")),
@@ -145,6 +145,10 @@ static ConfigItem gp_config_items[] = {
   CONFIG_BOOL (violate_client_msg,		FALSE,
 	       N_ ("Window manager expects pager to modify area+desktop properties directly\n"
 		   "(Enlightenment, FVWM)")),
+
+  CONFIG_SECTION (sect_behaviour,				N_ ("Behaviour")),
+  CONFIG_BOOL (task_view_popdown_request,	TRUE,
+	       N_ ("Popdown task view automatically")),
 };
 static guint  gp_n_config_items = (sizeof (gp_config_items) /
 				   sizeof (gp_config_items[0]));
@@ -233,7 +237,7 @@ main (gint   argc,
 					 "help",
 					 GNOME_STOCK_PIXMAP_HELP,
 					 _ ("Help"),
-					 (AppletCallbackFunc) gp_help,
+					 (AppletCallbackFunc) gp_help_popup_deskguide,
 					 NULL);
 
   applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
@@ -317,7 +321,7 @@ gp_load_config (const gchar *privcfgpath)
 
 static gpointer
 gp_config_find_value (const gchar *path,
-		      gboolean     tmp_value)
+		      gboolean	   tmp_value)
 {
   guint i;
   
@@ -518,7 +522,7 @@ gp_create_desk_widgets (void)
 
   gp_n_desk_widgets = 0;
   gtk_container_forall (GTK_CONTAINER (gp_desk_box), (GtkCallback) gtk_widget_destroy, NULL);
-  if (BOOL_CONFIG (show_pager))
+  if (TRUE)	/* FIXME: remove BOOL_CONFIG (show_pager) */
     {
       GtkWidget *desk_column = NULL;
       guint n_desks_per_column;
@@ -569,8 +573,8 @@ gp_create_desk_widgets (void)
 
 static gboolean
 gp_check_task_visible (GwmDesktop *desktop,
-		       GwmhTask   *task,	
-		       gpointer    user_data)
+		       GwmhTask	  *task,	
+		       gpointer	   user_data)
 {
   if (GWMH_TASK_ICONIFIED (task) ||
       (GWMH_TASK_HIDDEN (task) && !BOOL_CONFIG (show_hidden_tasks)) ||
@@ -580,6 +584,14 @@ gp_check_task_visible (GwmDesktop *desktop,
     return FALSE;
   else
     return TRUE;
+}
+
+static void
+gp_task_view_popdown_request (GwmTaskView *task_view,
+			      GtkWidget   *dialog)
+{
+  if (BOOL_CONFIG (task_view_popdown_request))
+    gtk_widget_hide (dialog);
 }
 
 static void
@@ -593,6 +605,7 @@ gp_widget_button_toggle_task_list (GtkWidget *widget,
       GtkWidget *task_view;
 
       dialog = gtk_widget_new (GTK_TYPE_WINDOW,
+			       "title", _ ("Desk Guide Task View"),
 			       "auto_shrink", FALSE,
 			       "allow_shrink", FALSE,
 			       "allow_grow", TRUE,
@@ -612,6 +625,7 @@ gp_widget_button_toggle_task_list (GtkWidget *widget,
 										      "parent", dialog,
 										      NULL),
 							    NULL),
+				  "signal::popdown_request", gp_task_view_popdown_request, dialog,
 				  NULL);
       gwm_task_view_rebuild (GWM_TASK_VIEW (task_view));
       gtk_widget_size_request (dialog, NULL);
@@ -814,22 +828,28 @@ gp_init_gui (void)
 			NULL);
   (arrow_at_end
    ? gtk_box_pack_end
-   : gtk_box_pack_start) (GTK_BOX (abox), button, !BOOL_CONFIG (show_properties_button), TRUE, 0);
-  button = gtk_widget_new (GTK_TYPE_BUTTON,
-			   "visible", BOOL_CONFIG (show_properties_button),
-			   "can_focus", FALSE,
-			   "label", "?",
-			   "signal::clicked", gp_config_popup, NULL,
-			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
-			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
-			   NULL);
-  gtk_tooltips_set_tip (gp_tooltips,
-			button,
-			DESK_GUIDE_NAME,
-			NULL);
-  (!arrow_at_end
-   ? gtk_box_pack_end
    : gtk_box_pack_start) (GTK_BOX (abox), button, TRUE, TRUE, 0);
+  
+  /* FIXME: remove this:
+   *  (arrow_at_end
+   *   ? gtk_box_pack_end
+   *   : gtk_box_pack_start) (GTK_BOX (abox), button, !BOOL_CONFIG (show_properties_button), TRUE, 0);
+   *  button = gtk_widget_new (GTK_TYPE_BUTTON,
+   *			       "visible", BOOL_CONFIG (show_properties_button),
+   *			       "can_focus", FALSE,
+   *			       "label", "?",
+   *			       "signal::clicked", gp_config_popup, NULL,
+   *			       "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
+   *			       "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
+   *			       NULL);
+   *  gtk_tooltips_set_tip (gp_tooltips,
+   *			    button,
+   *			    DESK_GUIDE_NAME,
+   *			    NULL);
+   * (!arrow_at_end
+   *  ? gtk_box_pack_end
+   *  : gtk_box_pack_start) (GTK_BOX (abox), button, TRUE, TRUE, 0);
+   */
   
   /* desktop pagers
    */
@@ -837,21 +857,6 @@ gp_init_gui (void)
   
   gtk_widget_show (gp_container);
   gtk_widget_show (gp_applet);
-}
-
-static void
-gp_help (GtkWidget *w, gpointer data)
-{
-  GnomeHelpMenuEntry help_entry = { "desk-guide_applet", "index.html" };
-  gnome_help_display(NULL, &help_entry);
-}
-
-static void
-gp_phelp (GtkWidget *w, gint tab, gpointer data)
-{
-  GnomeHelpMenuEntry help_entry = { "desk-guide_applet", 
-				    "index.html#DESKGUIDE-PROPERTIES" };
-  gnome_help_display(NULL, &help_entry);
 }
 
 static void 
@@ -884,6 +889,22 @@ gp_about (void)
 }
 
 static void
+gp_help_popup_deskguide (void)
+{
+  GnomeHelpMenuEntry help_entry = { "desk-guide_applet", "index.html" };
+
+  gnome_help_display (NULL, &help_entry);
+}
+
+static void
+gp_help_popup_properties (void)
+{
+  GnomeHelpMenuEntry help_entry = { "desk-guide_applet", "index.html#DESKGUIDE-PROPERTIES" };
+
+  gnome_help_display (NULL, &help_entry);
+}
+
+static void
 gp_config_check (GtkWidget *widget)
 {
   GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
@@ -896,7 +917,7 @@ gp_config_check (GtkWidget *widget)
 
 static void
 gp_config_toggled (GtkToggleButton *button,
-		   ConfigItem      *item)
+		   ConfigItem	   *item)
 {
   item->tmp_value = GINT_TO_POINTER (button->active);
   gnome_property_box_changed (GNOME_PROPERTY_BOX (gtk_widget_get_toplevel (GTK_WIDGET (button))));
@@ -927,14 +948,14 @@ gp_config_add_boolean (GtkWidget  *vbox,
 
 static void
 gp_config_value_changed (GtkAdjustment *adjustment,
-			 ConfigItem      *item)
+			 ConfigItem	 *item)
 {
   item->tmp_value = GINT_TO_POINTER ((gint) adjustment->value);
   gnome_property_box_changed (GNOME_PROPERTY_BOX (gtk_widget_get_toplevel (gtk_object_get_user_data (GTK_OBJECT (adjustment)))));
 }
 
 static inline GtkWidget*
-gp_config_add_range (GtkWidget  *vbox,
+gp_config_add_range (GtkWidget	*vbox,
 		     ConfigItem *item)
 {
   GtkObject *adjustment;
@@ -975,7 +996,7 @@ gp_config_add_range (GtkWidget  *vbox,
 }
 
 static inline GtkWidget*
-gp_config_add_section (GtkBox      *parent,
+gp_config_add_section (GtkBox	   *parent,
 		       const gchar *section)
 {
   GtkWidget *widget;
@@ -1091,7 +1112,7 @@ gp_config_popup (void)
 		      "signal::apply", gp_init_gui, NULL,
 		      "signal::destroy", gp_config_reset_tmp_values, NULL,
 		      "signal::destroy", gtk_widget_destroyed, &dialog,
-		      "signal::help", gp_phelp, NULL,
+		      "signal::help", gp_help_popup_properties, NULL,
 		      NULL);
       
       while (slist)

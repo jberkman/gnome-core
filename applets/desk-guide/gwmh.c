@@ -141,6 +141,7 @@ static gboolean		client_list_sync	  (guint32           *xwindows_ids,
 static GdkFilterReturn	task_event_monitor	  (GdkXEvent         *gdk_xevent,
 						   GdkEvent          *event,
 						   gpointer           task_pointer);
+static GdkFilterReturn	task_event_monitor_frame_wrapper (GdkXEvent*, GdkEvent*, gpointer);
 static GdkFilterReturn	root_event_monitor	  (GdkXEvent         *gdk_xevent,
 						   GdkEvent          *event,
 						   gpointer           gdk_root);
@@ -670,19 +671,21 @@ get_task_root_and_frame (GwmhTask *task)
     {
       if (task->gdkframe)
 	{
-	  gdk_window_remove_filter (task->gdkframe, task_event_monitor, task);
+	  gdk_window_remove_filter (task->gdkframe, task_event_monitor_frame_wrapper, task);
 	  gdk_window_unref (task->gdkframe);
 	  task->gdkframe = NULL;
 	}
 
+      task->xframe = xframe;
       if (xframe)
 	{
 	  XWindowAttributes attribs = { 0, };
 
-	  task->xframe = xframe;
 	  task->gdkframe = gdk_window_ref_from_xid (task->xframe);
 
-	  gdk_window_add_filter (task->gdkframe, task_event_monitor, task);
+	  { int nf = g_list_length (((GdkWindowPrivate*) task->gdkframe)->filters);
+	  gdk_window_add_filter (task->gdkframe, task_event_monitor_frame_wrapper, task);
+	  g_assert (g_list_length (((GdkWindowPrivate*) task->gdkframe)->filters) == nf + 1); }
 	  /* select events */
 	  gdk_error_trap_push ();
 	  XGetWindowAttributes (GDK_DISPLAY (),
@@ -740,6 +743,14 @@ root_event_monitor (GdkXEvent *gdk_xevent,
 }
 
 static GdkFilterReturn
+task_event_monitor_frame_wrapper (GdkXEvent *gdk_xevent,
+				  GdkEvent  *event,
+				  gpointer   task_pointer)
+{
+  return task_event_monitor (gdk_xevent, event, task_pointer);
+}
+
+static GdkFilterReturn
 task_event_monitor (GdkXEvent *gdk_xevent,
 		    GdkEvent  *event,
 		    gpointer   task_pointer)
@@ -771,22 +782,6 @@ task_event_monitor (GdkXEvent *gdk_xevent,
 	}
       /* gwmh_task_queue_update (task, GWMH_TASK_INFO_GEOMETRY); */
       break;
-    case FocusIn:
-      if (!GWMH_TASK_FOCUSED (task))
-	{
-	  task->focused = TRUE;
-	  ichanges |= GWMH_TASK_INFO_FOCUSED;
-	}
-      /* gwmh_task_queue_update (task, GWMH_TASK_INFO_FOCUSED); */
-      break;
-    case FocusOut:
-      if (GWMH_TASK_FOCUSED (task))
-	{
-	  task->focused = FALSE;
-	  ichanges |= GWMH_TASK_INFO_FOCUSED;
-	}
-      /* gwmh_task_queue_update (task, GWMH_TASK_INFO_FOCUSED); */
-      break;
     case PropertyNotify:
       imask = gwmh_property_atom2info (xevent->xproperty.atom, TRUE);
       break;
@@ -803,6 +798,29 @@ task_event_monitor (GdkXEvent *gdk_xevent,
 	  imask = GWMH_TASK_INFO_ALL;
 	  gwmh_desk_queue_update (GWMH_DESK_INFO_CLIENT_LIST);
 	}
+      if (GWMH_TASK_FOCUSED (task) && (xevent->type == UnmapNotify ||
+				       xevent->type == DestroyNotify))
+	{
+	  task->focused = FALSE;
+	  ichanges |= GWMH_TASK_INFO_FOCUSED;
+	}
+      break;
+    case FocusOut:
+      if (GWMH_TASK_FOCUSED (task) && (xevent->xfocus.detail != NotifyPointer &&
+				       xevent->xfocus.detail != NotifyInferior))
+	{
+	  task->focused = FALSE;
+	  ichanges |= GWMH_TASK_INFO_FOCUSED;
+	}
+      /* gwmh_task_queue_update (task, GWMH_TASK_INFO_FOCUSED); */
+      break;
+    case FocusIn:
+      if (!GWMH_TASK_FOCUSED (task))
+	{
+	  task->focused = TRUE;
+	  ichanges |= GWMH_TASK_INFO_FOCUSED;
+	}
+      /* gwmh_task_queue_update (task, GWMH_TASK_INFO_FOCUSED); */
       break;
     default:
       break;
@@ -1670,7 +1688,9 @@ task_new (GdkWindow *window)
   task->xwin = GDK_WINDOW_XWINDOW (window);
   
   /* monitor events on the GdkWindow */
+  { int nf = g_list_length (((GdkWindowPrivate*) task->gdkwindow)->filters);
   gdk_window_add_filter (task->gdkwindow, task_event_monitor, task);
+  g_assert (g_list_length (((GdkWindowPrivate*) task->gdkwindow)->filters) == nf + 1); }
   /* select events */
   gdk_error_trap_push ();
   XGetWindowAttributes (GDK_DISPLAY (), task->xwin, &attribs);
@@ -1745,7 +1765,7 @@ task_delete (GwmhTask *task)
   gdk_window_unref (task->gdkwindow);
   if (task->gdkframe)
     {
-      gdk_window_remove_filter (task->gdkframe, task_event_monitor, task);
+      gdk_window_remove_filter (task->gdkframe, task_event_monitor_frame_wrapper, task);
       gdk_window_unref (task->gdkframe);
     }
   if (task->sroot)

@@ -569,7 +569,14 @@ gwm_desktop_button_press (GtkWidget      *widget,
       th -= ythick * 2;
       tx /= (tw / desk->n_hareas);
       ty /= (th / desk->n_vareas);
-      gwmh_desk_set_current_area (desktop->index, tx, ty);
+
+      if (desk->current_desktop != desktop->index ||
+	  desk->current_harea != tx ||
+	  desk->current_varea != ty)
+	{
+	  gwmh_desk_set_current_area (desktop->index, tx, ty);
+	  return TRUE;
+	}
     }
   
   for (node = g_list_last (desktop->task_list); node; node = node->prev)
@@ -599,7 +606,7 @@ gwm_desktop_button_press (GtkWidget      *widget,
 		      desktop->y_comp += task->win_y - task->frame_y;
 		    }
 		}
-	      else
+	      else /* GDK_2BUTTON_PRESS */
 		{
 		  gint w = gdk_screen_width ();
 		  gint h = gdk_screen_height ();

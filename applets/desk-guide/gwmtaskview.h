@@ -50,6 +50,8 @@ struct _GwmTaskView
 struct _GwmTaskViewClass
 {
   GtkHBoxClass parent_class;
+
+  void	(*popdown_request)	(GwmTaskView	*task_view);
 };
 
 

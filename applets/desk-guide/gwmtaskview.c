@@ -18,6 +18,13 @@
 #include	"gwmtaskview.h"
 
 
+/* --- signals --- */
+enum {
+  SIGNAL_POPDOWN_REQUEST,
+  SIGNAL_LAST
+};
+
+
 /* --- prototypes --- */
 static void	gwm_task_view_class_init	(GwmTaskViewClass	*klass);
 static void	gwm_task_view_init		(GwmTaskView		*task_view,
@@ -55,6 +62,7 @@ static gchar *clist_titles[CLIST_N_COLUMNS] = {
 /* --- static variables --- */
 static gpointer		 parent_class = NULL;
 static GwmTaskViewClass *gwm_task_view_class = NULL;
+static guint             task_view_signals[SIGNAL_LAST] = { 0 };
 
 
 /* --- functions --- */
@@ -95,6 +103,15 @@ gwm_task_view_class_init (GwmTaskViewClass *class)
   
   object_class->destroy = gwm_task_view_destroy;
   object_class->finalize = gwm_task_view_finalize;
+
+  task_view_signals[SIGNAL_POPDOWN_REQUEST] =
+    gtk_signal_new ("popdown-request",
+		    GTK_RUN_LAST,
+		    object_class->type,
+		    GTK_SIGNAL_OFFSET (GwmTaskViewClass, popdown_request),
+		    gtk_marshal_NONE__NONE,
+		    GTK_TYPE_NONE, 0);
+  gtk_object_class_add_signals (object_class, task_view_signals, SIGNAL_LAST);
 }
 
 static void
@@ -417,6 +434,7 @@ gwm_task_view_clist_brelease (GwmTaskView    *task_view,
 
 	  gwmh_task_show (task);
 	}
+      gtk_signal_emit (GTK_OBJECT (task_view), task_view_signals[SIGNAL_POPDOWN_REQUEST]);
     }
 
   return TRUE;

@@ -1,3 +1,29 @@
+Mon May  1 03:42:04 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c (task_event_monitor_frame_wrapper): provide a wrapper
+	function for the event monitor used on the frame window, as
+	Gdk's event filters are buggy for installing the same callback
+	multiple times on a window. this fixes a nasty race, where
+	events on newly mapped tasks were simply lost.
+
+	* deskguide_applet.c: nuked the "?" show-properties button,
+	and always show the pager. added a behaviour configuration
+	option to automatically popdown the task view.
+	minor cleanups.
+	
+	* gwmtaskview.[hc]: added ::popdown_request signal.
+
+	* gwmdesktop.c (gwm_desktop_button_press): bail out prematurely
+	if the button press changed desktops. this way, tasks can only
+	be activated on the current viewport.
+
+	* gwmh.c (task_event_monitor): auto-unfocus unmapped and
+	destroyed windows (spotted by andersca).
+	(task_event_monitor): ignore NotifyPointer and
+	NotifyInferior FocusOut events.
+	(get_task_root_and_frame): always set the new xframe, even if
+	==None.
+
 2000-04-23 John Fleck <jfleck@inkstain.net>
 
 	* changed desk-guide.sgml in response to genuine reader
