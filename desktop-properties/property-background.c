@@ -200,7 +200,7 @@ fill_monitor (void)
 						 );
 
 				}
-			gdk_pixmap_destroy (pix);
+			gdk_pixmap_unref (pix);
 		} else {
 			if (grad)
 				set_gradient();
@@ -271,7 +271,7 @@ fill_monitor (void)
 						(monitor->style->black_gc,
 						 0, 0);
 				}
-				gdk_pixmap_destroy (pix);				
+				gdk_pixmap_unref (pix);				
 			}
 
 		}
@@ -650,7 +650,7 @@ background_apply ()
 			if (rootBack) {
 				gdk_window_set_back_pixmap (rootWindow,
 							    rootBack, FALSE);
-				gdk_pixmap_destroy (rootBack);
+				gdk_pixmap_unref (rootBack);
 			}
 		}
 	} else if (grad ||
@@ -714,12 +714,12 @@ background_apply ()
 					(rootGC,
 					 0, 0);
 			}
-			gdk_pixmap_destroy (pix);
+			gdk_pixmap_unref (pix);
 		}
 
 		gdk_window_set_back_pixmap (rootWindow, rootBack, FALSE);
 	
-		gdk_pixmap_destroy (rootBack);
+		gdk_pixmap_unref (rootBack);
 		gtk_widget_destroy (rootPreview);
 	} else {
 		gdk_color_alloc (gdk_window_get_colormap (rootWindow),
