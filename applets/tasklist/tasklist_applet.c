@@ -114,8 +114,9 @@ is_task_visible (TasklistTask *task)
 	if (GWMH_TASK_SKIP_TASKBAR (task->gwmh_task))
 		return FALSE;
 	
-	if (task->gwmh_task->desktop != desk_info->current_desktop)
-		return FALSE;
+	if (!GWMH_TASK_STICKY (task->gwmh_task))
+		if (task->gwmh_task->desktop != desk_info->current_desktop)
+			return FALSE;
 
 	return TRUE;
 }
