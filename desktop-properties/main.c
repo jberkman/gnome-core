@@ -132,10 +132,10 @@ display_properties_setup (void)
 	GtkWidget *vbox = gtk_vbox_new (FALSE, 0),
 		*hbox = gtk_hbox_new (FALSE, GNOME_PAD),
 		*bf = gtk_frame_new (NULL),
-		*bok = gtk_button_new_with_label (_("  OK  ")),
-		*bapl = gtk_button_new_with_label (_(" Apply ")),
-		*bcl = gtk_button_new_with_label (_(" Cancel ")),
-	        *bhelp = gtk_button_new_with_label (_("Help"));
+		*bok = gnome_stock_button (GNOME_STOCK_BUTTON_OK),
+		*bapl = gnome_stock_button (GNOME_STOCK_BUTTON_APPLY),
+		*bcl = gnome_stock_button (GNOME_STOCK_BUTTON_CANCEL),
+	        *bhelp = gnome_stock_button (GNOME_STOCK_BUTTON_HELP);
 
 	apply_button = bapl;
 	gtk_widget_set_sensitive (apply_button, FALSE);

@@ -1,3 +1,7 @@
+Tue Mar 10 02:06:01 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* main.c (display_properties_setup): Use stock buttons.
+
 1998-02-17  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* gnome-desktop.h: Moved the gnome_monitor stuff to property-background.c.
