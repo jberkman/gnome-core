@@ -1,3 +1,9 @@
+1998-05-01  Michael Fulbright  <msf@redhat.com>
+
+	* property-background.c: wpFileName was being set to values
+	from local vars, so later when it was used these values were
+	invalid. I made sure it is always pointing to something valid.
+
 1998-05-01  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* property-background.c (fill_monitor): Only set the clock cursor

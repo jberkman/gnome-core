@@ -40,7 +40,7 @@ static gint bgType;
 static gint wpType;
 static gint fillPreview = TRUE;
 
-static gchar *wpFileName;
+static gchar *wpFileName=NULL;
 
 enum {
 	WALLPAPER_TILED,
@@ -573,7 +573,9 @@ delete_browse (GtkWidget *w, GdkEvent *e, GtkWidget **f)
 static void
 browse_activated (GtkWidget *w, gchar *s)
 {
-	wpFileName = s;
+	if (wpFileName)
+		g_free(wpFileName);
+	wpFileName = g_strdup(s);
 	bgType = (s) ? BACKGROUND_WALLPAPER : BACKGROUND_SIMPLE;
 	/* printf ("%s\n", s); */
 
@@ -637,7 +639,9 @@ set_monitor_filename (char *str)
 		gnome_config_sync ();
 	}
 
-	wpFileName = str;
+	if (wpFileName)
+		g_free(wpFileName);
+	wpFileName = g_strdup(str);
 	bgType = BACKGROUND_WALLPAPER;
 
 	gtk_option_menu_set_history (GTK_OPTION_MENU (wpOMenu), found);
@@ -873,6 +877,7 @@ background_read ()
 		("/Desktop/Background/wallpapers_dir=./");
 
 	if (!strcasecmp (wpFileName, "none")) {
+		g_free(wpFileName);
 		wpFileName = NULL;
 		bgType = BACKGROUND_SIMPLE;
 	} else
