@@ -340,6 +340,8 @@ mailcheck_get_animation_menu (void)
 	struct    dirent *e;
 	char      *dname = gnome_unconditional_pixmap_file ("mailcheck");
 	DIR       *dir;
+	char      *basename;
+	int       i = 0, select_item;
 
 	selected_pixmap_name = mailcheck_text_only;
 	omenu = gtk_option_menu_new ();
@@ -349,25 +351,42 @@ mailcheck_get_animation_menu (void)
 	gtk_widget_show (item);
 	mailcheck_new_entry (menu, item, mailcheck_text_only);
 
+	if (animation_file){
+		basename = strrchr (animation_file, '/');
+		if (basename)
+			basename++;
+	} else
+		animation_file = NULL;
+
+	i = 1;
 	dir = opendir (dname);
 	if (dir){
 		while ((e = readdir (dir)) != NULL){
 			char *s;
 			
-			if (strstr (e->d_name, ".xpm") == NULL)
+			if (! (strstr (e->d_name, ".xpm") ||
+			       strstr (e->d_name, ".png") ||
+			       strstr (e->d_name, ".gif") ||
+			       strstr (e->d_name, ".jpg")))
 				continue;
-			
+
 			if (!selected_pixmap_name)
 				selected_pixmap_name = s;
+			printf ("%s, %s\n", basename, e->d_name);
+			if (basename && strcmp (basename, e->d_name) == 0)
+				select_item = i;
 			s = g_strdup (e->d_name);
 			item = gtk_menu_item_new_with_label (s);
+			i++;
 			gtk_widget_show (item);
 			
 			mailcheck_new_entry (menu, item, s);
 		}
 		closedir (dir);
 	}
+	printf ("Selecciuonado: %d\n", select_item);
 	gtk_option_menu_set_menu (GTK_OPTION_MENU (omenu), menu);
+	gtk_option_menu_set_history (GTK_OPTION_MENU (omenu), select_item);
 	gtk_widget_show (omenu);
 	return omenu;
 }
