@@ -15,5 +15,5 @@ keyboard_properties_LDADD = ../../control-center/libcapplet.la \
 EXTRA_DIST = \
 	keyboard-properties.desktop
 
-sysdir = $(datadir)/control-center/Peripherals
+sysdir = $(datadir)/control-center/Inputdevs
 sys_DATA = keyboard-properties.desktop
