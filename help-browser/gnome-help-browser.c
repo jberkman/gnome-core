@@ -162,7 +162,6 @@ main(int argc, char *argv[])
     PortableServer_POA          root_poa;
     PortableServer_POAManager   pm;
     help_browser_simple_browser browser_object;
-    CORBA_Object                name_service;
     gchar*                      objref;
     gchar **leftovers;
     int            output_fd;
@@ -226,23 +225,13 @@ main(int argc, char *argv[])
 							       window, &ev);
     Exception(&ev);
     
-    objref = CORBA_ORB_object_to_string(orb, browser_object, &ev);
-    Exception(&ev);
-
     pm = PortableServer_POA__get_the_POAManager(root_poa, &ev);
     Exception(&ev);
 
     PortableServer_POAManager_activate(pm, &ev);
     Exception(&ev);
 
-    name_service = gnome_name_service_get();
-    if (!CORBA_Object_is_nil(name_service, &ev))
-      {
-	goad_server_register(name_service, browser_object, "gnome-help-browser", "object", &ev);
-        printf("%s\n", objref); fflush(stdout);
-      }
-    CORBA_free(objref);
-    CORBA_Object_release(name_service, &ev);
+    goad_server_register(NULL, browser_object, "gnome-help-browser", "object", &ev);
 
     output_fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
 		     | O_APPEND, 0666);
@@ -260,8 +249,7 @@ main(int argc, char *argv[])
     saveBookmarks(bookmarkWindow);
     saveCache(cache);
 
-    if (!CORBA_Object_is_nil(name_service, &ev))
-      goad_server_unregister(name_service, "help-browser", "object", &ev);
+    goad_server_unregister(NULL, "help-browser", "object", &ev);
 
     Exception(&ev);
     

@@ -125,31 +125,28 @@ XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 /* Menu and toolbar structures */
 
 GnomeUIInfo filemenu[] = {
-	{GNOME_APP_UI_ITEM, 
-	 N_("_New window"), N_("Open new browser window"),
-         new_window_cb, NULL, NULL, 
-	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW,
-	 0, 0, NULL},
+	{ GNOME_APP_UI_ITEM, N_("_New window"), N_("Open new browser window"), new_window_cb, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW, 'n', GDK_CONTROL_MASK, NULL },
+	 
 	{GNOME_APP_UI_ITEM, 
 	 N_("_Add Bookmark"), N_("Add bookmark"),
          bookmark_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
 	 0, 0, NULL},
-	{GNOME_APP_UI_ITEM, 
-	 N_("Properties..."), N_("Properties"),
-         config_cb, NULL, NULL, 
-	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP,
-	 0, 0, NULL},
+
+	{ GNOME_APP_UI_ITEM, N_("P_references..."), N_("Preferences"), config_cb, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PREF, 0, 0, NULL },
+	 
 	{GNOME_APP_UI_ITEM, 
 	 N_("_Close"), N_("Close window"),
          close_cb, NULL, NULL, 
-	 GNOME_APP_PIXMAP_NONE, NULL,
-	 0, 0, NULL},
+	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CLOSE,
+	 'w', GDK_CONTROL_MASK, NULL},
 	{GNOME_APP_UI_ITEM, 
 	 N_("E_xit"), N_("Exit all windows"),
          quit_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT,
-	 0, 0, NULL},
+	 'x', GDK_CONTROL_MASK, NULL},
 	GNOMEUIINFO_END
 };
 

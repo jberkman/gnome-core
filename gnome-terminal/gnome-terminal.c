@@ -1087,7 +1087,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
         gtk_table_attach (GTK_TABLE (table), l, 1, 2, SCROLLBACK_ROW, SCROLLBACK_ROW+1, 
 			  GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	adj = (GtkAdjustment *) gtk_adjustment_new ((gfloat)cfg->scrollback, 1.0, 
-						    1000.0, 1.0, 5.0, 0.0);
+						    100000.0, 1.0, 5.0, 0.0);
 	prefs->scrollback_spin = gtk_spin_button_new (adj, 0, 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->scrollback_spin), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -1519,8 +1519,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	zvt_term_set_size (ZVT_TERM (term), 80, 25);
 
 	if ((zvt_term_get_capabilities (term) & ZVT_TERM_PIXMAP_SUPPORT) != 0){
-		if (gdk_imlib_get_visual () == gtk_widget_get_default_visual ())
-			zvt_pixmap_support = TRUE;
+		zvt_pixmap_support = TRUE;
 	}
 	gtk_object_set_data(GTK_OBJECT(app), "term", term);
 	gtk_widget_show (GTK_WIDGET (term));
@@ -1650,12 +1649,11 @@ load_session ()
 
 	file = gnome_client_get_config_prefix (gnome_master_client());
 
-	fprintf(stderr, "%s\n", file);
-
 	gnome_config_push_prefix (file);
 	num_terms = gnome_config_get_int_with_default ("dummy/num_terms", 
 						       &def);
 	gnome_config_pop_prefix ();
+
 	if (def || ! num_terms)
 		return FALSE;
 

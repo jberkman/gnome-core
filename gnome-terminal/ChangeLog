@@ -13,6 +13,15 @@
 
 	* gnome-terminal.c: various updates to session management code.
 
+1998-12-29  Jay Painter <jpaint@serv.net>
+	* gnome-terminal.c: merge from head -- the incrimental resizing
+	hints.
+
+1998-12-28  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (load_session): Remove debugging message.
+	(new_terminal_cmd): Remove the visual hack from here.
+
 1998-12-10  Jonathan Blandford  <jrb@aware-of-vacuity.labs.redhat.com>
 
 	* gnome-terminal.c (apply_changes): now it'll display transparency

@@ -56,13 +56,14 @@ ORBIT_GENERATED_SOURCES      = $(ORBIT_HELP_COMMON_SOURCES) \
 MAINTAINERCLEANFILES = $(ORBIT_GENERATED_SOURCES)
 CLEANFILES = $(ORBIT_GENERATED_SOURCES)
 
-$(ORBIT_GENERATED_SOURCES): $(top_srcdir)/idl/help-browser.idl 
+$(ORBIT_GENERATED_SOURCES): $(top_srcdir)/idl/help-browser.idl
 
 BUILT_SOURCES = $(ORBIT_GENERATED_SOURCES)
 
 $(ORBIT_GENERATED_SOURCES): $(top_srcdir)/idl/help-browser.idl $(ORBIT_IDL)
 	$(ORBIT_IDL) $<
 
+help-caller.o gnome-help-browser.o: help-browser.h
 
 gnome_help_browser_LDADD = $(LDADD) $(RES_LIBS) $(GTKXMHTML_LIBS)
 
