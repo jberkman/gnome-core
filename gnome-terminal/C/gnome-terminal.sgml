@@ -286,10 +286,9 @@
 	  </listitem>
 
 	  <listitem>
-	    <para><symbol>--no-factory-server</symbol></para>
+	    <para><symbol>--start-factory-server</symbol></para>
 	    <para>
-	      Do not try to start the TerminalFactory service for
-	      this terminal.
+	      Try to start the TerminalFactory service for this terminal.
 	    </para>
 	  </listitem>
 

@@ -122,7 +122,7 @@ GList *terminals = 0;
 
 
 int use_terminal_factory   = FALSE;
-int start_terminal_factory = TRUE;
+int start_terminal_factory = FALSE;
 
 
 typedef struct {
@@ -2309,7 +2309,7 @@ load_session ()
 			cfg->update_records |= ZVT_TERM_DO_WTMP_LOG;
 
 		start_terminal_factory = gnome_config_get_bool (
-			"start_terminal_factory=true");
+			"start_terminal_factory=false");
 		use_terminal_factory = gnome_config_get_bool (
 			"use_terminal_factory=false");
 
@@ -2473,8 +2473,8 @@ enum {
 	DONOWTMP_KEY = -12,
         TITLE_KEY    = -13,
 	TERM_KEY     = -14,
-	NOFACTORY_KEY= -15,
-	FACTORY_KEY  = -16
+	START_FACTORY_KEY= -15,
+	USE_FACTORY_KEY  = -16
 };
 
 static struct poptOption cb_options [] = {
@@ -2525,10 +2525,10 @@ static struct poptOption cb_options [] = {
 	{ "termname", '\0', POPT_ARG_STRING, NULL, TERM_KEY,
           N_("Set the TERM variable"), N_("TERMNAME") },
 
-	{ "no-factory-server", '\0', POPT_ARG_NONE, NULL, NOFACTORY_KEY,
-	  N_("Do not start a TerminalFactory"), NULL },
+	{ "start-factory-server", '\0', POPT_ARG_NONE, NULL, START_FACTORY_KEY,
+	  N_("Try to start a TerminalFactory"), NULL },
 
-	{ "use-factory", '\0', POPT_ARG_NONE, NULL, FACTORY_KEY,
+	{ "use-factory", '\0', POPT_ARG_NONE, NULL, USE_FACTORY_KEY,
 	  N_("Try to create the terminal with the TerminalFactory"), NULL },
 
 	{ NULL, '\0', 0, NULL, 0}
@@ -2548,20 +2548,24 @@ parse_an_arg (poptContext state,
 	case CLASS_KEY:
 		free (cfg->class);
 		cfg->class = g_strconcat ("Class-", arg, NULL);
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case FONT_KEY:
 		cfg->font = (char *)arg;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case LOGIN_KEY:
 		cfg->invoke_as_login_shell = 1;
 		cmdline_login = TRUE;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case NOLOGIN_KEY:
 	        cfg->invoke_as_login_shell = 0;
 		cmdline_login = TRUE;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 	        break;
 	case GEOMETRY_KEY:
@@ -2580,51 +2584,60 @@ parse_an_arg (poptContext state,
 				  initial_command[x]=foo[x];
 			  }
 		
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 		  }
 	case FORE_KEY:
 		cfg->user_fore_str = arg;
 		cfg->have_user_colors = 1;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case BACK_KEY:
 		cfg->user_back_str = arg;
 		cfg->have_user_colors = 1;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case DOUTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_UTMP_LOG;
 		cfg->update_records_xor |= ZVT_TERM_DO_UTMP_LOG;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case DONOUTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_UTMP_LOG;
 		cfg->update_records_xor &= ~ZVT_TERM_DO_UTMP_LOG;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case DOWTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_WTMP_LOG;
 		cfg->update_records_xor |= ZVT_TERM_DO_WTMP_LOG;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case DONOWTMP_KEY:
 		cfg->update_records_and &= ~ZVT_TERM_DO_WTMP_LOG;
 		cfg->update_records_xor &= ~ZVT_TERM_DO_WTMP_LOG;
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case TITLE_KEY:
 	        cfg->window_title = g_strdup(arg);
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
                 break;
 	case TERM_KEY:
 		cfg->termname = g_strdup_printf("TERM=%s", arg);
+		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
-	case NOFACTORY_KEY:
-		start_terminal_factory = FALSE;
+	case START_FACTORY_KEY:
+		start_terminal_factory = TRUE;
 		break;
-	case FACTORY_KEY:
+	case USE_FACTORY_KEY:
 		use_terminal_factory = TRUE;
 		break;
 	default:

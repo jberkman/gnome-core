@@ -1,3 +1,7 @@
+2000-01-12  Jacob Berkman  <jacob@helixcode.com>
+
+	* gnome-terminal.c: don't default to starting a server
+
 2000-01-09  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-terminal.c (main_terminal_program): if inital_command is
