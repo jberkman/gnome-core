@@ -1,3 +1,9 @@
+Wed Jun 17 04:13:47 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.[ch]: Finally split the source into smaller files.
+	* tree.c, edit.c, order.c, dialogs.c: New files resulting from
+	the the source split.
+
 Mon Jun 15 23:02:32 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c: Root detection is forced on until someone adds user menus
