@@ -1,3 +1,7 @@
+2000-04-03 Alastair McKinstry <mckinstry@computer.org>
+
+	* gnome-terminal.desktop: Added Irish (gaelic) translation.
+
 2000-04-03  Martin Baulig  <martin@home-of-linux.org>
 
 	* de/: added german translation of the Gnome Terminal
@@ -28,6 +32,7 @@
 	*   C/gnome-terminal.sgml: major rewrite, now uses doctype article
 	    and DTD DocBook 3.1. See logfile for details.  
 	
+>>>>>>> 1.164
 2000-02-26  Christopher R. Gabriel  <cgabriel@firenze.linux.it>
 
 	* it/: added italian translation of the Gnome Terminal
@@ -188,6 +193,7 @@
 	* gnome-terminal.c (EXTRA): Applied patch from housel@acm.org,
 	change from 2 to 3
 
+>>>>>>> 1.144
 1999-09-17  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* no/Makefile.am (gnome-terminal/index.html): Revert unlogged
@@ -239,6 +245,7 @@
 	(load_url_cmd): Called as a menu callback - launches a browser
 	window for the selected match string.
 
+>>>>>>> 1.141
 1999-09-07  Kjartan Maraas  <kmaraas@online.no>
 
 	* no/Makefile.am: Merge from gnome-core-1-0 to make
@@ -247,6 +254,7 @@
 	* no/gnome-terminal.sgml: Merge from gnome-core-1-0 to
 	sync it to the version in C/
 	
+>>>>>>> 1.136
 1999-07-26  Michael Zucchi  <zucchi@zedzone.mmc.com.au>
 
 	* C/gnome-terminal.sgml: Minor updates for colour preference
