@@ -15,15 +15,40 @@ struct _Icon_Dialog_Data
 	gint loading;
 };
 
+typedef struct _Icon_File_Data Icon_File_Data;
+struct _Icon_File_Data
+{
+	gchar *path;
+	gchar *name;
+};
+
+static Icon_File_Data * new_file_data( gchar *path, gchar *name );
 static void free_clist_data(gpointer data);
 static void update_list_highlight(GtkWidget *w, gint old, gint new, gint move);
 static gint select_ok_cb(GtkWidget *b, gpointer data);
 static gint select_cancel_cb(GtkWidget *b, gpointer data);
 static void select_icon_cb(GtkWidget *w, gint row, gint column, GdkEventButton *bevent, gpointer data);
+static int sort_filenames( gpointer a, gpointer b);
+static GList * add_icon_directory(GList *list, gchar *path);
+
+static Icon_File_Data * new_file_data( gchar *path, gchar *name )
+{
+	Icon_File_Data *d;
+
+	d = g_new(Icon_File_Data, 1);
+	d->path = strdup (path);
+	d->name = strdup (name);
+
+	return d;
+}
 
 static void free_clist_data(gpointer data)
 {
-	g_free(data);
+	Icon_File_Data *d = data;
+
+	g_free(d->path);
+	g_free(d->name);
+	g_free(d);
 }
 
 static void update_list_highlight(GtkWidget *w, gint old, gint new, gint move)
@@ -49,11 +74,16 @@ static void update_list_highlight(GtkWidget *w, gint old, gint new, gint move)
 static gint select_ok_cb(GtkWidget *b, gpointer data)
 {
 	Icon_Dialog_Data *id = data;
+	Icon_File_Data *d;
 	gchar *icon;
 
 	if (id->function_notify)
 		{
-		icon = strdup(gtk_clist_get_row_data(GTK_CLIST(id->clist),id->row));
+		d = gtk_clist_get_row_data(GTK_CLIST(id->clist),id->row);
+		if (id->fullpath)
+			icon = strdup(d->path);
+		else
+			icon = strdup(d->name);
 		id->function_notify(icon);
 		}
 
@@ -89,17 +119,57 @@ static void select_icon_cb(GtkWidget *w, gint row, gint column, GdkEventButton *
 		}
 }
 
-GtkWidget * icon_selection_dialog( gchar *path, gchar *file, gint fullpath, void (*func)(void *) )
+static int sort_filenames( gpointer a, gpointer b)
 {
-	Icon_Dialog_Data *id;
-	GtkWidget *label;
-	GtkWidget *progressbar;
+	return strcmp(((Icon_File_Data *)a)->name, ((Icon_File_Data *)b)->name);
+}
+
+static GList * add_icon_directory(GList *list, gchar *path)
+{
 	DIR *dp; 
 	struct dirent *dir;
 	struct stat ent_sbuf;
-	int file_count, c;
 
-	if((dp = opendir(path))==NULL) 
+	if((dp = opendir(path))==NULL)
+		{
+		return list;
+		}
+
+	while ((dir = readdir(dp)) != NULL) 
+	{ 
+		/* skips removed files */
+		if (dir->d_ino > 0)
+			{
+			gchar *buf = g_copy_strings(path, "/", dir->d_name, NULL);
+			if (stat(buf,&ent_sbuf) >= 0 && S_ISDIR(ent_sbuf.st_mode))
+				{
+				/* is a dir */
+				}
+			else
+				{
+				/* is a file */
+				Icon_File_Data *d = new_file_data( buf, dir->d_name );
+				list = g_list_insert_sorted(list, d, sort_filenames);
+				}
+			g_free (buf);
+			}
+	}
+
+	closedir(dp);
+	return list;
+}
+
+
+GtkWidget * icon_selection_dialog( gchar *path1, gchar *path2, gchar *file,
+					gint fullpath, void (*func)(void *) )
+{
+	Icon_Dialog_Data *id;
+	GList *file_list = NULL;
+	GtkWidget *label;
+	GtkWidget *progressbar;
+	int file_count, i;
+
+	if (!g_file_exists(path1))
 		{ 
 		/* dir not found */ 
 		return NULL; 
@@ -138,69 +208,53 @@ GtkWidget * icon_selection_dialog( gchar *path, gchar *file, gint fullpath, void
 
 	gtk_clist_freeze(GTK_CLIST(id->clist));
 
-	file_count = 0;
-	while ((dir = readdir(dp)) != NULL) 
-	{ 
-		/* skips removed files */
-		if (dir->d_ino > 0) file_count++;
-	}
+	file_list = add_icon_directory(file_list, path1);
+	if (path2) file_list = add_icon_directory(file_list, path2);
 
-	rewinddir(dp);
+	file_count = g_list_length(file_list);
+	i = 0;
+	while ( i < file_count && id->loading)
+		{
+		Icon_File_Data *d;
+		GList *list;
+		GtkWidget *pixmap;
 
-	c = 0;
-	while ((dir = readdir(dp)) != NULL && id->loading)
-	{ 
-		/* skips removed files */
-		if (dir->d_ino > 0)
+		list = g_list_nth(file_list, i);
+		d = list->data;
+
+		pixmap = NULL;
+		pixmap = gnome_pixmap_new_from_file_at_size (d->path, 48, 48);
+
+		if (pixmap)
 			{
-			gchar *fp;
-			fp = g_copy_strings(path, "/", dir->d_name, NULL);
-			if (stat(fp,&ent_sbuf) >= 0 && S_ISDIR(ent_sbuf.st_mode))
-				{
-				/* is a dir */
-				}
-			else
-				{
-				/* is a file */
-				GtkWidget *pixmap;
-				gchar *text[2];
-				int row;
-				
-				text[0] = dir->d_name;
-				text[1] = '\0';
+			gchar *text[2];
+			int row;
 
+			text[0] = d->name;
+			text[1] = '\0';
 
-				pixmap = NULL;
-				pixmap = gnome_pixmap_new_from_file_at_size (fp, 48, 48);
+			row = gtk_clist_append(GTK_CLIST(id->clist),text);
+			gtk_clist_set_pixtext (GTK_CLIST(id->clist), row, 0, d->name, 5,
+				GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask);
 
-				if (pixmap)
-					{
-					gchar *data;
-					row = gtk_clist_append(GTK_CLIST(id->clist),text);
-					gtk_clist_set_pixtext (GTK_CLIST(id->clist), row, 0, dir->d_name, 5,
-						GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask);
-					if (fullpath)
-						data = fp;
-					else
-						data = dir->d_name;
-					gtk_clist_set_row_data_full(GTK_CLIST(id->clist), row , strdup(data),
-						(GtkDestroyNotify)free_clist_data);
-					if (file)
-						{
-						if (!strcmp(file,dir->d_name)) id->row = row;
-						}
-					}
-				}
-			g_free(fp);
-			c++;
-			gtk_progress_bar_update (GTK_PROGRESS_BAR (progressbar), (float)c / file_count);
-			while ( gtk_events_pending() )
+			if (file)
 				{
-			        gtk_main_iteration();
+				if (!strcmp(file,d->name)) id->row = row;
 				}
+
+			gtk_clist_set_row_data_full(GTK_CLIST(id->clist), row , d,
+				(GtkDestroyNotify)free_clist_data);
 			}
-	} 
-	closedir(dp);
+
+		gtk_progress_bar_update (GTK_PROGRESS_BAR (progressbar), (float)i / file_count);
+		while ( gtk_events_pending() )
+			{
+		        gtk_main_iteration();
+			}
+		i++;
+		} 
+
+	g_list_free(file_list);
 
 	gtk_clist_thaw(GTK_CLIST(id->clist));
 
@@ -209,7 +263,9 @@ GtkWidget * icon_selection_dialog( gchar *path, gchar *file, gint fullpath, void
 
 	update_list_highlight(id->clist, -1, id->row , TRUE);
 
+	/* now that we are ready, connect the ok button, and set it default */
 	gnome_dialog_button_connect(GNOME_DIALOG(id->dialog), 0, (GtkSignalFunc) select_ok_cb, id);
+	gnome_dialog_set_default(GNOME_DIALOG(id->dialog), 0);
 
 	if (id->loading)
 		{

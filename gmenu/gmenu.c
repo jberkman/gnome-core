@@ -652,9 +652,15 @@ static void icon_cb(void *data)
 
 static void icon_button_pressed()
 {
-	gchar *buf = g_copy_strings( PREFIX, "pixmaps", NULL);
-	icon_selection_dialog( buf , gtk_entry_get_text(GTK_ENTRY(icon_entry)), FALSE, icon_cb );
-	g_free(buf);
+	gchar *buf1 = g_copy_strings( PREFIX, "pixmaps", NULL);
+	gchar *buf2 = g_copy_strings( USER_PREFIX, "pixmaps", NULL);
+
+	/* the second path (buf2) doesn't get used until multiple icon paths are
+	   supported in gmenu, for now only NULL is passed */
+	icon_selection_dialog( buf1 , NULL , gtk_entry_get_text(GTK_ENTRY(icon_entry)), FALSE, icon_cb );
+
+	g_free(buf1);
+	g_free(buf2);
 }
 
 static void update_edit_area(Desktop_Data *d)

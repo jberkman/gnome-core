@@ -1,3 +1,9 @@
+1998-06-12  John Ellis  <johne@bellatlantic.net>
+
+	* iconsel.[ch]: added sorting and support for a second path
+	to an icon directory, pass NULL if you don't need it.
+	* gmenu.c (icon_button_pressed): changed to work with above.
+
 1998-06-12  Tristan Tarrant  <ttarrant@suntlc.etnoteam.it>
 
 	* gmenu.c: Fixed SIGSEGV if environment variables are
