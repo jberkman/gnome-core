@@ -1,3 +1,8 @@
+2000-05-07  Radek Doulik  <rodo@helixcode.com>
+
+	* mime.c (convertMIME): use strncmp for text/html - this catch
+	things like html/text;...
+
 2000-05-06  Jacob Berkman  <jacob@helixcode.com>
 
 	* window.c (helpWindowShowURL): use a stock button

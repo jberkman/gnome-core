@@ -72,7 +72,7 @@ convertMIME( docObj obj )
 
 	if (!strcmp(m, "application/x-troff-man")) {
 		convertMan(obj);
-	} else if (!strcmp(m, "text/html")) {
+	} else if (!strncmp(m, "text/html", 9)) {
 		convertHTML(obj);
 	} else if (!strcmp(m, "application/x-info")) {
 		convertINFO(obj);
