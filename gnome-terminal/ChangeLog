@@ -1,3 +1,8 @@
+2000-03-17  Alexander Kirillov  <kirillov@math.sunysb.edu>
+
+	* C/gnome-terminal.sgml: added description of "secure keyboard"
+	option; clarified "TerminalFactory" options
+
 2000-03-08 Alexander Kirillov <kirillov@math.sunysb.edu>
 
 	*   C/gnome-terminal.sgml: major rewrite, now uses doctype article
