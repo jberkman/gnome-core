@@ -1389,9 +1389,10 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		gnome_config_pop_prefix ();
 		gnome_config_sync ();
 
+
+		args[argc++] = (char *) client_data;
 /* FIXME */
 #if 0
-		args[argc++] = (char *) client_data;
 		args[argc++] = "--font";
 		args[argc++] = cfg.font;
 		args[argc++] = cfg.invoke_as_login_shell ? "--login" : "--nologin";
@@ -1405,9 +1406,12 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 
 		gnome_client_set_restart_command (client, argc, args);
 
+/* Remember to put me in when above is fixed :) */
+#if 0 
 		g_free (args[d1]);
 		g_free (args[d2]);
-
+#endif 
+		args[0] = (char*)client_data;
 		args[1] = "--discard";
 		args[2] = section;
 		args[3] = NULL;

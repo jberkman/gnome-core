@@ -1,3 +1,7 @@
+1998-09-19  Manish Vachharajani <mvachhar@vger.rutgers.edu>
+
+	* gnome_terminal.c: Fixed bugs saving session
+	
 1998-17-14  Erik Troan  <ewt@redhat.com>
 
 	* gnome_terminal.c: added optional automatic scrolling
