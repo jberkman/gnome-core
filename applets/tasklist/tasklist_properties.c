@@ -131,9 +131,9 @@ create_check_button (gchar *name, gboolean *change_value)
 	return checkbutton;
 }
 
-/* Create the geometry page */
+/* Create the size page */
 void
-create_geometry_page (void)
+create_size_page (void)
 {
 	GtkWidget *hbox, *table, *frame, *vbox;
 	GSList *vertgroup = NULL, *horzgroup = NULL;
@@ -156,7 +156,7 @@ create_geometry_page (void)
 						10),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Number of rows:"),
+			    create_spin_button (_("Rows of tasks:"),
 						&PropsConfig.horz_rows,
 						1,
 						8,
@@ -164,22 +164,23 @@ create_geometry_page (void)
 			    FALSE, TRUE, 0);
 
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_radio_button (_("Fixed tasklist width"),
-						 &horzgroup, TRUE, &PropsConfig.horz_fixed),
-			    FALSE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_radio_button (_("Dynamic tasklist width"), 
-						 &horzgroup, FALSE, &PropsConfig.horz_fixed),
-			    FALSE, TRUE, 0);
-	
-	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Default task width:"),
+			    create_spin_button (_("Default task size:"),
 						&PropsConfig.horz_taskwidth,
 						48,
 						350,
 						10),
 			    FALSE, TRUE, 0);
 
+
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_radio_button (_("Tasklist width is fixed"),
+						 &horzgroup, TRUE, &PropsConfig.horz_fixed),
+			    FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_radio_button (_("Tasklist width is dynamic"), 
+						 &horzgroup, FALSE, &PropsConfig.horz_fixed),
+			    FALSE, TRUE, 0);
+	
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 	
 	frame = gtk_frame_new (_("Vertical"));
@@ -205,22 +206,22 @@ create_geometry_page (void)
 			    FALSE, TRUE, 0);
 
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_radio_button (_("Fixed tasklist height"),
+			    create_radio_button (_("Tasklist height is fixed"),
 						 &vertgroup, TRUE, &PropsConfig.vert_fixed),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_radio_button (_("Dynamic tasklist height"), 
+			    create_radio_button (_("Tasklist height is dynamic"), 
 						 &vertgroup, FALSE, &PropsConfig.vert_fixed),
 			    FALSE, TRUE, 0);
 
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), hbox,
-					gtk_label_new (_("Geometry")));
+					gtk_label_new (_("Size")));
 }
 
 void
-create_appearance_page (void)
+create_display_page (void)
 {
 	GtkWidget *vbox, *frame;
 	GtkWidget *miscbox, *taskbox;
@@ -237,17 +238,17 @@ create_appearance_page (void)
 	gtk_container_add (GTK_CONTAINER (frame), taskbox);
 	
 	gtk_box_pack_start (GTK_BOX (taskbox),
-			    create_check_button (_("Show normal tasks"), &PropsConfig.show_normal),
+			    create_check_button (_("Show normal applications"), &PropsConfig.show_normal),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (taskbox),
-			    create_check_button (_("Show iconified tasks"), &PropsConfig.show_minimized),
+			    create_check_button (_("Show iconified (minimized) applications"), &PropsConfig.show_minimized),
 			    FALSE, TRUE, 0);
 			    
 	gtk_box_pack_start (GTK_BOX (taskbox),
-			    create_check_button (_("Normal tasks appear on all desktops"), &PropsConfig.all_desks_normal),
+			    create_check_button (_("Show normal applications on all desktops"), &PropsConfig.all_desks_normal),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (taskbox),
-			    create_check_button (_("Iconified tasks appear on all desktops"), &PropsConfig.all_desks_minimized),
+			    create_check_button (_("Show iconified (minimized) applications on all desktops"), &PropsConfig.all_desks_minimized),
 			    FALSE, TRUE, 0);
 
 	frame = gtk_frame_new (_("Miscellaneous"));
@@ -260,29 +261,13 @@ create_appearance_page (void)
 	gtk_box_pack_start (GTK_BOX (miscbox),
 			    create_check_button (_("Show mini icons"), &PropsConfig.show_mini_icons),
 			    FALSE, TRUE, 0);
-
-	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), vbox,
-					gtk_label_new (_("Appearance")));
-}
-
-void
-create_behavior_page (void)
-{
-	GtkWidget *vbox, *frame;
-
-	frame = gtk_frame_new (_("General behavior"));
-	gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
-
-	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
-	gtk_container_add (GTK_CONTAINER (frame), vbox);
-
-	gtk_box_pack_start (GTK_BOX (vbox),
+	gtk_box_pack_start (GTK_BOX (miscbox),
 			    create_check_button (_("Confirm before killing windows"), &PropsConfig.confirm_before_kill),
 			    FALSE, TRUE, 0);
 	
-	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), frame,
-					gtk_label_new (_("Behavior")));
 
+	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), vbox,
+					gtk_label_new (_("Display")));
 }
 
 /* Display property dialog */
@@ -298,9 +283,8 @@ display_properties (void)
 	gtk_signal_connect (GTK_OBJECT (prop), "apply",
 			    GTK_SIGNAL_FUNC (cb_apply), NULL);
 
-	create_appearance_page ();
-	create_behavior_page ();
-	create_geometry_page ();
+	create_display_page ();
+	create_size_page ();
 
 	gtk_widget_show_all (prop);
 }

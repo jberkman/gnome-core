@@ -1,3 +1,8 @@
+1999-10-20  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_properties.c: Change property dialog to be more 
+	user friendly
+
 1999-10-19  Ian Peters  <itp@gnu.org>
 
 	* TODO: added feature request
