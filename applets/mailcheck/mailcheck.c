@@ -16,6 +16,7 @@
 #include "../panel_cmds.h"
 #include "../applet_cmds.h"
 #include "../panel.h"
+#include <gdk_imlib.h>
 
 #define WIDGET_HEIGHT 48
 
