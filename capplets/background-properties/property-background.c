@@ -1137,19 +1137,18 @@ img_dnd_drop (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 	      GtkSelectionData *selection_data, guint info,
 	      guint time, gpointer data)
 {
+        GList *names;
+  
 	switch (info) {
-	case TARGET_URI_LIST: 
-	{
-		GList *names = 
-			gnome_uri_list_extract_filenames (selection_data->data);
+	case TARGET_URI_LIST:
+		names = gnome_uri_list_extract_filenames (selection_data->data);
 		if (names) {
 			set_monitor_filename ((gchar *)names->data);
 			gnome_uri_list_free_strings (names);
 		}
 		break;
+	default:
 	}
-
-	return;
 }
 
 /*
