@@ -638,9 +638,9 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 
 		snprintf(err, sizeof(err), "Error loading document:\n\n%s",
 			 ref);
-		msg = gnome_messagebox_new(err, GNOME_MESSAGEBOX_ERROR,
+		msg = gnome_message_box_new(err, GNOME_MESSAGE_BOX_ERROR,
 					   "Ok", NULL);
-		gnome_messagebox_set_modal (GNOME_MESSAGEBOX (msg));
+		gnome_message_box_set_modal (GNOME_MESSAGE_BOX (msg));
 		gtk_widget_show(msg);
 
 		gtk_entry_set_text(GTK_ENTRY(win->entryBox), win->currentRef);

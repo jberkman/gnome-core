@@ -1,3 +1,7 @@
+Sat Mar 21 15:27:37 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* window.c: Use gnome_message_box_*, not gnome_messagebox_*.
+
 1998-03-18  Michael Fulbright  <msf@redhat.com>
 
 	* 'Fixed' reloading of default page - html widget was scrolling
