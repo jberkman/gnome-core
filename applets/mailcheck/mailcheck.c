@@ -1,6 +1,6 @@
 /*
  * GNOME panel mail check module.
- * (C) 1997 The Free Software Foundation
+ * (C) 1997, 1998 The Free Software Foundation
  *
  * Author: Miguel de Icaza
  *
