@@ -1,3 +1,7 @@
+2000-01-27  Ettore Perazzoli  <ettore@helixcode.com>
+
+	* Makefile.am: Oops, the previous change was wrong.  Fixed.
+
 2000-01-26  Ettore Perazzoli  <ettore@helixcode.com>
 
 	* Makefile.am (gstc.c): Fix compilation with build directory !=
