@@ -1,3 +1,7 @@
+1998-10-09  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* Makefile.am (BUILT_SOURCES): Add all ORBit generated files.
+
 1998-10-09  Michael Lausch  <mla@gams.at>
 
 	* Made ghnome-help-browser CORBA aware and added a small test
