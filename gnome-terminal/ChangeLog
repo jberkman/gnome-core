@@ -1,3 +1,7 @@
+2001-09-21  jacob berkman  <jacob@ximian.com>
+
+	* gnome-terminal.c (about_terminal_cmd): use GnomeAbout again
+
 2001-09-14  jacob berkman  <jacob@ximian.com>
 
 	* gnome-terminal.c (preferences_cmd): port to libglade 2, and use

@@ -53,6 +53,7 @@
 #include <libgnome/gnome-config.h>
 #define HAVE_GNOME_CONFIG 1
 
+#include <libgnomeui/gnome-about.h>
 #include <libgnomeui/gnome-client.h>
 #include <libgnomeui/gnome-color-picker.h>
 #include <libgnomeui/gnome-dialog.h>
@@ -266,59 +267,34 @@ static void set_hints (GtkWidget *widget);
 #endif
 
 static void
-hackity_hack (GtkWindow *app)
-{
-	app->need_default_size = TRUE;
-	gtk_widget_queue_resize (GTK_WIDGET (app));
-}
-
-static void
 about_terminal_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 {
         static GtkWidget *about = NULL;
 
         const gchar *authors[] = {
-	     N_("Zvt terminal widget: \n"
-		"    Michael Zucchi (zucchi@zedzone.mmc.com.au)"),
-	     N_("GNOME terminal: \n"
-		"    Miguel de Icaza (miguel@kernel.org)"),
-	     N_("    Erik Troan (ewt@redhat.com)"),
-	     N_("    Jacob Berkman (jacob@ximian.com)"),
-	     NULL
+		"Michael Zucchi (zucchi@zedzone.mmc.com.au)",
+		"Miguel de Icaza (miguel@kernel.org)",
+		"Erik Troan (ewt@redhat.com)",
+		"Jacob Berkman (jacob@ximian.com)",
+		NULL
 	};
 
-	if (about != NULL)
-	{
-		gdk_window_show(about->window);
-		gdk_window_raise(about->window);
+	if (about != NULL) {
+		gtk_window_present (GTK_WINDOW (about));
 		return;
 	}
 
-#ifdef ENABLE_NLS
-	authors[0]=_(authors[0]);
-	authors[1]=_(authors[1]);
-	authors[2]=_(authors[2]);
-	authors[3]=_(authors[3]);
-#endif
-
-#if 0
         about = gnome_about_new (_("GNOME Terminal"), VERSION,
-				 "(C) 1998, 1999 the Free Software Foundation",
-				 authors,
+				 "(C) 1998, 1999 the Free Software Foundation\n"
+				 "Copyright 2000, 2001 Ximian, Inc.",
 				 _("The GNOME terminal emulation program."),
+				 authors,
+				 NULL,
+				 NULL,
 				 NULL);
-#else
-	about = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR,
-					GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
-					_("GNOME Terminal Version %s\n\n"
-					  "%s\n%s\n%s\n%s\n\n"
-					  "The GNOME terminal emulation program.\n\n"
-					  "(C) 1998, 1999 the Free Software Foundation\n"
-					  "Copyright 2001 Ximian, Inc."),
-					VERSION, authors[0], authors[1], authors[2], authors[3]);
+
 	gtk_signal_connect (GTK_OBJECT (about), "response",
 			    GTK_SIGNAL_FUNC (gtk_widget_destroy), NULL);
-#endif
 	gtk_signal_connect (GTK_OBJECT (about), "destroy",
 			    GTK_SIGNAL_FUNC (gtk_widget_destroyed), &about);
         gtk_widget_show (about);
