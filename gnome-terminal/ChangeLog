@@ -1,3 +1,12 @@
+2001-04-18  Stanislav Brabec  <utx@penguin.cz>
+
+	* gnome-terminal.c, gnome-terminal.glade, gnome-terminal.glade.h:
+	Added support for del_is_del zvt feature in configuration. Changed
+	string "DEL" to "Delete" to make difference between character code
+	and key.
+
+	Ported from stable branch, after discussion with George Lebl.
+
 2001-04-02  Stanislav Brabec  <utx@penguin.cz> 
 
         * gnome-terminal.c: Allow i18n for default window title when
