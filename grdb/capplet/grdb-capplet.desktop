@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=Legacy Applications
-Comment=Grdb Properties
-Exec=grdb-capplet
-Terminal=0
-Type=Application
-Icon=grdb-capplet.png
