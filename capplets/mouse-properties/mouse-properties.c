@@ -65,49 +65,33 @@ mouse_read (void)
         mouse_thresh = gnome_config_get_int ("/Desktop/Mouse/threshold=-1");
         mouse_acceleration = gnome_config_get_int ("/Desktop/Mouse/acceleration=-1");
 
-        if (mouse_thresh == -1 || mouse_acceleration == -1)
-                {
-                        XGetPointerControl (GDK_DISPLAY (), &acc_num, &acc_den, &thresh);
+        if (mouse_thresh == -1 || mouse_acceleration == -1) {
+                XGetPointerControl (GDK_DISPLAY (), &acc_num, &acc_den, &thresh);
 
-                        if (mouse_thresh == -1)
-                                mouse_thresh = thresh;
-                        if (mouse_acceleration == -1)
-                                {
-                                        /* Only support cases in our range.  If neither the numerator nor
-                                           denominator is 1, then rescale.  */
-                                        if (acc_num != 1 && acc_den != 1)
-                                                {
-                                                        if (acc_num > acc_den)
-                                                                {
-                                                                        acc_num = (int) ((double) acc_num / acc_den);
-                                                                        acc_den = 1;
-                                                                }
-                                                        else
-                                                                {
-                                                                        acc_den = (int) ((double) acc_den / acc_num);
-                                                                        acc_num = 1;
-                                                                }
-                                                }
-
-                                        if (acc_num > MAX_ACCEL)
-                                                acc_num = MAX_ACCEL;
-                                        if (acc_den > MAX_ACCEL)
-                                                acc_den = MAX_ACCEL;
-                                        if (acc_den == 1)
-                                                mouse_acceleration = acc_num + MAX_ACCEL - 1;
-                                        else
-                                                mouse_acceleration = MAX_ACCEL - acc_den;
+                if (mouse_thresh == -1)
+                        mouse_thresh = thresh;
+                if (mouse_acceleration == -1) {
+                        /* Only support cases in our range.  If neither the numerator nor
+                           denominator is 1, then rescale.  */
+                        if (acc_num != 1 && acc_den != 1) {
+                                if (acc_num > acc_den) {
+                                        acc_num = (int) ((double) acc_num / acc_den);
+                                        acc_den = 1;
+                                } else {
+                                        acc_den = (int) ((double) acc_den / acc_num);
+                                        acc_num = 1;
                                 }
+                        }
+                        if (acc_num > MAX_ACCEL)
+                                acc_num = MAX_ACCEL;
+                        if (acc_den > MAX_ACCEL)
+                                acc_den = MAX_ACCEL;
+                        if (acc_den == 1)
+                                mouse_acceleration = acc_num + MAX_ACCEL - 1;
+                        else
+                                mouse_acceleration = MAX_ACCEL - acc_den;
                 }
-}
-
-static void
-mouse_write (void)
-{
-        gnome_config_set_int ("/Desktop/Mouse/acceleration", mouse_acceleration);
-        gnome_config_set_int ("/Desktop/Mouse/threshold", mouse_thresh);
-        gnome_config_set_bool ("/Desktop/Mouse/right-to-left", mouse_rtol);
-        gnome_config_sync ();
+        }
 }
 
 static void
@@ -122,7 +106,6 @@ mouse_apply (void)
                 buttons[i] = mouse_rtol ? (mouse_nbuttons - i) : (i + 1);
         XSetPointerMapping (GDK_DISPLAY (), buttons, mouse_nbuttons);
 
-
         if (mouse_acceleration < MAX_ACCEL)
                 {
                         num = 1;
@@ -135,8 +118,21 @@ mouse_apply (void)
                 }
 
         XChangePointerControl (GDK_DISPLAY (), True, True, num, den, mouse_thresh);
-
-        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+}
+static void
+mouse_write (void)
+{
+        mouse_apply();
+        gnome_config_set_int ("/Desktop/Mouse/acceleration", mouse_acceleration);
+        gnome_config_set_int ("/Desktop/Mouse/threshold", mouse_thresh);
+        gnome_config_set_bool ("/Desktop/Mouse/right-to-left", mouse_rtol);
+        gnome_config_sync ();
+}
+static void
+mouse_revert (void)
+{
+        mouse_read();
+        mouse_apply();           
 }
 
 /* Run when the left- or right-handed radiobutton is clicked.  */
@@ -163,6 +159,8 @@ make_scale (char *title, char *max_title, char *min_title,
         GtkWidget *scale, *low, *high, *ttl;
 
         ttl = gtk_label_new (title);
+        g_print ("rtol=%d\naccel=%d\nthresh=%d\n",mouse_rtol,mouse_acceleration,mouse_thresh);
+
         gtk_misc_set_alignment (GTK_MISC (ttl), 0.0, 0.5);
         gtk_table_attach (GTK_TABLE (table), ttl,
                           0, 3, row, row + 1,
@@ -215,7 +213,7 @@ mouse_setup (void)
         gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
 
         /* Mouse buttons */
-        capplet = capplet_widget_new();  
+        capplet = capplet_widget_new();
         frame = gtk_frame_new (_("Mouse buttons"));
         gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
         gtk_widget_show (frame);
@@ -231,6 +229,12 @@ mouse_setup (void)
         gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON ((mouse_rtol
                                                          ? lbutton
                                                          : rbutton)), TRUE);
+        gtk_signal_connect (GTK_OBJECT (capplet), "try",
+                            GTK_SIGNAL_FUNC (mouse_apply), NULL);
+        gtk_signal_connect (GTK_OBJECT (capplet), "revert",
+                            GTK_SIGNAL_FUNC (mouse_revert), NULL);
+        gtk_signal_connect (GTK_OBJECT (capplet), "ok",
+                            GTK_SIGNAL_FUNC (mouse_write), NULL);
         gtk_signal_connect (GTK_OBJECT (lbutton), "clicked",
                             GTK_SIGNAL_FUNC (button_toggled),
                             (gpointer) 1);
@@ -278,36 +282,6 @@ mouse_setup (void)
         gtk_widget_show (capplet);
 }
 
-static gint
-mouse_action (GnomePropertyRequest req)
-{
-        switch (req)
-                {
-                case GNOME_PROPERTY_READ:
-                        mouse_read ();
-                        break;
-                case GNOME_PROPERTY_WRITE:
-                        mouse_write ();
-                        break;
-                case GNOME_PROPERTY_APPLY:
-                        mouse_apply ();
-                        break;
-                case GNOME_PROPERTY_SETUP:
-                        mouse_setup ();
-                        break;
-                default:
-                        return 0;
-                }
-
-        return 1;
-}
-
-void
-mouse_register (GnomePropertyConfigurator *c)
-{
-        config = c;
-        gnome_property_configurator_register (config, mouse_action);
-}
 
 
 void
@@ -315,6 +289,7 @@ main (int argc, char **argv)
 {
         gnome_capplet_init ("Mouse Properties", NULL, argc, argv, 0, NULL);
         
+        mouse_read ();
         mouse_setup();
         capplet_gtk_main ();
 }
