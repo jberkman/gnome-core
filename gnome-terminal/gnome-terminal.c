@@ -2592,8 +2592,8 @@ enum {
         SOLID_KEY           = -24,
 
 #ifdef ZVT_BACKGROUND_SCROLL
-        SCROLL_PIXMAP_KEY   = -25,
-        NOSCROLL_PIXMAP_KEY = -26,
+        BGSCROLL_PIXMAP_KEY   = -25,
+        BGNOSCROLL_PIXMAP_KEY = -26,
 #endif
 
 };
@@ -2635,11 +2635,11 @@ static struct poptOption cb_options [] = {
 	  N_("Background pixmap"), N_("PIXMAP")},
 
 #ifdef ZVT_BACKGROUND_SCROLL
-	{ "scroll", '\0', POPT_ARG_NONE, NULL, SCROLL_PIXMAP_KEY,
-	  N_("Background pixmap scrolls"), N_("SCROLL")},
+	{ "bgscroll", '\0', POPT_ARG_NONE, NULL, BGSCROLL_PIXMAP_KEY,
+	  N_("Background pixmap scrolls"), N_("BGSCROLL")},
 
-	{ "noscroll", '\0', POPT_ARG_NONE, NULL, NOSCROLL_PIXMAP_KEY,
-	  N_("Background pixmap does not scroll"), N_("NOSCROLL")},
+	{ "bgnoscroll", '\0', POPT_ARG_NONE, NULL, BGNOSCROLL_PIXMAP_KEY,
+	  N_("Background pixmap does not scroll"), N_("BGNOSCROLL")},
 #endif
 
 	{ "shaded", '\0', POPT_ARG_NONE, NULL, SHADED_KEY,
@@ -2767,13 +2767,13 @@ parse_an_arg (poptContext state,
 		use_terminal_factory = FALSE;
 		break;
 #ifdef ZVT_BACKGROUND_SCROLL
-	case SCROLL_PIXMAP_KEY:
+	case BGSCROLL_PIXMAP_KEY:
 		cfg->scroll_background = 1;
 		cfg->have_user_scroll_bg = 1;
 		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
-	case NOSCROLL_PIXMAP_KEY:
+	case BGNOSCROLL_PIXMAP_KEY:
 		cfg->scroll_background = 0;
 		cfg->have_user_scroll_bg = 1;
 		start_terminal_factory = FALSE;

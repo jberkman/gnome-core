@@ -49,8 +49,12 @@ gladedir   = $(datadir)/gnome-terminal/glade
 glade_DATA = gnome-terminal.glade
 glade_msgs = gnome-terminal.glade.h
 
+man_MANS = gnome-terminal.1
+
 EXTRA_DIST =				\
 	$(gnorba_DATA) 			\
 	$(util_DATA)			\
 	$(glade_DATA)			\
-	$(glade_msgs)
+	$(glade_msgs)			\
+	$(man_MANS)
+
