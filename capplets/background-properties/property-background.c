@@ -698,14 +698,14 @@ set_monitor_filename (gchar *str)
     GList *child = GTK_MENU_SHELL (wpMenu)->children;
     GtkWidget *cf;
     
-    printf("searching for %s\n",str);
+/*    printf("searching for %s\n",str); */
     while (child) {
 	if (child->data)
 	    if (GTK_BIN (child->data)->child) {
-		printf ("Searching %s\n", GTK_LABEL (GTK_BIN (child->data)->child)->label);
+/*		printf ("Searching %s\n", GTK_LABEL (GTK_BIN (child->data)->child)->label); */
 		if (!strcmp (GTK_LABEL (GTK_BIN (child->data)->child)->label, str)) {
 		    found = i;
-		    printf ("found: %d\n", i); 
+/*		    printf ("found: %d\n", i);  */
 		}
 	    }
 	i++;
@@ -989,8 +989,10 @@ background_revert ()
 {
     ignoreChanges = TRUE;
 
+#ifdef DEBUG
     printf("Current State\n");
     printState(&origState);
+#endif
 
     background_apply(&origState);
     fillPreview = TRUE;
