@@ -1,3 +1,7 @@
+1999-09-16  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c: Fixed a couple of memory leaks
+
 1999-09-16  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* tasklist_config.c (write_config): now the cb func

@@ -86,6 +86,8 @@ task_get_xy (gint x, gint y)
 		temp_tasks = temp_tasks->next;
 	}
 
+	g_list_free (temp_tasks);
+
 	return NULL;
 }
 
