@@ -1,3 +1,8 @@
+Sun Feb 04 20:35:16 2001  George Lebl <jirka@5z.com>
+
+	* Makefile.am: Apply patch from "Adam J. Richter" <adam@yggdrasil.com>
+	  to fix some automake foo
+
 2001-01-29  jacob berkman  <jacob@ximian.com>
 
 	* transport.c (transport): seg fault fix for solaris from Laszlo
