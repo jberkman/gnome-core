@@ -1,3 +1,8 @@
+2000-01-07  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c (task_notifier): Use gdk-pixbuf to get mini icons
+	  from programs that support it
+
 Wed Jan 05 16:09:39 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.[ch],tasklist_menu.c: fix minor warnings, make
