@@ -182,6 +182,9 @@ struct _Tasklist {
 	/* The Property box */
 	GtkWidget *prop;
 
+	/* The About box */
+	GtkWidget *about_dialog;
+	
 	guint task_notifier_id;
 	guint desk_notifier_id;
 };

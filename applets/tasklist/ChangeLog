@@ -1,3 +1,10 @@
+2001-03-02  Anders Carlsson  <andersca@codefactory.se>
+
+	* tasklist_applet.h: Add about box to Tasklist struct.
+
+	* tasklist_applet.c (cb_about): Use tasklist->about_dialog here.
+	(tasklist_destroy): Destroy the property and about dialogs.
+
 Sun Feb 25 21:27:25 2001  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.c: Use destroy not unref for menu, since it needs

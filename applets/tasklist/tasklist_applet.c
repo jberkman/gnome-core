@@ -1234,7 +1234,6 @@ cb_properties (AppletWidget *applet, Tasklist *tasklist)
 static void
 cb_about (AppletWidget *applet, Tasklist *tasklist)
 {
-	static GtkWidget *dialog = NULL;
 
 	const char *authors[] = {
 		"Anders Carlsson (andersca@gnu.org)",
@@ -1245,27 +1244,27 @@ cb_about (AppletWidget *applet, Tasklist *tasklist)
 	};
 
 	/* Stop the about box from being shown twice at once */
-	if (dialog != NULL)
+	if (tasklist->about_dialog != NULL)
 	{
-		gtk_widget_show_now (dialog);
-		gdk_window_raise (dialog->window);
+		gtk_widget_show_now (tasklist->about_dialog);
+		gdk_window_raise (tasklist->about_dialog->window);
 		return;
 	}
 	
-	dialog = gnome_about_new (
+	tasklist->about_dialog = gnome_about_new (
 		"Gnome Tasklist",
 		VERSION,
 		_("Copyright (C) 1999 Anders Carlsson"),
 		authors,
 		_("A tasklist for the GNOME desktop environment.\nIcons by Tuomas Kuosmanen (tigert@gimp.org)."),
 		NULL);
-	gtk_signal_connect (GTK_OBJECT(dialog), "destroy",
-			    GTK_SIGNAL_FUNC(gtk_widget_destroyed), &dialog);
+	gtk_signal_connect (GTK_OBJECT(tasklist->about_dialog), "destroy",
+			    GTK_SIGNAL_FUNC(gtk_widget_destroyed), &tasklist->about_dialog);
 
-	gtk_widget_show_now (dialog);
+	gtk_widget_show_now (tasklist->about_dialog);
 
-	if (dialog->window != NULL)
-		gdk_window_raise (dialog->window);
+	if (tasklist->about_dialog->window != NULL)
+		gdk_window_raise (tasklist->about_dialog->window);
 }
 
 /* Ignore mouse button 1 clicks */
@@ -1370,6 +1369,12 @@ tasklist_destroy (GtkObject *applet_widget, Tasklist *tasklist)
 
 	tasklist->task_notifier_id = -1;
 	tasklist->desk_notifier_id = -1;
+
+	if (tasklist->prop)
+		gtk_widget_destroy (tasklist->prop);
+
+	if (tasklist->about_dialog)
+		gtk_widget_destroy (tasklist->about_dialog);
 }
 
 /* Create the applet */
