@@ -1,3 +1,8 @@
+1999-11-15  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c
+	  tasklist_applet.h: Finally, different icon for minimized windows.
+
 1999-11-14  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c: Use GdkPixbuf for drawing mini icons.

@@ -1,4 +1,5 @@
-#include "X11/Xatom.h"
+#include <X11/Xatom.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include "applet-widget.h"
 #include "gwmh.h"
 
@@ -6,6 +7,7 @@
 #define ROW_HEIGHT 24
 typedef struct _TasklistTask TasklistTask;
 typedef struct _TasklistConfig TasklistConfig;
+typedef struct _TasklistIcon TasklistIcon;
 
 /* Simple enum for which tasks to show */
 enum
@@ -51,6 +53,12 @@ struct _TasklistConfig {
 	gint vert_height; /* The height of the tasklist */
 	gint vert_width; /* The width of the tasklist */
 	gboolean vert_fixed; /* Fixed or dynamic sizing */
+};
+
+struct _TasklistIcon {
+	GdkPixbuf *normal;
+	GdkPixbuf *minimized;
+	GdkBitmap *mask;
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);

@@ -24,8 +24,8 @@ GtkWidget *handle; /* The handle box */
 GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
 GList *tasks; /* The list of tasks used */
-GdkPixbuf *unknown_icon; /* Unknown icon */
-GdkBitmap *unknown_mask; /* Unknown mask */
+
+TasklistIcon *unknown_icon; /* The unknown icon */
 
 gint vert_height=0; /* Vertical height, used for resizing */
 gint horz_width=0;  /* Horizontal width, used for resizing */
@@ -34,6 +34,53 @@ extern TasklistConfig Config;
 
 /* from gtkhandlebox.c */
 #define DRAG_HANDLE_SIZE 10
+
+/* Create a minimized version of a mini icon.
+   This code is stolen from gnome-pixmap2.
+ */
+GdkPixbuf *
+create_minimized_icon (GdkPixbuf *pixbuf)
+{
+	GdkPixbuf *minimized;
+	GdkColor color;
+	gint w, h, x, y;
+	gint32 red, green, blue;
+
+	/* Get colors */
+	color = area->style->bg[0];
+	red = color.red / 255;
+	blue = color.blue / 255;
+	green = color.green / 255;
+
+	w = gdk_pixbuf_get_width (pixbuf);
+	h = gdk_pixbuf_get_height (pixbuf);
+
+	minimized = gdk_pixbuf_new (gdk_pixbuf_get_format (pixbuf),
+				    gdk_pixbuf_get_has_alpha (pixbuf),
+				    gdk_pixbuf_get_bits_per_sample (pixbuf),
+				    w, h);
+
+	/* Fade each pixel */
+	for (y = 0; y < h; y++) {
+		for (x = 0; x < w; x++) {
+			guchar *src_pixel;
+			guchar *dest_pixel;
+			
+			src_pixel = pixbuf->art_pixbuf->pixels +
+				y * pixbuf->art_pixbuf->rowstride +
+				x * (pixbuf->art_pixbuf->has_alpha ? 4 : 3);
+
+			dest_pixel = minimized->art_pixbuf->pixels +
+				y * minimized->art_pixbuf->rowstride +
+				x * (minimized->art_pixbuf->has_alpha ? 4 : 3);
+			dest_pixel [0] = ((src_pixel [0] - red) >> 2) + red;
+			dest_pixel [1] = ((src_pixel [1] - green) >> 2) + green;
+			dest_pixel [2] = ((src_pixel [2] - blue) >> 2) + blue;
+		}
+	}
+
+	return minimized;
+}
 
 /* Shorten a label that is too long */
 gchar *
@@ -172,7 +219,11 @@ draw_task (TasklistTask *task)
 {
 	gchar *tempstr;
 	gint text_height, text_width;
-	
+
+	/* For mini icons */
+	TasklistIcon *icon;
+	GdkPixbuf *pixbuf;
+
 	if (!is_task_visible (task))
 		return;
 
@@ -201,21 +252,27 @@ draw_task (TasklistTask *task)
 	}
 
 	if (Config.show_mini_icons) {
+		icon = unknown_icon;
+		
+		if (GWMH_TASK_ICONIFIED (task->gwmh_task))
+			pixbuf = icon->minimized;
+		else
+			pixbuf = icon->normal;
 
-		gdk_gc_set_clip_mask (area->style->black_gc, unknown_mask);
+		gdk_gc_set_clip_mask (area->style->black_gc, icon->mask);
 		gdk_gc_set_clip_origin (area->style->black_gc,
 					task->x + 3,
 					task->y + (task->height - 16) / 2);
 		
-		if (unknown_icon->art_pixbuf->has_alpha) {
+		if (pixbuf->art_pixbuf->has_alpha) {
 			gdk_draw_rgb_32_image (area->window,
-					       area->style->white_gc,
+					       area->style->black_gc,
 					       task->x + 3, 
 					       task->y + (task->height - 16) / 2,
 					       16, 16,
 					       GDK_RGB_DITHER_NORMAL,
-					       unknown_icon->art_pixbuf->pixels,
-					       unknown_icon->art_pixbuf->rowstride);
+					       pixbuf->art_pixbuf->pixels,
+					       pixbuf->art_pixbuf->rowstride);
 		}
 		else {
 			gdk_draw_rgb_image (area->window,
@@ -224,8 +281,8 @@ draw_task (TasklistTask *task)
 					    task->y + (task->height - 16) / 2,
 					    16, 16,
 					    GDK_RGB_DITHER_NORMAL,
-					    unknown_icon->art_pixbuf->pixels,
-					    unknown_icon->art_pixbuf->rowstride);
+					    pixbuf->art_pixbuf->pixels,
+					    pixbuf->art_pixbuf->rowstride);
 		}
 
 		gdk_gc_set_clip_mask (area->style->black_gc, NULL);
@@ -706,11 +763,15 @@ main (gint argc, gchar *argv[])
 
 	read_config ();
 
-	unknown_icon = gdk_pixbuf_new_from_xpm_data (&unknown_xpm);
-	unknown_mask = gdk_pixmap_new (NULL, 16, 16, 1);
-	gdk_pixbuf_render_threshold_alpha (unknown_icon,
-					   unknown_mask,
-					   0, 0, 0, 0, 16, 16, 1);
+	unknown_icon = g_new (TasklistIcon, 1);
+	unknown_icon->normal = gdk_pixbuf_new_from_xpm_data (&unknown_xpm);
+	unknown_icon->mask = gdk_pixmap_new (NULL, 16, 16, 1);
+
+	gdk_pixbuf_render_threshold_alpha (unknown_icon->normal,
+					   unknown_icon->mask,
+					   0, 0, 0, 0, 16, 16, 128);
+
+	unknown_icon->minimized = create_minimized_icon (unknown_icon->normal);
 
 	applet_widget_gtk_main ();
 
