@@ -6,7 +6,7 @@
 #include "callbacks.h"
 extern GtkWidget *exit_dialog;
 extern GtkWidget *create_exit_dialog();
-extern void control_panel_corba_gtk_main_quit(void);
+extern void control_center_corba_gtk_main_quit(void);
 
 gint
 exit_callback(GtkWidget *widget, gpointer data) 
@@ -27,7 +27,7 @@ exit_callback(GtkWidget *widget, gpointer data)
                 return 0;
         }
         else 
-                control_panel_corba_gtk_main_quit();
+                control_center_corba_gtk_main_quit();
                 
 
         return 0;

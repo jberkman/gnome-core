@@ -19,7 +19,16 @@ void merge_nodes (GNode *node1, GNode *node2);
 GtkWidget *generate_tree ();
 
 /* callbacks */
-void selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column, GdkEventButton *bevent);
+void selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column);
+
+typedef struct _node_data node_data;
+struct _node_data
+{
+        GnomeDesktopEntry *gde;
+        GtkWidget *socket;
+        gint id;
+};
+
 
 
 

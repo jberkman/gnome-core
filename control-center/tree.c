@@ -4,6 +4,7 @@
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
 #include "tree.h"
+#include "caplet-manager.h"
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
@@ -11,13 +12,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-GdkPixmap *pixmap1;
+/*GdkPixmap *pixmap1;
 GdkPixmap *pixmap2;
 GdkPixmap *pixmap3;
 GdkBitmap *mask1;
 GdkBitmap *mask2;
-GdkBitmap *mask3;
+GdkBitmap *mask3;*/
+
 extern GtkWidget *status_bar;
+
 gboolean
 compare_last_dir (gchar *first, gchar *second)
 {
@@ -65,10 +68,9 @@ merge_nodes (GNode *node1, GNode *node2)
 {
         GNode *child1, *child2;
 
-        g_assert (node1 != NULL);
-
-        if (node2 == NULL)
+        if ((node1 == NULL) || (node2 == NULL))
                 return;
+
         /* first we merge data */
         if (node1->data == NULL)
                 node1->data = node2->data;
@@ -154,6 +156,8 @@ generate_tree_helper (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node)
         GNode *i;
         GtkCTreeNode *child;
         char *text[2];
+        node_data *data;
+
         text[1] = NULL;
 
         for (i = node;i;i = i->next) {
@@ -162,10 +166,14 @@ generate_tree_helper (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node)
                 else
                         text[0] = "foo";
                 if (i->data && (!strcmp(((GnomeDesktopEntry *)i->data)->type,"Directory")))
-                        child = gtk_ctree_insert (ctree,parent,NULL, text, 3, NULL, NULL,NULL,NULL,FALSE,FALSE);
+                        child = gtk_ctree_insert_node (ctree,parent,NULL, text, 3, NULL, NULL,NULL,NULL,FALSE,FALSE);
                 else
-                        child = gtk_ctree_insert (ctree,parent,NULL, text, 3, NULL, NULL,NULL,NULL,TRUE,FALSE);
-                gtk_ctree_set_row_data (ctree, child, i);
+                        child = gtk_ctree_insert_node (ctree,parent,NULL, text, 3, NULL, NULL,NULL,NULL,TRUE,FALSE);
+                data = g_malloc (sizeof (node_data));
+                data->gde = (GnomeDesktopEntry *)i->data;
+                data->socket = NULL;
+                data->id = -1;
+                gtk_ctree_node_set_row_data (ctree, child, data);
                 if (i->children)
                         generate_tree_helper (ctree, child, i->children);
         }
@@ -176,6 +184,9 @@ generate_tree ()
         GtkWidget *retval;
         GNode *global_node;
         GNode *user_node;
+        gchar *root_prefix;
+        gchar *user_prefix;
+
         retval = gtk_ctree_new (1, 0);
 
         /* First thing we want to do is to check directories to create the menus */
@@ -190,8 +201,10 @@ generate_tree ()
         gtk_signal_connect( GTK_OBJECT (retval),"tree_select_row", GTK_SIGNAL_FUNC (selected_row_callback), NULL);
 
         /*hard_coded for now... */
-        global_node = read_directory ("/home/jrb/gnomedevel/test1");
-        user_node = read_directory ("/home/jrb/gnomedevel/test2");
+        root_prefix = gnome_unconditional_datadir_file ("control_center");
+        global_node = read_directory (root_prefix);
+        user_prefix = gnome_util_home_file ("control_center");
+        user_node = read_directory (user_prefix);
         merge_nodes (user_node, global_node);
 
         /* now we actually set up the tree... */
@@ -200,23 +213,37 @@ generate_tree ()
          *
          * we do user_node->children to avoid the root menu.
          */
-        generate_tree_helper (GTK_CTREE (retval), NULL, user_node->children);
+        if (user_node != NULL)
+                generate_tree_helper (GTK_CTREE (retval), NULL, user_node->children);
+        else {
+                g_warning ("\nYou have no entries listed in either \n\t%s\nor\n\t%s\n\nThis " \
+                         "probably means that either the control-center or GNOME is "
+                         "incorrectly installed.\n",root_prefix, user_prefix);
+                exit (1);
+        }
+        g_free (root_prefix);
+        g_free (user_prefix);
         return retval;
 }
 
-void selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column, GdkEventButton *bevent)
+void
+selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column)
 {
-        GNode *node_data;
+        node_data *data;
         GnomeDesktopEntry *gde;
+        GdkEvent *event = gtk_get_current_event();
 
         if (column < 0)
                 return;
-        node_data = (GNode *) gtk_ctree_get_row_data (GTK_CTREE (widget),node);
-        gde = (GnomeDesktopEntry *)node_data->data; 
+        
+        data = (node_data *) gtk_ctree_node_get_row_data (GTK_CTREE (widget),node);
+        gde = (GnomeDesktopEntry *)data->gde; 
         gtk_statusbar_pop (GTK_STATUSBAR (status_bar), 1);
         if (gde->comment)
                 gtk_statusbar_push (GTK_STATUSBAR (status_bar), 1, (gde->comment));
         else
                 gtk_statusbar_push (GTK_STATUSBAR (status_bar), 1, (gde->name));
-        
+
+        if (event && event->type == GDK_2BUTTON_PRESS)
+                launch_caplet (data);
 }

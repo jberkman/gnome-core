@@ -10,13 +10,13 @@ gnomecc_SOURCES =	\
 	tree.c		\
 	tree.h		\
 	callbacks.c	\
+	corba-glue.c	\
+	caplet-manager.c\
 	callbacks.h	\
-	control-center-widget.c \
-	control-center-widget.h \
 	$(CORBA_SRCLIST)
 
 
-CORBA_SRCLIST = control-center-skels.c control-center-common.c control-center.h
+CORBA_SRCLIST = control-center-skels.c control-center-stubs.c control-center-common.c control-center.h
 
 gnomecc_LDADD = \
 	$(GNOME_LIBDIR)					\
@@ -29,8 +29,17 @@ EXTRA_DIST = gnomecc.desktop control-center.idl
 sysdir = $(datadir)/apps/System
 sys_DATA = gnomecc.desktop
 
-MAINTAINERCLEANFILES = $(CORBA_SRCLIST)
+libcaplet_la_SOURCES=caplet-widget.c caplet-widget-libs.c
+libcaplet_la_LDFLAGS = -version-info 0:0:0 -rpath $(libdir)
+libcaplet_la_LIBADD = $(ORB_LIBS) -lm $(DL_LIB)
 
+
+lib_LTLIBRARIES = libcaplet.la
+
+test: $(test_SOURCES)
+MAINTAINERCLEANFILES = $(CORBA_SRCLIST)
+CLEANFILES = $(CORBA_SRCLIST)
 $(CORBA_SRCLIST): control-center.idl
 	orbit-idl $(srcdir)/control-center.idl
 main.c: $(CORBA_SRCLIST)
+
