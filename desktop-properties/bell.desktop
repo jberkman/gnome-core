@@ -1,0 +1,19 @@
+[Desktop Entry]
+Name=Bell Properties
+Name[es]=Bell Properties
+Name[de]=Bell Properties
+Name[ko]=Bell Properties
+Name[fr]=Bell Properties
+Name[it]=Bell Properties
+Name[no]=Bell Properties
+Comment=Bell Properties
+Comment[es]=Bell Properties
+Comment[de]=Bell Properties
+Comment[ko]=Bell Properties
+Comment[fr]=Bell Properties
+Comment[it]=Bell Properties
+Comment[no]=Bell Properties
+Exec=bell-properties
+Icon=
+Terminal=0
+Type=Application
