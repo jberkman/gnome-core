@@ -1,6 +1,11 @@
 1998-10-29  Jens Lautenbacher  <jens@tellux.de>
 
 	* gnome-terminal.c (preferences_cmd): visual clean-up
+	(DEFINE_TERMINAL_MENU): removed the color-selector from the
+ 	menu... the changelog entry from miquel seems to suggest that this
+ 	was only for testing purposes for color dnd, so I felt free to
+ 	remove it, as it seems to be only disturbing joe user. Hope I
+ 	didn't step on anybodies toes :-/
 
 	* gnome-terminal.h: removed prototype for create_font_menu
 
