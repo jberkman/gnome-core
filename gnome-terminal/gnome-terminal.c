@@ -2137,10 +2137,10 @@ static struct poptOption cb_options [] = {
 	  N_("Specifies font name"), N_("FONT")},
 
 	{ "nologin", '\0', POPT_ARG_NONE, NULL, NOLOGIN_KEY,
-	  N_("Do not start up shells as logins shells"), NULL},
+	  N_("Do not start up shells as login shells"), NULL},
 
 	{ "login", '\0', POPT_ARG_NONE, NULL, LOGIN_KEY,
-	  N_("Start up shells as logins shells"), NULL},
+	  N_("Start up shells as login shells"), NULL},
 
 	{ "geometry", '\0', POPT_ARG_STRING, NULL, GEOMETRY_KEY,
 	  N_("Specifies the geometry for the main window"), N_("GEOMETRY")},
