@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Help system
+Name[ca]=Sistema d'ajuda
 Name[de]=GNOME-Hilfe
 Name[es]=Sistema de ayuda
 Name[eu]=Laguntza sistema
@@ -13,6 +14,7 @@ Name[no]=GNOME Hjelp
 Name[pt]=Ajuda GNOME
 Name[ru]=Справочная система
 Comment=Integrated help system (Info, man, HTML)
+Comment[ca]=Sistema integrat d'ajuda (Info, man, HTML)
 Comment[de]=Integriertes Hilfesystem (Info, man, HTML)
 Comment[es]=Sistema integral de ayuda (Info, man, HTML)
 Comment[eu]=Laguntza sistema bateratua (Info, man, HTML)

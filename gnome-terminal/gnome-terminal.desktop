@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=GNOME terminal
+Name[ca]=Terminal GNOME
 Name[de]=GNOME-Terminal
 Name[es]=Terminal UNIX de GNOME
 Name[eu]=GNOMEren UNIX terminala
@@ -12,6 +13,7 @@ Name[no]=GNOME terminal
 Name[pt]=Terminal GNOME
 Name[ru]=GNOME Терминал
 Comment=Terminal emulation program
+Comment[ca]=Emulador de terminal de GNOME
 Comment[de]=GNOMEs Terminalemulator
 Comment[es]=Emulador de terminal GNOME
 Comment[eu]=GNOME terminalaren emulatzailea
