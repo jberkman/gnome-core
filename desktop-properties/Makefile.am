@@ -1,10 +1,5 @@
 INCLUDES = 			\
-	-I../.. 		\
-	-I$(srcdir)/../.. 	\
-	-I$(includedir)		\
-	-I$(top_builddir)/intl  \
-	-I$(top_srcdir)/intl	\
-	$(X_CFLAGS)
+	-I$(includedir)
 
 bin_PROGRAMS = mouse-properties keyboard-properties background-properties
 
@@ -38,14 +33,9 @@ background_properties_SOURCES =	\
 	app-background.c
 
 LDADD = \
-	$(top_builddir)/libgnome/libgnome.la		\
-	$(top_builddir)/libgnomeui/libgnomeui.la 	\
-	$(GTK_LIBS)					\
-        $(X_LIBS) $(x_libs)				\
-	$(DL_LIB)					\
+	$(GNOMEUI_LIBS)					\
         @XF86MISC_LIBS@					\
-	@LEXLIB@					\
-	$(INTLLIBS)
+	@LEXLIB@
 
 EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop
 

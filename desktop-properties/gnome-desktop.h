@@ -1,8 +1,8 @@
 #ifndef GNOME_DESKTOP_H
 #define GNOME_DESKTOP_H
 
-#include "gnome.h"
-#include "libgnomeui/gnome-properties.h"
+#include <gnome.h>
+#include <libgnomeui/gnome-properties.h>
 
 BEGIN_GNOME_DECLS
 
