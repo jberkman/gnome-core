@@ -22,23 +22,25 @@
 
 /* sorting the list... */
 static gint
-tlsort (TasklistTask *la, TasklistTask *lb)
+tlsort (gconstpointer data1, gconstpointer data2)
 {
-       char *sa, *sb;
+	const TasklistTask *la = data1;
+	const TasklistTask *lb = data2;
+	const char *sa, *sb;
 
-       d(g_print ("la: %p\tlb: %p\n", la, lb));
+	d(g_print ("la: %p\tlb: %p\n", la, lb));
 
-       sa = la->task_group ? la->group_name : (la->group ? la->group->group_name : la->gwmh_task->name);
-       sb = lb->task_group ? lb->group_name : (lb->group ? lb->group->group_name : lb->gwmh_task->name);
+	sa = la->task_group ? la->group_name : (la->group ? la->group->group_name : la->gwmh_task->name);
+	sb = lb->task_group ? lb->group_name : (lb->group ? lb->group->group_name : lb->gwmh_task->name);
 
-       if (sa && sb)
-	       return strcasecmp (sa, sb);
-       else if (sa)
-	       return 1;
-       else if (sb)
-	       return -1;
-       else
-	       return 0;
+	if (sa && sb)
+		return g_strcasecmp (sa, sb);
+	else if (sa)
+		return 1;
+	else if (sb)
+		return -1;
+	else
+		return 0;
 }
 
 static void
@@ -250,11 +252,18 @@ is_task_really_visible (TasklistTask *task)
 	return is_task_visible (task);
 }
 
-static void
-print_task (TasklistTask *task, gpointer null)
-{
-	return;
+static void print_task (TasklistTask *task);
 
+static void
+print_task_iterator (gpointer data, gpointer user_data)
+{
+	TasklistTask *task = data;
+	print_task (task);
+}
+
+static void
+print_task (TasklistTask *task)
+{
 	if (!task)
 		g_print (" * * NULL TASK * *\n");
 	else if (task->group)
@@ -265,7 +274,7 @@ print_task (TasklistTask *task, gpointer null)
 			 task->gwmh_task->name);
 	else if (task->task_group) {
 		g_print ("group: %p [%d]: %s\n", task, is_task_really_visible (task), task->group_name);
-		g_slist_foreach (task->tasks, (GFunc)print_task, NULL);
+		g_slist_foreach (task->tasks, print_task_iterator, NULL);
 		g_print ("/\n");
 	} else {
 		g_print ("Unknown task: %p\n", task);
@@ -299,10 +308,18 @@ fixup_group (TasklistTask *group)
 	}
 }
 
-static gboolean
-fixup_vtask (TasklistTask *task, gpointer forcep)
+static gboolean fixup_vtask (TasklistTask *task);
+
+static void
+fixup_vtask_iterator (gpointer data, gpointer user_data)
 {
-	gint force = GPOINTER_TO_INT (forcep);
+	TasklistTask *task = data;
+	fixup_vtask (task);
+}
+
+static gboolean
+fixup_vtask (TasklistTask *task)
+{
 	gboolean visible;
 
 	/* why not layout if we are confused */
@@ -317,30 +334,37 @@ fixup_vtask (TasklistTask *task, gpointer forcep)
 		return FALSE;
 
 	task->visible = visible;
-	task->tasklist->vtasks = visible 
-		? g_slist_insert_sorted (task->tasklist->vtasks, task, tlsort)
-		: g_slist_remove (task->tasklist->vtasks, task);
+	if (visible) {
+		task->tasklist->vtasks =
+			g_slist_insert_sorted (task->tasklist->vtasks, task, tlsort);
+	} else {
+		task->tasklist->vtasks =
+			g_slist_remove (task->tasklist->vtasks, task);
+	}
 
 	if (task->tasklist->config.enable_grouping) {
 		if (task->task_group) {
-			g_slist_foreach (task->tasks, (GFunc)fixup_vtask, forcep);
+			g_slist_foreach (task->tasks, fixup_vtask_iterator, NULL);
 		} else if (task->group) {
-			fixup_vtask (task->group, GINT_TO_POINTER (FALSE));
+			fixup_vtask (task->group);
 		}
 	}
 
 	d(g_print (">>>>>\tfixup_vtask "));
-	d(print_task (task, NULL));
-	d(g_slist_foreach (task->tasklist->vtasks, (GFunc)print_task, NULL));
+	d(print_task (task));
+	d(g_slist_foreach (task->tasklist->vtasks, print_task_iterator, NULL));
 	d(g_print ("<<<<<\n"));
 
 	return TRUE;
 }
 
 static void
-redo_groups (gchar *groupname, TasklistTask *task, Tasklist *tasklist)
+redo_groups_iterator (gpointer key, gpointer data, gpointer user_data)
 {
-	print_task (task, NULL);
+	TasklistTask *task = data;
+	Tasklist *tasklist = user_data;
+
+	d (print_task (task));
 
 	fixup_group (task);
 	task->visible = is_task_really_visible (task);
@@ -362,7 +386,7 @@ tasklist_redo_vtasks (Tasklist *tasklist)
 	d(g_print ("\n\n\n\n\n\n\n\n\n\nredo_vtasks\n\n\n\n\n\n\n\n\n\n"));
 
 	if (tasklist->config.enable_grouping)
-		g_hash_table_foreach (tasklist->groups, (GHFunc)redo_groups, tasklist);
+		g_hash_table_foreach (tasklist->groups, redo_groups_iterator, tasklist);
 
 	for (item = gwmh_task_list_get (); item; item = item->next) {
 		task = g_hash_table_lookup (tasklist->tasks, item->data);
@@ -383,7 +407,7 @@ tasklist_redo_vtasks (Tasklist *tasklist)
 	d(g_print ("\n\n\n\n\n\n\n\n\n\nvtasks: %d\n", g_slist_length (tasklist->vtasks)));
 
 	d(g_print (">>>>>\tredo_vtasks:\n"));
-	d(g_slist_foreach (tasklist->vtasks, (GFunc)print_task, NULL));
+	d(g_slist_foreach (tasklist->vtasks, print_task_iterator, NULL));
 	d(g_print ("<<<<<\n"));
 }
 
@@ -864,7 +888,7 @@ tasklist_task_destroy (GwmhTask *gtask, Tasklist *tasklist)
 		if (!ttask->group->tasks)
 			tasklist_group_destroy (ttask->group);
 		else
-			fixup_vtask (ttask->group, GINT_TO_POINTER (FALSE));
+			fixup_vtask (ttask->group);
 	}
 
 	tasklist->vtasks = g_slist_remove (tasklist->vtasks, ttask);
@@ -945,8 +969,17 @@ tasklist_task_new (GwmhTask *gtask, Tasklist *tasklist)
 	else {
 		ttask->group->tasks = g_slist_prepend (ttask->group->tasks, ttask);
 		g_free (class);
-		fixup_vtask (ttask->group, GINT_TO_POINTER (TRUE));
+		fixup_vtask (ttask->group);
 	}
+}
+
+static void
+tasklist_task_new_iterator (gpointer data, gpointer user_data)
+{
+	GwmhTask *gtask = data;
+	Tasklist *tasklist = user_data;
+
+	tasklist_task_new (gtask, tasklist);
 }
 
 
@@ -981,7 +1014,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 			  (tasklist->orient == ORIENT_LEFT || tasklist->orient == ORIENT_RIGHT));
 		task->fullwidth = -1;
 
-		if (fixup_vtask (task, GINT_TO_POINTER (FALSE))) {
+		if (fixup_vtask (task)) {
 			if (resize)
 				tasklist_change_size (tasklist, TRUE, -1);
 			else
@@ -1205,13 +1238,14 @@ cb_about (AppletWidget *applet, Tasklist *tasklist)
 		"Anders Carlsson (andersca@gnu.org)",
 		"Miguel de Icaza (miguel@ximian.com)",
 		"Jacob Berkman (jacob@ximian.com)",
+		"George Lebl (jirka@5z.com)",
 		NULL
 	};
 
 	/* Stop the about box from being shown twice at once */
 	if (dialog != NULL)
 	{
-		gdk_window_show (dialog->window);
+		gtk_widget_show_now (dialog);
 		gdk_window_raise (dialog->window);
 		return;
 	}
@@ -1226,8 +1260,10 @@ cb_about (AppletWidget *applet, Tasklist *tasklist)
 	gtk_signal_connect (GTK_OBJECT(dialog), "destroy",
 			    GTK_SIGNAL_FUNC(gtk_widget_destroyed), &dialog);
 
-	gtk_widget_show (dialog);
-	gdk_window_raise (dialog->window);
+	gtk_widget_show_now (dialog);
+
+	if (dialog->window != NULL)
+		gdk_window_raise (dialog->window);
 }
 
 /* Ignore mouse button 1 clicks */
@@ -1250,22 +1286,10 @@ ignore_1st_click (GtkWidget *widget, GdkEvent *event, Tasklist *tasklist)
 	return FALSE;
 }
 
-/*
- * Resort the task list.
- * (This is only here because tasks and tasklist_sorting_compare_func
- * are not globally defined.)
- */
-void
-resort_tasklist (Tasklist *tasklist)
-{
-	tasklist->vtasks = g_slist_sort (tasklist->vtasks, tlsort);
-}
-
 /* Changes size of the applet */
 void
 tasklist_change_size (Tasklist *tasklist, gboolean layout, int fullwidth)
 {
-	gboolean force_change = FALSE;
 	int handle_width = 0;
 	int handle_height = 0;
 	int width = 0;
@@ -1461,7 +1485,9 @@ tasklist_new (void)
 	tasklist->tasks = g_hash_table_new (g_direct_hash, g_direct_equal);
 	tasklist->groups = g_hash_table_new (g_str_hash, g_str_equal);
 
-	g_list_foreach (gwmh_task_list_get (), (GFunc)tasklist_task_new, tasklist);
+	g_list_foreach (gwmh_task_list_get (),
+			tasklist_task_new_iterator,
+			tasklist);
 
 	return tasklist;
 }
@@ -1470,18 +1496,6 @@ static void
 tasklist_init (void)
 {
 	gwmh_init ();
-}
-
-static void
-tasklist_freeze (Tasklist *tasklist)
-{
-	tasklist->frozen = TRUE;
-}
-
-static void
-tasklist_thaw (Tasklist *tasklist)
-{
-	tasklist->frozen = FALSE;
 }
 
 #ifdef APPLET_COMPILE_AS_PROCESS

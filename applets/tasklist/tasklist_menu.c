@@ -199,6 +199,7 @@ add_menu_item (TasklistTask *task, gchar *name, GtkWidget *menu, MenuAction acti
 
 }
 
+#if 0
 /* Called when "Send to desktop" is used */
 static void
 cb_to_desktop (GtkWidget *widget, gpointer data)
@@ -211,6 +212,7 @@ cb_to_desktop (GtkWidget *widget, gpointer data)
 			       GPOINTER_TO_INT (data));
 	tasklist_layout_tasklist (task->tasklist);
 }
+#endif
 
 static void
 destroy_menu (GtkWidget *w, gpointer null)
@@ -588,8 +590,6 @@ create_task_item (TasklistTask *task, TasklistTask *group)
 void
 tasklist_group_popup (TasklistTask *task, guint button, guint32 activate_time)
 {
-	TasklistTask *subtask;
-	GSList *item;
 	GtkWidget *menuitem;
 
 	tasklist_clean_menu (task);

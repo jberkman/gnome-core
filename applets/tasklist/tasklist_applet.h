@@ -184,8 +184,6 @@ struct _Tasklist {
 
 	guint task_notifier_id;
 	guint desk_notifier_id;
-
-	gboolean frozen;
 };
 
 void   	   tasklist_menu_popup          (TasklistTask *task, guint button,

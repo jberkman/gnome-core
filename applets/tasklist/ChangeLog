@@ -1,3 +1,14 @@
+Mon Feb 12 21:25:33 2001  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch], tasklist_menu.c, pixmaps.h: Remove some
+	  unused code, fix warnings, remove function casts (they are evil)
+	  and add wrappers instead.  Compiles without warning now.
+
+	* tasklist_applet.c: In a fit of vanity, added self to the about box,
+	  though at the bottom, so I don't feel like a total asshole.  While
+	  I was looking through the function added my own touch of anality
+	  and some null checking.
+
 2001-02-04  Anders Carlsson  <andersca@codefactory.se>
 
 	* tasklist_menu.c (cb_activate_task): Add function.
