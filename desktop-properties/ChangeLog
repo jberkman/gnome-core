@@ -1,3 +1,8 @@
+1998-08-06  Jaka Mocnik  <jaka.mocnik@kiss.uni-lj.si>
+
+	* property-ui.c (ui_setup, mdi_mode_cb, mdi_tab_pos_cb): added
+	MDI preferences page.
+	
 Fri Jul 24 22:58:26 1998  Havoc Pennington  <hp@pobox.com>
 
 	* property-ui.c (make_option_menu): New function to make the

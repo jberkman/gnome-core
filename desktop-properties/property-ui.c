@@ -74,6 +74,24 @@ static const gchar * const dialog_types_names[] = {
   N_("Dialogs are treated specially by window manager")
 };
 
+#define NUM_MDI_MODES 3
+
+/* looking for better descriptions here... */
+static const gchar * const mdi_mode_names[] = {
+  N_("Notebook"),
+  N_("Toplevel"),
+  N_("Modal")
+};
+
+#define NUM_TAB_POSITIONS 4
+
+static const gchar * const tab_position_names[] = {
+  N_("Left"),
+  N_("Right"),
+  N_("Top"),
+  N_("Bottom")
+};
+
 static void buttonbox_style_cb(GtkWidget * menuitem, gint style)
 {
   gnome_preferences_set_button_layout (style);
@@ -89,6 +107,18 @@ static void dialog_position_cb(GtkWidget * menuitem, gint pos)
 static void dialog_type_cb(GtkWidget * menuitem, gint t)
 {
   gnome_preferences_set_dialog_type(t);
+  property_changed();
+}
+
+static void mdi_mode_cb(GtkWidget * menuitem, gint mode)
+{
+  gnome_preferences_set_mdi_mode ((GnomeMDIMode)mode);
+  property_changed();
+}
+
+static void mdi_tab_pos_cb(GtkWidget * menuitem, gint pos)
+{
+  gnome_preferences_set_mdi_tab_pos ((GtkPositionType)pos);
   property_changed();
 }
 
@@ -234,6 +264,23 @@ ui_setup (void)
   gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
                                   vbox, gtk_label_new (_("Application")));
   gtk_widget_show_all(vbox);
+
+  vbox = gtk_vbox_new(FALSE, GNOME_PAD);
+
+  make_option_menu(vbox,_("Default MDI mode"),
+                   gnome_preferences_get_mdi_mode,
+                   mdi_mode_names, NUM_MDI_MODES,
+                   mdi_mode_cb);
+
+  make_option_menu(vbox,_("MDI notebook tab position"),
+                   gnome_preferences_get_mdi_tab_pos,
+                   tab_position_names, NUM_TAB_POSITIONS,
+                   mdi_tab_pos_cb);
+
+  gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
+                                  vbox, gtk_label_new (_("MDI")));
+  gtk_widget_show_all(vbox);
+
 }
 
 static gint
@@ -274,6 +321,7 @@ ui_register (GnomePropertyConfigurator *c)
   gnome_property_configurator_register (config, ui_action);
   /* Without this there's no handler for page two; ui_action can't be reused
      because it does the setup twice. Blah. */
+  gnome_property_configurator_register (config, noop_action);
   gnome_property_configurator_register (config, noop_action);
 }
 
