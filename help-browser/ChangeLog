@@ -1,3 +1,10 @@
+Wed Oct 28 Felix Bellaby <felix@pooh.u-net.com>
+
+	* help-caller.c (main): use proper repo_id.
+	* toc2-ghelp.c (newGhelpTable): do not drop first item.
+	* toc2-info.c (newInfoTable): do not drop first item.
+	* toc2-man.c (newManTable): do not drop first item.
+	
 1998-10-20  Andrew Veliath  <andrewtv@usa.net>
 
 	* Makefile.am (ORBIT_GENERATED_SOURCES): Update IDL compiler rule

@@ -90,7 +90,7 @@ GList *newInfoTable(struct _toc_config *conf)
     {
         int i;
 
-        for (i = tmp_array_elems - 1; i > 0; i--)
+        for (i = tmp_array_elems - 1; i >= 0; i--)
             infoList = g_list_prepend(infoList, tmp_array[i]);
 
         g_free(tmp_array);
