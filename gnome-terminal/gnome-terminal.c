@@ -209,7 +209,7 @@ static void set_hints (GtkWidget *widget);
 static void
 about_terminal_cmd (void)
 {
-        GtkWidget *about;
+        static GtkWidget *about = NULL;
 
         const gchar *authors[] = {
 	     N_("Zvt terminal widget: "
@@ -219,6 +219,13 @@ about_terminal_cmd (void)
 	     N_("    Erik Troan (ewt@redhat.com)"),
 		NULL
 	};
+
+	if (about != NULL)
+	{
+		gdk_window_show(about->window);
+		gdk_window_raise(about->window);
+		return;
+	}
 
 #ifdef ENABLE_NLS
 	authors[0]=_(authors[0]);
@@ -231,6 +238,8 @@ about_terminal_cmd (void)
 				 authors,
 				 _("The GNOME terminal emulation program."),
 				 NULL);
+	gtk_signal_connect (GTK_OBJECT (about), "destroy",
+			    GTK_SIGNAL_FUNC (gtk_widget_destroyed), &about);
         gtk_widget_show (about);
 }
 
