@@ -1744,6 +1744,14 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	gdk_window_get_pointer(widget->window, &x, &y, &mask);
 	match = zvt_term_match_check(term, x/term->charwidth, y/term->charheight, 0);
 	if (match) {
+		/*
+		 * If shift-button-3 is pressed, open the url
+		 */
+		if (event->state & GDK_SHIFT_MASK){
+			gnome_url_show (match);
+			return TRUE;
+		}
+			
 		memcpy(&gnome_terminal_popup_menu[POPUP_MENU_DYNAMIC_INDEX],
 		       &gnome_terminal_popup_menu_url[0],
 		       sizeof(gnome_terminal_popup_menu_url));
