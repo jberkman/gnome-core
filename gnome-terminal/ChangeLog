@@ -3,6 +3,9 @@
 	* gnome-terminal.c (new_terminal): Allow shrinking.  This makes
 	the window auto-resize to the small size when the font has
 	changed. 
+	(drop_data_available): Added drop support for urls to the
+	terminal.  You can now drag file names and icons to the terminal
+	and get the file listing. 
 
 1998-05-01  Michael Fulbright  <msf@redhat.com>
 

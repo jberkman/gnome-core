@@ -14,6 +14,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "gnome-terminal.h"
 
 char **env;
 
@@ -452,6 +453,34 @@ terminal_kill (GtkWidget *widget, void *data)
 	close_terminal_cmd (widget, app);
 }
 
+static void
+drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer data)
+{
+	ZvtTerm *term = ZVT_TERM (widget);
+	char *p = event->data;
+	int count = event->data_numbytes;
+	int len;
+
+	do {
+		len = 1 + strlen (event->data);
+		count -= len;
+
+		vt_writechild (&term->vx->vt, p, len - 1);
+		vt_writechild (&term->vx->vt, " ", 1);
+		p += len;
+	} while (count > 0);
+}
+
+static void
+configure_term_dnd (ZvtTerm *term)
+{
+	char *drop_types []= { "url:ALL" };
+	
+	gtk_widget_dnd_drop_set (GTK_WIDGET (term), TRUE, drop_types, 1, FALSE);
+	gtk_signal_connect (GTK_OBJECT (term), "drop_data_available_event",
+			    GTK_SIGNAL_FUNC (drop_data_available), term);
+}
+
 void
 new_terminal (void)
 {
@@ -541,6 +570,7 @@ new_terminal (void)
 		/* Only the first window gets --geometry treatment for now */
 		geometry = NULL;
 	}
+	configure_term_dnd (term);
 	gtk_widget_show (app);
 	set_color_scheme (term, color_type);
 
