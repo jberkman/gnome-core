@@ -88,6 +88,19 @@ tasklist_sorting_compare_func (gconstpointer a, gconstpointer b)
 	       creation_compare_func (a, b);
 }
 
+static void
+clamp_size_if_never_push (int *size)
+{
+	if (Config.vert_never_push) {
+		int free_space = applet_widget_get_free_space
+			(APPLET_WIDGET (applet));
+		if (free_space > 0 &&
+		    free_space < *size)
+			*size = free_space;
+	}
+}
+
+
 /* from gtkhandlebox.c */
 #define DRAG_HANDLE_SIZE 10
 
@@ -414,8 +427,16 @@ layout_tasklist (gboolean call_change_size)
 			curwidth = (Config.horz_width - 0) / num_cols;
 
 		} else {
+			int width;
+
+			width = Config.horz_taskwidth * num_cols + DRAG_HANDLE_SIZE;
+
+			clamp_size_if_never_push (&width);
+
+			width -= DRAG_HANDLE_SIZE;
+
 			curheight = (ROW_HEIGHT * get_horz_rows() - 0) / num_rows;
-			curwidth = Config.horz_taskwidth;
+			curwidth = width / num_cols;
 
 			/* If the total width is higher than allowed, 
 			   we use the "fixed" way instead */
@@ -500,10 +521,13 @@ layout_tasklist (gboolean call_change_size)
 		curx = 0;
 		cury = 0;
 
-		if (Config.vert_fixed)
+		if (Config.vert_fixed) {
 			vert_height = Config.vert_height;
-		else
-			vert_height = curheight * num_rows + 4;
+		} else {
+			vert_height = curheight * num_rows + 4 + DRAG_HANDLE_SIZE;
+			clamp_size_if_never_push (&vert_height);
+			vert_height -= DRAG_HANDLE_SIZE;
+		}
 		
 		if (call_change_size)
 			change_size (FALSE, curwidth);

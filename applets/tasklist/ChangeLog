@@ -1,3 +1,9 @@
+Wed Dec 20 15:25:02 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch], tasklist_config.c, tasklist_properties.c:
+	  Add an option so that the re-size never pushes other applets if
+	  dynamic mode is on.
+
 Wed Dec 20 14:27:54 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.[ch], tasklist_config.c, tasklist_properties.c:

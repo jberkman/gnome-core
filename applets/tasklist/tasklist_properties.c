@@ -196,6 +196,11 @@ create_size_page (void)
 			    create_radio_button (_("Tasklist width is dynamic"), 
 						 &horzgroup, FALSE, &PropsConfig.horz_fixed),
 			    FALSE, TRUE, 0);
+
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_check_button (_("Only use empty space"),
+						 &PropsConfig.horz_never_push),
+			    FALSE, TRUE, 0);
 	
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 	
@@ -232,6 +237,12 @@ create_size_page (void)
 			    create_radio_button (_("Tasklist height is dynamic"), 
 						 &vertgroup, FALSE, &PropsConfig.vert_fixed),
 			    FALSE, TRUE, 0);
+
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_check_button (_("Only use empty space"),
+						 &PropsConfig.vert_never_push),
+			    FALSE, TRUE, 0);
+	
 
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_check_button (_("Tasklist width is that of longest title"),

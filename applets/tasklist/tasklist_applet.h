@@ -61,13 +61,15 @@ struct _TasklistConfig {
 	gint horz_rows; /* Number of rows */
 	gboolean horz_fixed; /* Fixed or dynamic sizing */
 	gint horz_taskwidth; /* Width of a single task (for dynamic sizing) */
+	gboolean horz_never_push; /* In dynamic mode, never push applets */
+
 	/* Stuff for vertical mode */
 	gint vert_height; /* The height of the tasklist */
 	gint vert_width; /* The width of the tasklist */
 	gboolean vert_fixed; /* Fixed or dynamic sizing */
 	gboolean vert_width_full;  /* a mode where th width is the maximum width */
 				   /* of any window title. */
-
+	gboolean vert_never_push; /* In dynamic mode, never push applets */
 
 };
 

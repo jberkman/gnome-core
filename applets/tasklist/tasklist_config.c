@@ -25,6 +25,8 @@ gboolean write_config (gpointer data,
 			      Config.horz_rows);
 	gnome_config_set_int ("tasklist/horz_taskwidth",
 			      Config.horz_taskwidth);
+	gnome_config_set_bool ("tasklist/horz_never_push",
+			       Config.horz_never_push);
 
 	gnome_config_set_bool ("tasklist/vert_fixed",
 			       Config.vert_fixed);	
@@ -34,6 +36,8 @@ gboolean write_config (gpointer data,
 			      Config.vert_width);
 	gnome_config_set_bool ("tasklist/vert_width_full",
 			       Config.vert_width_full);
+	gnome_config_set_bool ("tasklist/vert_never_push",
+			       Config.vert_never_push);
 
 	
 	gnome_config_set_bool ("tasklist/show_mini_icons",
@@ -77,10 +81,13 @@ void read_config (void)
 		Config.horz_width = gnome_config_get_int ("tasklist/horz_width=450");
 	Config.horz_rows = gnome_config_get_int ("tasklist/horz_rows=2");
 	Config.horz_taskwidth = gnome_config_get_int ("tasklist/horz_taskwidth=150");
+	Config.horz_never_push = gnome_config_get_bool ("tasklist/horz_never_push=true");
+
 	Config.vert_fixed = gnome_config_get_bool ("tasklist/vert_fixed=true");
 	Config.vert_width = gnome_config_get_int ("tasklist/vert_width=48");
 	Config.vert_height = gnome_config_get_int ("tasklist/vert_height=300");
 	Config.vert_width_full = gnome_config_get_bool ("tasklist/vert_width_full=false");
+	Config.vert_never_push = gnome_config_get_bool ("tasklist/vert_never_push=true");
 
 	Config.confirm_before_kill = gnome_config_get_bool ("tasklist/confirm_before_kill=true");
 	
