@@ -97,7 +97,7 @@ Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
     return res;
 }
 
-GString *generateHTML(Toc toc)
+GString *genManTocHTML(Toc toc)
 {
     GString *res, *s;
     GList *l;
@@ -110,7 +110,6 @@ GString *generateHTML(Toc toc)
     /* Man Pages */
     
     g_string_append(res, "<h2>Man Pages</h2>\n");
-
 
     last_ext = ' ';
     last_initial = ' ';
@@ -138,10 +137,18 @@ GString *generateHTML(Toc toc)
 	last_ext = ext;
 	l = g_list_next(l);
     }
+    return res;
+}
+
+GString *genInfoTocHTML(Toc toc)
+{
+    GString *res, *s;
+    GList *l;
+    gchar *name;
+    gchar *link;
 
 
-    /* Info Pages */
-
+    res = g_string_new("<h1>Table of Contents</h1>\n");
     g_string_append(res, "<br><br><h2>Info Pages</h2>\n");
 
     l = toc->infoTable;
@@ -149,18 +156,30 @@ GString *generateHTML(Toc toc)
 	name = ((struct _big_table_entry *)l->data)->name;
 	link = ((struct _big_table_entry *)l->data)->filename;
 
-	s = g_string_new(NULL);
-	/* XXX should also have mime type info */
-	g_string_sprintf(s, "<a href=\"info:%s\">%s</a> ", name, name);
-	g_string_append(res, s->str);
-	g_string_free(s, TRUE);
+	/* only output 1 entry for each info file */
+	if (!((struct _big_table_entry *)l->data)->section) {
+		s = g_string_new(NULL);
+		/* XXX should also have mime type info */
+		g_string_sprintf(s, "<a href=\"info:%s\">%s</a> ", name, name);
+		g_string_append(res, s->str);
+		g_string_free(s, TRUE);
+	}
 
 	l = g_list_next(l);
     }
 
+    return res;
+}
 
-    /* Gnome Help */
+GString *genGhelpTocHTML(Toc toc)
+{
+    GString *res, *s;
+    GList *l;
+    gchar *name;
+    gchar *link;
 
+
+    res = g_string_new("<h1>Table of Contents</h1>\n");
     g_string_append(res, "<br><br><h2>GNOME Help</h2>\n");
 
     l = toc->ghelpTable;
@@ -176,7 +195,6 @@ GString *generateHTML(Toc toc)
 
 	l = g_list_next(l);
     }
-
 
     return res;
 }

@@ -21,7 +21,6 @@
 
 #include <config.h>
 #include <gnome.h>
-#include <libgnome/gnome-help.h>
 
 #include "window.h"
 #include "history.h"
@@ -159,19 +158,9 @@ main(gint argc, gchar *argv[])
     window = makeHelpWindow(defposx, defposy, defwidth, defheight );
 
     if (helpURL)
-	    helpWindowShowURL(window, helpURL, TRUE);
+	    helpWindowShowURL(window, helpURL, TRUE, TRUE);
     else {
-	    /* really broken, should be a ghelp: type URL */
-	    gchar *p, *q;
-
-	    p = gnome_help_file_path("help-browser", "default-page.html");
-	    if (p) {
-		    q = g_malloc(strlen(p)+10);
-		    strcpy(q, "file:");
-		    strcat(q, p);
-		    helpWindowShowURL(window, q, TRUE);
-		    g_free(q);
-	    }
+	    helpWindowShowURL(window, "toc:", TRUE, TRUE);
     }
 	 
 	
@@ -268,20 +257,23 @@ newWindowCallback(HelpWindow win)
     HelpWindow window;
     
     window = makeHelpWindow(0,0,0,0);
+    helpWindowShowURL(window, "toc:", TRUE, TRUE);
 }
 
 static void
 historyCallback (gchar *ref)
 {
     g_message("HISTORY: %s", ref);
-    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref, TRUE);
+    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, 
+		      ref, TRUE, TRUE);
 }
 
 static void
 bookmarkCallback (gchar *ref)
 {
     g_message("BOOKMARKS: %s", ref);
-    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref, TRUE);
+    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data,
+		      ref, TRUE, TRUE);
 }
 
 static void

@@ -232,7 +232,7 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
         g_message("TAG CLICKED: %s", cbs->href);
 
-	helpWindowShowURL(win, cbs->href, TRUE);
+	helpWindowShowURL(win, cbs->href, TRUE, TRUE);
 }
 
 static void
@@ -253,7 +253,7 @@ help_forward(GtkWidget *w, HelpWindow win)
 	if (!(ref = queue_next(win->queue, &pos)))
 		return;
 
-	visitURL_nohistory(win, ref);
+	visitURL(win, ref, TRUE, FALSE, FALSE );
 	queue_move_next(win->queue);
 	
 	g_message("jump to line: %d", pos);
@@ -272,7 +272,7 @@ help_backward(GtkWidget *w, HelpWindow win)
 	if (!(ref = queue_prev(win->queue, &pos)))
 		return;
 
-	visitURL_nohistory(win, ref);
+	visitURL(win, ref, TRUE, FALSE, FALSE);
 	queue_move_prev(win->queue);
 	
 	g_message("jump to line: %d", pos);
@@ -294,7 +294,7 @@ help_onhelp(GtkWidget *w, HelpWindow win)
 	strcpy(q,"file:");
 	strcat(q, p);
 	g_free(p);
-	helpWindowShowURL(win, q, TRUE);
+	helpWindowShowURL(win, q, TRUE, FALSE);
 }
 
 static void
@@ -316,7 +316,7 @@ reload_page(GtkWidget *w, HelpWindow win)
     g_message("RELOAD PAGE: %s", buf);
     /* make html widget believe we want to reload */
     gtk_xmhtml_source(GTK_XMHTML(win->helpWidget), "");
-    helpWindowShowURL(win, buf, FALSE);
+    helpWindowShowURL(win, buf, FALSE, FALSE);
 }	
 
 static void
@@ -335,7 +335,7 @@ entryChanged(GtkWidget *w, HelpWindow win)
 	strncpy(buf, s, sizeof(buf));
     }
     
-    helpWindowShowURL(win, buf, TRUE);
+    helpWindowShowURL(win, buf, TRUE, TRUE);
 }
 
 /**********************************************************************/
@@ -627,12 +627,13 @@ helpWindowGetCache(HelpWindow win)
 }
 
 void
-helpWindowShowURL(HelpWindow win, gchar *ref, gboolean useCache)
+helpWindowShowURL(HelpWindow win, gchar *ref, 
+		  gboolean useCache, gboolean addToQueue)
 {
 	gchar err[1024];
 
 	win->useCache = useCache;
-	if (visitURL(win, ref, useCache)) {
+	if (visitURL(win, ref, useCache, addToQueue, TRUE)) {
 		GtkWidget *msg;
 
 		snprintf(err, sizeof(err), "Error loading document:\n\n%s",

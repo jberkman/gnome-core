@@ -1,3 +1,18 @@
+1998-03-18  Michael Fulbright  <msf@redhat.com>
+
+	* 'Fixed' reloading of default page - html widget was scrolling
+	   image off top and showing first line of text instead.
+
+	* Implemented 'toc:', 'toc:man', 'toc:info', and 'toc:ghelp'
+	  These load browser with table of contents of respective doc types.
+
+	* Found buf in info code which caused segfault when loading last
+	  section in an info file.
+
+	* Removed visitURL_nohistory - use visitURL() with several booleans
+	  to control if link is read from cache, stored in back/forward queue,
+	  and if it goes in the global history list
+
 1998-03-18  Marc Ewing  <marc@redhat.com>
 
 	* Removed the TOC window

@@ -257,14 +257,14 @@ gint expandInfoTable(GList *table, gchar *name)
 	entry->indirect = 0;
 	entry->ext = 0;
 	/* Find the right filename */
-	list = indirect;
+	list = g_list_last(indirect);
 	while (list) {
-	    if (((Pair)list->data)->val > val) {
+	    if (((Pair)list->data)->val <= val) {
 		entry->filename =
-		    findInfoFile(rootFile, ((Pair)list->prev->data)->name);
+		    findInfoFile(rootFile, ((Pair)list->data)->name);
 		break;
 	    }
-	    list = list->next;
+	    list = list->prev;
 	}
 
 	/* Splice it into the table, and update table */
@@ -273,7 +273,8 @@ gint expandInfoTable(GList *table, gchar *name)
 	g_list_append(table, entry);
 	table = table->next;
 	table->next = nextItem;
-	nextItem->prev = table;
+	if (nextItem)
+		nextItem->prev = table;
     }
 
     if (indirect) {

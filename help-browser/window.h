@@ -22,7 +22,8 @@ HelpWindow helpWindowNew(gchar *name,
 			 HelpWindowCB set_current_callback,
 			 HelpWindowCB config_callback);
 void helpWindowClose(HelpWindow win);
-void helpWindowShowURL(HelpWindow win, gchar *ref, gboolean useCache);
+void helpWindowShowURL(HelpWindow win, gchar *ref, 
+		       gboolean useCache, gboolean addToQueue);
 void helpWindowSetHistory(HelpWindow win, History history);
 void helpWindowSetToc(HelpWindow win, Toc toc);
 void helpWindowSetBookmarks(HelpWindow win, Bookmarks bookmarks);

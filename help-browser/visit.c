@@ -1,4 +1,5 @@
 #include <glib.h>
+#include <libgnome/gnome-help.h>
 
 #include "parseUrl.h"
 #include "docobj.h"
@@ -13,25 +14,10 @@
 
 static gint visitDocument( HelpWindow win, docObj obj );
 static void displayHTML( HelpWindow win, docObj obj );
-static gint _visitURL( HelpWindow win, gchar *ref, gboolean save, 
-		       gboolean useCache);
 
 gint
-visitURL( HelpWindow win, gchar *ref, gboolean useCache )
-{
-	return _visitURL(win, ref, TRUE, useCache);
-}
-
-gint
-visitURL_nohistory(HelpWindow win, gchar *ref )
-{
-	return _visitURL(win, ref, FALSE, TRUE);
-}
-
-/* most people will call this - it allocates a docObj type and loads   */
-/* the page. Currently it frees the docObj afterwards, no history kept */
-static gint
-_visitURL( HelpWindow win, gchar *ref, gboolean save, gboolean useCache )
+visitURL( HelpWindow win, gchar *ref, 
+	  gboolean useCache, gboolean addToQueue, gboolean addToHistory)
 {
 	docObj obj;
 
@@ -47,16 +33,46 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save, gboolean useCache )
 		g_message("TOC requested for section %s",p);
 
 		helpWindowQueueMark(win);
-		s = generateHTML(helpWindowGetToc(win));
-		helpWindowHTMLSource(win, s->str, strlen(s->str),
-				     paranoid, paranoid);
-		helpWindowJumpToLine(win, 1);
-		g_string_free(s, TRUE);
-		
-		if (save) {
-			helpWindowQueueAdd(win, paranoid);
-			helpWindowHistoryAdd(win, paranoid);
+
+		s = NULL;
+		if (!strncmp(p,"man",3)) {
+			s = genManTocHTML(helpWindowGetToc(win));
+		} else if (!strncmp(p,"info",4)) {
+			s = genInfoTocHTML(helpWindowGetToc(win));
+		} else if (!strncmp(p,"ghelp",5)) {
+			s = genGhelpTocHTML(helpWindowGetToc(win));
+		} else if (!*p) {
+			gchar *hp, *q;
+			hp = gnome_help_file_path("help-browser", 
+						  "default-page.html");
+			q = g_malloc(strlen(hp)+10);
+			strcpy(q, "file:");
+			strcat(q, hp);
+			obj = docObjNew(q, useCache);
+			docObjSetHumanRef(obj, "toc:");
+			g_free(q);
+			g_free(hp);
+			if (visitDocument(win, obj)) {
+				docObjFree(obj);
+				return -1;
+			}
+			docObjFree(obj);
+		} else {
+			s = g_string_new("<BODY>Unknown TOC argument</BODY>");
 		}
+
+		if (s) {
+			helpWindowHTMLSource(win, s->str, strlen(s->str),
+					     paranoid, paranoid);
+			helpWindowJumpToLine(win, 1);
+			g_string_free(s, TRUE);
+		}
+		
+		if (addToQueue) 
+			helpWindowQueueAdd(win, paranoid);
+		if (addToHistory)
+			helpWindowHistoryAdd(win, paranoid);
+
 		g_free(paranoid);
 	} else {
 
@@ -70,10 +86,10 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save, gboolean useCache )
 		}
 
 		/* obj was 'cleaned up' by visitDocuemnt()/resolveURL() */
-		if (save) {
+		if (addToQueue)
 			helpWindowQueueAdd(win, docObjGetHumanRef(obj));
+		if (addToHistory)
 			helpWindowHistoryAdd(win, docObjGetHumanRef(obj));
-		}
 		
 		docObjFree(obj);
 	}

@@ -27,7 +27,9 @@ typedef struct _toc *Toc;
 
 Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath);
 
-GString *generateHTML(Toc res);
+GString *genManTocHTML(Toc res);
+GString *genInfoTocHTML(Toc res);
+GString *genGhelpTocHTML(Toc res);
 
 gchar *tocLookupInfo(Toc toc, gchar *name, gchar *anchor);
 gchar *tocLookupMan(Toc toc, gchar *name, gchar ext);
