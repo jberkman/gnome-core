@@ -1,3 +1,6 @@
+#include "gstc.c"
+#include "gwmh.c"
+
 #include <config.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk-pixbuf/gdk-pixbuf-drawable.h>
@@ -19,6 +22,7 @@ gboolean cb_expose_event (GtkWidget *widget, GdkEventExpose *event);
 void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
+GdkPixbuf *create_minimized_icon (GdkPixbuf *pixbuf);
 
 GNOME_Panel_OrientType tasklist_orient; /* Tasklist orient */
 GtkWidget *handle; /* The handle box */
@@ -755,14 +759,15 @@ create_applet (void)
 gint
 main (gint argc, gchar *argv[])
 {
-	/* Initialize i18n */
-	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
-	textdomain (PACKAGE);
-	
 	applet_widget_init ("tasklist_applet",
 			    VERSION,
 			    argc, argv,
 			    NULL, 0, NULL);
+
+	/* Initialize i18n */
+	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+	textdomain (PACKAGE);
+	
 
 	gdk_rgb_set_verbose (TRUE);
 
@@ -794,8 +799,7 @@ main (gint argc, gchar *argv[])
 	return 0;
 }
 
-#include "gwmh.c"
-#include "gstc.c"
+
 
 
 
