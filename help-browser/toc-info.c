@@ -81,7 +81,8 @@ void expandInfoRoot(GtkWidget *item)
     char last[BUFSIZ];
     DIR *d;
     struct dirent *dirp;
-    GList *list, *listItem;
+    GList *list = NULL;
+    GList *listItem;
     char *s;
 
     if (gtk_object_get_data(GTK_OBJECT(item), "expanded")) {
