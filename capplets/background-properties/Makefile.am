@@ -23,3 +23,5 @@ EXTRA_DIST = background-properties.desktop
 sysdir = $(datadir)/control-center/Workspace
 sys_DATA = background-properties.desktop 
 
+install-exec-hook:
+	ln -s $(bindir)/background-properties-capplet $(bindir)/background-properties-init

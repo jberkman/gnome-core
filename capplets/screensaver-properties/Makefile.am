@@ -6,6 +6,9 @@ INCLUDES = -I. -I$(srcdir) 				\
 
 bin_PROGRAMS = screensaver-properties-capplet
 
+install-exec-hook:
+	ln -s $(bindir)/screensaver-properties-capplet $(bindir)/screensaver-properties-init
+
 screensaver_properties_capplet_SOURCES = \
 	screensaver-properties-capplet.c	\
 	callbacks.c				\
@@ -27,3 +30,4 @@ SUBDIRS=screensaver-desktops
 
 sysdir = $(datadir)/control-center/Workspace
 sys_DATA = screensaver-properties.desktop
+
