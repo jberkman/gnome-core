@@ -26,6 +26,7 @@ Comment[el]=Φυλλομέτρηση των βοηθημάτων εκκίνησης
 Comment[fi]=Selaa aloitusvihjeitδ
 Comment[fr]=Naviguer dans les astuces de dιmarrage
 Comment[lt]=Narπyti pradώios patarimus
+Comment[no]=Bla gjennom oppstartstips
 Comment[sv]=Blδddra uppstartstipsen
 Comment[zh_TW.Big5]=Βsψ°±Ò°Κ΄£₯ά
 Exec=gnome-hint --browse-hints

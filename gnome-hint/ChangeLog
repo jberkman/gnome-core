@@ -1,3 +1,7 @@
+2000-11-02  Kjartan Maraas  <kmaraas@gnome.org>
+
+	* gnome-hints.desktop: Added "no" comment.
+	
 Wed Aug 30 16:03:55 2000  George Lebl <jirka@5z.com>
 
 	* gnome-hint-properties.c: fix sensitivities of widgets and
