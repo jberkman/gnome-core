@@ -4,3 +4,4 @@ Makefile.in
 index.html
 gnome-terminal.junk
 *.ced
+omf_timestamp
