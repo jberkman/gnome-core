@@ -1,3 +1,13 @@
+1998-05-22  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* parseUrl.c (decomposeUrlRelative): handle NULL ref
+
+	* window.c: added accelerators for ' ', 'b', 'g'
+	A total hack, but works.
+
+	* window.c (makeEntryArea): disconnect the combobox
+	activate signal so it doesn't pop down on Enter.
+
 1998-05-15  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* check-running.c (send_command_to_running): Use SA_NODEFER

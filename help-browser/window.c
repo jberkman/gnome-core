@@ -27,11 +27,7 @@
 #include "misc.h"
 
 /* Toolbar pixmaps */
-#include "right_arrow.xpm"
-#include "left_arrow.xpm"
 #include "contents.xpm"
-#include "help.xpm"
-#include "reload.xpm"
 
 #define IMAGE_TEMPFILE "/tmp/gnome-help-browser.tmpfile"
 
@@ -61,6 +57,9 @@ struct _helpWindow {
     /* status bar */
     GtkWidget *statusBar;
 
+    /* Bogus widgets used by accel table */
+    GtkWidget *accelWidget;
+    
     /* Passed to us by the main program */
     HelpWindowCB about_cb;
     HelpWindowCB new_window_cb;
@@ -99,6 +98,10 @@ static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowBookmarks (GtkWidget *w, HelpWindow win);
 static void entryChanged(GtkWidget *w, HelpWindow win);
 static void setCurrent(HelpWindow w);
+
+static void pageUp(GtkWidget *w, HelpWindow win);
+static void pageDown(GtkWidget *w, HelpWindow win);
+static void focusEnter(GtkWidget *w, HelpWindow win);
 
 static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
@@ -406,10 +409,6 @@ setCurrent(HelpWindow w)
 static void
 init_toolbar(HelpWindow w)
 {
-        toolbar[0].user_data = w->helpWidget;  /* Back */
-	toolbar[1].user_data = w->helpWidget;  /* Forw */
-	toolbar[3].user_data = w->helpWidget;  /* Help */
-	
 	gnome_app_create_toolbar_with_data(GNOME_APP(w->app), toolbar, w);
 
 	w->tb_back = toolbar[0].widget;
@@ -444,6 +443,8 @@ makeEntryArea(HelpWindow w)
     gtk_widget_show(entry);
     gtk_signal_connect(GTK_OBJECT(GTK_COMBO(entry)->entry),
 		       "activate", (GtkSignalFunc)entryChanged, w);
+    gtk_signal_disconnect(GTK_OBJECT(GTK_COMBO(entry)->entry),
+			  GTK_COMBO(entry)->activate_id);
     
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
@@ -560,7 +561,58 @@ helpWindowClose(HelpWindow win)
     if (win->humanRef)
 	g_free(win->humanRef);
     queue_free(win->queue);
+    gtk_widget_destroy(win->accelWidget);
     g_free(win);
+}
+
+static void init_accel(HelpWindow win)
+{
+    GtkAcceleratorTable *accelTable;
+
+    /* What a hack this is.  I'm sure there is a better way */
+    win->accelWidget = gtk_button_new_with_label("accelWidget");
+    gtk_widget_realize(win->accelWidget);
+    gtk_widget_ref(win->accelWidget);
+
+    gtk_signal_connect(GTK_OBJECT(win->accelWidget), "pressed",
+		       GTK_SIGNAL_FUNC(pageUp), win);
+    gtk_signal_connect(GTK_OBJECT(win->accelWidget), "released",
+		       GTK_SIGNAL_FUNC(pageDown), win);
+    gtk_signal_connect(GTK_OBJECT(win->accelWidget), "enter",
+		       GTK_SIGNAL_FUNC(focusEnter), win);
+    
+    accelTable = gtk_object_get_data(GTK_OBJECT(win->app),
+				     "GtkAcceleratorTable");
+    gtk_accelerator_table_install(accelTable,
+				  GTK_OBJECT(win->accelWidget), "pressed",
+				  'b', 0);
+    gtk_accelerator_table_install(accelTable,
+				  GTK_OBJECT(win->accelWidget), "released",
+				  ' ', 0);
+    gtk_accelerator_table_install(accelTable,
+				  GTK_OBJECT(win->accelWidget), "enter",
+				  'g', 0);
+}
+
+static void pageUp(GtkWidget *w, HelpWindow win)
+{
+    GtkAdjustment *adj;
+    
+    adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
+    gtk_adjustment_set_value(adj, adj->value - (adj->page_size));
+}
+
+static void pageDown(GtkWidget *w, HelpWindow win)
+{
+    GtkAdjustment *adj;
+    
+    adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
+    gtk_adjustment_set_value(adj, adj->value + (adj->page_size));
+}
+
+static void focusEnter(GtkWidget *w, HelpWindow win)
+{
+    gtk_widget_grab_focus(GTK_WIDGET(win->entryBox));
 }
 
 HelpWindow
@@ -592,7 +644,8 @@ helpWindowNew(gchar *name,
 	w->Title    = NULL;
 
 	w->app = gnome_app_new (name, "Gnome Help Browser");
-	gtk_window_set_wmclass (GTK_WINDOW (w->app), "GnomeHelpBrowser", "GnomeHelpBrowser");
+	gtk_window_set_wmclass (GTK_WINDOW (w->app), "GnomeHelpBrowser",
+				"GnomeHelpBrowser");
 	gtk_widget_realize (w->app);
 
 	gtk_signal_connect (GTK_OBJECT (w->app), "delete_event",
@@ -614,6 +667,9 @@ helpWindowNew(gchar *name,
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();
 	gtk_widget_show(w->helpWidget);
+
+	/* Add accelerators */
+	init_accel(w);
 					
 	/* add a status bar */
 	w->statusBar = gtk_statusbar_new();
@@ -650,7 +706,6 @@ helpWindowNew(gchar *name,
 
 	gtk_window_set_policy(GTK_WINDOW(w->app), TRUE, TRUE, FALSE);
 	gtk_widget_show(w->app);
-	gtk_widget_grab_focus (GTK_WIDGET (w->entryBox));
 	
 	return w;
 }
@@ -723,6 +778,8 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 	  const char *title = XmHTMLGetTitle(GTK_WIDGET(win->helpWidget));
 	  if (!title) title = "";
 	}
+
+	gtk_widget_grab_focus(GTK_XMHTML(win->helpWidget)->html.vsb);
 }
 
 GtkWidget 

@@ -57,7 +57,7 @@ DecomposedUrl decomposeUrlRelative(gchar *url, gchar *ref, gchar **resolved)
     gchar *s;
 
     strcpy(urlBuf, url);
-    strcpy(refBuf, ref);
+    strcpy(refBuf, ref ? ref : "");
     s = HTParse(urlBuf, refBuf, PARSE_ALL);
     res = decomposeUrl(s);
     if (resolved) {
