@@ -1,5 +1,6 @@
 /* main.c - Main program for desktop properties application.  */
 
+#include <config.h>
 #include <stdio.h>
 
 #include "gnome.h"
@@ -145,6 +146,7 @@ property_main (int argc, char *argv [])
 
 	gtk_init (&argc, &argv);
 	gnome_init (&argc, &argv);
+	textdomain (PACKAGE);
 
 	display_config = gnome_property_configurator_new ();
 	application_register (display_config);

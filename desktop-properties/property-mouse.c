@@ -1,8 +1,10 @@
 /* property-mouse.c - Property page for configuring the mouse.  */
 
+#include <config.h>
 #include <X11/Xlib.h>
 #include <assert.h>
 
+#include "gnome.h"
 #include "gnome-desktop.h"
 #include "gdkx.h"
 

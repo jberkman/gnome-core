@@ -1,5 +1,7 @@
 /* app-mouse.c - Mouse configuration application.  */
 
+#include <config.h>
+#include "gnome.h"
 #include "gnome-desktop.h"
 
 char *

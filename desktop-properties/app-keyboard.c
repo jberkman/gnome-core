@@ -1,5 +1,7 @@
 /* app-keyboard.c - Keyboard configuration application.  */
 
+#include <config.h>
+#include "gnome.h"
 #include "gnome-desktop.h"
 
 char *

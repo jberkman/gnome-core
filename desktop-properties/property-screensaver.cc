@@ -3,18 +3,21 @@
  * Written by Radek Doulik, 1997 <doulik@karlin.mff.cuni.cz>
  */
 
+#include <config.h>
 #include "property-screensaver.h"
 #include "xlockmore.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <gtk/gtk.h>
+/*
 #ifdef HAVE_LIBINTL
 #include <libintl.h>
 #define _(String) gettext(String)
 #else
 #define _(String) (String)
 #endif
+*/
 #include "gnome.h"
 #include "gnome-desktop.h"
 

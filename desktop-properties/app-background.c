@@ -1,5 +1,7 @@
 /* app-background.c - Background/Screensaver configuration application.  */
 
+#include <config.h>
+#include "gnome.h"
 #include "gnome-desktop.h"
 
 char *
