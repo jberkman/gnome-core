@@ -1,5 +1,9 @@
 2000-05-04  Jacob Berkman  <jacob@helixcode.com>
 
+	* history.c (createHistoryWindow): 
+	* bookmarks.c (createBookmarksWindow): pass a pointer, not a pointer to
+	a pointer (duh)
+
 	* gnome-help-browser.c (main): set the default icon
 
 	* history.c (createHistoryWindow): 

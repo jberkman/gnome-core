@@ -229,7 +229,7 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
     /* Main Window */
     *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(*window), _("Gnome Help Bookmarks"));
-    gnome_window_icon_set_from_default (GTK_WINDOW (window));
+    gnome_window_icon_set_from_default (GTK_WINDOW (*window));
     gtk_widget_set_usize (*window, 500, 200);
 
     /* Vbox */
