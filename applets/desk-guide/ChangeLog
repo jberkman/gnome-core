@@ -1,3 +1,7 @@
+2001-09-01  Darin Adler  <darin@bentspoon.com>
+
+	* gwmh.h: A bit of porting to GNOME 2.
+
 2001-06-20  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* gwmthumbnail.c: Fix code to be triggered by failure to

@@ -21,23 +21,11 @@
 #ifndef __GWMH_H__
 #define __GWMH_H__
 
-#include	<gnome.h>
+#include <gtk/gtkwindow.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/* FIXME: this works around old glib versions (pre 1.2.2) */
-#undef G_GNUC_FUNCTION
-#undef G_GNUC_PRETTY_FUNCTION
-#ifdef  __GNUC__
-#define G_GNUC_FUNCTION         __FUNCTION__
-#define G_GNUC_PRETTY_FUNCTION  __PRETTY_FUNCTION__
-#else   /* !__GNUC__ */
-#define G_GNUC_FUNCTION         ""
-#define G_GNUC_PRETTY_FUNCTION  ""
-#endif  /* !__GNUC__ */
-
 
 /* --- preinitialized Atoms --- */
 extern gulong GWMHA_WIN_SUPPORTING_WM_CHECK;
@@ -189,7 +177,9 @@ struct _GwmhTask
   /* window's state and hints */
   GwmhState        gstate;
   GwmhHints        ghints;
+#ifdef GNOME2_CONVERSION_COMPLETE
   GnomeWinAppState app_state;
+#endif
   guint            focused : 1;
   guint		   iconified : 1;
   
@@ -328,8 +318,10 @@ void		gwmh_task_set_ghint_flags	(GwmhTask	 *task,
 						 GwmhHints        flags);
 void		gwmh_task_unset_ghint_flags	(GwmhTask	 *task,
 						 GwmhHints	  flags);
+#ifdef GNOME2_CONVERSION_COMPLETE
 void		gwmh_task_set_app_state		(GwmhTask	 *task,
 						 GnomeWinAppState app_state);
+#endif
 void		gwmh_task_set_layer		(GwmhTask	 *task,
 						 GwmhLayer        layer);
 void		gwmh_task_set_desktop		(GwmhTask	 *task,
