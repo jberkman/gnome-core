@@ -1,3 +1,8 @@
+Tue Dec 05 20:09:51 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c: bind signals on applet-widget before we call
+	  applet_widget_add to avoid a race.
+
 Wed Nov 15 00:14:47 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_icon.c:  Fixed possible crash and a leak and push/pop trap

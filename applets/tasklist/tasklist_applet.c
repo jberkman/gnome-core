@@ -833,6 +833,16 @@ create_applet (void)
 	
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox);
+
+	/* we must bind signals BEFORE applet_widget_add to avoid
+	 * a race */
+	gtk_signal_connect (GTK_OBJECT (applet), "change-orient",
+			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
+	gtk_signal_connect (GTK_OBJECT (applet), "save-session",
+			    GTK_SIGNAL_FUNC (write_config), NULL);
+	gtk_signal_connect (GTK_OBJECT (applet), "change-pixel-size",
+			    GTK_SIGNAL_FUNC (cb_change_pixel_size), NULL);
+
 	applet_widget_add (APPLET_WIDGET (applet), hbox);
 	
 	handle = gtk_handle_box_new ();
@@ -861,13 +871,6 @@ create_applet (void)
 			    
 	gtk_drag_dest_set (GTK_WIDGET (area), 0,
 	 		   NULL, 0, GDK_ACTION_COPY);  
-
-	gtk_signal_connect (GTK_OBJECT (applet), "change-orient",
-			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
-	gtk_signal_connect (GTK_OBJECT (applet), "save-session",
-			    GTK_SIGNAL_FUNC (write_config), NULL);
-	gtk_signal_connect (GTK_OBJECT (applet), "change-pixel-size",
-			    GTK_SIGNAL_FUNC (cb_change_pixel_size), NULL);
 
 	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "properties",
