@@ -19,9 +19,9 @@
 #include <time.h>
 #include <gnome.h>
 #include <gdk/gdkx.h>
-#include <applet-lib.h>
-#include <applet-widget.h>
-#include "../panel.h"
+#include "applet-lib.h"
+#include "applet-widget.h"
+#include "panel.h"
 
 #define CLOCK_DATA "clock_data"
 
@@ -47,6 +47,13 @@ static void
 free_data(GtkWidget *widget, gpointer data)
 {
 	g_free(data);
+}
+
+void
+do_callback(short id,
+	    const char *callback_name)
+{
+  printf("Not doing callback %s\n", callback_name);
 }
 
 static int
