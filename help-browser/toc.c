@@ -151,7 +151,7 @@ GtkWidget *createToc(GtkSignalFunc selectCallback)
 
     /* Main Window */
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_name (window, "GNOME TOC");
+    gtk_window_set_title(GTK_WINDOW(window), "Gnome Help TOC");
     gtk_widget_set_usize (window, 300, 200);
     /*gtk_widget_set_uposition (window, 20, 20);*/
     gtk_signal_connect (GTK_OBJECT (window), "destroy",
@@ -167,7 +167,6 @@ GtkWidget *createToc(GtkSignalFunc selectCallback)
 
     /* Buttons */
     button = gtk_button_new_with_label("Collapse");
-/*    gtk_container_add(GTK_CONTAINER(box), button); */
     gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
     gtk_widget_show(button);
     
@@ -176,7 +175,6 @@ GtkWidget *createToc(GtkSignalFunc selectCallback)
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_win),
 				    GTK_POLICY_AUTOMATIC,
 				    GTK_POLICY_AUTOMATIC);
-/*    gtk_container_add(GTK_CONTAINER(box), scrolled_win); */
     gtk_box_pack_start(GTK_BOX(box), scrolled_win, TRUE, TRUE, 0);
     gtk_widget_show(scrolled_win);
 

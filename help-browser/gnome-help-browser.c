@@ -34,19 +34,20 @@
 
 /* prototypes */
 static void quit_cb (GtkWidget *widget, void *data);
-static void prepare_app(char *file);
 static void about_cb(GtkWidget *widget, void *data);
-static void help_forward(GtkWidget *w, gpointer *data);
-static void help_backward(GtkWidget *w, gpointer *data);
+static void help_forward(GtkWidget *w, GtkWidget *helpwin);
+static void help_backward(GtkWidget *w, GtkWidget *helpwin);
 static void help_contents(GtkWidget *w, gpointer *data);
-static void help_onhelp(GtkWidget *w, gpointer *data);
-static void init_toolbar(GnomeHelpWin *help);
+static void help_onhelp(GtkWidget *w, GtkWidget *helpwin);
+
+static void prepare_app(char *file);
+static void init_toolbar(GnomeApp *app);
 static void update_toolbar(void);
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs);
 static void tocselectionChanged(gchar *data);
-static void ghelpShowHistory (void);
-static void ghelpHideHistory (void);
+static void ghelpShowHistory (GtkWidget *w);
 static void historyCallback (gchar *ref, GtkWidget *w);
+static void ghelpRadioMenuCB (GtkWidget *w);
 
 XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 
@@ -59,48 +60,62 @@ GtkWidget *app;
 
 /* widget for the toolbar */
 GtkWidget *tb_contents, *tb_exit, *tb_back, *tb_forw;
-GtkToolbar *toolbar;
 GtkWidget *help;
 GtkWidget *toc;
 
 GnomeUIInfo filemenu[] = {
-	{GNOME_APP_UI_ITEM, "Exit", "Exit program", quit_cb, 
+	{GNOME_APP_UI_ITEM, "Exit", "Exit program", quit_cb, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
 
 GnomeUIInfo helpmenu[] = {
 	{GNOME_APP_UI_ITEM, "About...", "Info about this program", about_cb,
+	 NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_SEPARATOR, NULL, NULL, NULL,
+	{GNOME_APP_UI_SEPARATOR, NULL, NULL, NULL, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_HELP, NULL, NULL, "help-browser", 
+	{GNOME_APP_UI_HELP, NULL, NULL, "help-browser", NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
  
-GnomeUIInfo windowmenu[] = {
-    {GNOME_APP_UI_ITEM, "Show history", "Opens the history window",
-     ghelpShowHistory, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-    {GNOME_APP_UI_ITEM, "Hide history", "Hides the history window",
-     ghelpHideHistory, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+GnomeUIInfo radiomenu[] = {
+    {GNOME_APP_UI_TOGGLEITEM, "Radio 1", "Radio button 1",
+     ghelpRadioMenuCB, (gpointer)1, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_TOGGLEITEM, "Radio 2", "Radio button 2",
+     ghelpRadioMenuCB, (gpointer)2, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_TOGGLEITEM, "Radio 3", "Radio button 3",
+     ghelpRadioMenuCB, (gpointer)3, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL, NULL, NULL,
      GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
+};
 
+GnomeUIInfo windowmenu[] = {
+    {GNOME_APP_UI_TOGGLEITEM, "Show history", "Opens the history window",
+     ghelpShowHistory, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+#if 0
+    {GNOME_APP_UI_RADIOITEMS, NULL, NULL,
+     radiomenu, NULL, NULL, GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+#endif
+    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL, NULL, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
 
 GnomeUIInfo mainmenu[] = {
-	{GNOME_APP_UI_SUBTREE, "File", NULL, filemenu, 
+	{GNOME_APP_UI_SUBTREE, "File", NULL, filemenu, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_SUBTREE, "Windows", NULL, windowmenu,
+	{GNOME_APP_UI_SUBTREE, "Windows", NULL, windowmenu, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_SUBTREE, "Help", NULL, helpmenu,
+	{GNOME_APP_UI_SUBTREE, "Help", NULL, helpmenu, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };
-
 
 int
 main(int argc, char *argv[]) {
@@ -111,15 +126,39 @@ main(int argc, char *argv[]) {
 }
 
 static void
-ghelpShowHistory (void)
+ghelpShowHistory (GtkWidget *w)
 {
-    showHistory(history);
+    if (GTK_CHECK_MENU_ITEM(w)->active == TRUE) {
+	showHistory(history);
+    } else {
+	hideHistory(history);
+    }
 }
 
 static void
-ghelpHideHistory (void)
+ghelpShowHistoryTB (GtkWidget *w)
 {
-    hideHistory(history);
+    if (GTK_TOGGLE_BUTTON(w)->active == TRUE) {
+	showHistory(history);
+    } else {
+	hideHistory(history);
+    }
+}
+
+static void
+ghelpShowHistoryTBR (GtkWidget *w, char *s)
+{
+    if (GTK_TOGGLE_BUTTON(w)->active == TRUE)
+	printf("Got radio = %s\n", s);
+}
+
+static void
+ghelpRadioMenuCB (GtkWidget *w)
+{
+    if (GTK_CHECK_MENU_ITEM(w)->active == TRUE) {
+	printf("Radio selected!  %d\n",
+	       (gint)gtk_object_get_data(GTK_OBJECT(w), "MenuData"));
+    }
 }
 
 static void
@@ -174,7 +213,7 @@ prepare_app(char *file)
 				   NULL,NULL,NULL);
 
 	/* do the toolbar */
-	init_toolbar(GNOME_HELPWIN(help));
+	init_toolbar(GNOME_APP(app));
 
 	/* make the toc browser */
 	toc = createToc((GtkSignalFunc)tocselectionChanged);
@@ -203,8 +242,8 @@ about_cb (GtkWidget *widget, void *data)
 	};
 
 	about = gnome_about_new ( "Gnome Help Browser", VERSION,
-				  /* copyrigth notice */
-				  "(C) 1998 the Free Software Foundation",
+				  /* copyright notice */
+				  "Copyright (c) 1998 Red Hat Software, Inc.",
 				  authors,
 				  /* another comments */
 				  "GNOME Help Browser allows easy access to "
@@ -229,75 +268,53 @@ tocselectionChanged(gchar *file)
 
 /* toolbar routines... */
 
+GnomeUIInfo toolbar_radiolist[] = {
+    GNOMEUIINFO_RADIOITEM_DATA("Radio A", "Radio Button A",
+			      ghelpShowHistoryTBR, "A", help_xpm),
+    GNOMEUIINFO_RADIOITEM_DATA("Radio B", "Radio Button B",
+			      ghelpShowHistoryTBR, "B", help_xpm),
+    GNOMEUIINFO_RADIOITEM_DATA("Radio C", "Radio Button C",
+			      ghelpShowHistoryTBR, "C", help_xpm),
+    GNOMEUIINFO_END
+};
+
+GnomeUIInfo toolbar[] = {
+    GNOMEUIINFO_ITEM("Contents", "Show Contents", help_contents, contents_xpm),
+    GNOMEUIINFO_SEPARATOR,
+    GNOMEUIINFO_ITEM("Back", "Go to the previous location in the history list",
+		     help_backward, right_arrow_xpm),
+    GNOMEUIINFO_ITEM("Forward", "Go to the next location in the history list",
+		     help_forward, left_arrow_xpm),
+    GNOMEUIINFO_SEPARATOR,
+    GNOMEUIINFO_ITEM("Help", "Help on Help", help_onhelp, help_xpm),
+    GNOMEUIINFO_ITEM("Close", "Close Help Window", quit_cb, close_xpm),
+    GNOMEUIINFO_SEPARATOR,
+    GNOMEUIINFO_TOGGLEITEM("History", "Toggle History Window",
+			   ghelpShowHistoryTB, contents_xpm),
+    GNOMEUIINFO_SEPARATOR,
+#if 0
+    GNOMEUIINFO_RADIOLIST(toolbar_radiolist),
+#endif
+    GNOMEUIINFO_END
+};
+
 /* grabbed partially from the old gtthelp.c */
 static void
-init_toolbar(GnomeHelpWin *help)
+init_toolbar(GnomeApp *app)
 {
         GtkWidget *w, *pixmap;
         GtkToolbar *tbar;
 
-        tbar = (GtkToolbar *)gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
-                                             GTK_TOOLBAR_BOTH);
+	toolbar[5].user_data = help;
+	toolbar[2].user_data = help;
+	toolbar[3].user_data = help;
+	
+	gnome_app_create_toolbar(app, toolbar);
 
-        pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
-                                              GTK_WIDGET(tbar),
-                                              contents_xpm);
-        w = gtk_toolbar_append_item(tbar, "Contents", "Show Contents", NULL,
-                                    pixmap, NULL, NULL);
-        tb_contents = w;
-        gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
-                                  GTK_SIGNAL_FUNC(help_contents),
-                                  GTK_OBJECT(help));
-
-        gtk_toolbar_append_space(tbar);
-
-        pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
-                                              GTK_WIDGET(tbar),
-                                              right_arrow_xpm);
-        w = gtk_toolbar_append_item(tbar, "Back",
-                                    "Go to the previouse location "
-                                    "in history list", NULL,
-                                    pixmap, NULL, NULL);
-        tb_back = w;
-        gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
-                                  GTK_SIGNAL_FUNC(help_backward),
-                                  GTK_OBJECT(help));
-
-        pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
-                                              GTK_WIDGET(tbar),
-                                              left_arrow_xpm);
-        w = gtk_toolbar_append_item(tbar, "Forward",
-                                    "Go to the next location in history list", NULL,
-                                    pixmap, NULL, NULL);
-        tb_forw = w;
-        gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
-                                  GTK_SIGNAL_FUNC(help_forward),
-                                  GTK_OBJECT(help));
-
-        gtk_toolbar_append_space(tbar);
-
-        pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
-                                              GTK_WIDGET(tbar),
-                                              help_xpm);
-        w = gtk_toolbar_append_item(tbar, "Help", "Help on Help", NULL,
-                                    pixmap, NULL, NULL);
-        gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
-                                  GTK_SIGNAL_FUNC(help_onhelp),
-                                  GTK_OBJECT(help));
-
-        pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
-                                              GTK_WIDGET(tbar),
-                                              close_xpm);
-        w = gtk_toolbar_append_item(tbar, "Close", "Close Help Window", NULL,
-                                    pixmap, NULL, NULL);
-        gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
-                                  GTK_SIGNAL_FUNC(quit_cb),
-                                  GTK_OBJECT(help));
-
-        gnome_app_set_toolbar(GNOME_APP(app), tbar);
-
-        toolbar = tbar;
-
+	tb_contents = toolbar[0].widget;
+	tb_back = toolbar[2].widget;
+	tb_forw = toolbar[3].widget;
+	
 	update_toolbar();
 }
 
@@ -314,25 +331,25 @@ update_toolbar(void)
 }
 
 
-static void help_forward(GtkWidget *w, gpointer *data) {
+static void help_forward(GtkWidget *w, GtkWidget *helpwin) {
 	gchar *ref;
 
 	if (!(ref=queue_next(queue)))
 		return;
 	else
-		visitURL_nohistory(GNOME_HELPWIN(w),ref);
+		visitURL_nohistory(GNOME_HELPWIN(helpwin),ref);
 
 
 	update_toolbar();
 }
 
-static void help_backward(GtkWidget *w, gpointer *data) {
+static void help_backward(GtkWidget *w, GtkWidget *helpwin) {
 	gchar *ref;
 
 	if (!(ref=queue_prev(queue)))
 		return;
 	else
-		visitURL_nohistory(GNOME_HELPWIN(w),ref);
+		visitURL_nohistory(GNOME_HELPWIN(helpwin),ref);
 
 	update_toolbar();
 }
@@ -341,7 +358,7 @@ static void help_contents(GtkWidget *w, gpointer *data) {
 	return;
 }
 
-static void help_onhelp(GtkWidget *w, gpointer *data) {
+static void help_onhelp(GtkWidget *w, GtkWidget *helpwin) {
 	gchar *p, *q;
 
 	p = gnome_help_file_path("help-browser", "help-browser.html");
@@ -352,7 +369,7 @@ static void help_onhelp(GtkWidget *w, gpointer *data) {
 	strcat(q, p);
 	printf("Loading help from ->%s<-\n",q);
 	g_free(p);
-	visitURL(GNOME_HELPWIN(w), q);
+	visitURL(GNOME_HELPWIN(helpwin), q);
 	return;
 }
 

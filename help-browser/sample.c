@@ -29,25 +29,26 @@ GtkWidget *app;
 
 /* The menu definitions: File/Exit and Help/About are mandatory */
 GnomeUIInfo filemenu[] = {
-	{GNOME_APP_UI_ITEM, "Exit", "Exit program", quit_cb,
+	{GNOME_APP_UI_ITEM, "Exit", "Exit program", quit_cb, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };
 
 GnomeUIInfo helpmenu[] = {
-	{GNOME_APP_UI_ITEM, "About...", "Info about this program", about_cb, 
+	{GNOME_APP_UI_ITEM, "About...", "Info about this program", about_cb,
+	 NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_SEPARATOR, NULL, NULL, NULL,
+	{GNOME_APP_UI_SEPARATOR, NULL, NULL, NULL, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_HELP, NULL, NULL, "sample-help",
+	{GNOME_APP_UI_HELP, NULL, NULL, "sample-help", NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };
  
 GnomeUIInfo mainmenu[] = {
-	{GNOME_APP_UI_SUBTREE, "File", NULL, filemenu,
+	{GNOME_APP_UI_SUBTREE, "File", NULL, filemenu, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-	{GNOME_APP_UI_SUBTREE, "Help", NULL,  helpmenu,
+	{GNOME_APP_UI_SUBTREE, "Help", NULL,  helpmenu, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };

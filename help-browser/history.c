@@ -140,10 +140,11 @@ static void createHistoryWindow(History h, GtkWidget **window,
 
     /* Main Window */
     *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_name (*window, "Gnome Help History");
+    gtk_window_set_title(GTK_WINDOW(*window), "Gnome Help History");
     gtk_widget_set_usize (*window, 500, 200);
 
     /* Vbox */
+    /* Don't need this now but might be used later.  I'll leave it */
     box = gtk_vbox_new(FALSE, 5);
     gtk_container_border_width (GTK_CONTAINER (box), 5);
     gtk_container_add(GTK_CONTAINER(*window), box);
@@ -165,8 +166,8 @@ static void createHistoryWindow(History h, GtkWidget **window,
     gtk_clist_set_column_width(GTK_CLIST(*clist), 0, 300);
     gtk_clist_set_column_width(GTK_CLIST(*clist), 1, 100);
     gtk_clist_set_column_width(GTK_CLIST(*clist), 2, 50);
-    
-    gtk_container_add(GTK_CONTAINER(box), *clist);
+
+    gtk_box_pack_start(GTK_CONTAINER(box), *clist, TRUE, TRUE, 0);
     gtk_widget_show(*clist);
 
     /* Set callbacks */
