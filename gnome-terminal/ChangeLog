@@ -10,6 +10,11 @@
 
 1998-11-20  Manish Vachharajani <mvachhar@vger.rutgers.edu>
 
+	* gnome-terminal.c: Made session management work, except for 
+	                    transparency.
+
+1998-11-20  Manish Vachharajani <mvachhar@vger.rutgers.edu>
+
 	* gnome-terminal.c: Add ability to turn the terminal bell on and off
 	
 1998-11-12  Miguel de Icaza  <miguel@nuclecu.unam.mx>
