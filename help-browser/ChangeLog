@@ -1,3 +1,9 @@
+1998-10-09  Michael Lausch  <mla@gams.at>
+
+	* Made ghnome-help-browser CORBA aware and added a small test
+	application gnome-help-caller, which resets the help browser to
+	the "toc:" entry.
+
 Sun Sep 20 15:20:10 1998  Ettore Perazzoli  <ettore@comm2000.it>
 
 	* toc2-ghelp.c (compareItems): Made `qsort()'-compatible (type of

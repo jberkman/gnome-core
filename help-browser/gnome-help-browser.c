@@ -25,6 +25,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <orb/orbit.h>
+#include <libgnorba/gnorba.h>
+
 #include "window.h"
 #include "history.h"
 #include "bookmarks.h"
@@ -141,20 +144,54 @@ show_requested_url(char *url)
 }
 #endif
 
+void Exception( CORBA_Environment* ev )
+{
+  switch( ev->_major )
+    {
+    case CORBA_SYSTEM_EXCEPTION:
+      g_log("GNOME Help", G_LOG_LEVEL_DEBUG, "CORBA system exception %s.\n",
+	       CORBA_exception_id(ev));
+      exit ( 1 );
+    case CORBA_USER_EXCEPTION:
+      g_log("GNOME Help", G_LOG_LEVEL_DEBUG, "CORBA user exception: %s.\n",
+	       CORBA_exception_id( ev ) );
+      exit ( 1 );
+    default:
+      break;
+    }
+}
+
 int
 main(int argc, char *argv[])
 {
-    HelpWindow window;
-    gchar buf[BUFSIZ];
-
+    HelpWindow                  window;
+    gchar                       buf[BUFSIZ];
+    CORBA_ORB                   orb;
+    CORBA_Environment           ev;
+    PortableServer_POA          root_poa;
+    PortableServer_POAManager   pm;
+    CORBA_Object                browser_object;
+    CORBA_Object                name_service;
+    gchar*                      objref;
+    CosNaming_NameComponent nc[3] = {{"GNOME", "subcontext"},
+				     {"Servers", "subcontext"}};
+    CosNaming_Name nom = {0, 3, nc, CORBA_FALSE};
+    
+    
+    CORBA_exception_init(&ev);
     argp_program_version = HELP_VERSION;
-
+    
     /* Initialize the i18n stuff */
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
-    gnome_init(NAME, &parser, argc, argv, 0, NULL);
+    orb = gnome_CORBA_init(NAME, &parser, &argc, argv, 0, NULL, &ev);
+    Exception(&ev);
+    
+    root_poa = CORBA_ORB_resolve_initial_references(orb, "RootPOA", &ev);
+    Exception(&ev);
 
+    
 /* enable session management here */
 #if 0
     smClient = NULL;
@@ -163,7 +200,7 @@ main(int argc, char *argv[])
     smClient = newGnomeClient();
 #endif
 
-#ifdef UGLY_LE_HACK
+#if 0 /*def UGLY_LE_HACK */
     if (send_command_to_running(helpURL, show_requested_url)) {
 	exit(0);
     }
@@ -190,7 +227,32 @@ main(int argc, char *argv[])
     bookmarkWindow = newBookmarks(bookmarkCallback, NULL, buf);
 
     window = makeHelpWindow(defposx, defposy, defwidth, defheight );
-#ifdef UGLY_LE_HACK
+
+    browser_object = impl_help_browser_simple_browser__create(root_poa, window, &ev);
+    Exception(&ev);
+    
+    objref = CORBA_ORB_object_to_string(orb, browser_object, &ev);
+    Exception(&ev);
+
+    fprintf(stderr,"gnome-help-browser: objref = '%s'\n", objref);
+    name_service = gnome_name_service_get();
+    g_assert(name_service != CORBA_OBJECT_NIL);
+
+    nc[2].id = "help-browser";
+    nc[2].kind = "object";
+
+    CosNaming_NamingContext_bind(name_service, &nom, browser_object, &ev);
+    if (ev._major != CORBA_NO_EXCEPTION && strcmp(CORBA_exception_id(&ev), ex_CosNaming_NamingContext_AlreadyBound) == 0)
+      CosNaming_NamingContext_rebind(name_service, &nom, browser_object, &ev);
+    Exception(&ev);
+    
+    pm = PortableServer_POA__get_the_POAManager(root_poa, &ev);
+    Exception(&ev);
+
+    PortableServer_POAManager_activate(pm, &ev);
+    Exception(&ev);
+
+#if 0
     ahelpwindow=window;
 #endif
 
@@ -206,7 +268,10 @@ main(int argc, char *argv[])
     saveHistory(historyWindow);
     saveBookmarks(bookmarkWindow);
     saveCache(cache);
-	
+
+    CosNaming_NamingContext_unbind(name_service, &nom, &ev);
+    Exception(&ev);
+    
     return 0;
 }
 

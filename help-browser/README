@@ -26,6 +26,19 @@ The program 'gnome-man2html' is installed in the standard bin location
 for GNOME binaries, and is used by the help browser. Also, lynx is
 expected to be on the standard PATH for http transfers.
 
+
+UPDATE (1998-10-09)
+--------------------
+Now the gnome-help-browser is CORBA aware. Copy the brwoser.goad file
+into the $(PREFIX)/etc/CORBA/servers directory. Now you can reset the
+gnome-help-browser with the gnome-help-caller program to its startup
+entry (toc:). Use the source of gnome-help-caller as an example how to 
+control the help browser from other applications. The CORBA interface
+is subject to change, this is a first implementation.
+
+Michael Lausch <mla@gams.at>
+
+
 [ TODO moved to TODO ]
 
 Dr Mike <msf@redhat.com>

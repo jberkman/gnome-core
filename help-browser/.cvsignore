@@ -1,6 +1,15 @@
-Makefile.in
-Makefile
-.deps
-gnome-help-browser
-sample
 
+.deps
+Makefile
+Makefile.in
+gnome-help-browser
+gnome-help-caller
+help-browser-common.c
+help-browser-skels.c
+help-browser-stubs.c
+help-browser.h
+name-common.c
+name-skels.c
+name-stubs.c
+name.h
+sample
