@@ -240,7 +240,7 @@ init_toolbar(GnomeHelpWin *help)
         pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
                                               GTK_WIDGET(tbar),
                                               contents_xpm);
-        w = gtk_toolbar_append_item(tbar, "Contents", "Show Contents",
+        w = gtk_toolbar_append_item(tbar, "Contents", "Show Contents", NULL,
                                     pixmap, NULL, NULL);
         tb_contents = w;
         gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
@@ -254,7 +254,7 @@ init_toolbar(GnomeHelpWin *help)
                                               right_arrow_xpm);
         w = gtk_toolbar_append_item(tbar, "Back",
                                     "Go to the previouse location "
-                                    "in history list",
+                                    "in history list", NULL,
                                     pixmap, NULL, NULL);
         tb_back = w;
         gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
@@ -265,7 +265,7 @@ init_toolbar(GnomeHelpWin *help)
                                               GTK_WIDGET(tbar),
                                               left_arrow_xpm);
         w = gtk_toolbar_append_item(tbar, "Forward",
-                                    "Go to the next location in history list",
+                                    "Go to the next location in history list", NULL,
                                     pixmap, NULL, NULL);
         tb_forw = w;
         gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
@@ -277,7 +277,7 @@ init_toolbar(GnomeHelpWin *help)
         pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
                                               GTK_WIDGET(tbar),
                                               help_xpm);
-        w = gtk_toolbar_append_item(tbar, "Help", "Help on Help",
+        w = gtk_toolbar_append_item(tbar, "Help", "Help on Help", NULL,
                                     pixmap, NULL, NULL);
         gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
                                   GTK_SIGNAL_FUNC(help_onhelp),
@@ -286,7 +286,7 @@ init_toolbar(GnomeHelpWin *help)
         pixmap = gnome_create_pixmap_widget_d(GTK_WIDGET(app),
                                               GTK_WIDGET(tbar),
                                               close_xpm);
-        w = gtk_toolbar_append_item(tbar, "Close", "Close Help Window",
+        w = gtk_toolbar_append_item(tbar, "Close", "Close Help Window", NULL,
                                     pixmap, NULL, NULL);
         gtk_signal_connect_object(GTK_OBJECT(w), "clicked",
                                   GTK_SIGNAL_FUNC(quit_cb),
