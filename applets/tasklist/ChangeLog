@@ -1,3 +1,11 @@
+1999-09-11  Anders carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c
+	  tasklist_applet.h
+	  tasklist_config.c
+	  tasklist_properties.c: We can now change the width when 
+	  a vertical panel is used
+
 1999-09-11  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_properties.c: We now set a window title

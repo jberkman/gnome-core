@@ -36,6 +36,7 @@ struct _TasklistConfig {
 
 	/* Stuff for vertical mode */
 	gint height; /* The height of the tasklist */
+	gint horz_width; /* The width of the tasklist */
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);

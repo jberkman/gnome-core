@@ -281,7 +281,7 @@ layout_tasklist (void)
 	case ORIENT_RIGHT:
 		
 		curheight = ROW_HEIGHT;
-		curwidth = 44;
+		curwidth = Config.horz_width;
 		
 		num_cols = 1;
 		num_rows = num;
@@ -502,10 +502,10 @@ change_size (void)
 	case ORIENT_RIGHT:
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
 		gtk_widget_set_usize (handle, 
-				      48,
+				      Config.horz_width,
 				      DRAG_HANDLE_SIZE + Config.height);
 		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       48,
+				       Config.horz_width,
 				       Config.height);
 		layout_tasklist ();
 	}

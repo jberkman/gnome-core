@@ -123,13 +123,21 @@ create_geometry_page (void)
 	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
 
 	gtk_box_pack_start (GTK_BOX (vbox),
-				     create_spin_button (_("Tasklist height"),
-							 &PropsConfig.height,
-							 48,
-							 1024,
-							 10),
+			    create_spin_button (_("Tasklist height"),
+						&PropsConfig.height,
+						48,
+						1024,
+						10),
 			    FALSE, TRUE, 0);
 
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_spin_button (_("Tasklist width"),
+						&PropsConfig.horz_width,
+						48,
+						512,
+						10),
+			    FALSE, TRUE, 0);
+			    
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), hbox,
