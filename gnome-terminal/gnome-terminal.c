@@ -22,6 +22,9 @@ char **env;
 #define DEFAULT_FONT "-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1"
 #define EXTRA 2
 
+/* Name of section to discard if --discard given.  */
+static char *discard_section = NULL;
+
 /* Font used by the terminals */
 char *font = NULL;
 
@@ -57,6 +60,10 @@ int blink;
 
 /* Initial command */
 char **initial_command = NULL;
+
+/* This is the terminal associated with the initial command, or NULL
+   if there isn't one.  */
+GtkWidget *initial_term = NULL;
 
 /* A list of all the open terminals */
 GList *terminals = 0;
@@ -103,12 +110,15 @@ static void
 close_app (GtkWidget *app) {
         terminals = g_list_remove(terminals, app);
 
+	if (app == initial_term)
+		initial_term = NULL;
+
 	gtk_widget_destroy(app);
 
 	if(terminals == NULL)
 	       gtk_main_quit();
 }
-    
+
 
 static void
 close_terminal_cmd (void *unused, void *data)
@@ -116,6 +126,8 @@ close_terminal_cmd (void *unused, void *data)
 	GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (data));
 
 	terminals = g_list_remove (terminals, top);
+	if (top == initial_term)
+		initial_term = NULL;
 	gtk_widget_destroy (gtk_widget_get_toplevel (GTK_WIDGET (data)));
 	if (terminals == NULL)
 		gtk_main_quit ();
@@ -801,6 +813,9 @@ new_terminal_cmd (char **cmd)
 	app = gnome_app_new ("Terminal", "Terminal");
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
 
+	if (cmd != NULL)
+		initial_term = app;
+
 #ifdef ZVT_USES_MINIMAL_ALLOC
 	gtk_window_set_policy  (GTK_WINDOW (app), 1, 1, 1);
 #else
@@ -946,6 +961,119 @@ terminal_load_defaults (void)
 	}
 }
 
+static gboolean
+load_session (GnomeClient *client)
+{
+	int num_terms, i;
+	gboolean def;
+
+	gnome_config_push_prefix (gnome_client_get_config_prefix (client));
+
+	num_terms = gnome_config_get_int_with_default ("dummy/num_terms", &def);
+	if (def || ! num_terms)
+		return FALSE;
+
+	for (i = 0; i < num_terms; ++i) {
+		char buffer[50], *geom, **argv;
+		int argc;
+
+		sprintf (buffer, "%d/geometry", i);
+		geom = gnome_config_get_string (buffer);
+
+		sprintf (buffer, "%d/command", i);
+		gnome_config_get_vector (buffer, &argc, &argv);
+
+		geometry = geom;
+		new_terminal_cmd (argv);
+
+		g_free (geom);
+		gnome_string_array_free (argv);
+	}
+
+	return TRUE;
+}
+
+/* Save terminal in this session.  FIXME: should save all terminal
+   windows, but currently does not.  */
+static gint
+save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
+	      gint is_shutdown, GnomeInteractStyle interact_style,
+	      gint is_fast, gpointer client_data)
+{
+	if (gnome_client_get_id (client)) {
+		char *section = gnome_client_get_config_prefix (client);
+		char *args[11];
+		int argc = 0, d1, d2, i;
+		GList *list;
+
+		gnome_config_clean_file (section);
+		gnome_config_push_prefix (section);
+
+		i = 0;
+		for (list = terminals; list != NULL; list = list->next) {
+			/* FIXME: we really ought to be able to set
+			   the font and other information on a
+			   per-terminal basis.  But that means a lot
+			   of rewriting of this whole file, which I
+			   don't feel like doing right now.  Global
+			   variables are evil.  */
+			char buffer[50], *geom;
+			GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (list->data));
+
+			sprintf (buffer, "%d/geometry", i);
+			geom = gnome_geometry_string (top->window);
+			gnome_config_set_string (buffer, geom);
+			g_free (geom);
+
+			if (top == initial_term) {
+				int n;
+				for (n = 0; initial_command[n]; ++n)
+					;
+				sprintf (buffer, "%d/command", i);
+				gnome_config_set_vector (buffer, n,
+							 initial_command);
+			}
+
+			++i;
+		}
+		gnome_config_set_int ("dummy/num_terms", i);
+
+		gnome_config_pop_prefix ();
+		gnome_config_sync ();
+
+		args[argc++] = (char *) client_data;
+		args[argc++] = "--font";
+		args[argc++] = font;
+		args[argc++] = invoke_as_login_shell ? "--login" : "--nologin";
+		args[argc++] = "--foreground";
+		args[d1 = argc++] = g_strdup (get_color_string (user_fore));
+		args[argc++] = "--background";
+		args[d2 = argc++] = g_strdup (get_color_string (user_back));
+
+		args[argc] = NULL;
+
+		gnome_client_set_restart_command (client, argc, args);
+
+		g_free (args[d1]);
+		g_free (args[d2]);
+
+		args[1] = "--discard";
+		args[2] = section;
+		args[3] = NULL;
+
+		gnome_client_set_discard_command (client, 3, args);
+	}
+
+	return TRUE;
+}
+
+static gint
+die (GnomeClient *client, gpointer client_data)
+{
+	close_all_cmd ();
+	return TRUE;
+}
+
 /* Keys for the ARGP parser, should be negative */
 enum {
 	FONT_KEY     = -1,
@@ -954,7 +1082,8 @@ enum {
 	GEOMETRY_KEY = -4,
 	COMMAND_KEY  = -5,
 	FORE_KEY     = -6,
-	BACK_KEY     = -7
+	BACK_KEY     = -7,
+	DISCARD_KEY  = -8
 };
 
 static struct argp_option argp_options [] = {
@@ -965,6 +1094,7 @@ static struct argp_option argp_options [] = {
 	{ "command",    COMMAND_KEY,  N_("COMMAND"),0,N_("Execute this program instead of a shell"), 0 },
 	{ "foreground", FORE_KEY,     N_("COLOR"),0, N_("Foreground color"), 0 },
 	{ "background", BACK_KEY,     N_("COLOR"),0, N_("Background color"), 0 },
+	{ "discard",    DISCARD_KEY,  N_("ID"),   OPTION_HIDDEN, NULL, 0 },
 	{ NULL, 0, NULL, 0, NULL, 0 },
 };
 
@@ -996,6 +1126,10 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 		back_color = arg;
 		color_set  = COLORS_CUSTOM;
 		break;
+	case DISCARD_KEY:
+		gnome_client_disable_master_connection ();
+		discard_section = arg;
+		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}
@@ -1010,6 +1144,8 @@ static struct argp parser =
 int
 main (int argc, char *argv [], char **environ)
 {
+	GnomeClient *client, *clone;
+
 	argp_program_version = VERSION;
 
 	env = environ;
@@ -1019,10 +1155,23 @@ main (int argc, char *argv [], char **environ)
 	
 	gnome_init ("Terminal", &parser, argc, argv, 0, NULL);
 
+	if (discard_section) {
+		gnome_config_clean_file (discard_section);
+		return 0;
+	}
+
+	client = gnome_master_client ();
+	gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
+			    GTK_SIGNAL_FUNC (save_session), argv[0]);
+	gtk_signal_connect (GTK_OBJECT (client), "die",
+			    GTK_SIGNAL_FUNC (die), NULL);
+
 	terminal_load_defaults ();
 
-	new_terminal_cmd (initial_command);
-	
+	clone = gnome_cloned_client ();
+	if (! clone || ! load_session (clone))
+		new_terminal_cmd (initial_command);
+
 	gtk_main ();
 	return 0;
 }

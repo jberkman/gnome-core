@@ -1,3 +1,18 @@
+Sat Jun 13 13:13:50 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* gnome-terminal.c (save_session): New function.
+	(die): New function.
+	(main): Register as session client.
+	(initial_term): New global.
+	(close_app): Clear initial_term if removing it.
+	(close_terminal_cmd): Likewise.
+	(new_terminal_cmd): Set initial_term.
+	(parse_an_arg): Recognize DISCARD_KEY.
+	(argp_options): Added --discard option.
+	(discard_section): New global.
+	(main): Handle --discard option.
+	(load_session): New function.
+
 1998-05-25  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (drop_data_available): Add support for changing
