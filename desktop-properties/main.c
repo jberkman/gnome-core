@@ -1,17 +1,15 @@
-#ifdef HAVE_LIBINTL
-#include <libintl.h>
-#define _(String) gettext(String)
-#else
-#define _(String) (String)
-#endif
+/* main.c - Main program for desktop properties application.  */
+
 #include <stdio.h>
-#include <gtk/gtk.h>
 
 #include "gnome.h"
 #include "gnome-desktop.h"
 
 GtkWidget *main_window;
 GnomePropertyConfigurator *display_config;
+
+/* The Apply button.  */
+static GtkWidget *apply_button;
 
 GtkWidget *
 get_monitor_preview_widget (GtkWidget *window)
@@ -34,6 +32,13 @@ get_monitor_preview_widget (GtkWidget *window)
 	return pwid;
 }
 
+/* Enable the Apply button.  */
+void
+property_changed (void)
+{
+  gtk_widget_set_sensitive (apply_button, TRUE);
+}
+
 static gint
 deleteFn (GtkWidget *widget, gpointer *data)
 {
@@ -43,30 +48,28 @@ deleteFn (GtkWidget *widget, gpointer *data)
 	return TRUE;
 }
 
+/* This is called when the Help button is clicked.  */
+static gint
+help (GtkWidget *w, gpointer *data)
+{
+  /* FIXME.  */
+}
+
 static void
 display_properties_action (GtkWidget *w, gint close)
 {
-	if (close) {
-		gnome_property_configurator_request_foreach (display_config,
-							     GNOME_PROPERTY_APPLY);
-		gnome_property_configurator_request_foreach (display_config,
-							     GNOME_PROPERTY_WRITE);
-		gnome_config_sync ();
-	} else
-		gnome_property_configurator_request (display_config,
-						     GNOME_PROPERTY_APPLY);
-	if (close)
-		deleteFn (NULL, NULL);
-}
+  gnome_property_configurator_request_foreach (display_config,
+					       GNOME_PROPERTY_APPLY);
 
+  gtk_widget_set_sensitive (apply_button, FALSE);
 
-void
-display_properties_register ()
-{
-	background_register (display_config);
-	screensaver_register (display_config);
-	keyboard_register (display_config);
-	mouse_register (display_config);
+  if (close)
+    {
+      gnome_property_configurator_request_foreach (display_config,
+						   GNOME_PROPERTY_WRITE);
+      gnome_config_sync ();
+      deleteFn (NULL, NULL);
+    }
 }
 
 void
@@ -75,14 +78,22 @@ display_properties_setup (void)
 	GtkWidget *vbox = gtk_vbox_new (FALSE, 0),
 		*hbox = gtk_hbox_new (FALSE, GNOME_PAD),
 		*bf = gtk_frame_new (NULL),
-		*bok = gtk_button_new_with_label (_("  Ok  ")),
+		*bok = gtk_button_new_with_label (_("  OK  ")),
 		*bapl = gtk_button_new_with_label (_(" Apply ")),
-		*bcl = gtk_button_new_with_label (_(" Cancel "));
+		*bcl = gtk_button_new_with_label (_(" Cancel ")),
+	        *bhelp = gtk_button_new_with_label (_("Help"));
+
+	apply_button = bapl;
+	gtk_widget_set_sensitive (apply_button, FALSE);
 
 	main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title (GTK_WINDOW (main_window), application_title ());
 	gtk_window_set_policy (GTK_WINDOW (main_window), FALSE, FALSE, TRUE);
 	gtk_signal_connect (GTK_OBJECT (main_window), "delete_event",
 			    GTK_SIGNAL_FUNC (deleteFn), NULL);	
+
+	gtk_signal_connect (GTK_OBJECT (bhelp), "clicked",
+			    GTK_SIGNAL_FUNC (help), NULL);
 
 	gtk_signal_connect (GTK_OBJECT (bcl), "clicked",
 			    GTK_SIGNAL_FUNC (deleteFn), NULL);	
@@ -104,6 +115,7 @@ display_properties_setup (void)
 	gtk_container_add (GTK_CONTAINER(main_window), vbox);
 	gtk_box_pack_start (GTK_BOX (vbox), display_config->notebook, FALSE, FALSE, 0);
 	
+	gtk_box_pack_end (GTK_BOX (hbox), bhelp, FALSE, FALSE, 0);
 	gtk_box_pack_end (GTK_BOX (hbox), bcl, FALSE, FALSE, 0);
 	gtk_box_pack_end (GTK_BOX (hbox), bapl, FALSE, FALSE, 0);
 	gtk_box_pack_end (GTK_BOX (hbox), bok, FALSE, FALSE, 0);
@@ -113,6 +125,7 @@ display_properties_setup (void)
 	gtk_widget_show (bok);
 	gtk_widget_show (bapl);
 	gtk_widget_show (bcl);
+	gtk_widget_show (bhelp);
 	gtk_widget_show (hbox);
 	gtk_widget_show (bf);
 	gtk_widget_show (display_config->notebook);
@@ -121,7 +134,7 @@ display_properties_setup (void)
 }
 
 int
-main (int argc, char *argv [])
+property_main (int argc, char *argv [])
 {
 	int init = 0;
 	int i;
@@ -130,7 +143,7 @@ main (int argc, char *argv [])
 	gnome_init (&argc, &argv);
 	
 	display_config = gnome_property_configurator_new ();
-	display_properties_register ();
+	application_register (display_config);
 	
 	for (i=1; i<argc; i++)
 		if (!strcmp (argv [i], "-init"))

@@ -148,6 +148,7 @@ XLockMore::prepareSetupWindow ()
 {
 	if (!setupWin) {
 		setupWin = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+		gtk_window_set_title (GTK_WINDOW (setupWin), _("XLockMore Properties"));
 		gtk_window_set_policy (GTK_WINDOW (setupWin), FALSE, FALSE, TRUE);
 		gtk_signal_connect (GTK_OBJECT (setupWin), "delete_event",
 				    GTK_SIGNAL_FUNC (deleteSetupWin), this);
@@ -165,10 +166,14 @@ XLockMore::prepareSetupWindow ()
 			*vbox = gtk_vbox_new (FALSE, 0),
 			*hbox = gtk_hbox_new (FALSE, GNOME_PAD);
 		setupOptions = gtk_vbox_new (FALSE, GNOME_PAD);
-		GtkWidget *bok = gtk_button_new_with_label (_("  Ok  ")),
+		GtkWidget *bok = gtk_button_new_with_label (_("  OK  ")),
 			*bapl = gtk_button_new_with_label (_(" Apply ")),
 			*bcl = gtk_button_new_with_label (_(" Cancel ")),
-			*bdf = gtk_button_new_with_label (_(" Defaults "));
+			*bdf = gtk_button_new_with_label (_(" Defaults ")),
+		        *bhelp = gtk_button_new_with_label (_("Help"));
+
+		gtk_signal_connect (GTK_OBJECT (bcl), "clicked",
+				    GTK_SIGNAL_FUNC (deleteSetupWin), this);
 
 		GtkWidget *l1 = gtk_label_new (_(" Mode ")),
 			*l2 = gtk_label_new (_(" XLockMore "));
@@ -216,6 +221,7 @@ XLockMore::prepareSetupWindow ()
 		gtk_box_pack_start (GTK_BOX (vbox), setupNotebook, FALSE, FALSE, 0);
 
 		gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
+		gtk_box_pack_end (GTK_BOX (hbox), bhelp, FALSE, FALSE, 0);
 		gtk_box_pack_end (GTK_BOX (hbox), bcl, FALSE, FALSE, 0);
 		gtk_box_pack_end (GTK_BOX (hbox), bapl, FALSE, FALSE, 0);
 		gtk_box_pack_end (GTK_BOX (hbox), bok, FALSE, FALSE, 0);
@@ -240,6 +246,7 @@ XLockMore::prepareSetupWindow ()
 		gtk_widget_show (setupOptions);
 		gtk_widget_show (modePage);
 		gtk_widget_show (setupNotebook);
+		gtk_widget_show (bhelp);
 		gtk_widget_show (bcl);
 		gtk_widget_show (bapl);
 		gtk_widget_show (bok);

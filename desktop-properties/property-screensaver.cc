@@ -40,6 +40,7 @@ ConfigScreenSaver::select_mode (GtkWidget *, GdkEventButton *, SelectInfo *si)
 		    GNOME_MONITOR_WIDGET_Y+6,
 		    GNOME_MONITOR_WIDGET_WIDTH,
 		    GNOME_MONITOR_WIDGET_HEIGHT);
+	property_changed ();
 }
 
 void
@@ -101,6 +102,7 @@ ConfigScreenSaver::wait_changed (GtkWidget *entry, ConfigScreenSaver *th)
 {
 	// printf ("wait changed %s\n", GTK_ENTRY (entry)->text);
 	th->waitV = GTK_ENTRY (entry)->text;
+	property_changed ();
 }
 
 void
@@ -108,6 +110,7 @@ ConfigScreenSaver::nice_changed (GtkWidget *adj, ConfigScreenSaver *th)
 {
 	// printf ("nice changed %d\n", (gint)GTK_ADJUSTMENT (adj)->value);
 	th->nice = (gint)GTK_ADJUSTMENT (adj)->value;
+	property_changed ();
 }
 
 void
@@ -115,6 +118,7 @@ ConfigScreenSaver::lock_changed (GtkWidget *check, ConfigScreenSaver *th)
 {
 	// printf ("lock changed %d\n", GTK_TOGGLE_BUTTON (check)->active);
 	th->lockV = GTK_TOGGLE_BUTTON (check)->active;
+	property_changed ();
 }
 
 GtkWidget *
@@ -128,7 +132,7 @@ ConfigScreenSaver::settings_frame ()
 	f  = gtk_frame_new (_("Settings"));
 
 	l1 = gtk_label_new (_("Wait"));
-	l2 = gtk_label_new (_("min"));
+	l2 = gtk_label_new (_("Min"));
 	waitMin  = gtk_entry_new ();
 	gtk_entry_set_text (GTK_ENTRY (waitMin),
 			    waitV);
@@ -140,7 +144,7 @@ ConfigScreenSaver::settings_frame ()
 	gtk_widget_set_usize (waitMin, 50, -1);
 	hb1 = gtk_hbox_new (FALSE, 0);
 
-	lock = gtk_check_button_new_with_label (_("requires password"));
+	lock = gtk_check_button_new_with_label (_("Requires Password"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (lock),
 				     lockV);
 	gtk_signal_connect (GTK_OBJECT (lock),
@@ -157,8 +161,8 @@ ConfigScreenSaver::settings_frame ()
 	nice = gtk_hscale_new (GTK_ADJUSTMENT (adjustment));
 	gtk_scale_set_digits (GTK_SCALE (nice), 0);
 	gtk_scale_set_draw_value (GTK_SCALE (nice), FALSE);
-	l4 = gtk_label_new (_("normal"));
-	l5 = gtk_label_new (_("low"));
+	l4 = gtk_label_new (_("Normal"));
+	l5 = gtk_label_new (_("Low"));
 	hb2 = gtk_hbox_new (FALSE, 0);
 	gtk_signal_connect (GTK_OBJECT (adjustment),
 			    "value_changed",
@@ -175,8 +179,8 @@ ConfigScreenSaver::settings_frame ()
 	gtk_box_pack_start (GTK_BOX (vbox), lock, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vb1), l3, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vb1), nice, FALSE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (hb2), l4, FALSE, FALSE, 0);
-	gtk_box_pack_end (GTK_BOX (hb2), l5, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hb2), l5, FALSE, FALSE, 0);
+	gtk_box_pack_end (GTK_BOX (hb2), l4, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vb1), hb2, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), vb1, FALSE, TRUE, 0);
 	gtk_container_add (GTK_CONTAINER (f), vbox);
@@ -202,7 +206,7 @@ ConfigScreenSaver::modes_frame ()
 {
 	GtkWidget *f, *hb1, *vb1, *b1, *b2;
 
-	f  = gtk_frame_new (_("Screen savers"));
+	f  = gtk_frame_new (_("Screensavers"));
 
 	hb1 = gtk_hbox_new (FALSE, GNOME_PAD);
 	gtk_container_border_width (GTK_CONTAINER (hb1), GNOME_PAD);
@@ -214,7 +218,7 @@ ConfigScreenSaver::modes_frame ()
 	gtk_list_set_selection_mode (GTK_LIST (mlist), GTK_SELECTION_BROWSE);
 	gtk_widget_set_usize (f, 240, -1);
 	vb1 = gtk_vbox_new (FALSE, GNOME_PAD);
-	b1 = gtk_button_new_with_label (_("Setup"));
+	b1 = gtk_button_new_with_label (_("Setup..."));
 	gtk_signal_connect (GTK_OBJECT (b1), "clicked",
 			    (GtkSignalFunc) setup_mode, (gpointer)this);
 
@@ -252,7 +256,7 @@ runPreviewXLock (GtkWidget *w, ConfigScreenSaver *c)
 				 (gint)(GTK_RANGE (c->nice)->adjustment->value),
 				 c->monitor,
 				 GNOME_MONITOR_WIDGET_X,
-				 GNOME_MONITOR_WIDGET_Y+6,
+				 GNOME_MONITOR_WIDGET_Y,
 				 GNOME_MONITOR_WIDGET_WIDTH,
 				 GNOME_MONITOR_WIDGET_HEIGHT);
 }

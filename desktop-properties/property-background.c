@@ -6,17 +6,10 @@
  *          Federico Mena.
  *          Radek Doulik
  */
+
 #include <stdio.h>
 #include <stdarg.h>
-#include <gtk/gtk.h>
-#ifdef HAVE_LIBINTL
-#include <libintl.h>
-#define _(String) gettext(String)
-#else
-#define _(String) (String)
-#endif
 
-#include "gnome.h"
 #include "gnome-desktop.h"
 #include "gdkx.h"
 
@@ -63,9 +56,7 @@ static GdkColor  bgColor1, bgColor2;
 static GnomeColorSelector *cs1, *cs2;
 
 
-void background_setup ();
-
-void
+static void
 gtk_widget_show_multi (GtkWidget *first,...)
 {
 	va_list ap;
@@ -82,11 +73,6 @@ gtk_widget_show_multi (GtkWidget *first,...)
 }
 
 static void
-color_changed (gpointer data)
-{
-}
-
-static void
 radio_toggle_widget_active(GtkWidget *widget, gpointer data)
 {
 	GtkWidget *dest;
@@ -94,6 +80,8 @@ radio_toggle_widget_active(GtkWidget *widget, gpointer data)
 	dest = GTK_WIDGET(data);
 
 	gtk_widget_set_sensitive(dest, GTK_TOGGLE_BUTTON(widget)->active);
+	printf ("%s\n", __FUNCTION__);
+	property_changed ();
 }
 
 static void
@@ -299,6 +287,8 @@ set_background_mode (GtkWidget *widget, gpointer data)
 	grad = GTK_TOGGLE_BUTTON (widget)->active;
 
 	fill_monitor();
+	printf ("%s\n", __FUNCTION__);
+	property_changed ();
 }
 
 static void
@@ -307,6 +297,8 @@ set_orientation (GtkWidget *widget, gpointer data)
 	vertical = GTK_TOGGLE_BUTTON (widget)->active;
 
 	fill_monitor();
+	printf ("%s\n", __FUNCTION__);
+	property_changed ();
 }
 
 static void
@@ -316,19 +308,19 @@ set_tiled_wallpaper (GtkWidget *widget, gpointer data)
 		WALLPAPER_TILED : WALLPAPER_CENTERED;
 
 	fill_monitor();
-
-	/* printf ("set wallpaper\n"); */
+	printf ("%s\n", __FUNCTION__);
+	property_changed ();
 }
 
-GtkWidget *
+static GtkWidget *
 color_setup ()
 {
 	GtkWidget *frame;
 	GtkWidget *table;
 	GtkWidget *button1;
 	GtkWidget *button2;
-	GtkWidget *radio1;
-	GtkWidget *radio2;
+	GtkWidget *radiof, *radiog;
+	GtkWidget *radiov, *radioh;
 	GtkWidget *vb1, *vb2;
 	
 	frame = gtk_frame_new (_("Color"));
@@ -355,18 +347,15 @@ color_setup ()
 	gtk_table_attach (GTK_TABLE(table), button1, 0, 1, 0, 1, 0, 0, 0, 0);
 	gtk_widget_show (button1);
 
-	radio1 = gtk_radio_button_new_with_label (NULL, _("Flat"));
-	gtk_box_pack_start (GTK_BOX (vb1), radio1, FALSE, FALSE, 0);
+	radiof = gtk_radio_button_new_with_label (NULL, _("Flat"));
+	gtk_box_pack_start (GTK_BOX (vb1), radiof, FALSE, FALSE, 0);
 	gtk_table_attach_defaults (GTK_TABLE(table), vb1, 1, 2, 0, 1);
-	gtk_widget_show (radio1);
+	gtk_widget_show (radiof);
 
-	radio1 = gtk_radio_button_new_with_label (gtk_radio_button_group(GTK_RADIO_BUTTON(radio1)),
+	radiog = gtk_radio_button_new_with_label (gtk_radio_button_group(GTK_RADIO_BUTTON(radiof)),
 						 _("Gradient"));
-	gtk_signal_connect (GTK_OBJECT(radio1), "toggled",
-			    (GtkSignalFunc) set_background_mode,
-			    (gpointer) ((long) TRUE));
-	gtk_box_pack_start (GTK_BOX (vb1), radio1, FALSE, FALSE, 0);
-	gtk_widget_show(radio1);
+	gtk_box_pack_start (GTK_BOX (vb1), radiog, FALSE, FALSE, 0);
+	gtk_widget_show(radiog);
 
 	cs2 = gnome_color_selector_new ((SetColorFunc) fill_monitor, NULL);
 	gnome_color_selector_set_color_int (cs2,
@@ -378,33 +367,42 @@ color_setup ()
 	gtk_table_attach (GTK_TABLE(table), button2, 0, 1, 1, 2, 0, 0, 0, 0);
 	gtk_widget_set_sensitive (button2, FALSE);
 	gtk_widget_show (button2);
-	gtk_signal_connect (GTK_OBJECT(radio1), "toggled",
+
+	radiov = gtk_radio_button_new_with_label (NULL, _("Vertical"));
+	gtk_box_pack_start (GTK_BOX (vb2), radiov, FALSE, FALSE, 0);
+	gtk_widget_set_sensitive (radiov, FALSE);
+	gtk_widget_show (radiov);
+
+	radioh = gtk_radio_button_new_with_label (gtk_radio_button_group(GTK_RADIO_BUTTON(radiov)),
+						 _("Horizontal"));
+	gtk_box_pack_start (GTK_BOX (vb2), radioh, FALSE, FALSE, 0);
+	gtk_table_attach_defaults (GTK_TABLE(table), vb2, 1, 2, 1, 2);
+	gtk_widget_set_sensitive (radioh, FALSE);
+	gtk_widget_show(radioh);
+	
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radiog), grad);
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radioh), !vertical);
+
+	/* We connect to the signals after setting up the initial
+	   state; that way the callbacks can always run
+	   property_changed() without worrying about the initial
+	   setting.  This is moderately gross, but better than keeping
+	   a bunch of state variables around.  */
+	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
+			    (GtkSignalFunc) set_background_mode,
+			    (gpointer) ((long) TRUE));
+	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
 			    (GtkSignalFunc) radio_toggle_widget_active,
 			    button2);
-
-	radio2 = gtk_radio_button_new_with_label (NULL, _("Vertical"));
-	gtk_signal_connect (GTK_OBJECT(radio2), "toggled",
+	gtk_signal_connect (GTK_OBJECT(radiov), "toggled",
 			    (GtkSignalFunc) set_orientation,
 			    (gpointer) ((long) TRUE));
-	gtk_box_pack_start (GTK_BOX (vb2), radio2, FALSE, FALSE, 0);
-	gtk_widget_set_sensitive (radio2, FALSE);
-	gtk_widget_show (radio2);
-	gtk_signal_connect (GTK_OBJECT(radio1), "toggled",
+	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
 			    (GtkSignalFunc) radio_toggle_widget_active,
-			    radio2);
-
-	radio2 = gtk_radio_button_new_with_label (gtk_radio_button_group(GTK_RADIO_BUTTON(radio2)),
-						 _("Horizontal"));
-	gtk_box_pack_start (GTK_BOX (vb2), radio2, FALSE, FALSE, 0);
-	gtk_table_attach_defaults (GTK_TABLE(table), vb2, 1, 2, 1, 2);
-	gtk_widget_set_sensitive (radio2, FALSE);
-	gtk_widget_show(radio2);
-	gtk_signal_connect (GTK_OBJECT(radio1), "toggled",
+			    radioh);
+	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
 			    (GtkSignalFunc) radio_toggle_widget_active,
-			    radio2);
-	
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radio1), grad);
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radio2), !vertical);
+			    radiov);
 
 	gtk_idle_add ((GtkFunction) fill_monitor, NULL);
 
@@ -431,6 +429,8 @@ browse_activated (GtkWidget *w, gchar *s)
 	/* printf ("%s\n", s); */
 
 	fill_monitor ();
+	printf ("%s\n", __FUNCTION__);
+	property_changed ();
 }
 
 static void
@@ -499,6 +499,7 @@ wp_selection_ok (GtkWidget *w, GtkWidget **f)
 	bgType = BACKGROUND_WALLPAPER;
 
 	gtk_option_menu_set_history (GTK_OPTION_MENU (wpOMenu), found);
+	property_changed ();
 	fill_monitor ();
 }
 
@@ -507,7 +508,7 @@ browse_wallpapers (GtkWidget *w, gpointer p)
 {
 	if (!fileSel) {
 		
-		fileSel = gtk_file_selection_new (_("Wallpaper selection"));
+		fileSel = gtk_file_selection_new (_("Wallpaper Selection"));
 		if (wpFileSelName)
 			gtk_file_selection_set_filename (GTK_FILE_SELECTION (fileSel),
 							 wpFileSelName);
@@ -531,7 +532,7 @@ browse_wallpapers (GtkWidget *w, gpointer p)
 	}
 }
 
-GtkWidget *
+static GtkWidget *
 wallpaper_setup ()
 {
 	GtkWidget *wallp;
@@ -549,7 +550,7 @@ wallpaper_setup ()
 	wallp = gtk_frame_new (_("Wallpaper"));
 	vbox = gtk_vbox_new (FALSE, 0);
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD);
-	but = gtk_button_new_with_label (_(" Browse "));
+	but = gtk_button_new_with_label (_(" Browse... "));
 	gtk_signal_connect (GTK_OBJECT (but), "clicked",
 			    (GtkSignalFunc) browse_wallpapers, NULL);
 
@@ -598,16 +599,21 @@ wallpaper_setup ()
 	gtk_box_pack_end (GTK_BOX (hbox), but, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
-	rbut = gtk_radio_button_new_with_label (NULL, _("centered"));
+	rbut = gtk_radio_button_new_with_label (NULL, _("Centered"));
 	gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
 	gtk_widget_show (rbut);
 
 	rbut = gtk_radio_button_new_with_label
 		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
-		 _("tiled"));
+		 _("Tiled"));
+
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
+				     !(wpType == WALLPAPER_CENTERED));
+
 	gtk_signal_connect (GTK_OBJECT(rbut), "toggled",
 			    (GtkSignalFunc) set_tiled_wallpaper,
 			    NULL);
+
 	gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
 
 	gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
@@ -621,14 +627,12 @@ wallpaper_setup ()
 	gtk_widget_show (vbox);
 	gtk_widget_show (wallp);
 
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
-				     !(wpType == WALLPAPER_CENTERED));
-
 	return wallp;
 }
 
 static void
-background_apply () {
+background_apply ()
+{
 	GdkWindow *rootWindow;
 	GdkGC *rootGC;
 	GdkPixmap *rootBack = NULL;
@@ -728,7 +732,8 @@ background_apply () {
 }
 
 static void
-background_write () {
+background_write ()
+{
 	char buffer [60];
 	
 	sprintf (buffer, "#%02x%02x%02x",
@@ -754,7 +759,8 @@ background_write () {
 }
 
 static void
-background_read () {
+background_read ()
+{
 	gdk_color_parse
 		(gnome_config_get_string ("/Desktop/Background/color1=#808080"),
 		 &bgColor1);
@@ -794,35 +800,12 @@ background_read () {
 	/* printf ("%s\n", wpFileName); */
 }
 
-static gint
-background_action (GnomePropertyRequest req)
-{
-	switch (req) {
-	case GNOME_PROPERTY_READ:
-		background_read ();
-		break;
-	case GNOME_PROPERTY_WRITE:
-		background_write ();
-		break;
-	case GNOME_PROPERTY_APPLY:
-		background_apply ();
-		break;
-	case GNOME_PROPERTY_SETUP:
-		background_setup ();
-		break;
-	default:
-		return 0;
-	}
-
-	return 1;
-}
-
 /*
  * background_setup: creates the dialog box for configuring the
  * display background and registers it with the display property
  * configurator
  */
-void
+static void
 background_setup ()
 {
 	GtkWidget *settings;
@@ -864,6 +847,29 @@ background_setup ()
         gtk_notebook_append_page (GTK_NOTEBOOK (config->notebook),
 				  vbox,
 				  gtk_label_new (_(" Background ")));
+}
+
+static gint
+background_action (GnomePropertyRequest req)
+{
+	switch (req) {
+	case GNOME_PROPERTY_READ:
+		background_read ();
+		break;
+	case GNOME_PROPERTY_WRITE:
+		background_write ();
+		break;
+	case GNOME_PROPERTY_APPLY:
+		background_apply ();
+		break;
+	case GNOME_PROPERTY_SETUP:
+		background_setup ();
+		break;
+	default:
+		return 0;
+	}
+
+	return 1;
 }
 
 void

@@ -119,6 +119,7 @@ static gint
 button_toggled (GtkWidget *widget, gpointer data)
 {
   mouse_rtol = (int) data;
+  property_changed ();
 }
 
 /* Run when a scale widget is manipulated.  */
@@ -127,6 +128,7 @@ scale_moved (GtkAdjustment *adj, gpointer data)
 {
   int *value = (int *) data;
   *value = adj->value;
+  property_changed ();
 }
 
 static GtkWidget *

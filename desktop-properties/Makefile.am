@@ -1,13 +1,27 @@
-INCLUDES = 				\
-	-I../.. 			\
-	-I$(srcdir)/../.. 		\
-	-I$(includedir)			\
-	-I$(top_srcdir)/intl		\
+INCLUDES = 			\
+	-I../.. 		\
+	-I$(srcdir)/../.. 	\
+	-I$(includedir)		\
+	-I$(top_srcdir)/intl	\
 	$(X_CFLAGS)
 
-bin_PROGRAMS = desktop_properties
+bin_PROGRAMS = mouse-properties keyboard-properties background-properties
 
-desktop_properties_SOURCES =	\
+mouse_properties_SOURCES =	\
+	main.c			\
+	property-mouse.c	\
+	gnome-desktop.h		\
+	gdkx.h			\
+	app-mouse.c
+
+keyboard_properties_SOURCES =	\
+	main.c			\
+        property-keyboard.c	\
+	gnome-desktop.h		\
+	gdkx.h			\
+	app-keyboard.c
+
+background_properties_SOURCES =	\
 	main.c			\
 	property-background.c	\
 	property-screensaver.cc	\
@@ -15,15 +29,14 @@ desktop_properties_SOURCES =	\
 	xlockmore.cc		\
 	xlockmore.h		\
 	xlockparse.ll		\
-        property-keyboard.c	\
-	property-mouse.c	\
 	gnome-desktop.h		\
 	screensaver.h		\
 	ghash.c			\
 	ghash.h			\
-	gdkx.h
+	gdkx.h			\
+	app-background.c
 
-desktop_properties_LDADD = \
+LDADD = \
 	$(top_builddir)/libgnome/libgnome.la		\
 	$(top_builddir)/libgnomeui/libgnomeui.la 	\
 	$(GTK_LIBS)					\
@@ -32,7 +45,10 @@ desktop_properties_LDADD = \
 	@LEXLIB@					\
 	@INTLLIBS@
 
-EXTRA_DIST = desktop_properties.desktop
+EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop
 
+sysdir = $(datadir)/apps/System
 install-data-local:
-	cp $(srcdir)/desktop_properties.desktop $(datadir)/apps/System/"Desktop Properties.desktop"
+	$(INSTALL_DATA) $(srcdir)/background.desktop $(sysdir)/"Background Properties.desktop"
+	$(INSTALL_DATA) $(srcdir)/mouse.desktop $(sysdir)/"Mouse Properties.desktop"
+	$(INSTALL_DATA) $(srcdir)/keyboard.desktop $(sysdir)/"Keyboard Properties.desktop"

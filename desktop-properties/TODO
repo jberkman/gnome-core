@@ -5,6 +5,11 @@ screensaver
 - position of xlock parent window - something is wrong
 - special handling for random mode - maybe make own
 - xlock global settings
+  xlock settings window buttons don't work (except Cancel)
+  xlock Apply button should ghost
+  xlock settings window should probably do local grab
 
 - change double-click speed on mouse page
   this requires changes to gtk
+
+- need configurator to change language and other locale things
