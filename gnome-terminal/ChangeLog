@@ -1,3 +1,19 @@
+2000-06-03  Matt Bissiri  <bissiri@eecs.umich.edu>
+
+	* gnome-terminal.glade, gnome-terminal.glade.h: New files.  
+
+	* gnome-terminal.c (preferences_cmd): Use gnome-terminal.glade
+	instead of hardcoding the preferences dialog.
+	(aligned_label): Removed this function, no longer needed.
+	(create_option_menu_data, create_option_menu): Add option menu
+	argument, because option menu widget is created by libglade now.
+	(terminal_kill): Fix warning.
+	(main): Add glade_gnome_init ()
+
+	* Makefile.am: Add gnome-terminal.glade, gnome-terminal.glade.h,
+	and libglade support.
+
+
 2000-08-04 Hans-Andreas Engel  <Hans-A.Engel@unibas.ch>
 
         * gnome-terminal.c: Added command line options for choosing
