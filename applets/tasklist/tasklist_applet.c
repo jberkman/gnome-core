@@ -680,8 +680,8 @@ real_layout_tasklist (gpointer data)
 		}
 		
 		if (tasklist->config.horz_fixed) {
-			curheight = (ROW_HEIGHT * get_horz_rows(tasklist)) / num_rows;
-			curwidth = (tasklist->config.horz_width) / num_cols;
+			curheight = (ROW_HEIGHT * get_horz_rows(tasklist) - (tasklist->config.sunken?4:0)) / num_rows;
+			curwidth = (tasklist->config.horz_width - (tasklist->config.sunken?4:0)) / num_cols;
 
 		} else {
 			int width;
@@ -696,7 +696,7 @@ real_layout_tasklist (gpointer data)
 
 			width -= DRAG_HANDLE_SIZE;
 
-			curheight = (ROW_HEIGHT * get_horz_rows(tasklist)) / num_rows;
+			curheight = (ROW_HEIGHT * get_horz_rows(tasklist) - (tasklist->config.sunken?4:0)) / num_rows;
 #if 0
 			/* If the total width is higher than allowed, 
 			   we use the "fixed" way instead */
@@ -707,8 +707,8 @@ real_layout_tasklist (gpointer data)
 		}
 
 
-		curx = 0;
-		cury = 0;
+		curx = (tasklist->config.sunken?2:0);
+		cury = (tasklist->config.sunken?2:0);
 
 
 		for (temp = tasklist->vtasks; temp != NULL; temp = temp->next) {
@@ -725,7 +725,7 @@ real_layout_tasklist (gpointer data)
 				if (curx >= tasklist->config.horz_width ||
 				    curx + curwidth > tasklist->config.horz_width) {
 					cury += curheight;
-					curx = 0;
+					curx = (tasklist->config.sunken?2:0);
 				}
 			} else {
 
@@ -733,7 +733,7 @@ real_layout_tasklist (gpointer data)
 
 				if (curx >= num_cols * curwidth) {
 					cury += curheight;
-					curx = 0;
+					curx = (tasklist->config.sunken?2:0);
 				}
 			}
 		}
@@ -764,9 +764,9 @@ real_layout_tasklist (gpointer data)
 
 		curheight = ROW_HEIGHT;
 		if (tasklist->config.follow_panel_size)
-			curwidth = tasklist->panel_size;
+			curwidth = tasklist->panel_size - (tasklist->config.sunken?4:0);
 		else
-			curwidth = tasklist->config.vert_width;
+			curwidth = tasklist->config.vert_width - (tasklist->config.sunken?4:0);
 		
 		if (tasklist->config.vert_width_full)
 			curwidth = MAX (curwidth, max_width (tasklist->vtasks));
@@ -774,8 +774,8 @@ real_layout_tasklist (gpointer data)
 		num_cols = 1;
 		num_rows = num;
 		
-		curx = 0;
-		cury = 0;
+		curx = (tasklist->config.sunken?2:0);
+		cury = (tasklist->config.sunken?2:0);
 
 		if (tasklist->config.vert_fixed) {
 			tasklist->vert_height = tasklist->config.vert_height;
@@ -800,9 +800,9 @@ real_layout_tasklist (gpointer data)
 
 			if (curx >= (tasklist->config.follow_panel_size?
 				     tasklist->panel_size:
-				     tasklist->config.vert_width) - 0) {
+				     tasklist->config.vert_width) - (tasklist->config.sunken?4:0)) {
 				cury += curheight;
-				curx = 0;
+				curx = (tasklist->config.sunken?2:0);
 			}
 		}
 
@@ -1365,10 +1365,11 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event, Tasklist *tasklist)
 
 	temp_tasks = tasklist->vtasks;
 
-	gtk_paint_flat_box (tasklist->area->style, tasklist->area->window,
-			    tasklist->area->state, GTK_SHADOW_NONE,
-			    &event->area, tasklist->area, "button",
-			    0, 0, -1, -1);
+	gtk_paint_box (tasklist->area->style, tasklist->area->window,
+		       tasklist->area->state, 
+		       tasklist->config.sunken?GTK_SHADOW_IN:GTK_SHADOW_NONE,
+		       &event->area, tasklist->area, "button",
+		       0, 0, -1, -1);
 	
 	for (temp = temp_tasks; temp != NULL; temp = temp->next) {
 		GdkRectangle rect, dest;

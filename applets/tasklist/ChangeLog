@@ -1,3 +1,10 @@
+Tue May 08 12:35:47 2001  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch], tasklist_config.c, tasklist_properties.c:
+	  Apply patch from Cory Lueninghoener <cluening@cse.unl.edu> to fix
+	  bug #28149 which adds the option of the sunken border which a bunch
+	  of people preferred over the flat look.
+
 2001-04-26  Anders Carlsson  <andersca@codefactory.se>
 
 	* tasklist_applet.c (cb_motion_timeout): Don't try to show

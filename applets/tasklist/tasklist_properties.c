@@ -373,6 +373,14 @@ create_display_page (Tasklist *tasklist)
 			1, 10, 3),
 		FALSE, TRUE, 0);
 
+	gtk_box_pack_start (
+                GTK_BOX (miscbox),
+		create_check_button (
+                        tasklist,
+                        _("Sink tasklist into panel"), 
+			&tasklist->PropsConfig.sunken),
+		FALSE, TRUE, 0);
+
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (tasklist->prop), vbox,
 					gtk_label_new (_("Display")));
 }

@@ -30,6 +30,7 @@ tasklist_write_config (GtkWidget *w, const gchar *privcfgpath, const gchar *glob
 	gnome_config_set_bool ("tasklist/enable_grouping",     tasklist->config.enable_grouping);
 	gnome_config_set_int  ("tasklist/grouping_min",        tasklist->config.grouping_min);
 	gnome_config_set_bool ("tasklist/enable_tooltips",     tasklist->config.enable_tooltips);
+	gnome_config_set_bool ("tasklist/sunken",              tasklist->config.sunken);
 			       
 	gnome_config_sync ();
 	
@@ -67,6 +68,7 @@ tasklist_read_config (Tasklist *tasklist)
 	tasklist->config.all_desks_normal = gnome_config_get_bool ("tasklist/all_desks_normal=false");
 	tasklist->config.all_desks_minimized = gnome_config_get_bool ("tasklist/all_desks_minimized=false");
 	tasklist->config.move_to_current = gnome_config_get_bool ("tasklist/move_to_current=false");
+	tasklist->config.sunken = gnome_config_get_bool ("tasklist/sunken=false");
 	
 	tasklist->config.enable_grouping = gnome_config_get_bool ("tasklist/enable_grouping=true");
 	tasklist->config.grouping_min    = gnome_config_get_int  ("tasklist/grouping_min=3");

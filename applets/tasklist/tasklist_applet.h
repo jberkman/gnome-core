@@ -82,7 +82,8 @@ struct _TasklistConfig {
 	gboolean all_desks_minimized; /* Show minimized tasks on all desktops */
 	gboolean confirm_before_kill; /* Confirm before killing windows */
 	gboolean move_to_current; /* Move iconified tasks to current workspace */
-	
+	gboolean sunken; /* Sunken or popped-up look */
+
 	/* Follow the panel sizes */
 	gboolean follow_panel_size;
 
