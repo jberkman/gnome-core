@@ -1,3 +1,10 @@
+1998-04-15  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* history.c: i18n support.
+	* gnome-helpwin.c: i18n support.
+	* gnome-help-browser.c (configCallback): i18n support.
+	* bookmarks.c (createBookmarksWindow): Add support for i18n
+
 1998-04-06  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* Added -d debug option, cleaned a printf

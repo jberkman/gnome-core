@@ -15,17 +15,17 @@ static struct _man_sections {
     char *name;
     int flag;
 } man_sections[] = {
-    { '1', "User Commands", 0 },
-    { '2', "System Calls", 0 },
-    { '3', "Library Functions", 0 },
-    { '4', "Special Files", 0 },
-    { '5', "File Formats", 0 },
-    { '6', "Games", 0 },
-    { '7', "Miscellaneous", 0 },
-    { '8', "Administration", 0 },
-    { '9', "man9", 0 },
-    { 'n', "mann", 0 },
-    { 'x', "manx", 0 },
+    { '1', N_("User Commands"), 0 },
+    { '2', N_("System Calls"), 0 },
+    { '3', N_("Library Functions"), 0 },
+    { '4', N_("Special Files"), 0 },
+    { '5', N_("File Formats"), 0 },
+    { '6', N_("Games"), 0 },
+    { '7', N_("Miscellaneous"), 0 },
+    { '8', N_("Administration"), 0 },
+    { '9', N_("man9"), 0 },
+    { 'n', N_("mann"), 0 },
+    { 'x', N_("manx"), 0 },
     { 0, NULL, 0 }
 };
 
@@ -180,7 +180,7 @@ void expandManPagesRoot(GtkWidget *item)
 	    p++;
 	    continue;
 	}
-	newitem = gtk_tree_item_new_with_label(p->name);
+	newitem = gtk_tree_item_new_with_label(_(p->name));
 	gtk_tree_append(GTK_TREE(tree), newitem);
 	gtk_signal_connect(GTK_OBJECT(newitem), "expand",
 			   (GtkSignalFunc)expandManPagesIndex, p);

@@ -110,11 +110,11 @@ GString
     gchar *link;
     gchar ext, last_ext, last_initial;
 
-    res = g_string_new("<h1>Table of Contents</h1>\n");
+    res = g_string_new(_("<h1>Table of Contents</h1>\n"));
 
     /* Man Pages */
     
-    g_string_append(res, "<h2>Man Pages</h2>\n");
+    g_string_append(res, _("<h2>Man Pages</h2>\n"));
 
     last_ext = ' ';
     last_initial = ' ';
@@ -154,8 +154,8 @@ GString
     gchar *link;
 
 
-    res = g_string_new("<h1>Table of Contents</h1>\n");
-    g_string_append(res, "<br><br><h2>Info Pages</h2>\n");
+    res = g_string_new(_("<h1>Table of Contents</h1>\n"));
+    g_string_append(res, _("<br><br><h2>Info Pages</h2>\n"));
 
     l = toc->infoTable;
     while (l) {
@@ -186,8 +186,8 @@ GString
     gchar *link;
 
 
-    res = g_string_new("<h1>Table of Contents</h1>\n");
-    g_string_append(res, "<br><br><h2>GNOME Help</h2>\n");
+    res = g_string_new(_("<h1>Table of Contents</h1>\n"));
+    g_string_append(res, _("<br><br><h2>GNOME Help</h2>\n"));
 
     l = toc->ghelpTable;
     while (l) {
@@ -308,13 +308,13 @@ GString
     GList   *p;
     gboolean foundman, foundinfo, foundghelp;
 
-    out = g_string_new("<HTML>\n<BODY>\n<H2>Results of the substring search "
-		       "for the string ");
+    out = g_string_new(_("<HTML>\n<BODY>\n<H2>Results of the substring search "
+		       "for the string "));
     g_string_sprintfa(out, "&quot;%s&quot;</H2>\n", substr);
 
     /* first do Manual Pages */
     foundman = FALSE;
-    tmp = g_string_new("<p>\n<br>\n<H3>Manual Pages</H3>\n<p>\n<UL>\n");
+    tmp = g_string_new(_("<p>\n<br>\n<H3>Manual Pages</H3>\n<p>\n<UL>\n"));
     p = toc->manTable;
     /* if substr = "" then dont search */
     while (p && *substr) {
@@ -337,7 +337,7 @@ GString
 
     /* info pages */
     foundinfo = FALSE;
-    tmp = g_string_new("\n<p>\n<br>\n<H3>GNU Info Pages</H3>\n<p>\n<UL>\n");
+    tmp = g_string_new(_("\n<p>\n<br>\n<H3>GNU Info Pages</H3>\n<p>\n<UL>\n"));
     p = toc->infoTable;
     while (p && *substr) {
 	gchar *name=((struct _big_table_entry *)p->data)->name;
@@ -361,7 +361,7 @@ GString
 
     /* ghelp pages */
     foundghelp = FALSE;
-    tmp = g_string_new("\n<p>\n<br>\n<H3>GNOME Help Pages</H3>\n<p>\n<UL>\n");
+    tmp = g_string_new(_("\n<p>\n<br>\n<H3>GNOME Help Pages</H3>\n<p>\n<UL>\n"));
     p = toc->ghelpTable;
     while (p && *substr) {
 	gchar *name=((struct _big_table_entry *)p->data)->name;
@@ -383,7 +383,7 @@ GString
     g_string_free(tmp, TRUE);
 
     if (!foundman && !foundinfo && !foundghelp)
-	g_string_append(out, "<br><B>No matches found</B>\n");
+	g_string_append(out, _("<br><B>No matches found</B>\n"));
 
     g_string_append(out, "</BODY>\n</HTML>\n");
 

@@ -131,7 +131,7 @@ static void initToc(GtkWidget *toc, GtkSignalFunc selectCallback)
 
     /* MAN PAGES */
     
-    item = gtk_tree_item_new_with_label("Man Pages");
+    item = gtk_tree_item_new_with_label(_("Man Pages"));
     gtk_tree_append(GTK_TREE(tree), item);
     gtk_signal_connect_object(GTK_OBJECT(item), "expand",
 			      (GtkSignalFunc)expandManPagesRoot,
@@ -143,7 +143,7 @@ static void initToc(GtkWidget *toc, GtkSignalFunc selectCallback)
 
     /* INFO PAGES */
     
-    item = gtk_tree_item_new_with_label("Info Pages");
+    item = gtk_tree_item_new_with_label(_("Info Pages"));
     gtk_tree_append(GTK_TREE(tree), item);
     gtk_signal_connect_object(GTK_OBJECT(item), "expand",
 			      (GtkSignalFunc)expandInfoRoot,
@@ -155,7 +155,7 @@ static void initToc(GtkWidget *toc, GtkSignalFunc selectCallback)
 
     /* GNOME HELP */
     
-    item = gtk_tree_item_new_with_label("GNOME Help");
+    item = gtk_tree_item_new_with_label(_("GNOME Help"));
     gtk_tree_append(GTK_TREE(tree), item);
     gtk_signal_connect_object(GTK_OBJECT(item), "expand",
 			      (GtkSignalFunc)expandGHelpRoot,

@@ -214,11 +214,17 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
 				  GtkWidget **clist)
 {
     GtkWidget *box, *button;
-    gchar *titles[2] = { "Bookmark", "Page Title" };
+    gchar *titles[2] = { N_("Bookmark"), N_("Page Title") };
+    static int translated;
 
+    if (!translated){
+	    titles [0] = _(titles [0]);
+	    titles [1] = _(titles [1]);
+	    translated = 1;
+    }
     /* Main Window */
     *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(*window), "Gnome Help Bookmarks");
+    gtk_window_set_title(GTK_WINDOW(*window), _("Gnome Help Bookmarks"));
     gtk_widget_set_usize (*window, 500, 200);
 
     /* Vbox */
@@ -228,7 +234,7 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
     gtk_widget_show(box);
 
     /* Buttons */
-    button = gtk_button_new_with_label("Remove");
+    button = gtk_button_new_with_label(_("Remove"));
     gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
     gtk_widget_show(button);
 

@@ -74,11 +74,11 @@ static void configCancel(GtkWidget *w, GtkWidget *window);
 /* Argument parsing.  */
 static struct argp_option options[] =
 {
-	{ NULL, 'x', N_("X"), 0, "X position of window", 1 },
-	{ NULL, 'y', N_("Y"), 0, "Y position of window", 1 },
-	{ NULL, 'w', N_("WIDTH"), 0, "Width of window", 1 },
-	{ NULL, 'h', N_("HEIGHT"), 0, "Height of window", 1 },
-	{ "debug", 'd', NULL, 0, "Debug level", 0 },
+	{ NULL, 'x', N_("X"), 0, N_("X position of window"), 1 },
+	{ NULL, 'y', N_("Y"), 0, N_("Y position of window"), 1 },
+	{ NULL, 'w', N_("WIDTH"), 0, N_("Width of window"), 1 },
+	{ NULL, 'h', N_("HEIGHT"), 0, N_("Height of window"), 1 },
+	{ "debug", 'd', NULL, 0, N_("Debug level"), 0 },
 	{ NULL, 0, NULL, 0, NULL, 0 }
 };
 
@@ -303,12 +303,12 @@ aboutCallback (HelpWindow win)
 		NULL
 	};
 
-	about = gnome_about_new ( "Gnome Help Browser", HELP_VERSION,
+	about = gnome_about_new ( N_("Gnome Help Browser"), HELP_VERSION,
 				  "Copyright (c) 1998 Red Hat Software, Inc.",
 				  authors,
-				  "GNOME Help Browser allows easy access to "
+				  N_("GNOME Help Browser allows easy access to "
 				  "various forms of documentation on your "
-				  "system",
+				  "system"),
 				  NULL);
 	gtk_widget_show (about);
 	
@@ -525,15 +525,15 @@ struct _config_entry {
 
 GtkWidget *configWindow = NULL;
 struct _config_entry configs[] = {
-    { "History size", CONFIG_INT, &historyLength, NULL },
-    { "History file", CONFIG_TEXT, &historyFile, NULL },
-    { "Cache size", CONFIG_INT, &memCacheSize, NULL },
-    { "Cache file", CONFIG_TEXT, &cacheFile, NULL },
-    { "Bookmark file", CONFIG_TEXT, &bookmarkFile, NULL },
+    { N_("History size"),    CONFIG_INT, &historyLength, NULL },
+    { N_("History file"),    CONFIG_TEXT, &historyFile, NULL },
+    { N_("Cache size"),      CONFIG_INT, &memCacheSize, NULL },
+    { N_("Cache file"),      CONFIG_TEXT, &cacheFile, NULL },
+    { N_("Bookmark file"),   CONFIG_TEXT, &bookmarkFile, NULL },
 
-    { "Man Path", CONFIG_TEXT, &manPath, NULL },
-    { "Info Path", CONFIG_TEXT, &infoPath, NULL },
-    { "GNOME Help Path", CONFIG_TEXT, &ghelpPath, NULL },
+    { N_("Man Path"),        CONFIG_TEXT, &manPath, NULL },
+    { N_("Info Path"),       CONFIG_TEXT, &infoPath, NULL },
+    { N_("GNOME Help Path"), CONFIG_TEXT, &ghelpPath, NULL },
     
     { NULL, 0, NULL }
 };
@@ -563,7 +563,7 @@ generateConfigWidgets(GtkWidget *parentBox, struct _config_entry *configs)
     rows = 0;
     p = configs;
     while (p->name) {
-	label = gtk_label_new(p->name);
+	label = gtk_label_new(_(p->name));
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_RIGHT);
 	gtk_widget_show(label);
 	
@@ -601,7 +601,7 @@ configCallback(HelpWindow win)
     
     /* Main Window */
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Gnome Help Configure");
+    gtk_window_set_title(GTK_WINDOW(window), _("Gnome Help Configure"));
     gtk_widget_set_usize (window, 500, -1);
     configWindow = window;
 

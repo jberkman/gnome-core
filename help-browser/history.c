@@ -251,11 +251,20 @@ static void createHistoryWindow(History h, GtkWidget **window,
 				GtkWidget **clist)
 {
     GtkWidget *box;
-    gchar *titles[3] = { "URL", "Last", "Count" };
+    gchar *titles[3] = { N_("URL"), N_("Last"), N_("Count") };
+    static int translated;
 
+    if (!translated){
+        int i;
+
+	for (i = 0; i < 3; i++)
+	    titles [i] = _(titles [i]);
+	translated = 1;
+    }
+    
     /* Main Window */
     *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(*window), "Gnome Help History");
+    gtk_window_set_title(GTK_WINDOW(*window), _("Gnome Help History"));
     gtk_widget_set_usize (*window, 500, 200);
 
     /* Vbox */

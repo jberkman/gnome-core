@@ -263,8 +263,8 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 		if (help->html_source)
 		    g_free(help->html_source);
 
-		help->html_source= g_strdup("<body><h2>Error: file not "
-					    "found</h2></body>");
+		help->html_source= g_strdup(_("<body><h2>Error: file not "
+					    "found</h2></body>"));
 		gtk_xmhtml_source( GTK_XMHTML(help), help->html_source );
 		return;
 	}

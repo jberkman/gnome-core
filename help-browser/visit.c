@@ -90,8 +90,8 @@ visitURL( HelpWindow win, gchar *ref,
 			}
 			docObjFree(obj);
 		} else {
-			s = g_string_new("<BODY>Unknown TOC "
-						 "argument</BODY>");
+			s = g_string_new(_("<BODY>Unknown TOC "
+						 "argument</BODY>"));
  		}
 
 		if (s) {
