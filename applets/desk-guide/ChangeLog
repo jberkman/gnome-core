@@ -1,3 +1,7 @@
+2000-05-13 John Fleck <jfleck@inkstain.net>
+
+	* fixed dtd <note> problem in desk-guide.sgml
+
 2000-05-09  Jacob Berkman  <jacob@helixcode.com>
 
 	* gwmh.c (task_event_monitor): check for WM_HINT changing

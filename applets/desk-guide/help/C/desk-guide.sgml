@@ -68,6 +68,7 @@
     window around your virtual desktops.</para>
 
     <note>
+      <title>Note</title>
       <para>Different window managers use different jargon to describe
       virtual desktops and the subdivided workspaces within
       them. <application>Enlightenment</application> divides your
