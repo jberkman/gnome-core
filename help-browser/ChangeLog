@@ -1,3 +1,7 @@
+1999-01-22  Richard Hult <rhult@hem2.passagen.se>
+
+	* window.c (makeEntryArea): Use "Location:" instead of URL:
+
 1999-01-20  Jim Pick  <jim@jimpick.com>
 
 	* Makefile.am: patched to install help-browser.gnorba into
