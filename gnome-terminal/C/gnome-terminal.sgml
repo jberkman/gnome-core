@@ -403,19 +403,26 @@
 	<variablelist>
 	  <varlistentry>
 	    <term>Dragging files</term>
-	    <para>If files are dragged into the terminal, then their
-	    full filename is pasted into the window.  URL's can also
-	    be dropped in this way.</para>
+	    <listitem>
+	      <para>If files are dragged into the terminal, then their
+		full filename is pasted into the window.  URL's can also
+		be dropped in this way.
+	      </para>
+	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
 	    <term>Dragging colours</term>
-	    <para>A colour can be dragged from another gnome
-	    application, or from the <link
-	    linkend="menu-settings">colour selector</link> into the
-	    display.  If they land on a character, it sets the
-	    foreground colour, otherwise it sets the background
-	    colour.  Refer to the <link linkend="config-colour">colour
-	    configuration</link> section.
+	    <listitem>
+	      <para>
+		A colour can be dragged from another gnome
+		application, or from the
+		<link linkend="menu-settings">colour selector</link> into the
+		display.  If they land on a character, it sets the
+		foreground colour, otherwise it sets the background
+		colour.  Refer to the
+		<link linkend="config-colour">colour configuration</link> section.
+	      </para>
+	    </listitem>
 	  </varlistentry>
 	</variablelist>
       </sect2>

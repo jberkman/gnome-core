@@ -352,18 +352,22 @@
 	<variablelist>
 	  <varlistentry>
 	    <term>Dra filer</term>
-	    <para>Hvis filer dras inn i terminalen vil filnavnet
-	    til filen limes inn i vinduet. URL'er kan også slippes
-	    inn på denne måten.</para>
+	    <listitem>
+	      <para>Hvis filer dras inn i terminalen vil filnavnet
+		til filen limes inn i vinduet. URL'er kan også slippes
+		inn på denne måten.</para>
+	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
 	    <term>Dra farger</term>
-	    <para>En farge kan dras fra en annen GNOME applikasjon,
-	    eller fra <link linkend="menu-settings">fargevelgeren</link>
-	    inn på skjermen. Hvis de slippes på et tegn, settes
-	    forgrunnsfargen, ellers settes bakgrunnsfargen. Se i
-	    <link linkend="config-colour">fargekonfigurasjon</link>
-	    seksjonen.
+	    <listitem>
+	      <para>En farge kan dras fra en annen GNOME applikasjon,
+		eller fra <link linkend="menu-settings">fargevelgeren</link>
+		inn på skjermen. Hvis de slippes på et tegn, settes
+		forgrunnsfargen, ellers settes bakgrunnsfargen. Se i
+		<link linkend="config-colour">fargekonfigurasjon</link>
+		seksjonen.
+	    </listitem>
 	  </varlistentry>
 	</variablelist>
       </sect2>
@@ -412,7 +416,7 @@
 	    </listitem>
 	  </varlistentry>
         </variablelist>
-      <sect2>
+      </sect2>
     
       <sect2 id="menu-edit">
         <title>Rediger menyen</title>
