@@ -1,3 +1,7 @@
+2001-08-03  Kjartan Maraas  <kmaraas@gnome.org>
+
+	* help-browser.desktop: Added nynorsk.
+	
 2001-06-20  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* transport.c: Fix compilation on AIX by moving #include <math.h>
