@@ -41,7 +41,7 @@ lib_LTLIBRARIES = libcapplet.la
 test: $(test_SOURCES)
 MAINTAINERCLEANFILES = $(CORBA_SRCLIST)
 CLEANFILES = $(CORBA_SRCLIST)
-$(CORBA_SRCLIST): control-center.idl
-	orbit-idl $(srcdir)/control-center.idl
-main.c: $(CORBA_SRCLIST)
+$(CORBA_SRCLIST): $(top_srcdir)/idl/control-center.idl
+	orbit-idl $(top_srcdir)/idl/control-center.idl
 
+main.c: $(CORBA_SRCLIST)
