@@ -1616,10 +1616,12 @@ load_url_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 	char *url;
 
 	url = gtk_object_get_data (GTK_OBJECT (term), "matchstr");
+
+#ifdef FIXME
 	if (url && strlen (url)) {
-#warning FIXME
 		gnome_url_show(url, NULL);
 	}
+#endif /* FIXME */
 }
 
 static void
@@ -1965,8 +1967,9 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	    && (event->state & GDK_CONTROL_MASK)
 	    && match) {
 		gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
-#warning FIXME
+#ifdef FIXME
 		gnome_url_show (match, NULL);
+#endif /* FIXME */
 		return TRUE;
 	}
 

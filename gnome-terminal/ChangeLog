@@ -1,3 +1,12 @@
+2001-11-26  Mark McLoughlin  <mark@skynet.ie>
+
+	* gnome-terminal.c: (load_url_cmd), (button_press): change
+	  #warnings to #ifdef FIXME
+
+	* gnome-x-font-selector.c:
+	  (gnome_font_selection_show_font_info): some GdkAtom related
+	  warnings fixage.
+
 Mon, 19 Nov 2001 01:40:21 -0500 Frank Belew <frb@ximian.com>
 	
 	* gnome-terminal.c: replaced PACKAGE with GETTEXT_PACKAGE on all

@@ -1868,7 +1868,7 @@ gnome_font_selection_switch_page (GtkWidget       *w,
 static void
 gnome_font_selection_show_font_info (GnomeFontSelection *fontsel)
 {
-  Atom font_atom, atom;
+  Atom atom;
   Bool status;
   char *name;
   gchar *fontname;
@@ -1901,6 +1901,8 @@ gnome_font_selection_show_font_info (GnomeFontSelection *fontsel)
   
   if (fontsel->font)
     {
+      GdkAtom font_atom;
+
       font_atom = gdk_atom_intern ("FONT", FALSE);
 
       if (fontsel->font->type == GDK_FONT_FONTSET)
@@ -1911,17 +1913,17 @@ gnome_font_selection_show_font_info (GnomeFontSelection *fontsel)
 	  
 	  num_fonts = XFontsOfFontSet (GDK_FONT_XFONT(fontsel->font),
 				       &font_structs, &font_names);
-	  status = XGetFontProperty(font_structs[0], font_atom, &atom);
+	  status = XGetFontProperty(font_structs[0], (Atom) font_atom, &atom);
 	}
       else
 	{
-	  status = XGetFontProperty(GDK_FONT_XFONT(fontsel->font), font_atom,
+	  status = XGetFontProperty(GDK_FONT_XFONT(fontsel->font), (Atom) font_atom,
 				    &atom);
 	}
 
       if (status == True)
 	{
-	  name = gdk_atom_name (atom);
+	  name = gdk_atom_name ((GdkAtom) atom);
 	  gtk_entry_set_text(GTK_ENTRY(fontsel->actual_font_name), name);
 	  
 	  for (i = 0; i < GTK_XLFD_NUM_FIELDS; i++)

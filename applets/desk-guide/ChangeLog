@@ -1,3 +1,8 @@
+2001-11-26  Mark McLoughlin  <mark@skynet.ie>
+
+	* Makefile.am: comment everything out. Leave only gstc.[ch]
+	  and gwmh.[ch] in EXTRA_DIST. Need in panel builddir.
+
 2001-09-01  Darin Adler  <darin@bentspoon.com>
 
 	* gwmh.h: A bit of porting to GNOME 2.
