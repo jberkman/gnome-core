@@ -85,7 +85,7 @@ GtkWidget* properties_add_spin_button (gint def, gint min, gint max,
   GtkWidget *spinbutton;
   GtkAdjustment *adj;
   
-  adj = gtk_adjustment_new (def, min, max, step, page, page);
+  adj = (GtkAdjustment *)gtk_adjustment_new (def, min, max, step, page, page);
   spinbutton = gtk_spin_button_new (adj, 1, 0);
   gtk_spin_button_set_value (GTK_SPIN_BUTTON(spinbutton), (gfloat)*config_value);
   gtk_signal_connect (GTK_OBJECT (adj), "value_changed",

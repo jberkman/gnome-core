@@ -8,6 +8,7 @@
 extern Config config;
 
 void menu_cb_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data);
+GtkWidget *menu_get_popup_menu(TasklistTask *temp_task);
 
 extern GtkWidget *area;
 extern GtkWidget *applet;
@@ -105,7 +106,7 @@ gboolean menu_cb_kill (GtkWidget *widget, TasklistTask *temp_task)
 /* Create a popup menu */
 GtkWidget *menu_get_popup_menu(TasklistTask *temp_task)
 {
-  gint i, curworkspace;
+  guint i, curworkspace;
   GtkWidget *menu;
   gchar *wsname;
   GtkWidget *menuitem;
@@ -155,7 +156,8 @@ GtkWidget *menu_get_popup_menu(TasklistTask *temp_task)
 	  wsname = g_strdup(desk_info->desktop_names[i]);
 	  menuitem = gtk_menu_item_new_with_label(wsname);
 	  gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-			     GTK_SIGNAL_FUNC (menu_cb_to_desktop), i);
+			     GTK_SIGNAL_FUNC (menu_cb_to_desktop),
+			     GINT_TO_POINTER(i));
 	  if (i==curworkspace)
 	    gtk_widget_set_sensitive(menuitem, FALSE);
 	  gtk_widget_show(menuitem);

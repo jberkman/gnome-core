@@ -214,22 +214,16 @@ void task_draw (TasklistTask *temp_task)
 
 void tasklist_layout (void)
 {
-  int j, k, num, p;
+  gint j = 0, k = 0, num, p = 0;
   GList *temp_tasks;
 
   /* Needed for g_free () (I think) */
   GList *temp_tasks_two;
 
   TasklistTask *temp_task;
-  int config_rows;
-  int num_rows, num_cols;
-  int curx, cury, curwidth, curheight;
-
-  p = 0;
-  j = 0;
-  k = 0;
-  num_rows = 0;
-  num_cols = 0;
+  gint config_rows;
+  gint num_rows = 0, num_cols = 0;
+  gint curx, cury, curwidth, curheight;
 
   config_rows = tasklist_get_num_rows (applet_widget_get_panel_size (APPLET_WIDGET (applet)));
 

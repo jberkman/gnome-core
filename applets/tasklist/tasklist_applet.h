@@ -33,5 +33,6 @@ struct _Config
 void menu_popup (TasklistTask *temp_task, guint button, guint32 activate_time);
 void config_load (const gchar *privcfgpath);
 void config_save (const gchar *privcfgpath);
-void properties_show(void);
+void properties_show (void);
 void tasklist_layout (void);
+gint tasklist_get_num_rows (PanelSizeType o);
