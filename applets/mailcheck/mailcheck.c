@@ -6,13 +6,8 @@
  *
  */
 
+#include <config.h>
 #include <stdio.h>
-#ifdef HAVE_LIBINTL
-#include <libintl.h>
-#define _(String) gettext(String)
-#else
-#define _(String) (String)
-#endif
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
