@@ -52,8 +52,13 @@ uidir = $(datadir)/gnome/ui
 ui_DATA = gnome-terminal.xml
 
 gladedir   = $(datadir)/gnome-terminal/glade
-glade_DATA = gnome-terminal.glade
+glade_DATA = gnome-terminal.glade2
+glade_src = gnome-terminal.glade
 glade_msgs = gnome-terminal.glade.h
+
+gnome-terminal.glade2: gnome-terminal.glade $(LIBGLADE_CONVERT)
+	$(LIBGLADE_CONVERT) $(srcdir)/gnome-terminal.glade > gnome-terminal.glade.tmp \
+	&& mv gnome-terminal.glade.tmp gnome-terminal.glade2
 
 man_MANS = gnome-terminal.1
 

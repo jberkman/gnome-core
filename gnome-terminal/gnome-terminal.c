@@ -55,6 +55,9 @@
 
 #include <libgnomeui/gnome-client.h>
 #include <libgnomeui/gnome-color-picker.h>
+#include <libgnomeui/gnome-dialog.h>
+#include <libgnomeui/gnome-file-entry.h>
+#include <libgnomeui/gnome-propertybox.h>
 #ifdef HAVE_GNOME_FONT_PICKER
 #include <libgnomeui/gnome-font-picker.h>
 #endif
@@ -67,9 +70,7 @@
 #include <bonobo/bonobo-ui-util.h>
 #include <bonobo/bonobo-window.h>
 
-#ifdef HAVE_LIBGLADE
 #include <glade/glade.h>
-#endif
 
 #include <X11/Xatom.h>
 
@@ -1198,9 +1199,8 @@ phelp_cb (GtkWidget *w, gint tab, gpointer data)
 }
 
 static void
-preferences_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
+preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
-#ifdef HAVE_GLADE
 	GtkWidget *picker, *b1, *b2, *label, *r;
 	preferences_t *prefs;
 	GList *class_list = NULL;
@@ -1225,7 +1225,7 @@ preferences_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 			gtk_window_set_transient_for (GTK_WINDOW (prefs->prop_win),
 						      GTK_WINDOW (transient_parent));
 		/* Raise and possibly uniconify the property box */
-		gtk_window_present (prefs->prop_win->window);
+		gtk_window_present (GTK_WINDOW (prefs->prop_win));
 		return;
 	}
 
@@ -1234,9 +1234,9 @@ preferences_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 	prefs = g_new0 (preferences_t, 1);
 	prefs->changed = 0;
 
-	glade_file = GNOME_TERMINAL_GLADEDIR "/gnome-terminal.glade";
+	glade_file = GNOME_TERMINAL_GLADEDIR "/gnome-terminal.glade2";
 
-	gui = glade_xml_new (glade_file, "prefs");
+	gui = glade_xml_new (glade_file, "prefs", PACKAGE);
 	if (!gui) {
 		g_warning ("Error loading `%s'", glade_file);
 		return;
@@ -1259,6 +1259,7 @@ preferences_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
 				      GTK_EDITABLE (prefs->font_entry));
 
+#ifdef HAVE_GNOME_FONT_PICKER
 	picker = glade_xml_get_widget (gui, "font-picker");
 	gnome_font_picker_set_font_name(GNOME_FONT_PICKER(picker),
 					gtk_entry_get_text(GTK_ENTRY (prefs->font_entry)));
@@ -1270,6 +1271,7 @@ preferences_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 	label = gtk_label_new (_("Browse..."));
 	gnome_font_picker_uw_set_widget(GNOME_FONT_PICKER(picker), GTK_WIDGET(label));
 	gtk_widget_show (label);
+#endif
 	
 	gtk_object_set_user_data(GTK_OBJECT(picker), GTK_OBJECT(prefs->font_entry)); 
 	gtk_object_set_user_data (GTK_OBJECT(prefs->font_entry), GTK_OBJECT(picker)); 
@@ -1503,7 +1505,6 @@ preferences_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 			    GTK_SIGNAL_FUNC (phelp_cb), NULL);
 
 	gtk_object_unref (GTK_OBJECT (gui));
-#endif
 }
 
 #define NEED_UNUSED_FUNCTIONS
@@ -2348,6 +2349,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 				      cfg->keyboard_secured
 				      ? "1" : "0", NULL);
 
+	bonobo_ui_component_set_prop (uic, "/commands/Preferences",
+				      "sensitive", "0", NULL);
+
 	/* 
 	 * we need to realize the term before it gets shown so that
 	 * the sizing works right 
@@ -3185,9 +3189,11 @@ main_terminal_program (int argc, char *argv [], char **environ)
 				    GTK_SIGNAL_FUNC (session_die), NULL);
 	}
 
-#ifdef HAVE_GLADE
-	glade_gnome_init ();
-#endif
+
+	glade_init ();
+	/* bugzilla.gnome.org 60538 */
+	glade_require ("gnome");
+
 	bonobo_main ();
 
 	return 0;

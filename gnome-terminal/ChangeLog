@@ -1,3 +1,11 @@
+2001-09-14  jacob berkman  <jacob@ximian.com>
+
+	* gnome-terminal.c (preferences_cmd): port to libglade 2, and use
+	.glade2 file
+	(main_terminal_program): work around libglade-convert bug
+	(new_terminal_cmd): desensitize the preferences command until
+	clicking on it doesn't crash the terminal
+
 2001-09-12  jacob berkman  <jacob@ximian.com>
 
 	* gnome-terminal.c: enable window icons
