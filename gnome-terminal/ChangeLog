@@ -1,3 +1,9 @@
+2000-07-15  Matthias Warkus  <mawa@iname.com>
+
+	* gnome-terminal-logo.jpg, Makefile.am, gnome-terminal.c: Added
+	extremely neat logo by the Master of Neat Logos himself,
+	i.e. Frederic Toussaint.
+
 2000-05-20  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-terminal.c (main): ignore SIGHUP.  This fixes bug #11322
