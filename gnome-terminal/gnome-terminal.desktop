@@ -1,11 +1,12 @@
 [Desktop Entry]
 Name=GNOME terminal emulation program
-Name[fr]=Emulateur de Terminal GNOME
 Name[es]=Terminal UNIX de GNOME
+Name[fr]=Emulateur de Terminal GNOME
 Name[ko]=GNOME 터미널 프로그램
 Name[no]=Gnome terminalemuleringsprogram
 Name[pt]=Terminal GNOME
 Comment=Terminal emulation program
+Comment[es]=Emulador de terminal GNOME
 Comment[fr]=Emulateur de Terminal GNOME
 Comment[ko]=GNOME 터미널 프로그램
 Comment[no]=Terinalemuleringsprogram for Gnome
