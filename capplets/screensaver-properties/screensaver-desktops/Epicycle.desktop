@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Epicycle
+Name[es]=Epiciclo
+Name[fr]=Épicycle
+Name[ja]=¼þÅ¾±ß
 Name[no]=Epicycle
 Comment=
 Exec=xscreensaver-command -activate

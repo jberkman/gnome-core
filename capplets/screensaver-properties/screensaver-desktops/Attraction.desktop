@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Attraction
+Name[es]=Atracción
+Name[fr]=Attraction
 Name[no]=Tiltrekning
 Comment=
 Exec=xscreensaver-command -activate

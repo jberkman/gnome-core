@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Mountain
+Name[es]=Montaña
+Name[eu]=Mendi
+Name[fr]=Montagne
 Name[no]=Fjell
 Comment=
 Exec=xscreensaver-command -activate

@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Input Devices
+Name[es]=Dispositivos Entrada
 Name[no]=Innenheter
 Comment=Modify the settings of your input devices.
+Comment[es]=Permite configurar los dispositivos de entrada
 Comment[no]=Endre instillingene for innenheter
 Type=Directory

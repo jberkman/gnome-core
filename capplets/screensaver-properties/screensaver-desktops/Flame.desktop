@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Flame
+Name[es]=Llama
+Name[fr]=Flamme
 Name[no]=Flamme
 Comment=
 Exec=xscreensaver-command -activate

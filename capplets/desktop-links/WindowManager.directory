@@ -1,6 +1,8 @@
-|[Desktop Entry]
+[Desktop Entry]
 Name=Window Manager
+Name[es]=Gestor de Ventanas
 Name[no]=Vindusbehandler
 Comment=Modify the settings of your window manager.
+Comment[es]=Configurar el gestor de ventanas
 Comment[no]=Endre innstillingene for vindusbehandleren
 Type=Directory

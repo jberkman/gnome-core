@@ -1,10 +1,14 @@
 [Desktop Entry]
 Name=Keyboard Properties
-Name[pt]=Propriedades do Teclado
+Name[es]=Propiedades del Teclado
+Name[fr]=Propriétés du Clavier
 Name[no]=Egenskaper for tastatur
+Name[pt]=Propriedades do Teclado
 Comment=Keyboard Properties
-Comment[pt]=Propriedades do Teclado
+Comment[es]=Modifica las propiedades del teclado
+Comment[fr]=Modifie les propriétés du clavier
 Comment[no]=Egenskaper for tastaturet
+Comment[pt]=Propriedades do Teclado
 Exec=keyboard-properties
 Terminal=0
 Type=Application

@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Maze
+Name[es]=Laberinto
+Name[fr]=Laberinthe
 Name[no]=Labyrint
 Comment=
 Exec=xscreensaver-command -activate

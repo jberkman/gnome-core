@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Forest
+Name[es]=Bosque
+Name[fr]=Forêt
+Name[ja]=¿¹
 Name[no]=Skog
 Comment=
 Exec=xscreensaver-command -activate

@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Flag
+Name[es]=Bandera
+Name[eu]=Bandera
+Name[fr]=Drapeau
 Name[no]=Flagg
 Comment=
 Exec=xscreensaver-command -activate

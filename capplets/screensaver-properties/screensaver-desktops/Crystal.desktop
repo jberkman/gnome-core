@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Crystal
+Name[es]=Cristal
+Name[fr]=Cristal
+Name[ja]=¿å¾½
 Name[no]=Krystall
 Comment=
 Exec=xscreensaver-command -activate

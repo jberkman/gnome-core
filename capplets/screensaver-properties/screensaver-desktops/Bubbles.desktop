@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Bubbles
+Name[es]=Burbujas
+Name[fr]=Bulles
 Name[no]=Bobler
 Comment=
 Exec=xscreensaver-command -activate

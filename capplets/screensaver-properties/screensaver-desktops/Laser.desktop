@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Laser
+Name[es]=Laser
+Name[fr]=Laser
 Name[no]=Laser
 Comment=
 Exec=xscreensaver-command -activate

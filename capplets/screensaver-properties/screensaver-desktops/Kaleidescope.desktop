@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Kaleidescope
+Name[es]=Caleidoscopio
+Name[fr]=Caleidoscope
 Name[no]=Kaleidoskop
 Comment=
 Exec=xscreensaver-command -activate

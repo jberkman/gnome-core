@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Desktop
+Name[es]=Escritorio
 Name[no]=Skrivebord
 Comment=Desktop
+Comment[es]=Escritorio
 Comment[no]=Skrivebord
 Type=Directory

@@ -1,7 +1,9 @@
 [Desktop Entry]
 Name=Qix
+Name[es]=Qix
 Name[no]=Qix
 Comment=Bounce colored lines around a window.
+Comment[es]=Rebota lineas de colores en una ventana
 Exec=xscreensaver-command -activate
 TryExec=qix
 Terminal=0

@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Coral
+Name[es]=Coral
+Name[fr]=Corail
+Name[ja]=»¹¸ê
 Name[no]=Korall
 Comment=
 Exec=xscreensaver-command -activate

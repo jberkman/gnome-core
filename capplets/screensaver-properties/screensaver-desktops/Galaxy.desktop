@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Galaxy
+Name[es]=Galaxia
+Name[fr]=Galaxie
+Name[ja]=¶ä²Ï
 Name[no]=Galakse
 Comment=
 Exec=xscreensaver-command -activate
