@@ -699,12 +699,20 @@ cb_properties (void)
 static void
 cb_about (void)
 {
-	GtkWidget *dialog;
+	static GtkWidget *dialog = NULL;
 
 	const char *authors[] = {
 		"Anders Carlsson (andersca@gnu.org)",
 		NULL
 	};
+
+	/* Stop the about box from being shown twice at once */
+	if (dialog != NULL)
+	{
+		gdk_window_show (dialog->window);
+		gdk_window_raise (dialog->window);
+		return;
+	}
 	
 	dialog = gnome_about_new ("Gnome Tasklist",
 				  VERSION,
@@ -712,6 +720,9 @@ cb_about (void)
 				  authors,
 				  "A tasklist for the GNOME desktop environment.\nIcons by Tuomas Kuosmanen (tigert@gimp.org).",
 				  NULL);
+	gtk_signal_connect (GTK_OBJECT(dialog), "destroy",
+			    GTK_SIGNAL_FUNC(gtk_widget_destroyed), &dialog);
+
 	gtk_widget_show (dialog);
 	gdk_window_raise (dialog->window);
 }

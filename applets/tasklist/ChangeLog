@@ -1,3 +1,7 @@
+2000-02-23  Peter Hawkins  <peterhawkins@ozemail.com.au>
+
+	* tasklist_applet.c: stopped about box being opened many times at once.
+
 2000-02-22  Andreas Hyden  <andreas.hyden@telia.com>
 
 	* tasklist_menu.c: Marked string for translation.
