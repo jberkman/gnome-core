@@ -233,6 +233,7 @@ create_mail_widgets (GtkWidget *window)
 		free (fname);
 		gtk_widget_show (da);
 		gtk_signal_connect (GTK_OBJECT(da), "expose_event", (GtkSignalFunc)icon_expose, 0);
+		gtk_widget_set_events(GTK_WIDGET(da),GDK_EXPOSURE_MASK);
 		return da;
 	} else {
 		report_mail_mode = REPORT_MAIL_USE_TEXT;
