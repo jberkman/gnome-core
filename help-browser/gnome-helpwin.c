@@ -476,8 +476,8 @@ gnome_helpwin_load(GnomeHelpWin *help,
     } else {
 	/* exec code here */
 	str = g_malloc(80);
-	snprintf(str, 80, "<body><h2>Error: file type %s not "
-		 "implemented</h2></body>", type);
+	g_snprintf(str, 80, "<body><h2>Error: file type %s not "
+		   "implemented</h2></body>", type);
     }
     
     gtk_xmhtml_source( GTK_XMHTML(help), str);
