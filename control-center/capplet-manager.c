@@ -59,7 +59,7 @@ exec_capplet (node_data *data)
                         for (list = capplet_list; list; list = list->next) {
                                 if (strcmp (((node_data *)list->data)->gde->exec[0], data->gde->exec[0]) == 0) {
                                 /* do multi-capplet stuff... */
-                                        data->capplet = ((node_data *)list->data)->capplet;
+                                        data->capplet = CORBA_Object_duplicate (((node_data *)list->data)->capplet, &ev);
                                         GNOME_capplet_new_multi_capplet(data->capplet,
                                                                         ((node_data *)list->data)->id,
                                                                         data->id,
@@ -204,7 +204,7 @@ void close_capplet (GtkWidget *widget, gpointer data)
         capplet_list = g_list_remove (capplet_list, nd);
         if (nd->capplet) {
                 /* FIXME: need to handle multi_capplets here... */
-                /* CORBA_Object_release (nd->capplet, &ev);*/
+                CORBA_Object_release (nd->capplet, &ev);
                 nd->capplet = NULL;
         }
         for (temp = capplet_list; temp; temp = temp->next)
