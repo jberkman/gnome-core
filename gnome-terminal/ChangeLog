@@ -1,3 +1,8 @@
+2000-03-19  Miguel de Icaza  <miguel@helixcode.com>
+
+	* gnome-terminal.c (preferences_cmd): Change the help for the
+	properties dialog box to point to the correct file.
+
 2000-03-22  Alexander Kirillov  <kirillov@math.sunysb.edu>
 
 	* C/gnome-terminal.sgml: fixed "extended selection" description. 

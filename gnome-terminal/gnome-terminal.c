@@ -1065,7 +1065,7 @@ save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	static GnomeHelpMenuEntry help_entry = { NULL, "properties" };
+	static GnomeHelpMenuEntry help_entry = { NULL, "config" };
 	GtkWidget *l, *table, *picker, *label, *b1, *b2;
 	GtkWidget *r, *frame, *hbox, *subtable, *paltable;
 	preferences_t *prefs;
@@ -1445,7 +1445,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	help_entry.name = "gnome-terminal";
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "help",
-			    GTK_SIGNAL_FUNC (gnome_help_pbox_display),
+			    GTK_SIGNAL_FUNC (gnome_help_pbox_goto),
 			    &help_entry);
 
 	gtk_widget_show_all (prefs->prop_win);
