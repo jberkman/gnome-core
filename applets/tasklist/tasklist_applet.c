@@ -311,7 +311,7 @@ layout_tasklist (void)
 			if (num_rows < k + 1)
 				num_rows = k + 1;
 			
-			if (j >= ((num + get_horz_rows() - 1) / get_horz_rows())) {
+			if (get_horz_rows () == 0 || j >= ((num + get_horz_rows() - 1) / get_horz_rows())) {
 				j = 0;
 				k++;
 			}
