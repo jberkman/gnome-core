@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Ant
 Name[no]=Maur
-Comment=
+Comment=Little Ants walk around, leaving colored trails.
 Exec=xscreensaver-command -activate
 TryExec=ant
 Terminal=0
@@ -11,6 +11,33 @@ Type=Application
 WindowIdCommand=-window-id
 RootCommand=-root
 Icon=ant.png
-Author=
-ExtendedComment=
+Author=David Bagely
+ExtendedComment=A cellular automaton that is really a two-dimensional\nTuring machine: as the heads (``ants'') walk\nalong the screen, they change pixel values in their\npath. Then, as they pass over changed pixels, their\nbehavior is influenced.
 Demo=ant -delay 2
+
+[Arg0]
+Name=Size
+Type=LRange
+LeftLabel=Small
+RightLabel=Large
+Flag=-size
+ValType=I[1-20]=5
+Label=Size:
+Comment=Changes the size of the ants.
+
+[Arg1]
+Name=Count
+Type=NRange
+LeftLabel=Ants:
+Flag=-count
+ValType=I[1-10]=2
+Label=Number of ants.
+Comment=Changes the number of ants marching across the screen.
+
+[Arg2]
+Name=Truchet
+Type=Check
+Flag=-truchet
+Flag2=-no-truchet
+LeftLabel=Print the path that the ant took in the trail.
+Comment=Determines whether or not the ant leaves a truchet in the path it leaves behind.

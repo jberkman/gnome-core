@@ -187,7 +187,7 @@ screensaver_setup ()
         gtk_container_add (GTK_CONTAINER (align), frame);
 	gtk_box_pack_start (GTK_BOX(hbox), align, TRUE, TRUE, 0);
         gtk_box_pack_start (GTK_BOX (bottom), saver, TRUE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (bottom), power, TRUE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (bottom), power, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 	gtk_box_pack_end (GTK_BOX (vbox), bottom, TRUE, TRUE, 0);
 

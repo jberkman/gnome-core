@@ -265,6 +265,7 @@ GtkWidget
 *get_and_set_mode()
 {
         GList *templist = NULL;
+        //   screensaver_data *random;
         gchar *tempdir;
 
         static GtkWidget *list = NULL;
@@ -273,13 +274,10 @@ GtkWidget
                 list = gtk_list_new();
                 gtk_list_set_selection_mode (GTK_LIST (list), GTK_SELECTION_BROWSE);
                 templist = g_list_prepend (templist, gtk_list_item_new_with_label ("No Screensaver"));
-                /*
-                gtk_signal_connect (GTK_OBJECT (templist->data), 
-                                    "button_press_event", 
-                                    (GtkSignalFunc) list_click_callback, 
-                                    NULL); 
-                */
                 gtk_list_prepend_items (GTK_LIST (list), templist);
+                
+                //random = get_random_data ();
+
                 
                 tempdir = gnome_unconditional_datadir_file ("control-center/.data/");
                 create_list (GTK_LIST (list), tempdir);
@@ -594,11 +592,9 @@ ok_callback ()
                         g_string_append (command, " -lock-mode");
                 g_string_append (command," -xrm \"*programs:\t");
                 if (sd->args) {
-                        g_print ("%s", sd->args);
                         g_string_append (command, sd->args);
                 } else
                         g_string_append (command, sd->tryexec);
-                g_print ("tryexec:\t%s\n", sd->tryexec);
                 if (sd->root) {
                         g_string_append (command, " ");
                         g_string_append (command, sd->root);

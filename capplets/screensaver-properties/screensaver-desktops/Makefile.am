@@ -10,6 +10,7 @@ ssdata_DATA=\
 	Deco.desktop\
 	deco.png \
 	Ant.desktop \
+	ant.png \
 	Attraction.desktop \
 	Blitspin.desktop \
 	Bouboule.desktop \

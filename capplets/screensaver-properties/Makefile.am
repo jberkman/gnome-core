@@ -18,7 +18,7 @@ screensaver_properties_capplet_SOURCES = \
 screensaver_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 	$(GNOME_LIBDIR) $(ORB_LIBS) \
 	$(GNOMEUI_LIBS) $(INTLLIBS) \
-	-lImlib
+	-lImlib -lgnorba
 
 EXTRA_DIST =
 	screensaver-properties.desktop 
