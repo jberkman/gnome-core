@@ -37,7 +37,7 @@
     hand with a piece of software called a "window manager", allows
     you to create more than one virtual desktop to organize your
     work, with different applications running on each
-    desktop. Each desktop can then also be subdivided by the window
+    desktop. Each desktop can also be subdivided by the window
     manager into rows and columns of working space, called
     "desk areas". <application>Desk
     Guide</application> applet is a navigational tool to get around
@@ -48,10 +48,9 @@
 
     <para><application>Desk Guide</application> applet works
     hand-in-hand with the window manager, the piece of software such
-    as Sawfish, formerly known as Sawmill, or Enlightenment that
-    handles the look and feel of your windows - laying down borders,
-    resizing the windows, placing them, moving them and so on. The
-    window manager is in charge of the various
+    as Sawfish or Enlightenment that handles the look, feel and performance of
+    your windows. The window manager lays down borders, resizes windows, places
+    and moves them. The window manager is in charge of the various
     desktops. <application>Desk Guide</application> applet handles the
     navigation.</para>
  
@@ -293,7 +292,14 @@
 	 <para><guilabel>Rows of desktops</guilabel> &mdash; set the
 	 number of rows of desktop maps <application>Desk
 	 Guide</application> creates in the panel to represent your
-	 desktops.</para>
+	 desktops.
+	    <note>
+	      <para>Your window manager, not <application>Desk Guide
+	      Applet</application>, controls the number of desktops available on
+	      your computer. This feature only controls the way
+	      <application>Desk Guide</application> applet displays them.</para>
+	    </note>
+	  </para>
 	</listitem>
      
 
