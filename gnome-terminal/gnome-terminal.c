@@ -1389,11 +1389,18 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 {
 	GtkWidget *menu;
 	struct terminal_config *cfg;
-
+	int popup = 0;
+	
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	/* FIXME: this should popup a menu instead */
-	if (event->state & GDK_CONTROL_MASK && event->button == 3){
+	if (event->button == 3){
+		if (event->state & GDK_CONTROL_MASK)
+			popup = 1;
+		else if (!(term->vx->vt.mode & VTMODE_SEND_MOUSE))
+			popup = 1;
+	}
+	
+	if (popup){
 		GnomeUIInfo *uiinfo;
 		GnomeUIBuilderData uib;
 		menu = gtk_menu_new (); 
@@ -1538,12 +1545,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	terminals = g_list_append (terminals, app);
 
 	/* Setup the Zvt widget */
-	term = ZVT_TERM (zvt_term_new ());
-
-	/* set a default grid size for the terminal -- this
-	 * might be reset by the geometry option
-	 */
-	zvt_term_set_size (ZVT_TERM (term), 80, 25);
+	term = ZVT_TERM (zvt_term_new_with_size (80, 25));
 
 	if ((zvt_term_get_capabilities (term) & ZVT_TERM_PIXMAP_SUPPORT) != 0){
 		zvt_pixmap_support = TRUE;

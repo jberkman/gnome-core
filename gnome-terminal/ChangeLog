@@ -1,3 +1,8 @@
+1999-02-07  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (button_press): Add support for popping up the
+	menu if the application is not requesting the mouse events.
+
 1999-02-07  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* gnome-terminal.c (window_delete_event): Fixed crashes when
