@@ -415,10 +415,13 @@ save_state (GnomeClient        *client,
 		strncat(s, argv[j], 511);
 	}
 	g_message("%s", s);
-	
+
         gnome_client_set_restart_command (client, i, argv);
         /* i.e. clone_command = restart_command - '--sm-client-id' */
         gnome_client_set_clone_command (client, 0, NULL);
+
+	if (shutdown)
+		gtk_main_quit();
 
         return TRUE;
 }
