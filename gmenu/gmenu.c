@@ -42,7 +42,10 @@ int main (int argc, char *argv[]);
 
 /* menu bar */
 GnomeUIInfo file_menu[] = {
-        GNOMEUIINFO_MENU_NEW_ITEM(N_("_New Folder..."), create_folder_pressed, NULL), 
+        GNOMEUIINFO_MENU_NEW_ITEM(N_("_New Folder..."),
+				  N_("Create a new folder"),
+				  create_folder_pressed, NULL),
+	
 	{ GNOME_APP_UI_ITEM, N_("_Delete..."), NULL, delete_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CUT, 'D',
 	  GDK_CONTROL_MASK, NULL },
@@ -63,9 +66,7 @@ GnomeUIInfo sort_menu[] = {
 GnomeUIInfo help_menu[] = {
 /*	{ GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },*/
-	{ GNOME_APP_UI_ITEM, N_("_About..."), NULL, about_cb, NULL, NULL,
-	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0,
-	  NULL },
+        GNOMEUIINFO_MENU_ABOUT_ITEM(about_cb, NULL), 
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 GnomeUIInfo main_menu[] = {

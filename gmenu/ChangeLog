@@ -1,3 +1,8 @@
+1999-01-07  Nat Friedman  <nat@nat.org>
+
+	* gmenu.c: Use GNOMEUIINFO_MENU_ABOUT_ITEM.  Pass the menu item
+ 	description to GNOMEUIINFO_MENU_NEW_ITEM.
+
 1999-01-06  Nat Friedman  <nat@nat.org>
 
 	* gmenu.c: Use the gnome-app-helper.h GNOMEUIINFO_MENU macros.
