@@ -26,8 +26,9 @@ static int width = 400,height = 200;
 static char *
 default_hint(void)
 {
-	return  g_strdup(_("Press the foot in the lower left corner\n"
-			   "to start working with GNOME"));
+	return  g_strdup(_("Click on the GNOME foot icon to open the\n"
+			   "Main Menu.  This menu contains all\n"
+			   "GNOME applications, tools, and commands."));
 }
 
 /*find the language, but only look as far as gotlang*/

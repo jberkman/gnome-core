@@ -1,3 +1,7 @@
+2000-04-29  Dan Mueth <d-mueth@uchicago.edu>
+
+	* gnome-hint.c: Modified default hint
+
 Sun Apr 16 22:07:51 2000  George Lebl <jirka@5z.com>
 
 	* gnome-hint.c: add ensure_style to make it work for other then -1
