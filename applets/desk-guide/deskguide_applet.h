@@ -49,7 +49,10 @@ struct _ConfigItem
 #define CONFIG_BOOL(path, default, name)		{ #path, GINT_TO_POINTER (default), -1, -1, name, GINT_TO_POINTER (default) }
 #define	CONFIG_RANGE(path, default, min, max, name)	{ #path, GINT_TO_POINTER (default), min, max, name, GINT_TO_POINTER (default) }
 
-#define BOOL_CONFIG(path)	GPOINTER_TO_INT (gp_config_find_value (#path))
-#define RANGE_CONFIG(path)	GPOINTER_TO_INT (gp_config_find_value (#path))
+#define BOOL_CONFIG(path)	GPOINTER_TO_INT (gp_config_find_value (#path, FALSE))
+#define RANGE_CONFIG(path)	GPOINTER_TO_INT (gp_config_find_value (#path, FALSE))
+#define BOOL_TMP_CONFIG(path)	GPOINTER_TO_INT (gp_config_find_value (#path, TRUE))
+#define RANGE_TMP_CONFIG(path)	GPOINTER_TO_INT (gp_config_find_value (#path, TRUE))
 
+#define CONFIG_WIDGET(toplevel, path)	(gtk_object_get_data (GTK_OBJECT (toplevel), #path))
 

@@ -1,3 +1,9 @@
+Mon Oct 25 01:37:41 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: added gp_config_check() which can change config
+	widget sensitivity due to specific config values. made Height and
+	Width spinners insensitive when "override with panel size" is set.
+
 Mon Oct 25 00:57:42 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_init_gui): translate the result from

@@ -41,7 +41,8 @@ static gboolean	gp_task_notifier	(gpointer	    func_data,
 					 GwmhTaskInfoMask   imask);
 static void	gp_about		(void);
 static void	gp_config_popup		(void);
-static gpointer	gp_config_find_value	(const gchar *path);
+static gpointer	gp_config_find_value	(const gchar       *path,
+					 gboolean           tmp_value);
 static void	gp_load_config		(const gchar	   *privcfgpath);
 static gboolean	gp_save_session		(gpointer	    func_data,
 					 const gchar	   *privcfgpath,
@@ -312,7 +313,8 @@ gp_load_config (const gchar *privcfgpath)
 }
 
 static gpointer
-gp_config_find_value (const gchar *path)
+gp_config_find_value (const gchar *path,
+		      gboolean     tmp_value)
 {
   guint i;
   
@@ -321,7 +323,7 @@ gp_config_find_value (const gchar *path)
       ConfigItem *item = gp_config_items + i;
       
       if (path == item->path)
-	return item->value;
+	return tmp_value ? item->tmp_value : item->value;
     }
   
   g_warning (G_GNUC_PRETTY_FUNCTION "(): unable to find config value for <%s>", path);
@@ -783,6 +785,17 @@ gp_about (void)
 }
 
 static void
+gp_config_check (GtkWidget *widget)
+{
+  GtkWidget *toplevel = gtk_widget_get_toplevel (widget);
+
+  gtk_widget_set_sensitive (CONFIG_WIDGET (toplevel, area_height),
+			    !BOOL_TMP_CONFIG (abandon_area_height));
+  gtk_widget_set_sensitive (CONFIG_WIDGET (toplevel, area_width),
+			    !BOOL_TMP_CONFIG (abandon_area_width));
+}
+
+static void
 gp_config_toggled (GtkToggleButton *button,
 		   ConfigItem      *item)
 {
@@ -794,7 +807,7 @@ static inline GtkWidget*
 gp_config_add_boolean (GtkWidget  *vbox,
 		       ConfigItem *item)
 {
-  GtkWidget *widget;
+  GtkWidget *widget, *toplevel = gtk_widget_get_toplevel (vbox);
   
   widget = gtk_widget_new (GTK_TYPE_CHECK_BUTTON,
 			   "visible", TRUE,
@@ -802,11 +815,13 @@ gp_config_add_boolean (GtkWidget  *vbox,
 			   "active", GPOINTER_TO_INT (item->value),
 			   "border_width", CONFIG_ITEM_BORDER,
 			   "signal::toggled", gp_config_toggled, item,
+			   "object_signal_after::toggled", gp_config_check, toplevel,
 			   NULL);
   gtk_box_pack_start (GTK_BOX (vbox), widget, FALSE, TRUE, 0);
   gtk_widget_set (GTK_BIN (widget)->child,
 		  "xalign", 0.0,
 		  NULL);
+  gtk_object_set_data (GTK_OBJECT (toplevel), item->path, widget);
   
   return widget;
 }
@@ -824,7 +839,7 @@ gp_config_add_range (GtkWidget  *vbox,
 		     ConfigItem *item)
 {
   GtkObject *adjustment;
-  GtkWidget *hbox, *label, *spinner;
+  GtkWidget *hbox, *label, *spinner, *toplevel = gtk_widget_get_toplevel (vbox);
   
   adjustment = gtk_adjustment_new (GPOINTER_TO_UINT (item->tmp_value),
 				   item->min,
@@ -850,11 +865,12 @@ gp_config_add_range (GtkWidget  *vbox,
 		  NULL);
   gtk_object_set_user_data (GTK_OBJECT (adjustment), spinner);
   gtk_box_pack_end (GTK_BOX (hbox), spinner, FALSE, TRUE, 0);
-  gtk_signal_connect (adjustment,
-		      "value_changed",
-		      GTK_SIGNAL_FUNC (gp_config_value_changed),
-		      item);
+  gtk_object_set (adjustment,
+		  "signal::value_changed", gp_config_value_changed, item,
+		  "object_signal_after::value_changed", gp_config_check, toplevel,
+		  NULL);
   gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);
+  gtk_object_set_data (GTK_OBJECT (toplevel), item->path, hbox);
   
   return hbox;
 }
@@ -921,6 +937,7 @@ gp_config_create_page (GSList		*item_slist,
 			 "border_width", CONFIG_OBOX_BORDER,
 			 "spacing", CONFIG_OBOX_SPACING,
 			 NULL);
+  gnome_property_box_append_page (pbox, page, gtk_label_new (_ (page_name)));
   
   while (item_slist)
     {
@@ -945,8 +962,6 @@ gp_config_create_page (GSList		*item_slist,
 	  gp_config_add_range (vbox, item);
 	}
     }
-  
-  gnome_property_box_append_page (pbox, page, gtk_label_new (_ (page_name)));
   
   return item_slist;
 }
@@ -983,6 +998,7 @@ gp_config_popup (void)
       g_slist_free (fslist);
 
       gtk_quit_add_destroy (1, GTK_OBJECT (dialog));
+      gp_config_check (dialog);
     }
   
   gtk_widget_show (dialog);
