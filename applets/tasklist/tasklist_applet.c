@@ -43,6 +43,10 @@ fixup_task_label (TasklistTask *task)
 
 	label_len = gdk_string_width (area->style->font,
 				      task->gwmh_task->name);
+	
+	if (GWMH_TASK_ICONIFIED (task->gwmh_task))
+		label_len += gdk_string_width (area->style->font,
+					       "[]");
 
 	if (label_len > task->width - ROW_HEIGHT) {
 		len = strlen (task->gwmh_task->name);
@@ -56,12 +60,19 @@ fixup_task_label (TasklistTask *task)
 			
 			label_len = gdk_string_width (area->style->font, str);
 			
+			if (GWMH_TASK_ICONIFIED (task->gwmh_task))
+				label_len += gdk_string_width (area->style->font,
+							       "[]");
 			if (label_len <= task->width - (Config.show_mini_icons ? 24:6))
 				break;
 		}
 	}
 	else
 		str = g_strdup (task->gwmh_task->name);
+
+	if (GWMH_TASK_ICONIFIED (task->gwmh_task)) {
+		str = g_strdup_printf ("[%s]", str);
+	}
 
 	return str;
 }
