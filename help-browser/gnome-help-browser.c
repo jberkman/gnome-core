@@ -80,13 +80,14 @@ help_browser_simple_browser
 void destroy_server(HelpWindow win);
 
 /* MANPATH should probably come from somewhere */
-#define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
-#define DEFAULT_INFOPATH "/usr/info:/usr/local/info"
+#define DEFAULT_MANPATH   GNOME_PREFIX "/man:/usr/man:/usr/local/man:/usr/X11R6/man"
+#define DEFAULT_INFOPATH  GNOME_PREFIX "/info:/usr/info:/usr/local/info"
 /* GHELPPATH probably needs some automatic additions inside toc */
-#define DEFAULT_GHELPPATH GNOMEHELPPATH ":/opt/gnome/share/gnome/help:" \
+#define DEFAULT_GHELPPATH GNOME_PREFIX "/share/gnome/help:" \
+                          "/opt/gnome/share/gnome/help:" \
                           "/usr/local/share/gnome/help:" \
 			  "/usr/local/gnome/share/gnome/help:" \
-			  "/usr/share/gnome/help:" 
+			  "/usr/share/gnome/help" 
 #define DEFAULT_MEMCACHESIZE "1000000"
 #define DEFAULT_HISTORYLENGTH "1000"
 #define HELP_BROWSER_RC_DIR ".gnome-help-browser"

@@ -10,7 +10,7 @@ INCLUDES = 							\
 	-I$(includedir)						\
 	-I$(top_srcdir)/intl -I$(top_builddir)/intl		\
 	$(GNOME_INCLUDEDIR)					\
-	-DGNOMEHELPPATH=\""$(datadir)/gnome/help\"" 	\
+	-DGNOME_PREFIX=\""$(prefix)\"" 	\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""	\
 	$(htmlcflags)
 

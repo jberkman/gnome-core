@@ -206,7 +206,7 @@ gint expandInfoTable(GList *table, gchar *name)
     gchar *rootFile;
 
     rootFile = ((struct _big_table_entry *)table->data)->filename;
-    if (loadFileToBuf(rootFile, &data, NULL)) {
+    if (loadFileToBuf(rootFile, &data, NULL) || !data) {
 	return -1;
     }
 

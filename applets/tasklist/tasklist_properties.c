@@ -291,7 +291,7 @@ static void
 phelp_cb (GtkWidget *w, gint tab, gpointer data)
 {
 	GnomeHelpMenuEntry help_entry = { "tasklist_applet",
-					  "index.html#tasklist-applet-properties" };
+					  "index.html#TASKLIST-APPLET-PROPERTIES" };
 	gnome_help_display(NULL, &help_entry);
 }
 

@@ -1,3 +1,11 @@
+2000-04-04  Jacob Berkman  <jacob@helixcode.com>
+
+	* gnome-help-browser.c: look in $(prefix) for man and info pages
+
+	* toc2-info.c (expandInfoTable): instead of crashing, report an
+	error when there was no data loaded.  People probably have run into
+	bug-buddy enough times.
+
 2000-04-03  Jacob Berkman  <jacob@helixcode.com>
 
 	* add gtkhtml support
