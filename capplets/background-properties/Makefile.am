@@ -5,6 +5,7 @@ INCLUDES = 			\
 	-I$(includedir) $(GNOME_INCLUDEDIR)
 
 bin_PROGRAMS =background-properties-capplet
+bin_SCRIPTS =background-properties
 
 background_properties_capplet_SOURCES =	\
 	property-background.c	\
