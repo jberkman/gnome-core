@@ -5,13 +5,22 @@
 #include <glib.h>
 
 #include "queue.h"
+#include "history.h"
 
 typedef struct _helpWindow *HelpWindow;
 
 /* Eventually this should return a window structure */
-HelpWindow newWindow(gchar *ref);
+HelpWindow helpWindowNew(GtkSignalFunc about_cb);
+void helpWindowShowURL(HelpWindow win, gchar *ref);
+void helpWindowSetHistory(HelpWindow win, History history);
 
-Queue helpWindowQueue(HelpWindow w);
-GtkWidget *helpWindowWidget(HelpWindow w);
+void helpWindowQueueAdd(HelpWindow w, gchar *ref);
+void helpWindowHistoryAdd(HelpWindow w, gchar *ref);
+
+gchar *helpWindowCurrentRef(HelpWindow w);
+
+void helpWindowHTMLSource(HelpWindow w, gchar *s, char *ref);
+void helpWindowJumpToAnchor(HelpWindow w, gchar *s);
+void helpWindowJumpToLine(HelpWindow w, gint n);
 
 #endif

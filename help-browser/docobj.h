@@ -1,35 +1,28 @@
 #ifndef _GNOME_HELP_DOCOBJ_H_
 #define _GNOME_HELP_DOCOBJ_H_
 
-#include "gnome-helpwin.h"
-#include "url.h"
-#include "queue.h"
-#include "history.h"
-#include "window.h"
+#include <glib.h>
 
-struct _docObj {
-	gchar *ref;
-	gchar *mimeType;
-	gchar *rawData;
-	gchar *convData;
-	gboolean  freeraw;
-	gboolean  freeconv;
-	urlType  url;
-};
+#include "parseUrl.h"
 
-typedef struct _docObj docObj;
+typedef struct _docObj *docObj;
+typedef void (*TransportFunc) (docObj obj);
 
-/* URL for data in widget */
-/* XXX this stuff belongs in the HelpWindow structure */
-extern gchar CurrentRef[];
-extern gchar LoadingRef[]; /* HACK */
-extern History history;
+docObj docObjNew(gchar *ref);
+void docObjFree(docObj obj);
+void docObjResolveURL(docObj obj, gchar *currentRef);
 
-void visitURL( HelpWindow win, gchar *ref );
-void visitURL_nohistory( HelpWindow win, gchar *ref );
+gchar *docObjGetRef(docObj obj);
+gchar *docObjGetMimeType(docObj obj);
+gchar *docObjGetRawData(docObj obj);
+gchar *docObjGetConvData(docObj obj);
+DecomposedUrl docObjGetDecomposedUrl(docObj obj);
+TransportFunc docObjGetTransportFunc(docObj obj);
 
-docObj *docObj_new( void );
-void docObj_free( docObj *obj );
+void docObjSetMimeType(docObj obj, gchar *s);
+void docObjSetRawData(docObj obj, gchar *s, gboolean freeit);
+void docObjSetConvData(docObj obj, gchar *s, gboolean freeit);
+
 #endif
 
 

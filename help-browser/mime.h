@@ -3,8 +3,8 @@
 
 #include "docobj.h"
 
-void resolveMIME( docObj *obj );
-void convertMIME( docObj *obj );
+void resolveMIME( docObj obj );
+void convertMIME( docObj obj );
 gchar *execfilter(gchar *execpath, gchar *docpath, gchar *inbuf);
 
 #endif

@@ -1,3 +1,6 @@
+/* This file should encapsulate all the HTML widget functionality. */
+/* No other files should be accessing HTML widget functions!       */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,15 +14,13 @@
 
 #include "gnome-helpwin.h"
 
-#include "gnome-help-browser.h"
-
-#include "toc.h"
+#include "parseUrl.h"
+#include "window.h"
 #include "history.h"
 #include "docobj.h"
 #include "queue.h"
-#include "mime.h"
+#include "visit.h"
 #include "misc.h"
-#include "window.h"
 
 /* Toolbar pixmaps */
 #include "close.xpm"
@@ -27,8 +28,6 @@
 #include "left_arrow.xpm"
 #include "contents.xpm"
 #include "help.xpm"
-
-#define VERSION "0.3"
 
 struct _helpWindow {
     /* Main app widget */
@@ -42,23 +41,28 @@ struct _helpWindow {
 
     /* The forward/backward queue */
     Queue queue;
+
+    /* The current page reference */
+    gchar *currentRef;
+
+    /* Passed to us by the main program */
+    GtkSignalFunc about_cb;
+    History history;
 };
 
 
 /* Callbacks */
 static void close_cb(void);
 static void quit_cb(void);
-static void about_cb(GtkWidget *widget);
+static void about_cb (GtkWidget *w, HelpWindow win);
 static void help_forward(GtkWidget *w, HelpWindow win);
 static void help_backward(GtkWidget *w, HelpWindow win);
 static void help_contents(GtkWidget *w, HelpWindow win);
 static void help_onhelp(GtkWidget *w, HelpWindow win);
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
-static void tocselectionChanged(gchar *data);
-static void ghelpShowHistory (GtkWidget *w);
-static void historyCallback (gchar *ref, HelpWindow w);
-static void ghelpShowHistoryTB (GtkWidget *w);
+static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
+static void ghelpShowHistoryTB (GtkWidget *w, HelpWindow win);
 
 static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
@@ -66,14 +70,6 @@ static void update_toolbar(HelpWindow w);
 XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 
 
-
-/**********************************************************************/
-
-/* Globals that probably go *somewhere* */
-GtkWidget *toc;
-/* history global in docobj.c */
-
-HelpWindow currentWindow;
 
 /**********************************************************************/
 
@@ -133,30 +129,29 @@ GnomeUIInfo toolbar[] = {
 /* Callbacks */
 
 static void
-ghelpShowHistory (GtkWidget *w)
+about_cb (GtkWidget *w, HelpWindow win)
+{
+    (win->about_cb)();
+}
+
+static void
+ghelpShowHistory (GtkWidget *w, HelpWindow win)
 {
     if (GTK_CHECK_MENU_ITEM(w)->active == TRUE) {
-	showHistory(history);
+	showHistory(win->history);
     } else {
-	hideHistory(history);
+	hideHistory(win->history);
     }
 }
 
 static void
-ghelpShowHistoryTB (GtkWidget *w)
+ghelpShowHistoryTB (GtkWidget *w, HelpWindow win)
 {
     if (GTK_TOGGLE_BUTTON(w)->active == TRUE) {
-	showHistory(history);
+	showHistory(win->history);
     } else {
-	hideHistory(history);
+	hideHistory(win->history);
     }
-}
-
-static void
-historyCallback (gchar *ref, HelpWindow w)
-{
-    visitURL(w, ref);
-    update_toolbar(w);
 }
 
 static void
@@ -180,38 +175,6 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 	printf("tag clicked was ->%s<-\n", cbs->href);
 	visitURL(win, cbs->href);
 	update_toolbar(win);
-}
-
-static void
-about_cb (GtkWidget *widget)
-{
-	GtkWidget *about;
-	gchar *authors[] = {
-		"Mike Fulbright",
-		"Marc Ewing",
-		NULL
-	};
-
-	about = gnome_about_new ( "Gnome Help Browser", VERSION,
-				  "Copyright (c) 1998 Red Hat Software, Inc.",
-				  authors,
-				  "GNOME Help Browser allows easy access to "
-				  "various forms of documentation on your "
-				  "system",
-				  NULL);
-	gtk_widget_show (about);
-	
-	return;
-}
-
-
-static void
-tocselectionChanged(gchar *file) 
-{
-	if (file != NULL) {
-		visitURL(currentWindow, file);
-		update_toolbar(currentWindow);
-	}
 }
 
 static void help_forward(GtkWidget *w, HelpWindow win) {
@@ -267,9 +230,9 @@ static void help_onhelp(GtkWidget *w, HelpWindow win) {
 static void
 init_toolbar(HelpWindow w)
 {
-	toolbar[5].user_data = currentWindow->helpWidget;
-	toolbar[2].user_data = currentWindow->helpWidget;
-	toolbar[3].user_data = currentWindow->helpWidget;
+	toolbar[5].user_data = w->helpWidget;
+	toolbar[2].user_data = w->helpWidget;
+	toolbar[3].user_data = w->helpWidget;
 	
 	gnome_app_create_toolbar_with_data(GNOME_APP(w->app), toolbar, w);
 
@@ -299,25 +262,54 @@ update_toolbar(HelpWindow w)
 
 /* Public functions */
 
-Queue helpWindowQueue(HelpWindow w)
+void helpWindowQueueAdd(HelpWindow w, gchar *ref)
 {
-    return w->queue;
+    queue_add(w->queue, ref);
 }
 
-GtkWidget *helpWindowWidget(HelpWindow w)
+gchar *helpWindowCurrentRef(HelpWindow w)
 {
-    return w->helpWidget;
+    return w->currentRef;
+}
+
+void helpWindowHistoryAdd(HelpWindow w, gchar *ref)
+{
+    addToHistory(w->history, ref);
+}
+
+void helpWindowHTMLSource(HelpWindow w, gchar *s, gchar *ref)
+{
+    /* First set the current ref (it may be used to load images) */
+    if (w->currentRef) {
+	g_free(w->currentRef);
+    }
+    w->currentRef = g_strdup(ref);
+
+    /* Load it up */
+    gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), s);
+}
+
+void helpWindowJumpToAnchor(HelpWindow w, gchar *s)
+{
+    gnome_helpwin_jump_to_anchor(GNOME_HELPWIN(w->helpWidget), s);
+}
+
+void helpWindowJumpToLine(HelpWindow w, gint n)
+{
+    gnome_helpwin_jump_to_line(GNOME_HELPWIN(w->helpWidget), n);
 }
 
 HelpWindow
-newWindow(gchar *ref)
+helpWindowNew(GtkSignalFunc about_cb)
 {
         HelpWindow w;
 
 	w = (HelpWindow)g_malloc(sizeof(*w));
-	currentWindow = w;
 
 	w->queue= queue_new();
+	w->about_cb = about_cb;
+	w->history = NULL;
+	w->currentRef = NULL;
 
 	/* XXX this needs to change.  The "app" needs to be */
 	/* Somehow distinct from the windows.  Or at least, only */
@@ -330,13 +322,12 @@ newWindow(gchar *ref)
 			    GTK_SIGNAL_FUNC (close_cb),
 			    NULL);
 
-	gnome_app_create_menus(GNOME_APP(w->app), mainmenu);
+	gnome_app_create_menus_with_data(GNOME_APP(w->app), mainmenu, w);
 
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();
 	
 	/* trap clicks on tags so we can stick requested link in browser */
-	/* XXX This should be passing w.  */
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "activate",
 			   GTK_SIGNAL_FUNC(xmhtml_activate), w);
 
@@ -346,6 +337,7 @@ newWindow(gchar *ref)
 	gtk_widget_show(w->helpWidget);
 
 	/* HACKHACKHACK this will grab images via http */
+	gtk_object_set_data(GTK_OBJECT(w->helpWidget), "HelpWindow", w);
 	gtk_xmhtml_set_image_procs(GTK_XMHTML(w->helpWidget),
 				   (XmImageProc)load_image,
 				   NULL,NULL,NULL);
@@ -353,30 +345,32 @@ newWindow(gchar *ref)
 	/* do the toolbar */
 	init_toolbar(w);
 
-	/* make the toc browser */
-	/* XXX this needs to be changed */
-	toc = createToc((GtkSignalFunc)tocselectionChanged);
-	gtk_widget_show(toc);
-
-	/* XXX this too */
-	history = newHistory(0, (GSearchFunc)historyCallback, w); 
-
 	gtk_widget_show(w->app);
 
-	if (ref)
-		visitURL(w, ref);
-
 	return w;
+}
+
+void
+helpWindowSetHistory(HelpWindow win, History history)
+{
+    win->history = history;
+}
+
+void
+helpWindowShowURL(HelpWindow win, gchar *ref)
+{
+    visitURL(win, ref);
+    update_toolbar(win);
 }
 
 /**********************************************************************/
 
 
 /* HACK HACK HACK */
-
 XmImageInfo *
 load_image(GtkWidget *html_widget, gchar *ref)
 {
+        HelpWindow win;
 	gchar *tmpfile;
 	gchar *argv[4];
 
@@ -384,16 +378,15 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	gint   buflen;
 	gint   fd;
 
+	DecomposedUrl du;
+	
 	gchar  theref[1024];
 	gchar  *p;
 
-	strcpy(theref, LoadingRef);
-	p = theref + strlen(theref) - 1;
-	for (; p >= theref && *p != '/'; p--);
-	if (*p == '/')
-		*p = '\0';
-	strcat(theref ,"/");
-	strcat(theref, ref);
+	win = gtk_object_get_data(GTK_OBJECT(html_widget), "HelpWindow");
+	du = decomposeUrlRelative(ref, win->currentRef, &p);
+	freeDecomposedUrl(du);
+	strcpy(theref, p);
 	printf("Loading image ->%s<-\n", theref);
 
 	if (strstr(theref, "file:")) {

@@ -1,3 +1,12 @@
+1998-02-24  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Put virtually all the globals in a per-window structure.
+
+	* Rearranged *heavily* the docObj and url stuff.  Slightly
+	more sane arrangement of data structure and .h files now.
+
+	* Put everything back together again.  Seems to work :-).
+
 1998-02-23  Michael Fulbright  <msf@redhat.com>
 
 	* Added GNU info support, cleaned up code somewhat (unused vars, etc)

@@ -161,7 +161,7 @@ gnome_helpwin_close(GnomeHelpWin *w)
 }
 
 void
-jump_to_anchor(GnomeHelpWin *w, gchar *anchor)
+gnome_helpwin_jump_to_anchor(GnomeHelpWin *w, gchar *anchor)
 {
 	gchar *a;
 
@@ -180,7 +180,7 @@ jump_to_anchor(GnomeHelpWin *w, gchar *anchor)
 }
 
 void
-jump_to_line(GnomeHelpWin *w, gint line)
+gnome_helpwin_jump_to_line(GnomeHelpWin *w, gint line)
 {
 	g_return_if_fail( w != NULL );
 
@@ -237,7 +237,7 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 		    return;
 
 		/* just jump to the anchor */
-		jump_to_anchor( help, anchor);
+		gnome_helpwin_jump_to_anchor( help, anchor);
 		return;
 	}
 
@@ -275,7 +275,7 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 	}
 
 	gtk_xmhtml_source( GTK_XMHTML(help), str);
-	jump_to_anchor( help, anchor);
+	gnome_helpwin_jump_to_anchor( help, anchor);
 
 	if (help->html_source)
 	    g_free(help->html_source);

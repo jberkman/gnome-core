@@ -5,7 +5,7 @@
 #include <glib.h>
 
 #include "HTParse.h"
-#include "url.h"
+#include "parseUrl.h"
 
 #define COPY_OR_EMPTY(x) g_strdup((x) ? (x) : "")
 

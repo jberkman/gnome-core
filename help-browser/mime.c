@@ -8,52 +8,61 @@
 #include <fcntl.h>
 #include <wait.h>
 #include <errno.h>
+#include <string.h>
 
 #include <glib.h>
 
+#include "docobj.h"
 #include "mime.h"
 #include "misc.h"
 
-static void convertMan(docObj *obj);
-static void convertHTML(docObj *obj);
-static void convertINFO(docObj *obj);
-static void convertText(docObj *obj);
+static void convertMan(docObj obj);
+static void convertHTML(docObj obj);
+static void convertINFO(docObj obj);
+static void convertText(docObj obj);
 
 void
-resolveMIME( docObj *obj )
+resolveMIME( docObj obj )
 {
 
-	if (obj->mimeType)
+        gchar *ref;
+    
+	if (docObjGetMimeType(obj))
 		return;
 
+	ref = docObjGetRef(obj);
+	
 	/* do simple recognition for now based on ref */
-	if (strstr(obj->ref, "info:")) {
-		obj->mimeType = "application/x-info";
-	} else if (strstr(obj->ref, "/man/")) {
-		obj->mimeType = "application/x-troff-man";
-	} else if (strstr(obj->ref, "html") || strstr(obj->ref, "#")
-		   || strstr(obj->ref, "http")) {
-		obj->mimeType = "text/html";
+	if (strstr(ref, "info:")) {
+	        docObjSetMimeType(obj, "application/x-info");
+	} else if (strstr(ref, "/man/")) {
+		docObjSetMimeType(obj, "application/x-troff-man");
+	} else if (strstr(ref, "html") || strstr(ref, "#")
+		   || strstr(ref, "http")) {
+		docObjSetMimeType(obj, "text/html");
 	} else {
-		obj->mimeType = "text/plain";
+		docObjSetMimeType(obj, "text/plain");
 	}
 
-	printf("->%s<-  ->%s<-\n",obj->ref, obj->mimeType);
+	printf("->%s<-  ->%s<-\n", ref, docObjGetMimeType(obj));
 
 }
 
 
 void
-convertMIME( docObj *obj )
+convertMIME( docObj obj )
 {
+        gchar *m;
 
-	if (!strcmp(obj->mimeType, "application/x-troff-man")) {
+        m = docObjGetMimeType(obj);
+
+	if (!strcmp(m, "application/x-troff-man")) {
 		convertMan(obj);
-	} else if (!strcmp(obj->mimeType, "text/html")) {
+	} else if (!strcmp(m, "text/html")) {
 		convertHTML(obj);
-	} else if (!strcmp(obj->mimeType, "application/x-info")) {
+	} else if (!strcmp(m, "application/x-info")) {
 		convertINFO(obj);
-	} else if (!strcmp(obj->mimeType, "text/plain")) {
+	} else if (!strcmp(m, "text/plain")) {
 		convertText(obj);
 	} else {
 		convertText(obj);
@@ -61,62 +70,69 @@ convertMIME( docObj *obj )
 }
 
 static void
-convertHTML( docObj *obj ) 
+convertHTML( docObj obj ) 
 {
 	g_return_if_fail( obj != NULL );
 
 	/* if converted data exists lets use it */
-	if (obj->convData)
-		return;
+	if (docObjGetConvData(obj))
+	    return;
 
-	obj->convData = obj->rawData;
-	obj->freeconv = FALSE;
+	docObjSetConvData(obj, docObjGetRawData(obj), FALSE);
 }
 
 static void
-convertText( docObj *obj )
+convertText( docObj obj )
 {
 	gchar *s;
+	gchar *raw;
 
 	g_return_if_fail( obj != NULL );
 
 	/* if converted data exists lets use it */
-	if (obj->convData)
-		return;
+	if (docObjGetConvData(obj))
+	    return;
 	
-	s = g_malloc(strlen(obj->rawData) + 30);
+	raw = docObjGetRawData(obj);
+	s = g_malloc(strlen(raw) + 30);
 	strcpy(s, "<BODY><PRE>\n");
-	strcat(s, obj->rawData);
+	strcat(s, raw);
 	strcat(s, "\n</PRE></BODY>\n");
 
-	obj->convData = s;
-	obj->freeconv = TRUE;
+	docObjSetConvData(obj, s, TRUE);
 }
 
 static void
-convertMan( docObj *obj )
+convertMan( docObj obj )
 {
 	/* broken - we ignore obj->rawData because man2html doesnt */
 	/*          work with input from stdin                     */
-	if (!obj->rawData)
-		return;
-	obj->convData = execfilter("gnome-man2html {}",obj->url.u->path, NULL);
+
+        gchar *s;
+
+	if (! (s = docObjGetRawData(obj)))
+	    return;
+	
+	s = execfilter("gnome-man2html {}",
+		       docObjGetDecomposedUrl(obj)->path, NULL);
+	docObjSetConvData(obj, s, TRUE);
 }
 
 
 static void
-convertINFO( docObj *obj )
+convertINFO( docObj obj )
 {
 	char *argv[2];
+	gchar *s;
 
 	argv[0] = "gnome-info2html";
 	argv[1] = NULL;
 
-	if (!obj->rawData)
-		return;
-	obj->convData = getOutputFrom(argv, obj->rawData, 
-				      strlen(obj->rawData));
-	obj->freeconv = TRUE;
+	if (! (s = docObjGetRawData(obj)))
+	    return;
+	
+	docObjSetConvData(obj, getOutputFrom(argv, s, strlen(s)), TRUE);
+	
 }
 
 

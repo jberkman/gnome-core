@@ -1,123 +1,181 @@
 /* handles the loading and conversion of help documents into HTML */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <glib.h>
 
-#include "gnome-helpwin.h"
-
 #include "docobj.h"
-#include "transport.h"
-#include "mime.h"
-
 #include "parseUrl.h"
-#include "queue.h"
-#include "history.h"
+#include "transport.h"
 
-gchar  CurrentRef[1024];
-gchar  LoadingRef[1024];
+struct _docObj {
+    /* URL information */
+    gchar *ref;
+    gchar *absoluteRef;
+    gchar *mimeType;
+    DecomposedUrl decomposedUrl;
+    
+    /* The data */
+    gchar *rawData;
+    gchar *convData;
+    gboolean  freeraw;
+    gboolean  freeconv;
 
-/* XXX this doesn't belong here */
-History history;
-
-static void visitDocument( GnomeHelpWin *help, docObj *obj );
-static void _visitURL( HelpWindow win, gchar *ref, gboolean save );
-static void displayHTML( GnomeHelpWin *help, docObj *obj );
+    /* Transport info */
+    TransportMethod   transportMethod;
+    TransportFunc     transportFunc;
+};
 
 docObj
-*docObj_new(void)
+docObjNew(gchar *ref)
 {
-	docObj *p;
+	docObj p;
 
-	p = g_malloc(sizeof(docObj));
-	p->ref      = NULL;
+	p = g_malloc(sizeof(*p));
+	p->ref = g_strdup(ref);
+	p->absoluteRef = NULL;
 	p->mimeType = NULL;
+	p->decomposedUrl = NULL;
+
 	p->rawData  = NULL;
 	p->convData = NULL;
 	p->freeraw  = FALSE;
 	p->freeconv = FALSE;
-	p->url.u    = NULL;
+	
+	p->transportMethod = TRANS_UNRESOLVED;
+	p->transportFunc = transportUnknown;
 
 	return p;
 }
 
 void
-docObj_free(docObj *obj)
+docObjFree(docObj obj)
 {
 	g_return_if_fail( obj != NULL );
 
+	g_free(obj->ref);
+	g_free(obj->absoluteRef);
+	g_free(obj->mimeType);
+	
 	if (obj->freeraw && obj->rawData)
 		g_free(obj->rawData);
 	if (obj->freeconv && obj->convData)
 		g_free(obj->convData);
 
-	if (obj->url.u)
-		freeDecomposedUrl(obj->url.u);
+	if (obj->decomposedUrl)
+		freeDecomposedUrl(obj->decomposedUrl);
 
 	g_free(obj);
 }
 
-static void
-visitDocument( GnomeHelpWin *help, docObj *obj )
-{
-
-	resolveURL(obj);
-	transport(obj);
-	resolveMIME(obj);
-	convertMIME(obj);
-	displayHTML(help, obj);
-
-}
-
-
-/* most people will call this - it allocates a docObj type and loads   */
-/* the page. Currently it frees the docObj afterwards, no history kept */
-static void
-_visitURL( HelpWindow win, gchar *ref, gboolean save )
-{
-	docObj *obj;
-
-	obj = docObj_new();
-	obj->ref = g_strdup(ref);
-
-	visitDocument(GNOME_HELPWIN(helpWindowWidget(win)), obj);
-
-	/* obj->ref was 'cleaned up' by visitDocuemnt()/resolveURL() */
-	if (save) {
-		queue_add(helpWindowQueue(win), obj->ref);
-		addToHistory(history, obj->ref);
-	}
-	docObj_free(obj);
-}
-
+/* parse a URL into component pieces */
 void
-visitURL( HelpWindow win, gchar *ref )
+docObjResolveURL(docObj obj, gchar *currentRef)
 {
-	_visitURL(win, ref, TRUE);
-}
+	DecomposedUrl decomp = NULL;
 
-void visitURL_nohistory(HelpWindow win, gchar *ref )
-{
-	_visitURL(win, ref, FALSE);
-}
+	g_return_if_fail( obj != NULL );
+	g_return_if_fail( obj->ref != NULL );
 
-static void
-displayHTML( GnomeHelpWin *help, docObj *obj )
-{
-	strncpy(CurrentRef, obj->ref, sizeof(CurrentRef));
+	if (obj->decomposedUrl)
+	    return;
 
-	if (obj->convData) {
-		snprintf(LoadingRef, sizeof(LoadingRef), "%s://%s%s",
-			 obj->url.u->access, 
-			 obj->url.u->host, 
-			 obj->url.u->path);
-		gtk_xmhtml_source( GTK_XMHTML(help), obj->convData );
+	/* HACKHACKHACK for info support */
+	if (!strncmp(obj->ref, "info:", 5)) {
+		gchar *r, *s;
+
+		decomp = g_malloc(sizeof(*(obj->decomposedUrl)));
+
+		r = g_strdup(obj->ref + 5);
+		s = r + strlen(r) - 1;
+		while (s > r && *s != '#')
+			s--;
+		if (*s == '#') {
+			decomp->anchor = g_strdup(s+1);
+			*s = '\0';
+		} else {
+			decomp->anchor = g_strdup("");
+		}
+		decomp->access = g_strdup("file");
+		decomp->host   = g_strdup("");
+		decomp->path   = g_malloc(strlen(r) + 16);
+		strcpy(decomp->path, "/usr/info/");
+		strcat(decomp->path, r);
+		
+		g_free(r);
+	} else if (isRelative(obj->ref)) {
+	    printf("RELATIVE: %s\n", obj->ref);
+	    decomp = decomposeUrlRelative(obj->ref, currentRef,
+					  &(obj->absoluteRef));
+        } else {
+	    decomp = decomposeUrl(obj->ref);
+	    obj->absoluteRef = g_strdup(obj->ref);
 	}
 
-	printf("anchor is ->%s<-\n", (obj->url.u->anchor));
-	if (*(obj->url.u->anchor))
-		jump_to_anchor( help, obj->url.u->anchor);
-	else
-		jump_to_line( help, 1 );
+	printf("%s %s %s %s\n", obj->ref, decomp->access, 
+	       decomp->path, decomp->anchor);
+
+	/* stupid test for transport types we currently understand */
+	if (!strncmp(decomp->access, "file", 4)) {
+	    obj->transportMethod = TRANS_FILE;
+	    obj->transportFunc   = transportFile;
+	} else if (!strncmp(decomp->access, "http", 4)) {
+	    obj->transportMethod = TRANS_HTTP;
+	    obj->transportFunc   = transportHTTP;
+	} else {
+	    obj->transportMethod = TRANS_UNKNOWN;
+	    obj->transportFunc   = transportUnknown;
+	}
+
+	obj->decomposedUrl = decomp;
+}
+
+gchar *docObjGetRef(docObj obj)
+{
+    return obj->ref;
+}
+
+gchar *docObjGetMimeType(docObj obj)
+{
+    return obj->mimeType;
+}
+
+gchar *docObjGetRawData(docObj obj)
+{
+    return obj->rawData;
+}
+
+gchar *docObjGetConvData(docObj obj)
+{
+    return obj->convData;
+}
+
+DecomposedUrl docObjGetDecomposedUrl(docObj obj)
+{
+    return obj->decomposedUrl;
+}
+
+TransportFunc docObjGetTransportFunc(docObj obj)
+{
+    return obj->transportFunc;
+}
+    
+void docObjSetMimeType(docObj obj, gchar *s)
+{
+    if (obj->mimeType)
+	g_free(obj->mimeType);
+
+    obj->mimeType = g_strdup(s);
+}
+
+void docObjSetRawData(docObj obj, gchar *s, gboolean freeit)
+{
+    obj->rawData = s;
+    obj->freeraw = freeit;
+}
+
+void docObjSetConvData(docObj obj, gchar *s, gboolean freeit)
+{
+    obj->convData = s;
+    obj->freeconv = freeit;
 }

@@ -57,8 +57,8 @@ guint gnome_helpwin_close(GnomeHelpWin *help);
 /* load file straight into the HTML widget */
 void gnome_helpwin_goto(GnomeHelpWin *help,  const char *filename);
 
-void jump_to_anchor( GnomeHelpWin *w, gchar *a );
-void jump_to_line( GnomeHelpWin *w, gint line );
+void gnome_helpwin_jump_to_anchor( GnomeHelpWin *w, gchar *a );
+void gnome_helpwin_jump_to_line( GnomeHelpWin *w, gint line );
 
 END_GNOME_DECLS
 

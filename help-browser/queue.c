@@ -7,7 +7,6 @@
 struct _Queue {
 	GList  *queue;
 	GList  *current;
-
 };
 
 Queue

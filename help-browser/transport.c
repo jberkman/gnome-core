@@ -1,101 +1,40 @@
-/* handles url type references and retrieving the sorresponding doc data */
+/* transport functions */
 
+#include <stdio.h>
+#include <unistd.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include <glib.h>
 
 #include "transport.h"
 #include "docobj.h"
-#include "misc.h"
-#include "url.h"
-
 #include "parseUrl.h"
+#include "misc.h"
 
-static void transportUnknown( docObj *obj );
-static void transportFile( docObj *obj );
-static void transportHTTP( docObj *obj );
-
-/* parse a URL into component pieces */
 void
-resolveURL( docObj *obj )
+transport( docObj obj )
 {
-	gchar *s;
-
-	g_return_if_fail( obj != NULL );
-	g_return_if_fail( obj->ref != NULL );
-
-	if (obj->url.u)
-		return;
-
-	/* HACKHACKHACK for info support */
-	if (!strncmp(obj->ref, "info:", 5)) {
-		gchar *r, *s;
-
-		obj->url.u = g_malloc(sizeof(*(obj->url.u)));
-		r = g_strdup(obj->ref+5);
-		s = r + strlen(r) - 1;
-		while (s > r && *s != '#')
-			s--;
-		if (*s == '#') {
-			obj->url.u->anchor = g_strdup(s+1);
-			*s = '\0';
-		} else {
-			obj->url.u->anchor = g_strdup("");
-		}
-		obj->url.u->access = g_strdup("file");
-		obj->url.u->host   = g_strdup("");
-		obj->url.u->path   = g_malloc(strlen(r) + 16);
-		strcpy(obj->url.u->path, "/usr/info/");
-		strcat(obj->url.u->path, r);
-		
-		g_free(r);
-	} else if (isRelative(obj->ref)) {
-	    printf("RELATIVE: %s\n", obj->ref);
-		obj->url.u = decomposeUrlRelative(obj->ref, CurrentRef, &s);
-		g_free(obj->ref);
-		obj->ref = s;
-        } else {
-		obj->url.u = decomposeUrl(obj->ref);
-	}
-
-	printf("%s %s %s %s\n",obj->ref, obj->url.u->access, 
-	       obj->url.u->path, obj->url.u->anchor);
-	/* stupid test for transport types with currently understand */
-	if (!strncmp(obj->url.u->access, "file", 4)) {
-		obj->url.method = TRANS_FILE;
-		obj->url.func   = (transportFunc)transportFile;
-	} else if (!strncmp(obj->url.u->access, "http", 4)) {
-		obj->url.method = TRANS_HTTP;
-		obj->url.func   = (transportFunc)transportHTTP;
-	} else {
-		obj->url.method = TRANS_UNKNOWN;
-		obj->url.func   = (transportFunc)transportUnknown;
-	}
+    /* XXX caching happens here.  I think. */
+    (docObjGetTransportFunc(obj))(obj);
 }
 
-/* after calling resolveURL, we can now transport the doc */
 void
-transport( docObj *obj )
-{
-	(obj->url.func)(obj);
-}
-
-static void
-transportUnknown( docObj *obj )
+transportUnknown( docObj obj )
 {
 	gchar    s[513];
 
 	g_snprintf(s, sizeof(s), "<BODY>Error: unable to resolve transport "
-		   "method for requested URL:<br><b>%s</b></BODY>",obj->ref);
-	obj->rawData = g_strdup(s);
-	obj->freeraw = TRUE;
+		   "method for requested URL:<br><b>%s</b></BODY>",
+		   docObjGetRef(obj));
+	docObjSetRawData(obj, g_strdup(s), TRUE);
 }
 
-static void
-transportFile( docObj *obj )
+void
+transportFile( docObj obj )
 {
 	gchar   *s=NULL, *out;
 	gchar   buf[8193];
@@ -114,11 +53,11 @@ transportFile( docObj *obj )
 	struct  dirent *dirp;
 
 	/* we have to handle info files specially */
-	if (!strncmp(obj->ref, "info:", 5)) {
+	if (!strncmp(docObjGetRef(obj), "info:", 5)) {
 		gchar *p, *pp, *r, *s;
 
 		doInfo = TRUE;
-		r = g_strdup(obj->url.u->path);
+		r = g_strdup(docObjGetDecomposedUrl(obj)->path);
 		s = r+strlen(r)-1;
 		while (s > r && *s != '/')
 			s--;
@@ -185,7 +124,7 @@ transportFile( docObj *obj )
 				snprintf(file, sizeof(file),
 					 "%s-%d%s", prefix, filenum, suffix);
 		} else {
-			strcpy(file, obj->url.u->path);
+			strcpy(file, docObjGetDecomposedUrl(obj)->path);
 		}
 
 		/* test for existance */
@@ -195,8 +134,7 @@ transportFile( docObj *obj )
 				g_snprintf(buf, sizeof(buf), 
 					   "<BODY>Error: unable to open "
 					   "file %s</BODY>",file);
-				obj->rawData = g_strdup(buf);
-				obj->freeraw = TRUE;
+				docObjSetRawData(obj, g_strdup(buf), TRUE);
 				return;
 			} else {
 				/* one of many, we just leave loop */
@@ -216,8 +154,7 @@ transportFile( docObj *obj )
 				g_snprintf(buf, sizeof(buf), 
 					   "<BODY>Error: unable to open "
 					   "file %s</BODY>",file);
-				obj->rawData = g_strdup(buf);
-				obj->freeraw = TRUE;
+				docObjSetRawData(obj, g_strdup(buf), TRUE);
 				return;
 			}
 			total = 0;
@@ -246,7 +183,6 @@ transportFile( docObj *obj )
 			s = getOutputFrom(argv, NULL, 0);
 		}
 		
-		obj->freeraw = TRUE;
 		if (out) {
 			out = g_realloc(out, strlen(out)+strlen(s)+1);
 			strcat(out, s);
@@ -261,22 +197,20 @@ transportFile( docObj *obj )
 		filenum++;
 	} while (doInfo);
 
-	obj->rawData = out;
+	docObjSetRawData(obj, out, TRUE);
 	return;
 }
 
-
-static void
-transportHTTP( docObj *obj )
+void
+transportHTTP( docObj obj )
 {
 	char *argv[4];
 
 	argv[0] = "lynx";
 	argv[1] = "-source";
-	argv[2] = obj->ref;
+	argv[2] = docObjGetRef(obj);
 	argv[3] = NULL;
 
-	obj->rawData = getOutputFrom(argv, NULL, 0);
-	obj->freeraw = TRUE;
+	docObjSetRawData(obj, getOutputFrom(argv, NULL, 0), TRUE);
 }
 

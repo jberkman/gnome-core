@@ -19,19 +19,78 @@
 */
 
 #include <gnome.h>
+
 #include "window.h"
+#include "history.h"
+#include "toc.h"
+
+#define VERSION "0.3"
+
+static void about_cb(void);
+static void historyCallback(gchar *ref);
+static void tocCallback(gchar *ref);
+
+static HelpWindow currentHelpWindow;
+static History historyWindow;
+static GtkWidget *tocWindow;
 
 int
 main(int argc, char *argv[])
 {
-        /* XXX - About box should be handled here, not in newWindow() */
-        /* Global application history should be here as well          */
+    HelpWindow window;
     
-	gnome_init("gnome_help_browser", &argc, &argv);
+    /* Global application history should be here as well          */
+    
+    gnome_init("gnome_help_browser", &argc, &argv);
 	
-	newWindow((argc > 1) ? argv[1] : NULL);
+    window = helpWindowNew(about_cb);
+    currentHelpWindow = window;
+
+    historyWindow = newHistory(0, (GSearchFunc)historyCallback, NULL); 
+    helpWindowSetHistory(window, historyWindow);
+
+    /* make the toc browser */
+    tocWindow = createToc((GtkSignalFunc)tocCallback);
+    gtk_widget_show(tocWindow);
+
+    if (argc > 1)
+	helpWindowShowURL(window, argv[1]);
 	
-	gtk_main();
+    gtk_main();
 	
-	return 0;
+    return 0;
+}
+
+static void
+historyCallback (gchar *ref)
+{
+    helpWindowShowURL(currentHelpWindow, ref);
+}
+
+static void
+tocCallback(gchar *ref) 
+{
+    helpWindowShowURL(currentHelpWindow, ref);
+}
+
+static void
+about_cb (void)
+{
+	GtkWidget *about;
+	gchar *authors[] = {
+		"Mike Fulbright",
+		"Marc Ewing",
+		NULL
+	};
+
+	about = gnome_about_new ( "Gnome Help Browser", VERSION,
+				  "Copyright (c) 1998 Red Hat Software, Inc.",
+				  authors,
+				  "GNOME Help Browser allows easy access to "
+				  "various forms of documentation on your "
+				  "system",
+				  NULL);
+	gtk_widget_show (about);
+	
+	return;
 }

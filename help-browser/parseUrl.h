@@ -1,6 +1,8 @@
-/* URL parsing stuff */
 #ifndef _GNOME_HELP_PARSEURL_H_
 #define _GNOME_HELP_PARSEURL_H_
+
+#include <glib.h>
+
 struct _decomposed_url {
     gchar *access;
     gchar *host;
