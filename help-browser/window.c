@@ -146,7 +146,7 @@ GnomeUIInfo filemenu[] = {
 	 N_("E_xit"), N_("Exit all windows"),
          quit_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT,
-	 'x', GDK_CONTROL_MASK, NULL},
+	 'q', GDK_CONTROL_MASK, NULL},
 	GNOMEUIINFO_END
 };
 

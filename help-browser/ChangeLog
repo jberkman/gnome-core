@@ -1,3 +1,7 @@
+1999-01-06  Nat Friedman  <nat@nat.org>
+
+	* window.c: Use Ctrl-Q as the exit-app accelerator.
+
 1999-01-01  Tuomas Kuosmanen  <tigert@gimp.org>
 
 	* contents.xpm: Changed the pixmap so it is the same as 
