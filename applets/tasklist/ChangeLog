@@ -1,3 +1,14 @@
+Sun Feb 25 21:27:25 2001  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c: Use destroy not unref for menu, since it needs
+	  to be actually destroyed in case there was another refcount.  When
+	  a task is destroyed, set the "task" data on the menuitem to NULL,
+	  and hide it.  (destroying makes thing go nuts a bit)
+
+	* tasklist_menu.c: handle cases where "task" is NULL, and make sure
+	  to update ->menuitem on task after the item is destroyed.  Also
+	  don't leak the pixmaps
+
 2001-02-14  Anders Carlsson  <andersca@codefactory.se>
 
 	* tasklist_menu.c (do_action): Don't segfault when trying to

@@ -59,7 +59,7 @@ tasklist_clean_menu (TasklistTask *task)
 {
 	if(task->menu) {
 		d(g_print ("group had a menu: %p\t", task->menu));
-		gtk_widget_unref (task->menu);
+		gtk_widget_destroy (task->menu);
 		d(g_print ("%p\n", task->menu));
 	}
 }
@@ -871,11 +871,13 @@ tasklist_task_destroy (GwmhTask *gtask, Tasklist *tasklist)
 	if (ttask == tasklist->motion_task)
 		tasklist->motion_task = NULL;
 
-        /* this is broken */
-#if 0
-	if (ttask->menuitem)
-		gtk_widget_destroy (ttask->menuitem);
-#endif
+	if (ttask->menuitem) {
+		gtk_object_set_data (GTK_OBJECT (ttask->menuitem),
+				     "task", NULL);
+		gtk_widget_hide (ttask->menuitem);
+		ttask->menuitem = NULL;
+	}
+
 	tasklist_icon_destroy (ttask);
 	tasklist_clean_menu (ttask);
 

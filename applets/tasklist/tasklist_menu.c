@@ -15,7 +15,12 @@ cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data)
 	gint wx, wy;
 	TasklistTask *task = gtk_object_get_data (GTK_OBJECT (menu), "task");
 
-	g_return_if_fail (task != NULL);
+	/* this is just sanity, it is concievable that this is now null */
+	if (task == NULL) {
+		*x = 0;
+		*y = 0;
+		return;
+	}
 
 	gtk_widget_get_child_requisition (GTK_WIDGET (menu), &mreq);
 	gdk_window_get_origin (task->tasklist->area->window, &wx, &wy);
@@ -135,7 +140,8 @@ cb_menu (GtkWidget *widget, gpointer data)
 
 	TasklistTask *task = gtk_object_get_data (GTK_OBJECT (widget), "task");
 
-	g_return_val_if_fail (task != NULL, FALSE);
+	if (task == NULL)
+		return FALSE;
 
 	if (!task->task_group)
 		return do_action (task, data);
@@ -208,6 +214,9 @@ static void
 cb_to_desktop (GtkWidget *widget, gpointer data)
 {
 	TasklistTask *task = gtk_object_get_data (GTK_OBJECT (widget), "task");
+
+	if (task == NULL)
+		return;
 	
 	gwmh_task_set_desktop (task->gwmh_task, 
 			       GPOINTER_TO_INT (data));
@@ -489,8 +498,12 @@ restore_grabs(GtkWidget *w, gpointer data)
 }
 
 static gboolean
-cb_activate_task (GtkWidget *w, GdkEventButton *event, TasklistTask *task)
+cb_activate_task (GtkWidget *w, GdkEventButton *event, gpointer data)
 {
+	TasklistTask *task = gtk_object_get_data (GTK_OBJECT (w), "task");
+	if (task == NULL)
+		return FALSE;
+
 	gwmh_desk_set_current_area (task->gwmh_task->desktop,
 				    task->gwmh_task->harea,
 				    task->gwmh_task->varea);
@@ -502,8 +515,12 @@ cb_activate_task (GtkWidget *w, GdkEventButton *event, TasklistTask *task)
 }
 
 static gboolean
-cb_show_popup (GtkWidget *w, GdkEventButton *event, TasklistTask *task)
+cb_show_popup (GtkWidget *w, GdkEventButton *event, gpointer data)
 {
+	TasklistTask *task = gtk_object_get_data (GTK_OBJECT (w), "task");
+	if (task == NULL)
+		return FALSE;
+
 	if (event->type != GDK_BUTTON_PRESS) return FALSE;
 
 	if (event->button == 1) {
@@ -539,6 +556,17 @@ cb_show_popup (GtkWidget *w, GdkEventButton *event, TasklistTask *task)
 }
 
 static void
+cb_menuitem_destroyed (GtkWidget *menuitem, gpointer data)
+{
+	TasklistTask *task = gtk_object_get_data (GTK_OBJECT (menuitem),
+						  "task");
+	if (task == NULL)
+		return;
+
+	task->menuitem = NULL;
+}
+
+static void
 create_task_item (TasklistTask *task, TasklistTask *group)
 {
 	GtkWidget *pixmap, *label;
@@ -554,6 +582,9 @@ create_task_item (TasklistTask *task, TasklistTask *group)
 		: task->icon->normal, &pix, &bit, 128);
 
 	pixmap = gtk_pixmap_new (pix, bit);
+
+	gdk_pixmap_unref (pix);
+	gdk_bitmap_unref (bit);
 
 	/* are we leaking the pixmap and bitmap? */
 	
@@ -578,15 +609,11 @@ create_task_item (TasklistTask *task, TasklistTask *group)
 	gtk_object_set_data (GTK_OBJECT (task->menuitem), "task", task);
 
 	gtk_signal_connect (GTK_OBJECT (task->menuitem), "button_release_event",
-			    GTK_SIGNAL_FUNC (cb_activate_task), task);
+			    GTK_SIGNAL_FUNC (cb_activate_task), NULL);
 	gtk_signal_connect (GTK_OBJECT (task->menuitem), "button_press_event",
-			    GTK_SIGNAL_FUNC (cb_show_popup), task);
-
-	/* this is broken */
-#if 0
+			    GTK_SIGNAL_FUNC (cb_show_popup), NULL);
 	gtk_signal_connect (GTK_OBJECT (task->menuitem), "destroy",
-			    GTK_SIGNAL_FUNC (gtk_widget_destroyed), &task->menuitem);
-#endif
+			    GTK_SIGNAL_FUNC (cb_menuitem_destroyed), NULL);
 }
 
 /* Open a popup menu with windows in a group */
