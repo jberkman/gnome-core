@@ -44,11 +44,12 @@ struct _TasklistConfig {
 	/* Stuff for horizontal mode */
 	gint horz_width; /* The width of the tasklist */
 	gint horz_rows; /* Number of rows */
-
+	gboolean horz_fixed; /* Fixed or dynamic sizing */
+	gint horz_taskwidth; /* Width of a single task (for dynamic sizing) */
 	/* Stuff for vertical mode */
 	gint vert_height; /* The height of the tasklist */
 	gint vert_width; /* The width of the tasklist */
-	gboolean vert_fixed; /* Whether the size should be fixed or dynamic */
+	gboolean vert_fixed; /* Fixed or dynamic sizing */
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);

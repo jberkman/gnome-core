@@ -3,6 +3,20 @@
 	* tasklist_applet.c
 	  tasklist_applet.h
 	  tasklist_config.c
+	  tasklist_properties.c: Adding dynamic sizing
+
+1999-09-14  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c
+	  tasklist_applet.h
+	  tasklist_config.c
+	  tasklist_properties: Adding Normal/Minimized tasks appear on all desktops
+
+1999-09-14  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c
+	  tasklist_applet.h
+	  tasklist_config.c
 	  tasklist_properties.c: Adding "which tasks to show"
 
 1999-09-13  Anders Carlsson  <anders.carlsson@tordata.se>

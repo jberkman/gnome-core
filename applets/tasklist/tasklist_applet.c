@@ -25,6 +25,9 @@ GList *tasks; /* The list of tasks used */
 GdkPixmap *unknown_icon; /* Unknown icon */
 GdkBitmap *unknown_mask; /* Unknown mask */
 
+gint vert_height; /* Vertical height, used for resizing */
+gint horz_width;  /* Horizontal width, used for resizing */
+
 extern TasklistConfig Config;
 
 /* from gtkhandlebox.c */
@@ -248,15 +251,23 @@ layout_tasklist (void)
 	temp_tasks = get_visible_tasks ();
 	num = g_list_length (temp_tasks);
 	
-	if (num == 0) {
-		/* FIXME: change_size om så är fallet */
-		gtk_widget_draw (area, NULL);
-		return;
-	}
 
 	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
+		if (num == 0) {
+			if (Config.horz_fixed)
+				horz_width = Config.horz_width;
+			else
+				horz_width = 4;
+			
+			if (horz_width != Config.horz_width)
+				change_size (FALSE);
+			
+			gtk_widget_draw (area, NULL);
+			return;
+		}
+
 		while (p < num) {
 			if (num < Config.horz_rows)
 				num_rows = num;
@@ -273,15 +284,25 @@ layout_tasklist (void)
 			}
 			p++;
 		}
+		
+		if (Config.horz_fixed) {
+			curheight = (ROW_HEIGHT * Config.horz_rows - 4) / num_rows;
+			curwidth = (Config.horz_width - 4) / num_cols;
 
-		curheight = (ROW_HEIGHT * Config.horz_rows - 4) / num_rows;
-		curwidth = (Config.horz_width - 4) / num_cols;
+		} else {
+			curheight = (ROW_HEIGHT * Config.horz_rows - 4) / num_rows;
+			curwidth = Config.horz_taskwidth;
+
+			/* If the total width is higher than allowed, 
+			   we use the "fixed" way instead */
+			if ((curwidth * num_cols) > Config.horz_width)
+				curwidth = (Config.horz_width - 4) / num_cols;
+		}
+
 
 		curx = 2;
 		cury = 2;
 
-		extra_space = Config.horz_width - 4 - (curwidth * num_cols);
-		/* FIXME: Do something with extra_space */
 
 		while (temp_tasks) {
 			task = (TasklistTask *) temp_tasks->data;
@@ -291,11 +312,22 @@ layout_tasklist (void)
 			task->width = curwidth;
 			task->height = curheight;
 			
-			curx += curwidth;
-			if (curx >= Config.horz_width ||
-			    curx + curwidth > Config.horz_width) {
-				cury += curheight;
-				curx = 2;
+			if (Config.horz_fixed) {
+				curx += curwidth;
+			
+				if (curx >= Config.horz_width ||
+				    curx + curwidth > Config.horz_width) {
+					cury += curheight;
+					curx = 2;
+				}
+			} else {
+
+				curx += curwidth;
+
+				if (curx >= num_cols * curwidth) {
+					cury += curheight;
+					curx = 2;
+				}
 			}
 			
 			if (temp_tasks->next)
@@ -305,10 +337,31 @@ layout_tasklist (void)
 				break;
 			}
 		}
+		if (Config.horz_fixed)
+			horz_width = Config.horz_width;
+		else
+			horz_width = num_cols * curwidth + 4;
+
+		if (horz_width != Config.horz_width)
+			change_size (FALSE);
+
 		break;
 
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
+
+		if (num == 0) {
+			if (Config.vert_fixed)
+				vert_height = Config.vert_height;
+			else
+				vert_height = 4;
+			
+			if (vert_height != Config.vert_height)
+				change_size (FALSE);
+			
+			gtk_widget_draw (area, NULL);
+			return;
+		}
 
 		curheight = ROW_HEIGHT;
 		curwidth = Config.vert_width - 4;
@@ -319,8 +372,13 @@ layout_tasklist (void)
 		curx = 2;
 		cury = 2;
 		
-		Config.vert_height = curheight * num_rows + 4;
-		change_size (FALSE);
+		if (Config.vert_fixed)
+			vert_height = Config.vert_height;
+		else
+			vert_height = curheight * num_rows + 4;
+		
+		if (vert_height != Config.vert_height)
+			change_size (FALSE);
 
 		while (temp_tasks) {
 			task = (TasklistTask *) temp_tasks->data;
@@ -526,10 +584,10 @@ change_size (gboolean layout)
 	case ORIENT_DOWN:
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
 		gtk_widget_set_usize (handle, 
-				      DRAG_HANDLE_SIZE + Config.horz_width,
+				      DRAG_HANDLE_SIZE + horz_width,
 				      Config.horz_rows * ROW_HEIGHT);
 		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       Config.horz_width,
+				       horz_width,
 				       Config.horz_rows * ROW_HEIGHT);
 		break;
 	case ORIENT_LEFT:
@@ -537,10 +595,10 @@ change_size (gboolean layout)
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
 		gtk_widget_set_usize (handle, 
 				      Config.vert_width,
-				      DRAG_HANDLE_SIZE + Config.vert_height);
+				      DRAG_HANDLE_SIZE + vert_height);
 		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
 				       Config.vert_width,
-				       Config.vert_height);
+				       vert_height);
 	}
 	if (layout)
 		layout_tasklist ();

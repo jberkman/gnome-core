@@ -73,6 +73,7 @@ create_spin_button (gchar *name,
 	GtkObject *adj;
 	GtkWidget *spin;
 	GtkWidget *hbox;
+	GtkWidget *label;
 
 	adj = gtk_adjustment_new (*init_value,
 				  min_value,
@@ -86,8 +87,11 @@ create_spin_button (gchar *name,
 	spin = gtk_spin_button_new (GTK_ADJUSTMENT (adj), 1, 0);
 	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
 			    GTK_SIGNAL_FUNC (cb_spin_button), init_value);
-	gtk_box_pack_start_defaults (GTK_BOX (hbox),
-				     gtk_label_new (name));
+
+	label = gtk_label_new (name);
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+
+	gtk_box_pack_start_defaults (GTK_BOX (hbox), label);
 	gtk_box_pack_start_defaults (GTK_BOX (hbox), spin);
 
 	return hbox;
@@ -133,28 +137,48 @@ void
 create_geometry_page (void)
 {
 	GtkWidget *hbox, *table, *frame, *vbox;
+	GSList *vertgroup = NULL, *horzgroup = NULL;
 	
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD_SMALL);
 
 	frame = gtk_frame_new (_("Horizontal"));
+
 	gtk_box_pack_start_defaults (GTK_BOX (hbox), frame);
 	
 	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
-	
+	gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
+
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Tasklist width"),
+			    create_spin_button (_("Tasklist width:"),
 						&PropsConfig.horz_width,
 						48,
 						1024,
 						10),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Number of rows"),
+			    create_spin_button (_("Number of rows:"),
 						&PropsConfig.horz_rows,
 						1,
 						8,
 						1),
+			    FALSE, TRUE, 0);
+
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_radio_button (_("Fixed tasklist width"),
+						 &horzgroup, TRUE, &PropsConfig.horz_fixed),
+			    FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_radio_button (_("Dynamic tasklist width"), 
+						 &horzgroup, FALSE, &PropsConfig.horz_fixed),
+			    FALSE, TRUE, 0);
+	
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_spin_button (_("Default task width:"),
+						&PropsConfig.horz_taskwidth,
+						48,
+						350,
+						10),
 			    FALSE, TRUE, 0);
 
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
@@ -163,9 +187,10 @@ create_geometry_page (void)
 	gtk_box_pack_start_defaults (GTK_BOX (hbox), frame);
 	
 	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+	gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
 
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Tasklist height"),
+			    create_spin_button (_("Tasklist height:"),
 						&PropsConfig.vert_height,
 						48,
 						1024,
@@ -173,13 +198,22 @@ create_geometry_page (void)
 			    FALSE, TRUE, 0);
 
 	gtk_box_pack_start (GTK_BOX (vbox),
-			    create_spin_button (_("Tasklist width"),
+			    create_spin_button (_("Tasklist width:"),
 						&PropsConfig.vert_width,
 						48,
 						512,
 						10),
 			    FALSE, TRUE, 0);
-			    
+
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_radio_button (_("Fixed tasklist height"),
+						 &vertgroup, TRUE, &PropsConfig.vert_fixed),
+			    FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_radio_button (_("Dynamic tasklist height"), 
+						 &vertgroup, FALSE, &PropsConfig.vert_fixed),
+			    FALSE, TRUE, 0);
+
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
 
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), hbox,
@@ -277,6 +311,7 @@ display_properties (void)
 
 	gtk_widget_show_all (prop);
 }
+
 
 
 
