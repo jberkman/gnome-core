@@ -106,11 +106,17 @@
 	  <varlistentry>
 	    <term>Colour palette</term>
 	    <listitem>
-	      <para>gnome-terminal supports three colour schemes: the Linux
-		console scheme, the colour Xterm scheme and the rxvt colour
-		scheme.  These define the intensity and colours for the
+	      <para>gnome-terminal supports four colour schemes: the Linux
+		console scheme, the colour Xterm scheme, the rxvt colour
+		scheme, and a completely customisable colour scheme.
+		These define the intensity and colours for the
 		sixteen ANSI colour combinations that are supported by these
 		terminals.</para>
+	      <para>
+		If you have selected the custom option, then all 16
+		colours (nominally 8 colours, and 8 bright colours)
+		can be customised by clicking on the colour selectors.
+	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
@@ -119,15 +125,16 @@
 	      <para>When no colours have been requested by the
 		application running inside of gnome-terminal,
 		gnome-terminal allows you to over-ride the default
-		terminal foreground and background colours
+		terminal foreground and background
 		colours.</para>
 	      
 	      <para>The following options are available: white on black, black
 		on white, green on black, black on light yellow, and
 		custom.  How these actually appear depends on the
-		pallete selected.
+		pallete selected (for the white on black and black on
+		white options).
 		Custom allows you to select the default foreground and
-		background colours.</para>
+		background colours individually and separate to the palette.</para>
 
 	      <para>Additionally, the user can drag a colour from the
 		rectangular box beneath the color wheel from any GNOME

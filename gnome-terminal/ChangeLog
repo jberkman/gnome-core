@@ -1,3 +1,36 @@
+1999-07-26  Michael Zucchi  <zucchi@zedzone.mmc.com.au>
+
+	* C/gnome-terminal.sgml: Minor updates for colour preference
+	changes.
+
+	* gnome-terminal.c (struct terminal_config): Removed
+	user_fore/user_back, added palette array.  Changed color_type to
+	new palette_enum.
+	(preferences_t): Removed fore/back_cs, added palette array widget
+	and label.
+	(red/green/blue): removed globals.  Added scheme_red/green/blue
+	lookups indexed on color_type.
+	(palette_enum): List of possible base palette types.
+	(set_color_scheme): Changed to support new 'custom palette' type,
+	and to use new enum's.
+	(load_config): Load full palette if defined.  Support old
+	foreground/background config if it is set, for compatability only.
+	(gather_changes): Load palette from preferences requester.
+	(check_color_sensitivity): Set colour buttons active based on
+	settings of the options buttons appropriately for new palette
+	options.
+	(char *color_scheme): Added "Custom" option.
+	(get_color_string): Removed redundant function.
+	(save_preferences): Save palette to preferences.  No longer save
+	foreground/background settings separately.
+	(preferences_cmd): Creates palette editor, with more appropriate
+	labels for all sections of the colour page (sorry translators!).
+	(drag_data_received): Colours are now dragged to palette[16]
+	(foreground) and palette[17] (background).
+	(parse_an_arg): Removed some old commented code (colour parsing).
+	(main_terminal_program): Set foreground/background colour into the
+	palette at [16] and [17] respectively.
+
 1999-07-22  Herbert Valerio Riedel  <hvr@hvrlab.dhs.org>
 
 	* gnome-terminal.c: --help: s/same was as/same way as/

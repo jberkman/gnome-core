@@ -4,7 +4,7 @@
  *
  * Authors: Miguel de Icaza (GNOME terminal)
  *          Erik Troan      (various configuration enhancements)
- *          Michael Zucchi  (zvt widget, font code).
+ *          Michael Zucchi  (zvt widget, various updates and enhancements)
  *
  * Other contributors: George Lebl, Jeff Garzik, Jay Painter,
  * Christopher Blizzard, Jens Lautenbacher, Tom Tromey, Tristan Tarant,
@@ -56,6 +56,13 @@ enum color_set_enum {
 	COLORS_CUSTOM
 };
 
+enum palette_enum {
+	PALETTE_LINUX,
+	PALETTE_XTERM,
+	PALETTE_RXVT,
+	PALETTE_CUSTOM
+};
+
 enum scrollbar_position_enum {
 	SCROLLBAR_LEFT   = 0,
 	SCROLLBAR_RIGHT  = 1,
@@ -78,15 +85,14 @@ struct terminal_config {
 #ifdef ZVT_BACKGROUND_SCROLL
 	int scroll_background:1; 		/* background will scroll */
 #endif
-	int color_type; 			/* The color mode */
+	enum palette_enum color_type; 			/* The color mode */
 	enum color_set_enum color_set;
 	char *font; 				/* Font used by the terminals */
 	int scrollback; 			/* Number of scrollbacklines */
 	char *class;
 	enum scrollbar_position_enum scrollbar_position;
 	int invoke_as_login_shell; 		/* How to invoke the shell */
-	GdkColor user_fore, user_back; 		/* The custom colors */
-        const char *user_back_str, *user_fore_str;
+	const char *user_back_str, *user_fore_str;
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int have_user_colors;			/* Only used for command line parsing */
 	int transparent;
@@ -96,6 +102,7 @@ struct terminal_config {
         char *window_title;                     /* the window title */
 	char *wordclass;			/* select-by-word character class */
 	char *termname;				/* TERM variable setting, store as TERM=xxx */
+	GdkColor palette[18];			/* the full palette */
 } ;
 
 /* Initial command */
@@ -134,9 +141,9 @@ typedef struct {
 	GtkWidget *scrollback_spin;
 	GtkWidget *class_box;
 	GtkWidget *fore_label;
-	GtkWidget *fore_cs;
 	GtkWidget *back_label;
-	GtkWidget *back_cs;
+	GtkWidget *palette_label;
+	GtkWidget *palette[18];
 	int changed;
 } preferences_t;
 
@@ -319,29 +326,40 @@ gushort rxvt_blu[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0
 		       0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff,
 			0x0,    0x0 };
 
-/* These point to the current table */
-gushort *red, *blue, *green;
+/* point to the other tables */
+gushort *scheme_red[] = { linux_red, xterm_red, rxvt_red, rxvt_red };
+gushort *scheme_blue[] = { linux_blu, xterm_blu, rxvt_blu, rxvt_blu };
+gushort *scheme_green[] = { linux_grn, xterm_grn, rxvt_grn, rxvt_grn };
 
 static void
 set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg) 
 {
 	GdkColor c;
-	
+	gushort red[18],green[18],blue[18];
+	int i;
+	gushort *r, *b, *g;
+
 	switch (color_cfg->color_type){
-	case 0:
-		red = linux_red;
-		green = linux_grn;
-		blue = linux_blu;
+	default:		/* and 0 */
+		color_cfg->color_type = 0;
+	case PALETTE_LINUX:
+	case PALETTE_XTERM:
+	case PALETTE_RXVT:
+		r = scheme_red[color_cfg->color_type];
+		g = scheme_green[color_cfg->color_type];
+		b = scheme_blue[color_cfg->color_type];
+		for (i=0;i<18;i++) {
+			red[i] = r[i];
+			green[i] = g[i];
+			blue[i] = b[i];
+		}
 		break;
-	case 1:
-		red = xterm_red;
-		green = xterm_grn;
-		blue = xterm_blu;
-		break;
-	default:		/* and 2 */
-		red = rxvt_red;
-		green = rxvt_grn;
-		blue = rxvt_blu;
+	case PALETTE_CUSTOM:
+		for (i=0;i<18;i++) {
+			red[i] = color_cfg->palette[i].red;
+			green[i] = color_cfg->palette[i].green;
+			blue[i] = color_cfg->palette[i].blue;
+		}
 		break;
 	}
 
@@ -388,12 +406,11 @@ set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg)
 		
 		/* Custom foreground, custom background */
 	case COLORS_CUSTOM:
-		red   [16] = color_cfg->user_fore.red;
-		green [16] = color_cfg->user_fore.green;
-		blue  [16] = color_cfg->user_fore.blue;
-		red   [17] = color_cfg->user_back.red;
-		green [17] = color_cfg->user_back.green;
-		blue  [17] = color_cfg->user_back.blue;
+		for (i=16;i<18;i++) {
+			red[i] = color_cfg->palette[i].red;
+			green[i] = color_cfg->palette[i].green;
+			blue[i] = color_cfg->palette[i].blue;
+		}
 		break;
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
@@ -410,6 +427,9 @@ load_config (char *class)
 	char *fore_color = NULL;
 	char *back_color = NULL;
 	struct terminal_config *cfg = g_malloc (sizeof (*cfg));
+	int colour_count;
+	char **colours;
+	int i;
 
 	/* It's very odd that these are here */
 	cfg->font = NULL;
@@ -427,11 +447,15 @@ load_config (char *class)
 		cfg->scrollbar_position = SCROLLBAR_HIDDEN;
 	p = gnome_config_get_string ("color_scheme=linux");
 	if (strcasecmp (p, "linux") == 0)
-		cfg->color_type = 0;
+		cfg->color_type = PALETTE_LINUX;
 	else if (strcasecmp (p, "xterm") == 0)
-		cfg->color_type = 1;
+		cfg->color_type = PALETTE_XTERM;
+	else if (strcasecmp (p, "rxvt") == 0)
+		cfg->color_type = PALETTE_RXVT;
+	else if (strcasecmp (p, "custom") == 0)
+		cfg->color_type = PALETTE_CUSTOM;
 	else
-		cfg->color_type = 2;
+		cfg->color_type = PALETTE_LINUX;
 	cfg->bell      = gnome_config_get_bool ("bell_silenced=0");
 	cfg->blink     = gnome_config_get_bool ("blinking=0");
 	cfg->swap_keys = gnome_config_get_bool ("swap_del_and_backspace=0");
@@ -462,11 +486,25 @@ load_config (char *class)
 		/* don't let them set identical foreground and background colors */
 		cfg->color_set = 0;
 	else {
-		if (!gdk_color_parse (fore_color, &cfg->user_fore) || !gdk_color_parse (back_color, &cfg->user_back)){
+		if (!gdk_color_parse (fore_color, &cfg->palette[16])
+		    || !gdk_color_parse (back_color, &cfg->palette[17])){
 			/* or illegal colors */
 			cfg->color_set = 0;
 		}
 	}
+
+	/* load the palette, if none, then 'default' to safe (linux) pallete */
+	gnome_config_get_vector("palette", &colour_count, &colours);
+	for (i=0;i<18;i++) {
+		if (i<colour_count)
+			gdk_color_parse(colours[i], &cfg->palette[i]);
+		else {
+			cfg->palette[i].red = linux_red[i];
+			cfg->palette[i].green = linux_grn[i];
+			cfg->palette[i].blue = linux_blu[i];
+		}
+	}
+	g_free(colours);
 
 	return cfg;
 }
@@ -477,6 +515,7 @@ gather_changes (ZvtTerm *term)
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
 	gushort r, g, b;
 	struct terminal_config *newcfg = g_malloc (sizeof (*newcfg));
+	int i;
 
 	memset (newcfg, 0, sizeof (*newcfg));
 
@@ -513,14 +552,13 @@ gather_changes (ZvtTerm *term)
 	newcfg->color_type = option_menu_get_history (GTK_OPTION_MENU (prefs->color_scheme));
 	newcfg->color_set  = option_menu_get_history (GTK_OPTION_MENU (prefs->def_fore_back));
 
-	gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (prefs->fore_cs), &r, &g, &b, NULL);
-	newcfg->user_fore.red   = r;
-	newcfg->user_fore.green = g;
-	newcfg->user_fore.blue  = b;
-	gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (prefs->back_cs), &r, &g, &b, NULL);
-	newcfg->user_back.red   = r;
-	newcfg->user_back.green = g;
-	newcfg->user_back.blue  = b;
+	for (i=0;i<18;i++) {
+		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (prefs->palette[i]), &r, &g,
+					    &b, NULL);
+		newcfg->palette[i].red   = r;
+		newcfg->palette[i].green = g;
+		newcfg->palette[i].blue  = b;
+	}
 
 	return newcfg;
 }
@@ -790,13 +828,18 @@ typedef struct {
 static void
 check_color_sensitivity (preferences_t *prefs)
 {
-	int idx = option_menu_get_history (GTK_OPTION_MENU (prefs->def_fore_back));
-	gboolean sens = (idx == COLORS_CUSTOM);
+	int idxc = option_menu_get_history (GTK_OPTION_MENU (prefs->def_fore_back));
+	gboolean sensc = (idxc == COLORS_CUSTOM);
+	int idx = option_menu_get_history (GTK_OPTION_MENU (prefs->color_scheme));
+	gboolean sens = (idx == PALETTE_CUSTOM);
 
-	gtk_widget_set_sensitive (GTK_WIDGET (prefs->fore_label), sens);
-	gtk_widget_set_sensitive (GTK_WIDGET (prefs->fore_cs), sens);
-	gtk_widget_set_sensitive (GTK_WIDGET (prefs->back_label), sens);
-	gtk_widget_set_sensitive (GTK_WIDGET (prefs->back_cs), sens);
+	int i;
+
+	gtk_widget_set_sensitive (GTK_WIDGET (prefs->fore_label), sensc);
+	gtk_widget_set_sensitive (GTK_WIDGET (prefs->back_label), sensc);
+	gtk_widget_set_sensitive (GTK_WIDGET (prefs->palette_label), sens);
+	for (i=0;i<18;i++)
+		gtk_widget_set_sensitive (GTK_WIDGET (prefs->palette[i]), i<16?sens:sensc);
 }
 
 static void
@@ -854,6 +897,7 @@ char *color_scheme [] = {
 	N_("Linux console"),
 	N_("Color Xterm"),
 	N_("rxvt"),
+	N_("Custom"),
 	NULL
 };
 
@@ -901,19 +945,14 @@ free_cs (GtkWidget *widget, GnomeColorPicker *cp)
 {
 }
 	 
-static char *
-get_color_string (GdkColor c)
-{
-	static char buffer [40];
-
-	sprintf (buffer, "rgb:%04x/%04x/%04x", c.red, c.green , c.blue);
-	return buffer;
-}
-
 static void
 save_preferences (GtkWidget *widget, ZvtTerm *term, 
 		  struct terminal_config *cfg)
 {
+	char *colours[18];
+	int i;
+	char *scheme[4] = { "linux", "xterm", "rxvt", "custom" };
+
 	if (cfg->font)
 		gnome_config_set_string ("font", cfg->font);
 	if (cfg->wordclass)
@@ -927,13 +966,9 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_bool   ("login_by_default", cfg->login_by_default);
 	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
 	gnome_config_set_int    ("color_set", cfg->color_set);
-	gnome_config_set_string ("color_scheme",
-				 cfg->color_type == 0 ? "linux" : 
-				 (cfg->color_type == 1 ? "xterm" : "rxvt"));
-	gnome_config_set_string ("foreground", 
-				 get_color_string (cfg->user_fore));
-	gnome_config_set_string ("background", 
-				 get_color_string (cfg->user_back));
+	if (cfg->color_type>=4)
+		cfg->color_type=4;
+	gnome_config_set_string ("color_scheme", scheme[cfg->color_type]);
 	gnome_config_set_bool   ("menubar", !cfg->menubar_hidden);
 	gnome_config_set_bool   ("scrollonkey", cfg->scroll_key);
 	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
@@ -944,6 +979,14 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 #endif
 	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
 	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
+
+	for (i=0;i<18;i++)
+		colours[i] = g_strdup_printf ("rgb:%04x/%04x/%04x", cfg->palette[i].red,
+					      cfg->palette[i].green, cfg->palette[i].blue);
+	gnome_config_set_vector ("palette", 18, colours);
+	for (i=0;i<18;i++)
+		g_free(colours[i]);
+
 	gnome_config_sync ();
 }
 
@@ -964,13 +1007,14 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	static GnomeHelpMenuEntry help_entry = { NULL, "properties" };
 	GtkWidget *l, *table, *picker, *label, *b1, *b2;
-	GtkWidget *r, *frame, *hbox, *subtable;
+	GtkWidget *r, *frame, *hbox, *subtable, *paltable;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
 	GList *class_list = NULL;
 	void *iter;
 	char *some_class;
 	struct terminal_config *cfg;
+	int i;
 
 	/* Is a property window for this terminal already running? */
 	if (gtk_object_get_data (GTK_OBJECT (term), "newcfg"))
@@ -1223,7 +1267,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Colors")));
 	
 	/* Color palette */
-	l = aligned_label (_("Color palette:"));
+	l = aligned_label (_("Color scheme:"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
@@ -1236,25 +1280,41 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	prefs->fore_label = aligned_label (_("Foreground color:"));
 	gtk_table_attach (GTK_TABLE (table), prefs->fore_label,
 			  1, 2, FORECOLOR_ROW, FORECOLOR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->fore_cs = gnome_color_picker_new ();
-	gtk_table_attach (GTK_TABLE (table), b1 = prefs->fore_cs,
+	prefs->palette[16] = gnome_color_picker_new ();
+	gtk_table_attach (GTK_TABLE (table), b1 = prefs->palette[16],
 			  2, 3, FORECOLOR_ROW, FORECOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
-	gtk_signal_connect (GTK_OBJECT (b1), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->fore_cs);
-	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->fore_cs), cfg->user_fore.red, cfg->user_fore.green, cfg->user_fore.blue, 0);
-	
+	gtk_signal_connect (GTK_OBJECT (b1), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->palette[16]);
+
 	prefs->back_label = aligned_label (_("Background color:"));
 	gtk_table_attach (GTK_TABLE (table), prefs->back_label,
 			  1, 2, BACKCOLOR_ROW, BACKCOLOR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->back_cs = gnome_color_picker_new ();
-	gtk_table_attach (GTK_TABLE (table), b2 = prefs->back_cs,
+	prefs->palette[17] = gnome_color_picker_new ();
+	gtk_table_attach (GTK_TABLE (table), b2 = prefs->palette[17],
 			  2, 3, BACKCOLOR_ROW, BACKCOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
-	gtk_signal_connect (GTK_OBJECT (b2), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->back_cs);
-	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->back_cs), cfg->user_back.red, cfg->user_back.green, cfg->user_back.blue, 0);
-	gtk_signal_connect (GTK_OBJECT (prefs->fore_cs), "color_set", GTK_SIGNAL_FUNC (color_changed), prefs);
-	gtk_signal_connect (GTK_OBJECT (prefs->back_cs), "color_set", GTK_SIGNAL_FUNC (color_changed), prefs);
+	gtk_signal_connect (GTK_OBJECT (b2), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->palette[17]);
+	l = aligned_label (_("Color palette:"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, BACKCOLOR_ROW+1, BACKCOLOR_ROW+2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->palette_label = l;
+
+	paltable = gtk_table_new(8,2,FALSE);
+	gtk_table_attach (GTK_TABLE (table), paltable,
+			  2, 3, BACKCOLOR_ROW+1, BACKCOLOR_ROW+2, GTK_FILL, 0,
+			  GNOME_PAD, GNOME_PAD);
+	for (i=0;i<18;i++) {
+		if (i<16) {
+			prefs->palette[i] = gnome_color_picker_new();
+			gtk_table_attach(GTK_TABLE(paltable), prefs->palette[i], i&7, (i&7)+1,
+					 i/8, i/8+1, 0, 0, 0, 0);
+		}
+		gnome_color_picker_set_i16(prefs->palette[i], cfg->palette[i].red,
+					   cfg->palette[i].green, cfg->palette[i].blue, 0);
+		gtk_signal_connect (GTK_OBJECT (prefs->palette[i]), "color_set",
+				    GTK_SIGNAL_FUNC (color_changed), prefs);
+	}
 
 	/* default foreground/backgorund selector */
-	l = aligned_label (_("Colors:"));
+	l = aligned_label (_("Fore/Background Colour:"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
@@ -1565,6 +1625,7 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 	{
 		guint16 *data = (guint16 *)selection_data->data;
 		preferences_t *prefs;
+		int i;
 
 		if (selection_data->length != 8)
 			return;
@@ -1576,40 +1637,25 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 		cfg->color_set = COLORS_CUSTOM;
 		
 		the_char = vt_get_attr_at (term->vx, col, row) & 0xff;
-		if (the_char == ' ' || the_char == 0){
-			/* copy the current foreground color */
-			cfg->user_fore.red   = red [16];
-			cfg->user_fore.green = green [16];
-			cfg->user_fore.blue  = blue [16];
+		if (the_char == ' ' || the_char == 0)
+			i=17;
+		else
+			i=16;
 
-			/* Accept the dropped colors */
-			cfg->user_back.red   = data [0];
-			cfg->user_back.green = data [1];
-			cfg->user_back.blue  = data [2];
-		} else {
-			/* copy the current background color */
-			cfg->user_back.red   = red [17];
-			cfg->user_back.green = green [17];
-			cfg->user_back.blue  = blue [17];
-			
-			/* Accept the dropped colors */
-			cfg->user_fore.red   = data [0];
-			cfg->user_fore.green = data [1];
-			cfg->user_fore.blue  = data [2];
-		}
+		cfg->palette[i].red = data[0];
+		cfg->palette[i].green = data[1];
+		cfg->palette[i].blue = data[2];
+
 		set_color_scheme (term, cfg);
 		save_preferences_cmd (widget, term);
 
 		prefs  = gtk_object_get_data (GTK_OBJECT (term), "prefs");
 		if (prefs) {
-			gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->fore_cs),
-						     cfg->user_fore.red,
-						     cfg->user_fore.green,
-						     cfg->user_fore.blue, 0);
-			gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->back_cs),
-						     cfg->user_back.red,
-						     cfg->user_back.green,
-						     cfg->user_back.blue, 0);
+			for (i=16;i<18;i++)
+				gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->palette[i]),
+							    cfg->palette[i].red,
+							    cfg->palette[i].green,
+							    cfg->palette[i].blue, 0);
 			gtk_option_menu_set_history (GTK_OPTION_MENU (prefs->def_fore_back),
 						     cfg->color_set);
 			check_color_sensitivity (prefs);
@@ -2274,13 +2320,11 @@ parse_an_arg (poptContext state,
 		break;
 		  }
 	case FORE_KEY:
-	        cfg->user_fore_str = arg;
-		/* gdk_color_parse(cfg->user_fore_str, &cfg->user_fore); */
+		cfg->user_fore_str = arg;
 		cfg->have_user_colors = 1;
 		break;
 	case BACK_KEY:
-	        cfg->user_back_str = arg;
-		/* gdk_color_parse(cfg->user_back_str, &cfg->user_back); */
+		cfg->user_back_str = arg;
 		cfg->have_user_colors = 1;
 		break;
 	case DOUTMP_KEY:
@@ -2356,15 +2400,14 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
 				   cb_options, 0, NULL);
 
-#if 1
 	if(cmdline_config->user_back_str)
 		gdk_color_parse(cmdline_config->user_back_str,
-				&cmdline_config->user_back);
+				&cmdline_config->palette[17]);
 	
 	if(cmdline_config->user_fore_str)
 		gdk_color_parse(cmdline_config->user_fore_str,
-				&cmdline_config->user_fore);
-#endif
+				&cmdline_config->palette[16]);
+
 	if (cmdline_config->class){
 		class = g_strdup (cmdline_config->class);
 	}
@@ -2416,11 +2459,10 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	
 	if (cmdline_config->have_user_colors){
 		default_config->color_set = cmdline_config->color_set;
-		default_config->user_fore = cmdline_config->user_fore;
-		default_config->user_back = cmdline_config->user_back;
+		default_config->palette[16] = cmdline_config->palette[16];
+		default_config->palette[17] = cmdline_config->palette[17];
 		default_config->color_set = COLORS_CUSTOM;
 	}
-
 
 	/* if the default is different from the commandline, use the commandline */
 	default_config->invoke_as_login_shell =
