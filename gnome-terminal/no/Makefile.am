@@ -12,8 +12,8 @@ index.html: gnome-terminal/index.html
 	-cp gnome-terminal/index.html .
 
 gnome-terminal/index.html: $(srcdir)/gnome-terminal.sgml
-	-srcdir=`cd $(srcdir) && pwd`; \
-	db2html $$srcdir/gnome-terminal.sgml
+	-cp $(srcdir)/gnome-terminal.sgml .
+	db2html gnome-terminal.sgml
 
 
 dist-hook:
