@@ -92,7 +92,7 @@ static char *window_icon = GNOME_ICONDIR"/gnome-terminal.png";
 
 char **env;
 
-#define DEFAULT_FONT "-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1"
+#define DEFAULT_FONT "fixed"
 #define EXTRA 6
 
 /* is there pixmap compiled into zvt */

@@ -1,3 +1,8 @@
+2001-10-17  Kjartan Maraas  <kmaraas@gnome.org>
+
+	* gnome-terminal.c: Change default font to "fixed". Makes it
+	work on 640x680 and for non-latin locales.
+	
 2001-10-17  Michael Meeks  <michael@ximian.com>
 
 	* gnome-x-font-selector.[ch]: add, as yet not renamed to
