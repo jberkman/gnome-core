@@ -1,3 +1,17 @@
+1999-04-02  Michael Zucchi  <zucchi@zzedzone.fsi.com.au>
+
+	* gnome-terminal.c (gnome_term_set_font): Since we dont know the
+	bold font name, dont try and set it.  Let the widget automagically
+	enbolden the font at render time.
+
+	* C/gnome-terminal.sgml: Buckets of changes to the documentation.
+	Added descriptions of all the menu's, selecting stuff, bring up
+	the pop-up menu, and a few links here and there.  Fixed a bit of
+	the english, but didn't review everything.
+
+	* gnome-terminal.c (button_press): Let a plain right-click go
+	through to the widgets.  So extend-selection works!
+
 1999-03-30  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (drag_data_received): Use

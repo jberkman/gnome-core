@@ -216,7 +216,7 @@ gnome_term_set_font (ZvtTerm *term, char *font_name)
 
 	font = gdk_font_load (font_name);
 	if (font)
-		zvt_term_set_fonts  (term, font, font);
+		zvt_term_set_fonts  (term, font, 0);
 	
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
@@ -516,7 +516,6 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	cfg = terminal_config_dup (newcfg);
 	gtk_object_set_data (GTK_OBJECT (term), "config", cfg);
 
-	/*zvt_term_set_font_name (term, cfg->font);*/
 	gnome_term_set_font (term, cfg->font);
 	zvt_term_set_wordclass (term, cfg->wordclass);
 	zvt_term_set_bell(term, !cfg->bell);
@@ -1545,7 +1544,8 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	GnomeUIInfo *uiinfo;
 
 	if (event->button != 3
-	    || ((term->vx->vt.mode & VTMODE_SEND_MOUSE) && !(event->state & GDK_CONTROL_MASK)))
+	    || !(event->state & GDK_CONTROL_MASK)
+	    || (term->vx->vt.mode & VTMODE_SEND_MOUSE))
 		return FALSE;
 
 	gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
