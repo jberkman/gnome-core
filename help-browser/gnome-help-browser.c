@@ -61,10 +61,10 @@ static int configCancel(GtkWidget *w, GtkWidget *window);
 #define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
 #define DEFAULT_INFOPATH "/usr/info:/usr/local/info"
 /* GHELPPATH probably needs some automatic additions inside toc */
-#define DEFAULT_GHELPPATH "/opt/gnome/share/gnome/help:" \
+#define DEFAULT_GHELPPATH GNOMEHELPPATH ":/opt/gnome/share/gnome/help:" \
                           "/usr/local/share/gnome/help:" \
 			  "/usr/local/gnome/share/gnome/help:" \
-			  "/usr/share/gnome/help"
+			  "/usr/share/gnome/help:" 
 #define DEFAULT_MEMCACHESIZE "1000000"
 #define DEFAULT_HISTORYLENGTH "1000"
 #define DEFAULT_HISTORYFILE ".gnome-help-browser/history"
