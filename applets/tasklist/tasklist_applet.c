@@ -52,7 +52,7 @@ fixup_task_label (TasklistTask *task)
 			
 			label_len = gdk_string_width (area->style->font, str);
 			
-			if (label_len <= task->width - (Config.show_pixmaps ? 24:6))
+			if (label_len <= task->width - (Config.show_mini_icons ? 24:6))
 				break;
 		}
 	}
@@ -119,6 +119,19 @@ is_task_visible (TasklistTask *task)
 		if (task->gwmh_task->desktop != desk_info->current_desktop)
 			return FALSE;
 
+	switch (Config.tasks_to_show) {
+	case TASKS_SHOW_ALL:
+		return TRUE;
+		break;
+	case TASKS_SHOW_NORMAL:
+		if (GWMH_TASK_MINIMIZED (task->gwmh_task))
+			return FALSE;
+		break;
+	case TASKS_SHOW_MINIMIZED:
+		if (!GWMH_TASK_MINIMIZED (task->gwmh_task))
+			return FALSE;
+	}
+	
 	return TRUE;
 }
 
@@ -148,7 +161,7 @@ draw_task (TasklistTask *task)
 		gdk_draw_string (area->window,
 				 area->style->font, area->style->black_gc,
 				 task->x +
-				 (Config.show_pixmaps ? 8 : 0) +
+				 (Config.show_mini_icons ? 8 : 0) +
 				 ((task->width - text_width) / 2),
 				 task->y + ((task->height - text_height) / 2) + text_height,
 				 tempstr);
@@ -158,7 +171,7 @@ draw_task (TasklistTask *task)
 				    area->style->black_gc,
 				    FALSE,
 				    task->x + 
-				    (Config.show_pixmaps ? 8 : 0) +
+				    (Config.show_mini_icons ? 8 : 0) +
 				    ((task->width - text_width) / 2),
 				    task->y + ((task->height - text_height) / 2),
 				    text_width,
@@ -167,7 +180,7 @@ draw_task (TasklistTask *task)
 		g_free (tempstr);
 	}
 
-	if (Config.show_pixmaps) {
+	if (Config.show_mini_icons) {
 		if (task->pixmap) {
 			if (task->mask) {
 				gdk_gc_set_clip_mask (area->style->black_gc, 
@@ -220,6 +233,7 @@ layout_tasklist (void)
 	num = g_list_length (temp_tasks);
 	
 	if (num == 0) {
+		/* FIXME: change_size om så är fallet */
 		gtk_widget_draw (area, NULL);
 		return;
 	}
@@ -228,7 +242,7 @@ layout_tasklist (void)
 	case ORIENT_UP:
 	case ORIENT_DOWN:
 		while (p < num) {
-			if (num < Config.rows)
+			if (num < Config.horz_rows)
 				num_rows = num;
 			
 			j++;
@@ -237,20 +251,20 @@ layout_tasklist (void)
 			if (num_rows < k + 1)
 				num_rows = k + 1;
 			
-			if (j >= ((num + Config.rows - 1) / Config.rows)) {
+			if (j >= ((num + Config.horz_rows - 1) / Config.horz_rows)) {
 				j = 0;
 				k++;
 			}
 			p++;
 		}
 
-		curheight = (ROW_HEIGHT * Config.rows - 4) / num_rows;
-		curwidth = (Config.width - 4) / num_cols;
+		curheight = (ROW_HEIGHT * Config.horz_rows - 4) / num_rows;
+		curwidth = (Config.horz_width - 4) / num_cols;
 
 		curx = 2;
 		cury = 2;
 
-		extra_space = Config.width - 4 - (curwidth * num_cols);
+		extra_space = Config.horz_width - 4 - (curwidth * num_cols);
 		/* FIXME: Do something with extra_space */
 
 		while (temp_tasks) {
@@ -262,8 +276,8 @@ layout_tasklist (void)
 			task->height = curheight;
 			
 			curx += curwidth;
-			if (curx >= Config.width ||
-			    curx + curwidth > Config.width) {
+			if (curx >= Config.horz_width ||
+			    curx + curwidth > Config.horz_width) {
 				cury += curheight;
 				curx = 2;
 			}
@@ -279,15 +293,18 @@ layout_tasklist (void)
 
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
-		
+
 		curheight = ROW_HEIGHT;
-		curwidth = Config.horz_width - 4;
+		curwidth = Config.vert_width - 4;
 		
 		num_cols = 1;
 		num_rows = num;
 		
 		curx = 2;
 		cury = 2;
+		
+		Config.vert_height = curheight * num_rows + 4;
+		change_size (FALSE);
 
 		while (temp_tasks) {
 			task = (TasklistTask *) temp_tasks->data;
@@ -298,7 +315,7 @@ layout_tasklist (void)
 			task->height = curheight;
 			
 			curx += curwidth;
-			if (curx >= Config.horz_width - 4) {
+			if (curx >= Config.vert_width - 4) {
 				cury += curheight;
 				curx = 2;
 			}
@@ -357,6 +374,8 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	switch (ntype)
 	{
 	case GWMH_NOTIFY_INFO_CHANGED:
+		if (imask & GWMH_TASK_INFO_GSTATE)
+			layout_tasklist ();
 		if (imask & GWMH_TASK_INFO_FOCUSED)
 			draw_task (find_gwmh_task (gwmh_task));
 		if (imask & GWMH_TASK_INFO_MISC)
@@ -484,38 +503,50 @@ ignore_1st_click (GtkWidget *widget, GdkEvent *event)
 
 /* Changes size of the applet */
 void
-change_size (void)
+change_size (gboolean layout)
 {
 	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
 		gtk_widget_set_usize (handle, 
-				      DRAG_HANDLE_SIZE + Config.width,
-				      Config.rows * ROW_HEIGHT);
+				      DRAG_HANDLE_SIZE + Config.horz_width,
+				      Config.horz_rows * ROW_HEIGHT);
 		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       Config.width,
-				       Config.rows * ROW_HEIGHT);
-		layout_tasklist ();
+				       Config.horz_width,
+				       Config.horz_rows * ROW_HEIGHT);
 		break;
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
 		gtk_widget_set_usize (handle, 
-				      Config.horz_width,
-				      DRAG_HANDLE_SIZE + Config.height);
+				      Config.vert_width,
+				      DRAG_HANDLE_SIZE + Config.vert_height);
 		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       Config.horz_width,
-				       Config.height);
-		layout_tasklist ();
+				       Config.vert_width,
+				       Config.vert_height);
 	}
+	if (layout)
+		layout_tasklist ();
 }
 
+/* Called when the session should be saved */
+static gboolean
+cb_save_session (gpointer func_data,
+		 const gchar *privcfgpath,
+		 const gchar *globcfgpath)
+{
+	write_config ();
+
+	return FALSE;
+}
+
+/* Called when the panel's orient changes */
 static gboolean
 cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
 {
 	/* Change size accordingly */
-	change_size ();
+	change_size (TRUE);
 
 	return FALSE;
 }
@@ -553,6 +584,9 @@ create_applet (void)
 
 	gtk_signal_connect (GTK_OBJECT (applet), "change-orient",
 			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
+	gtk_signal_connect (GTK_OBJECT (applet), "save-session",
+			    GTK_SIGNAL_FUNC (cb_save_session), NULL);
+
 	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "about",
 					       GNOME_STOCK_MENU_ABOUT,
@@ -565,7 +599,7 @@ create_applet (void)
 					       _("Properties..."),
 					       (AppletCallbackFunc) cb_properties,
 					       NULL);
-	change_size ();
+	change_size (TRUE);
 	gtk_widget_show (applet);
 }
 

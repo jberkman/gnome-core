@@ -7,6 +7,14 @@
 typedef struct _TasklistTask TasklistTask;
 typedef struct _TasklistConfig TasklistConfig;
 
+/* Simple enum for which tasks to show */
+enum
+{
+	TASKS_SHOW_ALL,
+	TASKS_SHOW_MINIMIZED,
+	TASKS_SHOW_NORMAL
+};
+
 typedef enum
 {
 	MENU_ACTION_CLOSE,
@@ -27,22 +35,25 @@ struct _TasklistTask {
 
 struct _TasklistConfig {
 
-	gboolean show_pixmaps; /* Show pixmaps next to tasks */
+	gboolean show_mini_icons; /* Show small icons next to tasks */
+	gboolean tasks_to_show; /* Which tasks to show */
+
 	gboolean confirm_before_kill; /* Confirm before killing windows */
 
 	/* Stuff for horizontal mode */
-	gint width; /* The width of the tasklist */
-	gint rows; /* Number of rows */
+	gint horz_width; /* The width of the tasklist */
+	gint horz_rows; /* Number of rows */
 
 	/* Stuff for vertical mode */
-	gint height; /* The height of the tasklist */
-	gint horz_width; /* The width of the tasklist */
+	gint vert_height; /* The height of the tasklist */
+	gint vert_width; /* The width of the tasklist */
+	gboolean vert_fixed; /* Whether the size should be fixed or dynamic */
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);
 void display_properties (void);
 void read_config (void);
 void write_config (void);
-void change_size (void);
+void change_size (gboolean layout);
 
 

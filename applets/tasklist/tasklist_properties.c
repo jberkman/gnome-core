@@ -13,7 +13,6 @@ GtkWidget *prop;
 static gboolean
 cb_apply (GtkWidget *widget, gint page, gpointer data)
 {
-	g_print ("Numrows: %d\n", PropsConfig.rows);
 
 	/* Copy the Property struct back to the Config struct */
 	memcpy (&Config, &PropsConfig, sizeof (TasklistConfig));
@@ -22,25 +21,45 @@ cb_apply (GtkWidget *widget, gint page, gpointer data)
 	write_config ();
 
 	/* Redraw everything */
-	change_size ();
+	change_size (TRUE);
+
+	return FALSE;
+}
+
+/* Callback for radio buttons */
+static gboolean
+cb_radio_button (GtkWidget *widget, gint *data)
+{
+
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
+		*data = GPOINTER_TO_INT (gtk_object_get_data (GTK_OBJECT (widget),
+							      "number"));
+		gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
+	}
+
+	return FALSE;
 }
 
 /* Callback for spin buttons */
 static gboolean
-cb_spin_button (GtkAdjustment *adj, int *data)
+cb_spin_button (GtkAdjustment *adj, gint *data)
 {
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
 
 	*data = (gint) (adj->value);
+
+	return FALSE;
 }
 
-/* Callback for check butotns */
+/* Callback for check buttons */
 static gboolean
 cb_check_button (GtkWidget *widget, gboolean *data)
 {
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
 
 	*data = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+
+	return FALSE;
 }
  
 /* Create a spin button */
@@ -74,6 +93,29 @@ create_spin_button (gchar *name,
 	return hbox;
 }
 
+/* Create a radio button */
+GtkWidget *
+create_radio_button (gchar *name, GSList **group, 
+		     gint number, gint *change_value)
+{
+	GtkWidget *radiobutton;
+	
+	radiobutton = gtk_radio_button_new_with_label (*group, name);
+	*group = gtk_radio_button_group (GTK_RADIO_BUTTON (radiobutton));
+
+	if (number == *change_value)
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radiobutton), TRUE);
+	
+	gtk_signal_connect (GTK_OBJECT (radiobutton), "toggled",
+			    GTK_SIGNAL_FUNC (cb_radio_button), change_value);
+	gtk_object_set_data (GTK_OBJECT (radiobutton), "number",
+			     GINT_TO_POINTER (number));
+
+
+	return radiobutton;
+}
+
+/* Create a check button */
 GtkWidget *
 create_check_button (gchar *name, gboolean *change_value)
 {
@@ -102,14 +144,14 @@ create_geometry_page (void)
 	
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_spin_button (_("Tasklist width"),
-						&PropsConfig.width,
+						&PropsConfig.horz_width,
 						48,
 						1024,
 						10),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_spin_button (_("Number of rows"),
-						&PropsConfig.rows,
+						&PropsConfig.horz_rows,
 						1,
 						8,
 						1),
@@ -124,7 +166,7 @@ create_geometry_page (void)
 
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_spin_button (_("Tasklist height"),
-						&PropsConfig.height,
+						&PropsConfig.vert_height,
 						48,
 						1024,
 						10),
@@ -132,7 +174,7 @@ create_geometry_page (void)
 
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_spin_button (_("Tasklist width"),
-						&PropsConfig.horz_width,
+						&PropsConfig.vert_width,
 						48,
 						512,
 						10),
@@ -142,6 +184,52 @@ create_geometry_page (void)
 
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), hbox,
 					gtk_label_new (_("Geometry")));
+}
+
+void
+create_appearance_page (void)
+{
+	GtkWidget *vbox, *frame;
+	GtkWidget *miscbox, *taskbox;
+	GtkWidget *radio;
+	GSList *taskgroup = NULL;
+
+	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+	
+	frame = gtk_frame_new (_("Which tasks to show"));
+	gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
+	gtk_box_pack_start_defaults (GTK_BOX (vbox), frame);
+
+	taskbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+	gtk_container_add (GTK_CONTAINER (frame), taskbox);
+	
+	gtk_box_pack_start (GTK_BOX (taskbox),
+			    create_radio_button (_("Show all tasks"), 
+						 &taskgroup, TASKS_SHOW_ALL, &PropsConfig.tasks_to_show),
+			    FALSE, TRUE, 0);
+
+	gtk_box_pack_start (GTK_BOX (taskbox),
+			    create_radio_button (_("Show minimized tasks only"),
+						 &taskgroup, TASKS_SHOW_MINIMIZED, &PropsConfig.tasks_to_show),
+			    FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (taskbox),
+			    create_radio_button (_("Show normal tasks only"),
+						 &taskgroup, TASKS_SHOW_NORMAL, &PropsConfig.tasks_to_show),
+			    FALSE, TRUE, 0);
+	
+	frame = gtk_frame_new (_("Miscellaneous"));
+	gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
+	gtk_box_pack_start_defaults (GTK_BOX (vbox), frame);
+	
+	miscbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+	gtk_container_add (GTK_CONTAINER (frame), miscbox);
+
+	gtk_box_pack_start (GTK_BOX (miscbox),
+			    create_check_button (_("Show mini icons"), &PropsConfig.show_mini_icons),
+			    FALSE, TRUE, 0);
+
+	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), vbox,
+					gtk_label_new (_("Appearance")));
 }
 
 void
@@ -177,6 +265,7 @@ display_properties (void)
 	gtk_signal_connect (GTK_OBJECT (prop), "apply",
 			    GTK_SIGNAL_FUNC (cb_apply), NULL);
 
+	create_appearance_page ();
 	create_behavior_page ();
 	create_geometry_page ();
 

@@ -1,4 +1,15 @@
-1999-09-11  Anders carlsson  <anders.carlsson@tordata.se>
+1999-09-14  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c
+	  tasklist_applet.h
+	  tasklist_config.c
+	  tasklist_properties.c: Adding "which tasks to show"
+
+1999-09-13  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c: Adding save session handler
+
+1999-09-11  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_applet.c
 	  tasklist_applet.h
