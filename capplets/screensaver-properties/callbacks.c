@@ -156,7 +156,7 @@ void
 sig_child(int sig)
 {
         int pid;
-        union wait status;
+        int status;
         while ( (pid = wait3(&status, WNOHANG, (struct rusage *) 0)) > 0)
                 ;
 }
