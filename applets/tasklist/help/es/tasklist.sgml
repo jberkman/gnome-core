@@ -1,0 +1,377 @@
+
+  <!-- ###############  Tasklist   ############### -->
+<sect1 id="tasklist-applet">
+   <title>Aplique Lista de Tareas</title> 
+
+   <para> 
+    El aplique <application>Lista de Tareas</application>, tal como se 
+    observa en <xref linkend="tasklist-applet-fig">, muestra  
+    una tabla con las aplicaciones que se están ejecutando
+    en su ordenador dentro de una ventana. En función de las opciones
+    seleccionadas, se mostrará el escritorio que se está actualmente 
+    utilizando o bien todos los escritorios virtuales.  Para añadir
+    este aplique al  <interface>Panel</interface>, pulse el botón
+    derecho del ratón sobre el panel y escoja:
+         <menuchoice>
+               <guimenu>Apliques</guimenu>
+               <guisubmenu>Utilidades</guisubmenu>
+	       <guimenuitem>Lista de Tareas</guimenuitem>
+	</menuchoice>. 
+   </para>
+  
+ 
+   <figure id="tasklist-applet-fig">
+   <title>Lista de Tareas</title>
+   <screenshot>
+    <screeninfo>Lista de Tareas</screeninfo>
+    <graphic format="png" fileref="figures/tasklist-fig" srccredit="John Fleck">
+    </graphic>
+   </screenshot>
+   </figure>
+
+   <sect2 id="tasklist-applet-usage">
+    <title>Utilización</title>
+    <para>La <application>Lista de Tareas</application>  le permite
+    navegar rápidamente entre las aplicaciones que se están ejecutando
+    en su ordenador, mostrando para cada aplicación los iconos y 
+    nombres de las aplicaciones que se corresponder a los criterios que
+    haya fijado en la  <link linkend="tasklist-applet-properties">
+    ventana propiedades</link>. Pulsando en un icono o en el nombre de 
+    una aplicación le da el foco a dicha aplicación, llevándola 
+    arriba para aceptar entrada de teclado.</para>
+    
+    
+    <para>Al pulsar con el botón derecho del ratón sobre el 
+    icono de la aplicación o el texto dentro del aplique aparecerá
+    el siguiente menú:</para>
+
+    <figure id="tasklist-rightclick-fig">
+      <title>Opciones del Botón Derecho de la Lista de Tareas </title>
+      <screenshot>
+	<screeninfo>Opciones del Botón Derecho de la Lista de Tareas</screeninfo>
+	<graphic format="png" fileref="figures/tasklist-rightclick-fig"
+		 srccredit="John Fleck">
+    </graphic>
+   </screenshot>
+   </figure>
+    <para>
+    <itemizedlist>
+	<listitem>
+	  <para><guilabel>Iconizar</guilabel>  &mdash; disminuye
+	  la aplicación a un icono del panel. Cuando una aplicación
+	  ya está iconizada, el elemento del menú cambia a 
+	  <guilabel>Restaurar</guilabel>. Pulsando sobre él restaura
+	  la aplicación en su escritorio.</para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	  <guilabel>Enrollar</guilabel> &mdash;  minimiza la 
+	  aplicación a una sencilla ventana barra. Cuando
+	  una aplicación ya ha sido Enrollada, el elemento de menú 
+	  cambia a  <guilabel>Desenrollar</guilabel>. Pulsando sobre
+	  <guilabel>Desenrollar</guilabel> retorna la aplicación a su
+	  tamaño completo.</para>
+	</listitem>
+
+
+	<listitem>
+	  <para><guilabel>Clavar</guilabel> &mdash; convierte a una aplicación
+	  en "clavada", es decir permanece en su campo de visión cuando cambie
+	  de directorios virtuales, siguiéndole. Cuando una aplicación está 
+	  clavada, se muestra la opción de menú <guilabel>Desclavar</guilabel>, 
+	  permitiéndole dejar una aplicación atrás mientras realiza sus paseos
+	  por los escritorios virtuales.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para><guilabel>Matar</guilabel> &mdash; mata la aplicación. El 
+	  <link  linkend="tasklist-applet-properties">diálogo propiedades</link> 
+	  le permite que la <application>Lista de Tareas</application> le pida
+	  confirmación antes de que la aplicación muera a destiempo.</para>
+	</listitem>
+
+      </itemizedlist>
+</para>
+   </sect2>
+
+   <sect2 id="tasklist-applet-right-click">
+    <title>Elementos del Menú Emergente del Botón Derecho</title>
+    <para> 
+     Además de los elementos de menú estándar (véase <xref
+    linkend="tasklist-standard-right-click-items">), el 
+    menú contextual (menú emergente del botón derecho) tiene un elemento
+    <guimenuitem>Propiedades...</guimenuitem> &mdash;  Este elemento de menú 
+    abre el diálogo <interface>Propiedades</interface> (véase <xref
+    linkend="tasklist-applet-properties">) que le permitirá  personalizar la 
+    apariencia y comportamiento de este aplique.
+    </para>
+ 
+   </sect2>
+
+   <sect2 id="tasklist-applet-properties">
+    <title>Propiedades</title>
+    <para>
+    	Puede configurar el aplique  <application>Lista de Tareas</application> al pulsar con el 
+    	botón derecho sobre el aplique y seleccionando el elemento de menú 
+     <guimenuitem>Propiedades...</guimenuitem>. Abrirá el diálogo
+     <interface>Propiedades</interface>, tal y como se observa en <xref
+     linkend="tasklist-applet-properties-fig">.
+    </para>
+    <figure id="tasklist-applet-properties-fig">
+     <title>Diálogo Propiedades</title>
+     <screenshot>
+      <screeninfo>Diálogo Propiedades</screeninfo> 
+      <graphic format="png" fileref="figures/tasklist-properties"
+	       srccredit="John Fleck">
+      </graphic>
+     </screenshot>
+    </figure>
+    <para>El <interface>Diálogo Propiedades</interface> le permite  controlar que tareas
+    se muestran:
+<itemizedlist>
+
+	<listitem>
+	  <para><guilabel>Mostrar las aplicaciones normales</guilabel> &mdash;
+	  muestra, en el aplique, todas las aplicaciones del escritorio en uso que 
+	  no hayan sido minimizadas.</para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Mostrar las aplicaciones iconizadas (minimizadas)
+	  </guilabel> &mdash; muestra todas las aplicaciones del escritorio
+	  actualmente en uso que han sido minimizadas.</para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Mostrar aplicaciones normales en todos los 
+	  escritorios</guilabel> &mdash; le muestra todas las aplicaciones 
+	  de tamaño completo, no minimizadas en todos los escritorios. Para 
+	  que lo anterior funcione, es necesario que, además, haya seleccionado <guilabel>
+	  Mostrar aplicaciones normales</guilabel> en la caja de chequeo explicada
+	  más arriba.
+	  
+	  </para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Mostrar aplicaciones iconizadas (minimizadas) en
+	  todos los escritorios</guilabel> &mdash;  muestra todas las aplicaciones
+	  que han sido minimizadas en todos los escritorios. Para que esto funcione,
+	  debe haber seleccionado más arriba <guilabel>Mostrar 
+	  aplicaciones iconizadas (minimizadas)</guilabel> previamente.</para>
+	</listitem>
+</itemizedlist>
+</para>
+   
+<para>
+<itemizedlist>
+	<listitem>
+	  <para><guilabel>Mostrar mini-iconos</guilabel> &mdash; Algunas aplicaciones
+	  permite un icono en miniatura. Esta opción lo muestra en el aplique 
+	  <application>Lista de Tareas</application>.</para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Confirmación antes de matar aplicaciones</guilabel>
+	  &mdash; aparecerá la confirmación del aplique antes de permitirle 
+	    <link linkend="tasklist-rightclick-fig">matar una aplicación
+	  </link>.</para>
+	</listitem>
+	  <listitem>
+	    <para><guilabel>Desplaza las tareas iconizadas al espacio
+	    de trabajo actual cuando sean restauradas</guilabel> &mdash;
+	    cambia automáticamente el escritorio de trabajo de su pantalla
+	    al que contenga la aplicación sobre la cual ha realizado un 
+	    click en el aplique <application>Lista de Tareas</application>.</para>
+	  </listitem>
+
+
+      </itemizedlist>
+
+</para>
+  <figure id="tasklist-applet-size-fig">
+     <title>Diálogo Propiedades - Tamaño</title>
+     <screenshot>
+      <screeninfo>Diálogo Propiedades - Tamaño</screeninfo> 
+      <graphic format="png" fileref="figures/tasklist-properties-size"
+	       srccredit="John Fleck">
+      </graphic>
+     </screenshot>
+    </figure>
+
+    <para>El <interface>diálogo propiedades del tamaño</interface> controla
+    cuanto espacio asignará el panel a la <application>Lista de Tareas</application>:
+<itemizedlist>
+	<listitem>
+	  <para><guilabel>Seguir el tamaño del panel </guilabel>
+	  &mdash; determina  automáticamente el tamaño de la
+	  <application>Lista de Tareas</application> en función del tamaño
+	  del panel. Esta opción sobreescribe otras.</para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Ancho (Alto) de la Lista de Tareas</guilabel>
+	  &mdash; ancho (o alto si el panel es vertical) en pixels de la
+	  <application>Lista de Tareas</application>.</para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Filas de las tareas</guilabel>
+	  &mdash; fija cuantas filas de iconos de tareas mostrará la 
+	  <application>Lista de Tareas</application>.</para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Tamaño por omisión de tarea</guilabel>
+	  &mdash; fija el tamaño por omisión  del  elemento de tarea.
+	  (Sólo tiene efecto al seleccionar más abajo <guilabel>Ancho Dinámico
+	  de la Lista de Tareas</guilabel>.)</para>
+	</listitem>
+	<listitem>
+	  <para><guilabel>Ancho (alto) de la lista de tareas 
+	  fijo (dinámico)</guilabel> &mdash; Toma el tamaño de la lista
+	  de tareas como fijo o establecido dinámicamente por el aplique.
+	  Establecerlo  como "fijo" significa que el aplique siempre tomará
+	  la cantidad de espacio dada en "ancho de la lista de tareas", incluso si no
+	  hay tareas. Establecerlo como <guilabel>dinámico</guilabel> significa
+	  que el aplique tomará el espacio que necesite para mostrar todas las 
+	  tareas (cero si no hay tareas), pero no más allá del valor fijado 
+	  en <guilabel>Ancho de la Lista de Tareas</guilabel> .</para>
+	</listitem>
+      </itemizedlist>
+
+</para>
+   
+   </sect2>
+  
+
+<sect2 id="basicPropertiesOptions">
+      <title>Opciones Básicas de las Propiedades</title>
+    <para>Todos los diálogos <interface>Propiedades</interface> tienen los siguientes 
+    botones en la parte inferior del diálogo:
+     <itemizedlist>
+      <listitem>
+       <para>
+        <guibutton>OK</guibutton> &mdash;
+        Al pulsar <guibutton>OK</guibutton> activará todos los cambios que haya realizado
+        en las propiedades y cerrará el diálogo
+        <interface>Propiedades</interface>.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        <guibutton>Aplicar</guibutton> &mdash;
+        Pulsando <guibutton>Aplicar</guibutton>  en cualquier momento 
+        activará los cambios sin cerrar el diálogo
+        <interface>Propiedades</interface>.  Es útil si desea comprobar los
+        efectos que tienen los cambios realizados y desea continuar realizando
+        más cambios en las propiedades.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        <guibutton>Cerrar</guibutton> &mdash;
+        Al pulsar <guibutton>Cerrar</guibutton>  cerrará el diálogo
+        <interface>Propiedades</interface>.  Sólo se mantendrán los cambios
+        en la configuración que hayan sido con anterioridad aplicados con
+        el botón <guibutton>Aplicar</guibutton>. Se descartarán otros cambios.
+       </para>
+      </listitem>
+      <listitem>
+       <para>
+        <guibutton>Ayuda</guibutton> &mdash;
+        Pulsando <guibutton>Ayuda</guibutton> aparecerá el manual de la aplicación,
+        abriéndose en la página que describe el diálogo
+        <interface>Propiedades</interface>.
+
+
+    
+    </para>
+</listitem>
+</itemizedlist>
+</para>
+</sect2>
+
+ <sect2 id="tasklist-standard-right-click-items"> 
+    <title>Elementos Estándar Emergentes</title>
+    <para>
+    	Todos los apliques deberían tener los siguientes elementos en el <guimenu>menú 
+    	emergente</guimenu> emergente del botón derecho:
+     <variablelist>
+      <varlistentry>
+       <term>Quitar del panel</term>
+       <listitem>
+        <para>
+         El elemento de menú <guimenuitem>Quitar del panel</guimenuitem>
+         retira el aplique del  <interface>Panel</interface>. 
+        </para>
+       </listitem>
+      </varlistentry>
+
+      <varlistentry>
+       <term>Mover (Desplazar)</term>
+       <listitem>
+        <para>
+         Después de seleccionar <guimenuitem>Mover</guimenuitem>, 
+         cambiará la apariencia del puntero de su ratón (típicamente a 
+         una cruz con flechas en cada dirección). A medida que mueve su
+         ratón, el aplique se moverá con el. Cuando haya finalizado de 
+         mover el aplique, pulse cualquier botón del ratón y el aplique
+         se quedará anclado en la posición actual. Dese cuenta que, de
+         esta forma,  los   apliques se pueden desplazar entre dos 
+         <interface>Paneles</interface>.
+        </para>
+       </listitem>
+      </varlistentry>
+
+      <varlistentry>
+       <term>Panel</term>
+       <listitem>
+        <para>
+         El submenú <guisubmenu>Panel</guisubmenu>  contiene varios elementos
+         y submenús para añadir o quitar <interface>Paneles</interface> 
+         y apliques y para cambiar la configuración.
+        </para>
+       </listitem>
+      </varlistentry>
+
+      <varlistentry>
+       <term>Acerca</term>
+       <listitem>
+        <para>
+         El elemento de menú <guimenuitem>Acerca...</guimenuitem> le da
+         una caja de diálogo  que contiene información sobre el aplique,
+         típicamente incluye el nombre, versión, autor,
+         copyright, licencia y descripción del aplique.        </para>
+       </listitem>
+      </varlistentry>
+
+      <varlistentry>
+       <term>Ayuda</term>
+       <listitem>
+        <para>
+         El elemento de menú <guimenuitem>Ayuda</guimenuitem> hará que aparezca
+         el manual de la ayuda de este aplique. 
+        </para>
+       </listitem>
+      </varlistentry>
+     </variablelist>
+    </para>
+   </sect2>
+
+   <sect2 id="tasklist-applet-bugs">
+    <title> Errores y Limitaciones Conocidas</title>
+    <para>
+     En el aplique  <application>Lista de Tareas</application> .  
+     no hay errores conocidos.
+
+    </para>
+   </sect2>
+
+&authors;
+&license;
+&license-es;
+
+
+
+</sect1>
+
+
+
+
+
