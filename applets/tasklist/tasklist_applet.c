@@ -20,6 +20,7 @@ gboolean desk_notifier (gpointer func_data, GwmhDesk *desk, GwmhDeskInfoMask cha
 gboolean task_notifier (gpointer func_data, GwmhTask *gwmh_task, GwmhTaskNotifyType ntype, GwmhTaskInfoMask imask);
 gboolean cb_button_press_event (GtkWidget *widget, GdkEventButton *event);
 gboolean cb_expose_event (GtkWidget *widget, GdkEventExpose *event);
+void cb_realize (GtkWidget *widget);
 void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
@@ -689,6 +690,13 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 	return FALSE;
 }
 
+/* This routine gets called when the tasklist is realized */
+void
+cb_realize (GtkWidget *widget)
+{
+	cb_expose_event(widget, NULL);
+}
+
 /* This routine gets called when the user selects "properties" */
 static void
 cb_properties (void)
@@ -819,6 +827,8 @@ create_applet (void)
 			       GDK_BUTTON_RELEASE_MASK);
 	gtk_signal_connect (GTK_OBJECT (area), "expose_event",
 			    GTK_SIGNAL_FUNC (cb_expose_event), NULL);
+	gtk_signal_connect (GTK_OBJECT (area), "realize",
+			    GTK_SIGNAL_FUNC (cb_realize), NULL);
 	gtk_signal_connect (GTK_OBJECT (area), "button_press_event",
 			    GTK_SIGNAL_FUNC (cb_button_press_event), NULL);
 

@@ -1,3 +1,8 @@
+Sun Feb 20 00:33:49 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c: draw ourselves on "realize" to avoid the bug
+	  where we don't get drawn on startup
+
 Thu Feb 17 21:20:16 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.c: don't leak the minicons pixbufs.  Also don't
