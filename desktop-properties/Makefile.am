@@ -43,7 +43,7 @@ LDADD = \
         $(X_LIBS) $(x_libs)				\
         @XF86MISC_LIBS@					\
 	@LEXLIB@					\
-	@INTLLIBS@
+	$(INTLLIBS)
 
 EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop
 
