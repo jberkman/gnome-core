@@ -1,3 +1,10 @@
+2001-12-09  Seth Nickell  <snickell@stanford.edu>
+
+	* gnome-terminal.desktop:
+
+	Change the name and description to Nils' panel
+	menu layout.
+
 2001-11-28  Seth Nickell  <snickell@stanford.edu>
 
 	* Makefile.am:

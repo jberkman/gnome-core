@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=GNOME terminal
+Name=Terminal
 Name[ca]=Terminal GNOME
 Name[cs]=Terminál GNOME
 Name[da]=Gnome terminal
@@ -33,7 +33,7 @@ Name[uk]=GNOME ôÅÒÍ¦ÎÁÌ
 Name[wa]=Terminå di Gnome
 Name[zh_CN.GB2312]=GNOME ÖÕ¶Ë»ú
 Name[zh_TW]=GNOME ²×ºÝ¾÷
-Comment=Terminal emulation program
+Comment=Enter UNIX commands
 Comment[ca]=Emulador de terminal de GNOME
 Comment[cs]=Terminálový emulátor
 Comment[da]=Gnomes terminalemulator
