@@ -1,3 +1,16 @@
+1999-04-02  Jacob Berkman  <jberk+@cmu.edu>
+
+	* gnome-terminal.c: Added a configuration option to start the
+	terminal with a login shell by default.  This does get overridden
+	if either --login or --nologin is specified on the command line.
+
+	* gnome-terminal.c (load_session, save_session): remember if we
+	were started with a login shell or not.  (GNOME bug #847)
+
+	* gnome-terminal.c (drag_data_recieved): Removed unused variable 
+	'len'
+
+
 1999-04-02  Michael Zucchi  <zucchi@zzedzone.fsi.com.au>
 
 	* gnome-terminal.c (gnome_term_set_font): Since we dont know the

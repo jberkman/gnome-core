@@ -41,6 +41,10 @@ gboolean update_records = ZVT_TERM_DO_UTMP_LOG | ZVT_TERM_DO_WTMP_LOG;
 /* is there pixmap compiled into zvt */
 static gboolean zvt_pixmap_support = FALSE;
 
+/* small hack? whether they specified --login 
+   or --nologin on the command line */
+gboolean cmdline_login;
+
 /* The color set */
 enum color_set_enum {
 	COLORS_WHITE_ON_BLACK,
@@ -62,11 +66,12 @@ enum targets_enum {
 };
 
 struct terminal_config {
-        int bell        :1;                     /* Do we want the bell? */
-	int blink       :1; 			/* Do we want blinking cursor? */
-	int scroll_key  :1;			/* Scroll on input? */
-	int scroll_out  :1;			/* Scroll on output? */
-	int swap_keys   :1;			/* Swap DEL/Backspace? */
+        int bell             :1;                /* Do we want the bell? */
+	int blink            :1; 		/* Do we want blinking cursor? */
+	int scroll_key       :1;       		/* Scroll on input? */
+	int scroll_out       :1;       		/* Scroll on output? */
+	int swap_keys        :1;       		/* Swap DEL/Backspace? */
+	int login_by_default :1;                /* do --login as default */
 	int color_type; 			/* The color mode */
 	enum color_set_enum color_set;
 	char *font; 				/* Font used by the terminals */
@@ -102,6 +107,7 @@ typedef struct {
 	GtkWidget *scroll_kbd_checkbox;
 	GtkWidget *scroll_out_checkbox;
 	GtkWidget *swapkeys_checkbox;
+	GtkWidget *login_by_default_checkbox;
 	GtkWidget *wordclass_entry;
 	GtkWidget *pixmap_checkbox;
 	GtkWidget *pixmap_file_entry;
@@ -378,7 +384,6 @@ load_config (char *class)
 
 	/* It's very odd that these are here */
 	cfg->font = NULL;
-	cfg->invoke_as_login_shell = 0;
 	cfg->class = g_strdup (class);
 
 	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
@@ -401,7 +406,9 @@ load_config (char *class)
 	cfg->bell      = gnome_config_get_bool ("bell_silenced=0");
 	cfg->blink     = gnome_config_get_bool ("blinking=0");
 	cfg->swap_keys = gnome_config_get_bool ("swap_del_and_backspace=0");
-	
+
+	cfg->login_by_default = gnome_config_get_bool ("login_by_default=0");
+
 	/* Default colors in the case the color set is the custom one */
 	fore_color = gnome_config_get_string ("foreground=gray");
 	back_color = gnome_config_get_string ("background=black");
@@ -446,6 +453,7 @@ gather_changes (ZvtTerm *term)
 	newcfg->scroll_out     = GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox)->active;
 	newcfg->scroll_key     = GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox)->active;
 	newcfg->scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin));
+	newcfg->login_by_default = GTK_TOGGLE_BUTTON (prefs->login_by_default_checkbox)->active;
 
 	newcfg->transparent = GTK_TOGGLE_BUTTON (prefs->transparent_checkbox)->active;
 	newcfg->shaded = GTK_TOGGLE_BUTTON (prefs->shaded_checkbox)->active;
@@ -824,7 +832,8 @@ enum {
 	MENUBAR_ROW     = 4,
 	BELL_ROW        = 5,
 	SWAPKEYS_ROW    = 6,
-	WORDCLASS_ROW	= 7,
+	LOGIN_ROW       = 7,
+	WORDCLASS_ROW	= 8,
 	BACKGROUND_ROW	= 1,
 	PIXMAP_FILE_ROW	= 2,
 	SHADED_ROW      = 4,
@@ -863,6 +872,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_bool   ("bell_silenced", cfg->bell);
 	gnome_config_set_bool   ("blinking", cfg->blink);
 	gnome_config_set_bool   ("swap_del_and_backspace", cfg->swap_keys);
+	gnome_config_set_bool   ("login_by_default", cfg->login_by_default);
 	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
 	gnome_config_set_int    ("color_set", cfg->color_set);
 	gnome_config_set_string ("color_scheme",
@@ -1023,6 +1033,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->swapkeys_checkbox,
 			  2, 3, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	
+	/* --login by default */
+	prefs->login_by_default_checkbox = gtk_check_button_new_with_label (_("Use --login by default"));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->login_by_default_checkbox),
+				      cfg->login_by_default ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->login_by_default_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->login_by_default_checkbox,
+			  2, 3, LOGIN_ROW, LOGIN_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
 	/* Word selection class */
 	l = aligned_label (_("Select-by-word characters"));
 	gtk_table_attach (GTK_TABLE (table), l,
@@ -1430,7 +1449,7 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 		     guint time)
 {
 	ZvtTerm *term = ZVT_TERM (widget);
-	int len, col, row, the_char;
+	int col, row, the_char;
 	struct terminal_config *cfg;
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
@@ -1860,6 +1879,10 @@ load_session ()
 		g_free (class_path);
 
 		cfg = load_config (class);
+		
+		/* do this now, since it is only done in a session */
+		cfg->invoke_as_login_shell = gnome_config_get_bool("invoke_as_login_shell");
+
 		g_free(class);
 		gnome_config_pop_prefix();
 
@@ -1938,6 +1961,10 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		}
 
 		save_preferences(list->data, term, cfg);
+		
+		/* do this now, since it is only done in a session */
+		gnome_config_set_bool("invoke_as_login_shell",
+				      cfg->invoke_as_login_shell);
 
 		gnome_config_pop_prefix ();
 		g_free (prefix);
@@ -2054,9 +2081,11 @@ parse_an_arg (poptContext state,
 		break;
 	case LOGIN_KEY:
 		cfg->invoke_as_login_shell = 1;
+		cmdline_login = TRUE;
 		break;
 	case NOLOGIN_KEY:
 	        cfg->invoke_as_login_shell = 0;
+		cmdline_login = TRUE;
 	        break;
 	case GEOMETRY_KEY:
 		geometry = (char *)arg;
@@ -2123,6 +2152,8 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
+
+	cmdline_login = FALSE;
 
 	cmdline_config = g_new0 (struct terminal_config, 1);
 	
@@ -2196,8 +2227,10 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->color_set = COLORS_CUSTOM;
 	}
 
+	/* if the default is different from the commandline, use the commandline */
 	default_config->invoke_as_login_shell =
-		cmdline_config->invoke_as_login_shell;
+		cmdline_login ? cmdline_config->invoke_as_login_shell : 
+		default_config->login_by_default;
 	
 	terminal_config_free (cmdline_config);
 	
