@@ -456,7 +456,8 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	cfg = terminal_config_dup (newcfg);
 	gtk_object_set_data (GTK_OBJECT (term), "config", cfg);
 
-	zvt_term_set_font_name (term, cfg->font);
+	/*zvt_term_set_font_name (term, cfg->font);*/
+	gnome_term_set_font (term, cfg->font);
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
@@ -606,15 +607,35 @@ color_changed (GtkWidget *w, int r, int g, int b, int a, preferences_t *prefs)
 }
 
 static void
-prop_changed_zvt (void *data, char *font_name)
+font_changed (GtkWidget *w, preferences_t *prefs)
 {
-	ZvtTerm *term = ZVT_TERM (data);
-	preferences_t *prefs;
-	
-	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
-	gtk_entry_set_text (GTK_ENTRY (prefs->font_entry), font_name);
-	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
+	char *font;
+	GtkWidget *peer;
+	if (GNOME_IS_FONT_PICKER(w)) {
+		font = gnome_font_picker_get_font_name (GNOME_FONT_PICKER(w));
+		peer = gtk_object_get_user_data (GTK_OBJECT(w));
+		gtk_entry_set_text (GTK_ENTRY(peer), font);
+	} else {
+		font = gtk_entry_get_text (GTK_ENTRY(w));
+		peer = gtk_object_get_user_data (GTK_OBJECT(w));
+		gnome_font_picker_set_font_name (GNOME_FONT_PICKER(peer), font);
+		prop_changed (w, prefs);
+	}
 }
+
+
+/*
+static void
+prop_changed_zvt (void *data, char *font_name) 
+{ 
+	ZvtTerm *term = ZVT_TERM (data); 
+	preferences_t *prefs; 
+	 
+	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs"); 
+	gtk_entry_set_text (GTK_ENTRY (prefs->font_entry), font_name); 
+	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0); 
+} 
+*/ 
 
 typedef struct {
 	GtkWidget        *menu;
@@ -743,7 +764,7 @@ free_cs (GtkWidget *widget, GnomeColorSelector *cs)
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GtkWidget *l, *table, *o, *m, *b1, *b2, *e;
+	GtkWidget *l, *table, *o, *m, *label, *b1, *b2, *e;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
 	GList *class_list = NULL;
@@ -778,15 +799,30 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    gtk_object_get_user_data (GTK_OBJECT (term)));
 	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->font_entry), "changed",
-			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+			    GTK_SIGNAL_FUNC (font_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
 			  2, 3, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	o = gtk_option_menu_new ();
-	m = create_font_menu (term, GTK_SIGNAL_FUNC (prop_changed_zvt));
-	gtk_option_menu_set_menu (GTK_OPTION_MENU (o), m);
+
+	o = gnome_font_picker_new();
+	gnome_font_picker_set_font_name(GNOME_FONT_PICKER(o),
+					gtk_entry_get_text(GTK_ENTRY (prefs->font_entry)));
+	gnome_font_picker_set_mode(GNOME_FONT_PICKER(o),
+				   GNOME_FONT_PICKER_MODE_USER_WIDGET);
+	
+	gtk_signal_connect (GTK_OBJECT (o), "font_set",
+			    GTK_SIGNAL_FUNC (font_changed), prefs);
+
+	m = gtk_hbox_new (0, 0);
+	label = gtk_label_new (_("Browse..."));
+	gtk_container_add (GTK_CONTAINER(m), label);
+	gnome_font_picker_uw_set_widget(GNOME_FONT_PICKER(o), GTK_WIDGET(m));
+	
+	gtk_object_set_user_data(GTK_OBJECT(o), GTK_OBJECT(prefs->font_entry)); 
+	gtk_object_set_user_data (GTK_OBJECT(prefs->font_entry), GTK_OBJECT(o)); 
+	
 	gtk_table_attach (GTK_TABLE (table), o,
 			  3, 5, FONT_ROW, FONT_ROW+1, 0, 0, 0, 0);
-
+	
 	/* Terminal class */
 	l = aligned_label (_("Terminal Class"));
 	gtk_table_attach (GTK_TABLE (table), l,
@@ -845,7 +881,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Background pixmap filename */
 	l = aligned_label (_("Pixmap file:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, PIXMAP_FILE_ROW, PIXMAP_FILE_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	e = gnome_file_entry_new ("pixmap",_("Browse"));
 	prefs->pixmap_file_entry =
 		gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(e));
@@ -1090,7 +1126,7 @@ DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_show_menubar, N_("_Show menub
 static GnomeUIInfo gnome_terminal_about_menu [] = {
 	GNOMEUIINFO_ITEM_STOCK (N_("_About..."), NULL,
 			       about_terminal_cmd, GNOME_STOCK_MENU_ABOUT),
-	GNOMEUIINFO_SEPARATOR,
+	GNOMEUIINFO_SEPARATOR, 
 	GNOMEUIINFO_HELP ("_Terminal"),
 	GNOMEUIINFO_END
 };

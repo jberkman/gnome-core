@@ -20,8 +20,8 @@ EXTRA_DIST = gnome-terminal.desktop
 
 gnome_terminal_SOURCES = 	\
 	gnome-terminal.c	\
-	gnome-terminal.h	\
-	menu.c
+	gnome-terminal.h
+
 
 gnome_terminal_LDADD = $(LDADD)
 

@@ -1,3 +1,18 @@
+1998-10-29  Jens Lautenbacher  <jens@tellux.de>
+
+	* gnome-terminal.h: removed prototype for create_font_menu
+
+	* Makefile.am (gnome_terminal_SOURCES): removed menu.c because we
+ 	use gnome_font_picker now
+
+	* gnome-terminal.c (apply_changes): use gnome_term_set_font
+ 	instead of zvt_term_set_font_name
+	(font_changed): New function.
+	(prop_changed_zvt): commented out as it seems to be dead code
+	(preferences_cmd): use gnome_font_picker widget, and fix more init
+ 	stuff for color_scheme and scrollbar_position via calls to
+ 	gtk_object_set_user_data.
+
 Tue Oct 27 14:21:32 1998  George Lebl  <jirka@5z.com>
 
 	* gnome-terminal.c: calls set_background instead of set_transparent,
