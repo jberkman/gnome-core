@@ -2294,7 +2294,6 @@ parse_an_arg (poptContext state,
 	case TERM_KEY:
 		cfg->termname = g_strdup_printf("TERM=%s", arg);
 		break;
-	default:
 	}
 }
 
