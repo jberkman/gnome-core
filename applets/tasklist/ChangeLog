@@ -1,3 +1,8 @@
+Wed Nov 15 00:14:47 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_icon.c:  Fixed possible crash and a leak and push/pop trap
+	  which fixes crashes with non-gnome-wm
+
 2000-10-22  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c: Add patch from Eric Brayeur that gives

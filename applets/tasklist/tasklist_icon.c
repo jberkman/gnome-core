@@ -160,13 +160,17 @@ tasklist_icon_check_mini (TasklistTask *task)
 	if (!atomdata)
 		return FALSE;
 	
-	if (!atomdata[0])
+	if (!atomdata[0]) {
+		g_free (atomdata);
 		return FALSE;
+	}
+
+	gdk_error_trap_push ();
 
 	/* Get icon size and depth */
 	XGetGeometry (xdisplay, (Drawable)atomdata[0], &root, &x, &y,
 		      &width, &height, &b, &depth);
-	
+
 	/* Create a new GdkPixmap and copy the mini icon pixmap to it */
 	pixmap = gdk_pixmap_new (NULL, width, height, depth);
 	gc = gdk_gc_new (pixmap);
@@ -182,7 +186,7 @@ tasklist_icon_check_mini (TasklistTask *task)
 					       width, height);
 	gdk_pixmap_unref (pixmap);
 	
-	if (atomdata[1]) {
+	if (size > 1 && atomdata[1]) {
 		mask = gdk_pixmap_new (NULL, width, height, depth);
 		gc = gdk_gc_new (mask);
 		gdk_gc_set_background (gc, &area->style->black);
@@ -206,6 +210,10 @@ tasklist_icon_check_mini (TasklistTask *task)
 		
 		gdk_pixmap_unref (mask);
 	}
+
+	gdk_error_trap_pop ();
+
+	g_free (atomdata);
 	
 	task->icon->normal = pixbuf;
 	
@@ -226,23 +234,32 @@ tasklist_icon_check_x (TasklistTask *task)
 	unsigned int border_width;
 	unsigned int depth;
 	guchar *data;
+
+	gdk_error_trap_push ();
 	
 	wmhints = XGetWMHints (GDK_DISPLAY (), task->gwmh_task->xwin);
 
-	if (!wmhints)
-		return FALSE;
-	
-	if (!(wmhints->flags & IconPixmapHint)) {
-		XFree (wmhints);
+	if (!wmhints) {
+		gdk_flush ();
+		gdk_error_trap_pop ();
 		return FALSE;
 	}
 	
+	if (!(wmhints->flags & IconPixmapHint)) {
+		XFree (wmhints);
+		gdk_flush ();
+		gdk_error_trap_pop ();
+		return FALSE;
+	}
+
 	XGetGeometry (GDK_DISPLAY (), wmhints->icon_pixmap, &root,
 		      &x, &y, &width, &height,
 		      &border_width, &depth);
 	
 	if (width > 65535 || height > 65535) {
 		XFree (wmhints);
+		gdk_flush ();
+		gdk_error_trap_pop ();
 		return FALSE;
 	}
 	
@@ -305,6 +322,9 @@ tasklist_icon_check_x (TasklistTask *task)
 	task->icon->normal = scaled;
 
 	XFree (wmhints);
+
+	gdk_flush ();
+	gdk_error_trap_pop ();
 
 	return TRUE;
 
