@@ -8,7 +8,7 @@
  *
  * Other contributors: George Lebl, Jeff Garzik, Jay Painter,
  * Christopher Blizzard, Jens Lautenbacher, Tom Tromey, Tristan Tarant,
- * Jonathan Blandford and Nat Friedman
+ * Jonathan Blandford, Cody Russell, and Nat Friedman
  */
 #include <config.h>
 #include <unistd.h>
@@ -1558,14 +1558,29 @@ static GnomeUIInfo gnome_terminal_settings_menu [] = {
 	GNOMEUIINFO_END
 };
 
-static GnomeUIInfo gnome_terminal_menu [] = {
-	GNOMEUIINFO_MENU_FILE_TREE(gnome_terminal_terminal_menu),
-	GNOMEUIINFO_MENU_EDIT_TREE(gnome_terminal_edit),
-	GNOMEUIINFO_MENU_SETTINGS_TREE(gnome_terminal_settings_menu),
-	GNOMEUIINFO_MENU_HELP_TREE(gnome_terminal_help_menu),
-	GNOMEUIINFO_END
+static GnomeUIInfo gnome_terminal_menu[] = {
+   {
+	GNOME_APP_UI_SUBTREE_STOCK, N_("File"), NULL,
+	gnome_terminal_terminal_menu, NULL, NULL, (GnomeUIPixmapType) 0,
+	NULL, 0, (GdkModifierType) 0, NULL
+   },
+   {
+	GNOME_APP_UI_SUBTREE_STOCK, N_("Edit"), NULL,
+	gnome_terminal_edit, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0,
+	(GdkModifierType) 0, NULL
+   },
+   {
+	GNOME_APP_UI_SUBTREE_STOCK, N_("Settings"), NULL,
+        gnome_terminal_settings_menu, NULL, NULL,
+	(GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL
+   },
+   {
+	GNOME_APP_UI_SUBTREE_STOCK, N_("Help"), NULL,
+	gnome_terminal_help_menu, NULL, NULL, (GnomeUIPixmapType) 0,
+	NULL, 0, (GdkModifierType) 0, NULL
+   },
+   GNOMEUIINFO_END
 };
-
 
 /*
  * Puts in *shell a pointer to the full shell pathname

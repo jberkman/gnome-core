@@ -1,3 +1,8 @@
+1999-09-13  Cody Russell <bratsche@dfw.net>
+	* gnome-terminal.c: Changed GnomeUIInfo gnome_terminal_menu so
+	that the underscores are removed. e.g., "_File" -> "File". They
+	weren't working before, so they were misleading.
+
 1999-09-12  Miguel de Icaza  <miguel@gnu.org>
 
 	* gnome-terminal.c (button_press): Shift-button-3 launches the
