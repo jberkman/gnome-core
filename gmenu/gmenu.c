@@ -288,7 +288,7 @@ static void sort_recursive_pressed(GtkWidget *w, gpointer data)
 static void about_cb(GtkWidget *w, gpointer data)
 {
 	GtkWidget *about;
-	const gchar *authors[2];
+	const gchar *authors[3];
 	gchar version[32];
 
 	sprintf(version,"%d.%d.%d",GMENU_VERSION_MAJOR, GMENU_VERSION_MINOR, GMENU_VERSION_REV);
