@@ -1,3 +1,8 @@
+1999-01-18  Christopher Blizzard  <blizzard@appliedtheory.com>
+
+	* gmenu.c (main): gtk_ctree_set_reorderable() has been removed
+ 	from gtk.
+
 1999-01-07  Nat Friedman  <nat@nat.org>
 
 	* gmenu.c: Added a separator to the File menu.
