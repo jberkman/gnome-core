@@ -9,18 +9,14 @@ gmenu_SOURCES =	\
 	gmenu.h			\
 	fileops.c		\
 	iconsel.c		\
-	iconsel.h		\
-	top.xpm			\
-	folder.xpm		\
-	unknown.xpm
+	iconsel.h
 
 gmenu_LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
 	$(INTLLIBS)
 
-EXTRA_DIST = gmenu.desktop
+EXTRA_DIST = gmenu.desktop top.xpm folder.xpm unknown.xpm
 
 sysdir = $(datadir)/apps/System
 sys_DATA = gmenu.desktop
-
