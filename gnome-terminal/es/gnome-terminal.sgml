@@ -21,7 +21,7 @@
 	Barreiro</surname>
       </author>
     </authorgroup>
-    <legalnotice>
+    <legalnotice id="legalnotice">
       <para>No traducido por motivos legales</para>
       <para>
         Permission is granted to make and distribute verbatim copies
