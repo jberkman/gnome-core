@@ -1,5 +1,5 @@
 #include "X11/Xatom.h"
-#include <applet-widget.h>
+#include "applet-widget.h"
 #include "gwmh.h"
 
 /* The row height of a task */
