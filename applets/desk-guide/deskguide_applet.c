@@ -169,7 +169,7 @@ main (gint   argc,
 		      argc, argv,
 		      NULL, 0, NULL);
   
-  gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-deskguide.png");
+  gnome_window_icon_set_default_from_file (GNOME_ICONDIR "/gnome-deskguide.png");
   DESK_GUIDE_NAME = _ ("GNOME Desktop Guide (Pager)");
   
   /* setup applet widget

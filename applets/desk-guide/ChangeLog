@@ -1,3 +1,40 @@
+Fri May 19 02:08:22 2000  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.desktop (Name[de]): changed german translation
+	of deskguide from "Desktop-Überblick" to "Desktop-Übersicht".
+	i'm not sure translating proram *names* is a good idea at all.
+
+Fri May 19 01:48:47 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c (get_task_root_and_frame): take into account that
+	gdk_window_ref_from_xid() may return NULL if the XWindow id
+	isn't valid anymore.
+	TASK_XROOT(): same here.
+
+Fri May 19 01:20:43 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmh.[hc]: cleanup of the prematurely committed
+	GWMH_TASK_INFO_WM_HINTS path from andersca.
+	this is the deal: most GWMH_TASK_INFO_* flags are used to
+	1) flag internally that the task structure needs updating
+	2) detailedly report to notifiers that something has changed
+	with GWMH_TASK_INFO_WM_HINTS, 1) doesn't really apply, because
+	we don't want to duplicate all WM_HINT info in the task structure.
+	so there's a new flag group now: GWMH_TASK_INFO_UNOTIFY, which
+	covers all notify flags purely needed for notification reports.
+	(GWMH_TASK_INFO_UNOTIFY also needed to be incorporated into
+	GWMH_TASK_INFO_ALL, so notifiers get initial reports).
+
+	* gwmh.c (gwmh_property_atom2info): fix coding style.
+	(task_event_monitor): remove atom special casing, we already
+	have a generic mechanism to handle various atom changes and
+	necessary notification.
+	(gwmh_task_update): handle GWMH_TASK_INFO_UNOTIFY in the task
+	info mask, i.e. leave the task structure alone here and simply
+	pass the mask on for notification.
+
+	* deskguide_applet.c (main): indentation fixes.
+
 2000-05-13 John Fleck <jfleck@inkstain.net>
 
 	* fixed dtd <note> problem in desk-guide.sgml

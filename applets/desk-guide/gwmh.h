@@ -139,7 +139,6 @@ typedef enum
   GWMH_TASK_INFO_LAYER       = 1 <<  8,
   GWMH_TASK_INFO_FRAME_GEO   = 1 <<  9,
   GWMH_TASK_INFO_WIN_GEO     = 1 << 10,
-  GWMH_TASK_INFO_WM_HINTS    = 1 << 11,
   GWMH_TASK_INFO_ALLOCATION  = (GWMH_TASK_INFO_FRAME_GEO |
 				GWMH_TASK_INFO_WIN_GEO),
 
@@ -148,6 +147,10 @@ typedef enum
 				GWMH_TASK_INFO_AREA |
 				GWMH_TASK_INFO_ALLOCATION),
 
+  /* pure user notification flags (not used to update task structure) */
+  GWMH_TASK_INFO_WM_HINTS    = 1 <<  11,
+  GWMH_TASK_INFO_UNOTIFY     = (GWMH_TASK_INFO_WM_HINTS),
+
   GWMH_TASK_INFO_ALL	 = (GWMH_TASK_INFO_MISC |
 			    GWMH_TASK_INFO_GSTATE |
 			    GWMH_TASK_INFO_GHINTS |
@@ -155,7 +158,8 @@ typedef enum
 			    GWMH_TASK_INFO_FOCUSED |
 			    GWMH_TASK_INFO_ICONIFIED |
 			    GWMH_TASK_INFO_GEOMETRY |
-			    GWMH_TASK_INFO_LAYER)
+			    GWMH_TASK_INFO_LAYER |
+			    GWMH_TASK_INFO_UNOTIFY)
 } GwmhTaskInfoMask;
 
 

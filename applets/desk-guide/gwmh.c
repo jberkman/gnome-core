@@ -29,7 +29,7 @@
 
 
 /* --- defines --- */
-#define TASK_XROOT(task)	   (GSTC_PARENT_XWINDOW ((task)->sroot))
+#define TASK_XROOT(task)	   ((task)->sroot ? GSTC_PARENT_XWINDOW ((task)->sroot) : 0)
 #define GDK_WINDOW_IS_FOREIGN(w)   (((GdkWindowPrivate*) (w))->window_type == GDK_WINDOW_FOREIGN)
 #define GDK_WINDOW_IS_DESTROYED(w) (((GdkWindowPrivate*) (w))->destroyed)
 
@@ -155,7 +155,7 @@ static Window           gwmh_gnome_wm_win = None;
 static gboolean         gwmh_need_reboot = FALSE;
 static GHookList        gwmh_desk_hook_list = { 0, };
 static GHookList        gwmh_task_hook_list = { 0, };
-static GSList          *gwmh_task_queue = NULL;
+static GSList          *gwmh_task_update_queue = NULL;
 static guint            gwmh_syncs_frozen = 0;
 static guint            gwmh_idle_handler_id = 0;
 static GwmhDeskInfoMask gwmh_desk_update_queued = 0;
@@ -230,7 +230,7 @@ gwmh_init (void)
       /* setup the root window event monitor */
       window = gdk_window_ref_from_xid (GDK_ROOT_WINDOW ());
       if (!window)
-	g_error (G_GNUC_PRETTY_FUNCTION "(): window id %ld invalid? bad bad...",
+	g_error (G_GNUC_PRETTY_FUNCTION "(): root window id %ld invalid? bad bad...",
 		 GDK_ROOT_WINDOW ());
       gdk_window_add_filter (window,
 			     root_event_monitor,
@@ -662,11 +662,14 @@ get_task_root_and_frame (GwmhTask *task)
       if (xparent)
 	{
 	  window = gdk_window_ref_from_xid (xparent);
-	  task->sroot = gstc_parent_add_watch (window);
-	  gdk_window_unref (window);
+	  if (window)
+	    {
+	      task->sroot = gstc_parent_add_watch (window);
+	      gdk_window_unref (window);
+	    }
 	}
     }
-
+  
   if (task->xframe != xframe)
     {
       if (task->gdkframe)
@@ -680,23 +683,24 @@ get_task_root_and_frame (GwmhTask *task)
       if (xframe)
 	{
 	  XWindowAttributes attribs = { 0, };
-
+	  
 	  task->gdkframe = gdk_window_ref_from_xid (task->xframe);
-
-	  { int nf = g_list_length (((GdkWindowPrivate*) task->gdkframe)->filters);
-	  gdk_window_add_filter (task->gdkframe, task_event_monitor_frame_wrapper, task);
-	  g_assert (g_list_length (((GdkWindowPrivate*) task->gdkframe)->filters) == nf + 1); }
-	  /* select events */
-	  gdk_error_trap_push ();
-	  XGetWindowAttributes (GDK_DISPLAY (),
-				task->xframe,
-				&attribs);
-	  XSelectInput (GDK_DISPLAY (),
-			task->xframe,
-			attribs.your_event_mask |
-			StructureNotifyMask);
-	  gwmh_sync ();
-	  gdk_error_trap_pop ();
+	  if (task->gdkframe)
+	    {
+	      gdk_window_add_filter (task->gdkframe, task_event_monitor_frame_wrapper, task);
+	      
+	      /* select events */
+	      gdk_error_trap_push ();
+	      XGetWindowAttributes (GDK_DISPLAY (),
+				    task->xframe,
+				    &attribs);
+	      XSelectInput (GDK_DISPLAY (),
+			    task->xframe,
+			    attribs.your_event_mask |
+			    StructureNotifyMask);
+	      gwmh_sync ();
+	      gdk_error_trap_pop ();
+	    }
 	}
     }
 }
@@ -780,12 +784,9 @@ task_event_monitor (GdkXEvent *gdk_xevent,
 	  task->frame_height = xevent->xconfigure.height;
 	  ichanges |= GWMH_TASK_INFO_FRAME_GEO;
 	}
-      /* gwmh_task_queue_update (task, GWMH_TASK_INFO_GEOMETRY); */
       break;
     case PropertyNotify:
       imask = gwmh_property_atom2info (xevent->xproperty.atom, TRUE);
-      if (xevent->xproperty.atom == XA_WM_HINTS)
-	      ichanges |= GWMH_TASK_INFO_WM_HINTS;
       break;
     case ReparentNotify:
       /* refetch frame and root window */
@@ -814,7 +815,6 @@ task_event_monitor (GdkXEvent *gdk_xevent,
 	  task->focused = FALSE;
 	  ichanges |= GWMH_TASK_INFO_FOCUSED;
 	}
-      /* gwmh_task_queue_update (task, GWMH_TASK_INFO_FOCUSED); */
       break;
     case FocusIn:
       if (!GWMH_TASK_FOCUSED (task))
@@ -822,7 +822,6 @@ task_event_monitor (GdkXEvent *gdk_xevent,
 	  task->focused = TRUE;
 	  ichanges |= GWMH_TASK_INFO_FOCUSED;
 	}
-      /* gwmh_task_queue_update (task, GWMH_TASK_INFO_FOCUSED); */
       break;
     default:
       break;
@@ -841,8 +840,8 @@ static guint
 gwmh_property_atom2info (Atom     atom,
 			 gboolean per_task)
 {
-  static const Atom gwmh_XA_WM_NAME = XA_WM_NAME;
   static const Atom gwmh_XA_WM_HINTS = XA_WM_HINTS;
+  static const Atom gwmh_XA_WM_NAME = XA_WM_NAME;
   static const struct {
     const Atom *atom_p;
     guint       iflag;
@@ -868,14 +867,12 @@ gwmh_property_atom2info (Atom     atom,
     { &gwmh_XA_WM_NAME,			GWMH_TASK_INFO_MISC, },
   };
   guint i;
-  static int j = 0;
   
   if (per_task)
     {
       for (i = 0; i < sizeof (task_atom_masks) / sizeof (task_atom_masks[0]); i++) 
-	if (*task_atom_masks[i].atom_p == atom) {
+	if (*task_atom_masks[i].atom_p == atom)
 	  return task_atom_masks[i].iflag;
-	}
     }
   else
     {
@@ -883,7 +880,7 @@ gwmh_property_atom2info (Atom     atom,
 	if (*desk_atom_masks[i].atom_p == atom)
 	  return desk_atom_masks[i].iflag;
     }
-
+  
   return 0;
 }
 
@@ -1416,6 +1413,11 @@ gwmh_task_update (GwmhTask        *task,
 	    }
 	}
     }
+
+  if (imask & GWMH_TASK_INFO_UNOTIFY)
+    {
+      ichanges |= imask & GWMH_TASK_INFO_UNOTIFY;
+    }
   
   gdk_error_trap_pop ();
   
@@ -1440,7 +1442,7 @@ gwmh_task_update (GwmhTask        *task,
     }
   
   if (was_queued && !GWMH_TASK_UPDATE_QUEUED (task))
-    gwmh_task_queue = g_slist_remove (gwmh_task_queue, task);
+    gwmh_task_update_queue = g_slist_remove (gwmh_task_update_queue, task);
   
   if (!skip_notify && ichanges)
     gwmh_task_notify (task, GWMH_NOTIFY_INFO_CHANGED, ichanges);
@@ -1462,13 +1464,13 @@ gwmh_idle_handler (gpointer data)
   if (gwmh_desk_update_queued)
     gwmh_desk_update (gwmh_desk_update_queued);
 
-  while (gwmh_task_queue)
+  while (gwmh_task_update_queue)
     {
-      GSList *node = gwmh_task_queue;
+      GSList *node = gwmh_task_update_queue;
       GwmhTask *task = node->data;
       GwmhTaskInfoMask imask = task->imask_queued;
 
-      gwmh_task_queue = node->next;
+      gwmh_task_update_queue = node->next;
       g_slist_free_1 (node);
 
       task->imask_queued = 0;
@@ -1508,7 +1510,7 @@ gwmh_task_queue_full (GwmhTask        *task,
       task->imask_notify |= notify_mask;
 
       if (!was_queued && GWMH_TASK_UPDATE_QUEUED (task))
-	gwmh_task_queue = g_slist_prepend (gwmh_task_queue, task);
+	gwmh_task_update_queue = g_slist_prepend (gwmh_task_update_queue, task);
     }
 }
 
@@ -1694,9 +1696,8 @@ task_new (GdkWindow *window)
   task->xwin = GDK_WINDOW_XWINDOW (window);
   
   /* monitor events on the GdkWindow */
-  { int nf = g_list_length (((GdkWindowPrivate*) task->gdkwindow)->filters);
-  gdk_window_add_filter (task->gdkwindow, task_event_monitor, task);
-  g_assert (g_list_length (((GdkWindowPrivate*) task->gdkwindow)->filters) == nf + 1); }
+  if (task->gdkwindow)
+    gdk_window_add_filter (task->gdkwindow, task_event_monitor, task);
   /* select events */
   gdk_error_trap_push ();
   XGetWindowAttributes (GDK_DISPLAY (), task->xwin, &attribs);
@@ -1777,22 +1778,16 @@ task_delete (GwmhTask *task)
   if (task->sroot)
     gstc_parent_delete_watch (task->sroot);
   if (GWMH_TASK_UPDATE_QUEUED (task))
-    gwmh_task_queue = g_slist_remove (gwmh_task_queue, task);
+    gwmh_task_update_queue = g_slist_remove (gwmh_task_update_queue, task);
   gwmh_desk.client_list = g_list_remove (gwmh_desk.client_list, task);
   g_free (task->name);
   task->name = "DELETED";
-
+  
   if (g_list_find (gwmh_desk.client_list, task))
-    {
-      g_warning ("deleted task still in client_list\n"); /* FIXME */
-      g_assert_not_reached ();
-    }
-  if (g_slist_find (gwmh_task_queue, task))
-    {
-      g_warning ("deleted task still in queue\n"); /* FIXME */
-      g_assert_not_reached ();
-    }
-    
+    g_error ("deleted task still in client_list\n"); /* FIXME */
+  if (g_slist_find (gwmh_task_update_queue, task))
+    g_error ("deleted task still in queue\n"); /* FIXME */
+  
   g_free (task);
 }
 
