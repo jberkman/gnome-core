@@ -30,11 +30,14 @@
 #include <gdk/gdkprivate.h>
 #include <gdk/gdkx.h>
 
+#define HAVE_GNOME_PROPERTY_BOX
+
 #include <gtk/gtkcolorseldialog.h>
 #include <gtk/gtkcombo.h>
 #include <gtk/gtkclipboard.h>
 #include <gtk/gtkdnd.h>
 #include <gtk/gtkentry.h>
+#include <gtk/gtklabel.h>
 #include <gtk/gtkmain.h>
 #include <gtk/gtkmenu.h>
 #include <gtk/gtkmenuitem.h>
@@ -60,9 +63,6 @@
 #include <libgnomeui/gnome-ui-init.h>
 #include <libgnomeui/gnome-file-entry.h>
 #include <libgnomeui/gnome-propertybox.h>
-#ifdef HAVE_GNOME_FONT_PICKER
-#include <libgnomeui/gnome-font-picker.h>
-#endif
 #include <libgnomeui/gnome-window-icon.h>
 
 #include <libzvt/libzvt.h>
@@ -261,11 +261,8 @@ static void parse_an_arg (poptContext state,
 			  const struct poptOption *opt,
 			  const char *arg, void *data);
 
-#define USE_SET_HINTS 0
-#if USE_SET_HINTS
-#warning SETTING HINTS IS REDUNDANT
 static void set_hints (GtkWidget *widget);
-#endif
+static void set_size (GtkWidget *widget);
 
 static void
 about_terminal_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
@@ -358,32 +355,15 @@ gnome_term_set_font (ZvtTerm *term, char *font_name, const int use_bold)
 			zvt_term_set_fonts  (term, font, font);
 	}
 
-#if USE_SET_HINTS
-	if (GTK_WIDGET_REALIZED (term))
+	if (GTK_WIDGET_REALIZED (term)) {
 		set_hints (GTK_WIDGET (term));
-#endif
+		set_size (GTK_WIDGET (term));
+	}
+	
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
 		g_free (s);
 	gtk_object_set_user_data (GTK_OBJECT (term), g_strdup (font_name));
-}
-
-/* This really should be in GTK+
- */
-static gint
-option_menu_get_history (GtkOptionMenu *option_menu)
-{
-	GtkWidget *active_widget;
-	
-	g_return_val_if_fail (GTK_IS_OPTION_MENU (option_menu), -1);
-	
-	active_widget = gtk_menu_get_active (GTK_MENU (option_menu->menu));
-
-	if (active_widget)
-		return g_list_index (GTK_MENU_SHELL (option_menu->menu)->children,
-				     active_widget);
-	else
-		return -1;
 }
 
 /* Popular palettes */
@@ -426,7 +406,6 @@ gushort *scheme_green[] = { linux_grn, xterm_grn, rxvt_grn, rxvt_grn };
 static void
 set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg) 
 {
-	GdkColor c;
 	gushort red[18],green[18],blue[18];
 	int i;
 	gushort *r, *b, *g;
@@ -506,18 +485,12 @@ set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg)
 		break;
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
-	c = term->colors [17];
-
-	gdk_window_set_background (GTK_WIDGET (term)->window, &c);
-	gtk_widget_queue_draw (GTK_WIDGET (term));
 }
 
 static struct terminal_config * 
 load_config (char *class)
 {
 	char *p;
-	char *fore_color = NULL;
-	char *back_color = NULL;
 	struct terminal_config *cfg = g_malloc (sizeof (*cfg));
 	int colour_count;
 	char **colours;
@@ -562,8 +535,6 @@ load_config (char *class)
 
 	cfg->scroll_background = gnome_config_get_bool ("scroll_background=0");
 	/* Default colors in the case the color set is the custom one */
-	fore_color = gnome_config_get_string ("foreground=gray");
-	back_color = gnome_config_get_string ("background=black");
 	cfg->color_set = gnome_config_get_int ("color_set=0");
 
 	cfg->menubar_hidden = !gnome_config_get_bool ("menubar=true");
@@ -611,8 +582,6 @@ load_config (char *class)
 
 	cfg->scroll_background = FALSE;
 	/* Default colors in the case the color set is the custom one */
-	fore_color = g_strdup ("gray");
-	back_color = g_strdup ("black");
 	cfg->color_set = 0;
 
 	cfg->menubar_hidden = TRUE;
@@ -634,17 +603,6 @@ load_config (char *class)
 
 	cfg->update_records = ZVT_TERM_DO_UTMP_LOG | ZVT_TERM_DO_WTMP_LOG | ZVT_TERM_DO_LASTLOG;
 
-	if (g_strcasecmp (fore_color, back_color) == 0)
-		/* don't let them set identical foreground and background colors */
-		cfg->color_set = 0;
-	else {
-		if (!gdk_color_parse (fore_color, &cfg->palette[16])
-		    || !gdk_color_parse (back_color, &cfg->palette[17])){
-			/* or illegal colors */
-			cfg->color_set = 0;
-		}
-	}
-
 	/* load the palette, if none, then 'default' to safe (linux) pallete */
 #ifdef HAVE_GNOME_CONFIG
 	gnome_config_get_vector("palette", &colour_count, &colours);
@@ -653,9 +611,7 @@ load_config (char *class)
 	colours = NULL;
 #endif
 	for (i=0;i<18;i++) {
-		if (i<colour_count)
-			gdk_color_parse(colours[i], &cfg->palette[i]);
-		else if (i<16) {
+		if (i>=colour_count || !gdk_color_parse(colours[i], &cfg->palette[i])) {
 			cfg->palette[i].red = linux_red[i];
 			cfg->palette[i].green = linux_grn[i];
 			cfg->palette[i].blue = linux_blu[i];
@@ -692,7 +648,7 @@ gather_changes (ZvtTerm *term)
 	newcfg->background_pixmap = GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox)->active;
 	newcfg->pixmap_file  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->pixmap_entry)));
 	newcfg->wordclass = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->wordclass_entry)));
-	newcfg->scrollbar_position = option_menu_get_history (GTK_OPTION_MENU (prefs->scrollbar));
+	newcfg->scrollbar_position = gtk_option_menu_get_history (GTK_OPTION_MENU (prefs->scrollbar));
 
 	newcfg->scroll_background = GTK_TOGGLE_BUTTON (prefs->pixmap_scrollable_checkbox)->active
 		&& newcfg->background_pixmap;
@@ -706,8 +662,8 @@ gather_changes (ZvtTerm *term)
 	else
 		newcfg->class = g_strconcat ("Class-", gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (prefs->class_box)->entry)), NULL);
 
-	newcfg->color_type = option_menu_get_history (GTK_OPTION_MENU (prefs->color_scheme));
-	newcfg->color_set  = option_menu_get_history (GTK_OPTION_MENU (prefs->def_fore_back));
+	newcfg->color_type = gtk_option_menu_get_history (GTK_OPTION_MENU (prefs->color_scheme));
+	newcfg->color_set  = gtk_option_menu_get_history (GTK_OPTION_MENU (prefs->def_fore_back));
 
 	for (i=0;i<18;i++) {
 		gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (prefs->palette[i]), &r, &g,
@@ -753,7 +709,6 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 {
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
-	BonoboWindow *app = BONOBO_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
 	terminal_config_free (cfg);
@@ -959,26 +914,6 @@ color_changed (GtkWidget *w, int r, int g, int b, int a, preferences_t *prefs)
 	prop_changed (w, prefs);
 }
 
-static void
-font_changed (GtkWidget *w, preferences_t *prefs)
-{
-	char *font;
-	GtkWidget *peer;
-#ifdef HAVE_GNOME_FONT_PICKER
-	if (GNOME_IS_FONT_PICKER(w)){
-		font = gnome_font_picker_get_font_name (GNOME_FONT_PICKER(w));
-		peer = gtk_object_get_user_data (GTK_OBJECT(w));
-		gtk_entry_set_text (GTK_ENTRY(peer), font);
-	} else {
-		font = gtk_entry_get_text (GTK_ENTRY(w));
-		peer = gtk_object_get_user_data (GTK_OBJECT(w));
-		gnome_font_picker_set_font_name (GNOME_FONT_PICKER(peer), font);
-		prop_changed (w, prefs);
-	}
-#endif
-}
-
-
 /*
 static void
 prop_changed_zvt (void *data, char *font_name) 
@@ -1000,9 +935,9 @@ typedef struct {
 static void
 check_color_sensitivity (preferences_t *prefs)
 {
-	int idxc = option_menu_get_history (GTK_OPTION_MENU (prefs->def_fore_back));
+	int idxc = gtk_option_menu_get_history (GTK_OPTION_MENU (prefs->def_fore_back));
 	gboolean sensc = (idxc == COLORS_CUSTOM);
-	int idx = option_menu_get_history (GTK_OPTION_MENU (prefs->color_scheme));
+	int idx = gtk_option_menu_get_history (GTK_OPTION_MENU (prefs->color_scheme));
 	gboolean sens = (idx == PALETTE_CUSTOM);
 
 	int i;
@@ -1026,9 +961,8 @@ set_active (GtkWidget *widget, lambda_t *t)
 }
 
 static void
-create_option_menu_data (GtkWidget *omenu,
-			 gpointer /*GnomePropertyBox * */box, preferences_t *prefs, char **menu_list, int item,
-			 GtkSignalFunc func)
+create_option_menu (GtkWidget *omenu,
+		    GnomePropertyBox *box, preferences_t *prefs, char **menu_list, int item)
 {
 	GtkWidget *menu;
 	lambda_t *t;
@@ -1052,17 +986,11 @@ create_option_menu_data (GtkWidget *omenu,
 	t->box   = box;
 	t->prefs = prefs;
 
-	gtk_signal_connect_full (GTK_OBJECT (menu), 
-				 "deactivate",
+	gtk_signal_connect_full (GTK_OBJECT (omenu), 
+				 "changed",
 				 GTK_SIGNAL_FUNC (set_active), NULL,
 				 t, (GtkDestroyNotify)g_free,
 				 FALSE, FALSE);
-}
-
-static void
-create_option_menu (GtkWidget *omenu, /*GnomePropertyBox * */gpointer box, preferences_t *prefs, char **menu_list, int item, GtkSignalFunc func)
-{
-	create_option_menu_data (omenu, box, prefs, menu_list, item, func);
 }
 
 char *color_scheme [] = {
@@ -1133,7 +1061,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
 
 	for (i=0;i<18;i++)
-		colours[i] = g_strdup_printf ("rgb:%04x/%04x/%04x", cfg->palette[i].red,
+		colours[i] = g_strdup_printf ("#%04x%04x%04x", cfg->palette[i].red,
 					      cfg->palette[i].green, cfg->palette[i].blue);
 	gnome_config_set_vector ("palette", 18, (const char **)colours);
 	for (i=0;i<18;i++)
@@ -1179,7 +1107,7 @@ phelp_cb (GtkWidget *w, gint tab, gpointer data)
 static void
 preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
-	GtkWidget *picker, *b1, *b2, *label, *r;
+	GtkWidget *b1, *b2, *r;
 	preferences_t *prefs;
 	GList *class_list = NULL;
 	void *iter;
@@ -1233,26 +1161,9 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 			    gtk_object_get_user_data (GTK_OBJECT (term)));
 	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->font_entry), "changed",
-			    GTK_SIGNAL_FUNC (font_changed), prefs);
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
 				      GTK_EDITABLE (prefs->font_entry));
-
-#ifdef HAVE_GNOME_FONT_PICKER
-	picker = glade_xml_get_widget (gui, "font-picker");
-	gnome_font_picker_set_font_name(GNOME_FONT_PICKER(picker),
-					gtk_entry_get_text(GTK_ENTRY (prefs->font_entry)));
-	gnome_font_picker_set_mode(GNOME_FONT_PICKER (picker),
-				   GNOME_FONT_PICKER_MODE_USER_WIDGET);
-
-	gtk_signal_connect (GTK_OBJECT (picker), "font_set",
-			    GTK_SIGNAL_FUNC (font_changed), prefs);
-	label = gtk_label_new (_("Browse..."));
-	gnome_font_picker_uw_set_widget(GNOME_FONT_PICKER(picker), GTK_WIDGET(label));
-	gtk_widget_show (label);
-	
-	gtk_object_set_user_data(GTK_OBJECT(picker), GTK_OBJECT(prefs->font_entry)); 
-	gtk_object_set_user_data (GTK_OBJECT(prefs->font_entry), GTK_OBJECT(picker)); 
-#endif
 
 	prefs->class_box = glade_xml_get_widget (gui, "class-box");
 
@@ -1349,12 +1260,13 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 	}
 	
 	r = glade_xml_get_widget (gui, "background-none-checkbox");
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (r), FALSE);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (r),
+				      !(cfg->background_pixmap || cfg->transparent));
 	
 	/* Background Pixmap checkbox */
 	prefs->pixmap_checkbox = glade_xml_get_widget (gui, "pixmap-checkbox");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox),
-				      term->pixmap_filename ? 1 : 0);
+				      cfg->background_pixmap);
 	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	
@@ -1380,7 +1292,7 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 	/* Transparency */
 	prefs->transparent_checkbox = glade_xml_get_widget (gui, "transparent-checkbox");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->transparent_checkbox),
-				      term->transparent ? 1 : 0);
+				      cfg->transparent);
 	gtk_signal_connect (GTK_OBJECT (prefs->transparent_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 
@@ -1400,7 +1312,7 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 	prefs->color_scheme = glade_xml_get_widget (gui, "color-scheme-optionmenu");
 	create_option_menu (prefs->color_scheme,
 			    GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
-			    color_scheme, cfg->color_type, GTK_SIGNAL_FUNC (set_active));
+			    color_scheme, cfg->color_type);
 	gtk_object_set_user_data (GTK_OBJECT (prefs->color_scheme), GINT_TO_POINTER (cfg->color_type));
 
 	/* Foreground, background buttons */
@@ -1434,9 +1346,9 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 
 	/* default foreground/background selector */
 	prefs->def_fore_back = glade_xml_get_widget (gui, "fore-background-optionmenu");
-	create_option_menu_data (prefs->def_fore_back,
-				 GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
-				 fore_back_table, cfg->color_set, GTK_SIGNAL_FUNC (set_active));
+	create_option_menu (prefs->def_fore_back,
+			    GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
+			    fore_back_table, cfg->color_set);
 
 	check_color_sensitivity (prefs);
 
@@ -1448,7 +1360,7 @@ preferences_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 	create_option_menu (prefs->scrollbar,
 			    GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 			    scrollbar_position_list,
-			    cfg->scrollbar_position, GTK_SIGNAL_FUNC (set_active));
+			    cfg->scrollbar_position);
 	gtk_object_set_user_data(GTK_OBJECT(prefs->scrollbar), GINT_TO_POINTER(cfg->scrollbar_position));
 
 	/* Scroll back */
@@ -1519,7 +1431,6 @@ toggle_menubar_cmd (BonoboUIComponent *uic,
 	ZvtTerm *term;
 	GtkWindow *app;
 	struct terminal_config *cfg;
-	guint width, height;
 
 	if (type != Bonobo_UIComponent_STATE_CHANGED)
 		return;
@@ -1536,14 +1447,7 @@ toggle_menubar_cmd (BonoboUIComponent *uic,
 	app->need_default_size = TRUE;
 	gtk_widget_queue_resize (GTK_WIDGET (app));
 
-#if 0
-	zvt_term_set_size (term, width, height);
-
-	gtk_window_resize (app, width * term->charwidth, height * term->charheight);
-
-
-	hackity_hack
-#endif
+	set_size (GTK_WIDGET (term));
 	save_preferences_cmd (NULL, term);
 }
 
@@ -1800,7 +1704,9 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 	case TARGET_STRING:
 	{
 		char *copy = g_malloc (selection_data->length+1);
+#ifdef HAVE_GNOME_URI_LIST
 		GList *uris, *l;
+#endif		
 
 		strncpy (copy, selection_data->data, selection_data->length);
 		copy [selection_data->length] = 0;
@@ -2040,7 +1946,6 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	return TRUE;
 }
 
-#if USE_SET_HINTS
 static void
 set_hints (GtkWidget *widget)
 {
@@ -2055,8 +1960,8 @@ set_hints (GtkWidget *widget)
 	g_assert (app != NULL);
 
 #define PADDING 2
-	hints.base_width = (GTK_WIDGET (term)->style->xthickness * 2) + PADDING;
-	hints.base_height =  (GTK_WIDGET (term)->style->ythickness * 2);
+	hints.base_width = (widget->style->xthickness * 2) + PADDING;
+	hints.base_height =  (widget->style->ythickness * 2);
 
 	hints.width_inc = term->charwidth;
 	hints.height_inc = term->charheight;
@@ -2068,7 +1973,36 @@ set_hints (GtkWidget *widget)
 				      &hints,
 				      GDK_HINT_RESIZE_INC|GDK_HINT_MIN_SIZE|GDK_HINT_BASE_SIZE);
 }
-#endif
+
+static void
+set_size (GtkWidget *widget)
+{
+        ZvtTerm *term;
+	GtkWidget *app;
+	GtkRequisition toplevel_request;
+	GtkRequisition widget_request;
+	gint w, h;
+
+	g_assert (widget != NULL);
+	term = ZVT_TERM (widget);
+
+	app = gtk_widget_get_toplevel(widget);
+	g_assert (app != NULL);
+
+	gtk_widget_size_request (app, &toplevel_request);
+	gtk_widget_size_request (widget, &widget_request);
+
+	w = toplevel_request.width - widget_request.width;
+	h = toplevel_request.height - widget_request.height;
+
+	w += widget->style->xthickness * 2 + PADDING;
+	h += widget->style->ythickness * 2;
+
+	w += term->charwidth * term->grid_width;
+	h += term->charheight * term->grid_height;
+
+	gtk_window_resize (GTK_WINDOW (app), w, h);
+}
 
 static gint
 term_change_pos(GtkWidget *widget)
@@ -2178,13 +2112,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	g_snprintf (winclass, sizeof (winclass), "Terminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), winclass, "Terminal");
 
-#if 0
-	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
-	gtk_widget_set_size_request (GTK_WIDGET (app), 0, 0);
-	gtk_window_set_resizable (GTK_WINDOW (app), TRUE);
-	gtk_window_resize (GTK_WINDOW (app), 1, 1);
-#endif
-
 	if (cmd != NULL)
 		initial_term = app;
 
@@ -2213,6 +2140,15 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	}
 #endif
 	term = (ZvtTerm *)zvt_term_new_with_size(width, height);
+
+	zvt_term_set_auto_window_hint (term, FALSE);
+	
+	/* This is a bad hack ... basically, the "geometry_widget" feature of GtkWindow
+	 * only works properly when the widget's requisition is bigger than the surroundings,
+	 * so we force a big requisition ... it won't actually matter for anything
+	 */
+	gtk_widget_set_usize (GTK_WIDGET (term), 2000, 2000);
+
 	gtk_object_set_data (GTK_OBJECT (term), "config", cfg);
 	if (xpos != -1 && ypos != -1)
 		gtk_window_move (GTK_WINDOW (app), xpos, ypos);
@@ -2248,17 +2184,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 
 	gtk_signal_connect (GTK_OBJECT (term), "button_press_event",
 			    GTK_SIGNAL_FUNC (button_press), term);
-
-#if 0
-#if USE_SET_HINTS
-	gtk_signal_connect_after (GTK_OBJECT (term), "realize",
-				  GTK_SIGNAL_FUNC (set_hints), term);
-#else
-	gtk_signal_connect_object_after (GTK_OBJECT (app), "map",
-					 GTK_SIGNAL_FUNC (hackity_hack), 
-					 GTK_OBJECT (app));
-#endif
-#endif
 
 	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?", VTATTR_UNDERLINE, "host only url");
 	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\) ,\\\"]", VTATTR_UNDERLINE, "full url");
@@ -2338,6 +2263,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	 */
 
 	gtk_widget_realize (GTK_WIDGET (term));
+	set_hints (GTK_WIDGET (term));
+	set_size (GTK_WIDGET (term));
+	
 	set_color_scheme (term, cfg);
 
 	gtk_widget_show (app);
@@ -2533,7 +2461,6 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 {
 #ifdef HAVE_GNOME_CONFIG
 	const char *file = gnome_client_get_config_prefix (client);
-	char *args[8];
 	int i;
 	GList *list;
 	
@@ -2632,6 +2559,8 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	gnome_config_pop_prefix ();
 
 #if 0
+	char *args[8];
+	
 	/* What was the cfg variable ? */
 	args[0] = gnome_master_client()->restart_command[0];
 	args[1] = "--font";
@@ -2961,8 +2890,6 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	char *class;
 	struct terminal_config *default_config, *cmdline_config;
 	int i, j;
-	CORBA_ORB orb;
-	CORBA_Environment ev;
 
 	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");

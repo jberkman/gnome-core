@@ -1,3 +1,25 @@
+Mon Jan 14 03:00:42 2002  Owen Taylor  <otaylor@redhat.com>
+
+	* gnome-terminal.c: Deal with failure to parse colors
+	from the palette.
+
+	* gnome-terminal.c (save_preferences): Don't use now
+	unsupported rgb:// form to save colors.
+
+	* gnome-terminal.c (set_color_scheme): Remove extraneous
+	forced redraw - the terminal widget should handle this.
+
+	* gnome-terminal.c: Use gtk_option_menu_get_history(), now
+	that it is in GTK+. Other option menu cleanups.
+
+	* gnome-terminal.glade: Get rid of GnomeFontPicker widget.
+	It's only bad news when we need X fonts. Just use the 
+	entry.
+
+	* Redo sizing and hints, using some fairly gross hacks.
+	But it should actually work completely now. Turn off
+	zvt hint setting with zvt_term_set_auto_window_hint().
+
 Fri,  4 Jan 2002 22:28:51 -0500  Frank Belew <frb@ximian.com>
 
 	* Makefile.am: remove -I$(includedir), bad things happen when

@@ -173,32 +173,6 @@
 	    <yfill>False</yfill>
 	  </child>
 	</widget>
-
-	<widget>
-	  <class>GnomeFontPicker</class>
-	  <name>font-picker</name>
-	  <can_focus>True</can_focus>
-	  <title>Pick a Font</title>
-	  <preview_text>AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz</preview_text>
-	  <mode>GNOME_FONT_PICKER_MODE_PIXMAP</mode>
-	  <show_size>True</show_size>
-	  <use_font>False</use_font>
-	  <use_font_size>14</use_font_size>
-	  <child>
-	    <left_attach>2</left_attach>
-	    <right_attach>3</right_attach>
-	    <top_attach>1</top_attach>
-	    <bottom_attach>2</bottom_attach>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <xexpand>False</xexpand>
-	    <yexpand>False</yexpand>
-	    <xshrink>False</xshrink>
-	    <yshrink>False</yshrink>
-	    <xfill>True</xfill>
-	    <yfill>False</yfill>
-	  </child>
-	</widget>
       </widget>
 
       <widget>
