@@ -2,6 +2,7 @@
 Name=GNOME terminal
 Name[ja]=Gnome•ø°º•ﬂ• •Î
 Name[es]=Terminal UNIX de GNOME
+Name[fi]=GNOME-p‰‰teikkuna
 Name[fr]=Emulateur de Terminal GNOME
 Name[ko]=GNOME ≈ÕπÃ≥Œ «¡∑Œ±◊∑•
 Name[no]=GNOME terminal
@@ -11,6 +12,7 @@ Name[ru]=GNOME Ù≈“Õ…Œ¡Ã
 Comment=Terminal emulation program
 Comment[ja]=•ø°º•ﬂ• •Î•®•ﬂ•Â•Ï°º•ø
 Comment[es]=Emulador de terminal GNOME
+Comment[fi]=GNOME-p‰‰te-emulaattoriohjelma
 Comment[fr]=Emulateur de Terminal GNOME
 Comment[ko]=GNOME ≈ÕπÃ≥Œ «¡∑Œ±◊∑•
 Comment[no]=Terminalemulator for GNOME
