@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Background Properties
+Name[es]=Propiedades del tapiz
 Comment=Background Properties
+Comment[es]=Propiedades del tapiz
 Exec=background-properties
 Icon=
 Terminal=0
