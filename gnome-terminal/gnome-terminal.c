@@ -591,6 +591,8 @@ new_terminal (void)
 	 * TERM is set to xterm-color (which is what zvt emulates)
 	 * COLORTERM is set for slang-based applications to auto-detect color
 	 * WINDOWID spot is reserved for the xterm compatible variable.
+	 * COLS is removed
+	 * LINES is removed
 	 */
 	if (!env_copy){
 		char **p;
@@ -602,7 +604,9 @@ new_terminal (void)
 		for (i = 0, p = env; *p; p++){
 			if (strncmp (*p, "TERM", 4) == 0)
 				env_copy [i++] = "TERM=xterm-color";
-			else
+			else if ((strncmp (*p, "COLUMNS", 7) == 0) || (strncmp (*p, "LINES", 5) == 0)){
+				/* nothing: do not copy those */
+			} else
 				env_copy [i++] = *p;
 		}
 		env_copy [i++] = "COLORTERM=gnome-terminal";
