@@ -1,3 +1,7 @@
+1999-01-18  Jeff Garzik  <jgarzik@pobox.com>
+
+	* gvtvt.c: gtkcompat.h substitutions
+
 1998-10-08  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* gvtconf.h: Removed `#pragma }'.

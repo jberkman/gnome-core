@@ -387,15 +387,15 @@ gvt_vt_labels_update (GvtVt          *vt)
   }
   else
     buffer = g_strconcat ("Program: ", "None", NULL);
-  gtk_label_set (GTK_LABEL (vt->label_program), buffer);
+  gtk_label_set_text (GTK_LABEL (vt->label_program), buffer);
   g_free (buffer);
   
   buffer = g_strconcat ("Status: ", state, NULL);
-  gtk_label_set (GTK_LABEL (vt->label_status), buffer);
+  gtk_label_set_text (GTK_LABEL (vt->label_status), buffer);
   g_free (buffer);
   
   buffer = g_strconcat ("System: ", sys_time, "	 User: ", user_time, NULL);
-  gtk_label_set (GTK_LABEL (vt->label_time), buffer);
+  gtk_label_set_text (GTK_LABEL (vt->label_time), buffer);
   g_free (buffer);
 
   gtk_container_unblock_resize (GTK_CONTAINER (vt->label_box));

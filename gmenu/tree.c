@@ -50,7 +50,7 @@ void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, g
         if (new && select) gtk_ctree_select(GTK_CTREE(w),new);
 
 	d = gtk_ctree_node_get_row_data(GTK_CTREE(w), new);
-	gtk_label_set(GTK_LABEL(infolabel),d->comment);
+	gtk_label_set_text(GTK_LABEL(infolabel),d->comment);
 	if (d->editable)
 		gnome_stock_set_icon(GNOME_STOCK(infopixmap),
 							GNOME_STOCK_MENU_BLANK );
@@ -66,7 +66,7 @@ void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, g
 		{
 		current_path = strip_one_file_layer(d->path);
 		}
-	gtk_label_set(GTK_LABEL(pathlabel),current_path);
+	gtk_label_set_text(GTK_LABEL(pathlabel),current_path);
 
 }
 
@@ -90,7 +90,7 @@ static void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 		{
 		g_free(current_path);
 		current_path = g_strdup(p->path);
-		gtk_label_set(GTK_LABEL(pathlabel),current_path);
+		gtk_label_set_text(GTK_LABEL(pathlabel),current_path);
 		}
 }
 

@@ -1,3 +1,7 @@
+1999-01-18  Jeff Garzik  <jgarzik@pobox.com>
+
+	* tree.c: gtkcompat.h substitutions
+
 1999-01-18  Christopher Blizzard  <blizzard@appliedtheory.com>
 
 	* gmenu.c (main): gtk_ctree_set_reorderable() has been removed
