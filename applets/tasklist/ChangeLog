@@ -1,3 +1,13 @@
+1999-10-30  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_properties.c (create_size_page): Increase the tasklist
+	width to 8192 for people that use xinerama.
+
+1999-10-30  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c: Make "switch desktop" flicker less when
+	"Show all tasks on all desktops" is set.
+
 1999-10-24  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c (fixup_task_label): Display iconified windows

@@ -262,7 +262,6 @@ layout_tasklist (void)
 	temp_tasks = get_visible_tasks ();
 	num = g_list_length (temp_tasks);
 	
-
 	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
@@ -439,6 +438,10 @@ gboolean
 desk_notifier (gpointer func_data, GwmhDesk *desk,
 	       GwmhDeskInfoMask change_mask)
 {
+	if (Config.all_desks_minimized && 
+	    Config.all_desks_normal)
+		return TRUE;
+
 	layout_tasklist ();
 
 	return TRUE;
@@ -451,7 +454,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	       GwmhTaskInfoMask imask)
 {
 	TasklistTask *task;
-
+	
 	switch (ntype)
 	{
 	case GWMH_NOTIFY_INFO_CHANGED:
@@ -463,9 +466,14 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 			draw_task (find_gwmh_task (gwmh_task));
 		if (imask & GWMH_TASK_INFO_MISC)
 			draw_task (find_gwmh_task (gwmh_task));
-		if (imask & GWMH_TASK_INFO_DESKTOP)
+		if (imask & GWMH_TASK_INFO_DESKTOP) {
+			if (Config.all_desks_minimized && 
+			    Config.all_desks_normal)
+				break;
+
 			/* Redraw entire tasklist */
 			layout_tasklist ();
+		}
 		break;
 	case GWMH_NOTIFY_NEW:
 		task = g_malloc0 (sizeof (TasklistTask));
@@ -715,6 +723,8 @@ main (gint argc, gchar *argv[])
 
 #include "gwmh.c"
 #include "gstc.c"
+
+
 
 
 

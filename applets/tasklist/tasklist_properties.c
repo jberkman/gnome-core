@@ -152,7 +152,7 @@ create_size_page (void)
 			    create_spin_button (_("Tasklist width:"),
 						&PropsConfig.horz_width,
 						48,
-						1024,
+						8192,
 						10),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox),

@@ -1,5 +1,5 @@
 DONE 1.  italic text for iconized (shaded?) windows 
-2.  become flicker free for deskswitching when
+DONE 2.  become flicker free for deskswitching when
 	all windows are shown
 3.  adjust to panel size hints  (should have an
 	'override panel hints' options where user
@@ -8,7 +8,7 @@ DONE 1.  italic text for iconized (shaded?) windows
 	of rows to be visible, not pixels
 5.  vertical tasklists should be able to have a
 	scrollbar, since they don't auto-shrink
-6.  fix tasklist width being hardcoded to max
+DONE 6.  fix tasklist width being hardcoded to max
 	of 1024; some people have higher res,
 	and a short tasklist looks odd.
 7.  add option to not show transient windows
