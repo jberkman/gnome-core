@@ -162,7 +162,7 @@ main (gint   argc,
   textdomain (PACKAGE);
   
   applet_widget_init ("deskguide_applet",
-		      VERSION,
+		      DESKGUIDE_VERSION,
 		      argc, argv,
 		      NULL, 0, NULL);
   
@@ -893,7 +893,7 @@ gp_about (void)
       };
       
       dialog = gnome_about_new ("Desk Guide",
-				"0.4",
+				DESKGUIDE_VERSION,
 				"Copyright (C) 1999 Tim Janik",
 				authors,
 				DESK_GUIDE_NAME,

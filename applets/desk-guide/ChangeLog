@@ -1,3 +1,8 @@
+Fri Nov 17 08:20:11 2000  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.[hc]: update all relevant places where a VERSION
+	number is required, introduced DESKGUIDE_VERSION define.
+
 2000-11-15  Jacob "Ulysses" Berkman  <jacob@helixcode.com>
 
 	* gwmthumbnail.c (gdk_image_get): gdk_window_get_visual() always
