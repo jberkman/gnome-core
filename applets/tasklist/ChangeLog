@@ -1,3 +1,7 @@
+1999-09-21  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c (cb_about): Changed my e-mail
+
 1999-09-19  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* pixmaps.h

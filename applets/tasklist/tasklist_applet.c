@@ -546,7 +546,7 @@ cb_about (void)
 	GtkWidget *dialog;
 
 	const char *authors[] = {
-		"Anders Carlsson (anders.carlsson@tordata.se)",
+		"Anders Carlsson (andersca@gnu.org)",
 		NULL
 	};
 	
