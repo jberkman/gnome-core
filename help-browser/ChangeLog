@@ -1,3 +1,7 @@
+1998-03-02  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* fixed delete event handling
+
 1998-03-01  Marc Ewing  <marc@tasmanian.redhat.com>
 
 	* multiple windows now close correctly and track current window

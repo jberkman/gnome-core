@@ -66,6 +66,7 @@ static GtkWidget * makeEntryArea(HelpWindow w);
 static void quit_cb(void);
 static void about_cb (GtkWidget *w, HelpWindow win);
 static void close_cb (GtkWidget *w, HelpWindow win);
+static void delete_cb (GtkWidget *w, void *foo, HelpWindow win);
 static void new_window_cb (GtkWidget *w, HelpWindow win);
 static void help_forward(GtkWidget *w, HelpWindow win);
 static void help_backward(GtkWidget *w, HelpWindow win);
@@ -160,6 +161,13 @@ new_window_cb (GtkWidget *w, HelpWindow win)
 {
     if (win->new_window_cb)
 	(win->new_window_cb)();
+}
+
+static void
+delete_cb (GtkWidget *w, void *foo, HelpWindow win)
+{
+    if (win->close_window_cb)
+	(win->close_window_cb)(win);
 }
 
 static void
@@ -419,17 +427,11 @@ helpWindowNew(GtkSignalFunc about_callback,
 	w->cache = NULL;
 	w->currentRef = NULL;
 
-	/* XXX this needs to change.  The "app" needs to be */
-	/* Somehow distinct from the windows.  Or at least, only */
-	/* One of the windows can be the "app". */
 	w->app = gnome_app_new ("GnomeHelp", "Gnome Help Browser");
 	gtk_widget_realize (w->app);
-	/* XXX This is wrong - delete should just close window */
-	/* Make the main window and binds the delete event so you can close
-	   the program from your WM */
+
 	gtk_signal_connect (GTK_OBJECT (w->app), "delete_event",
-			    GTK_SIGNAL_FUNC (close_cb),
-			    NULL);
+			    GTK_SIGNAL_FUNC (delete_cb), w);
 
 	gnome_app_create_menus_with_data(GNOME_APP(w->app), mainmenu, w);
 
