@@ -56,8 +56,8 @@ void read_config (void)
 	gnome_config_push_prefix (APPLET_WIDGET (applet)->privcfgpath);
 
 	Config.horz_fixed = gnome_config_get_bool ("tasklist/horz_fixed=true");
-	/* if the screen is not to wide, make it default to 300 */
-	if (gdk_screen_width () < 800)
+	/* if the screen is not too wide, make it default to 300 */
+	if (gdk_screen_width () <= 800)
 		Config.horz_width = gnome_config_get_int ("tasklist/horz_width=300");
 	else
 		Config.horz_width = gnome_config_get_int ("tasklist/horz_width=450");

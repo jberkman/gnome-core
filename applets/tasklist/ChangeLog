@@ -1,3 +1,8 @@
+Tue Jan 04 00:07:56 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_config.c: if the desktop is 800 exactly still start
+	  at 300 wide, not 450
+
 Sun Jan 02 02:07:23 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_config.c: made the horizontal size default to 300 if the
