@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Help system
 Name[es]=Sistema de ayuda 
+Name[fr]=Système d'Aide
 Comment=Integrated help system (Info, man, HTML)
 Comment[es]=Sistema integral de ayuda (Info, man, HTML)
+Comment[fr]=Système d'Aide Intégré (Info, man, HTML)
 Exec=gnome-help-browser
 Icon=
 Terminal=0
