@@ -5,6 +5,7 @@
 #include <config.h>
 
 #include "gmenu.h"
+#include "wait-feet.h"
 #include "top.xpm"
 
 static gint find_file_cb(gconstpointer a, gconstpointer b);
@@ -13,6 +14,39 @@ static void move_item_up(GtkCTreeNode *node);
 static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void get_ctree_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static gint get_ctree_count(GtkCTree *ctree);
+
+/* new = TRUE, increment feet = FALSE */
+static GtkWidget *wait_pixmap(gint mode)
+{
+	static GtkWidget *p;
+
+	static gint c;
+
+	if (mode)
+		{
+		c = 0;
+		p = gnome_pixmap_new_from_xpm_d(wait_1_xpm);
+		return p;
+		}
+	else
+		{
+		c++;
+		if (c > 7) c = 0;
+
+		if (c == 0) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_1_xpm);
+		if (c == 1) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_2_xpm);
+		if (c == 2) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_3_xpm);
+		if (c == 3) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_4_xpm);
+		if (c == 4) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_5_xpm);
+		if (c == 5) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_6_xpm);
+		if (c == 6) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_7_xpm);
+		if (c == 7) gnome_pixmap_load_xpm_d(GNOME_PIXMAP(p),wait_8_xpm);
+
+		gtk_widget_draw(p, NULL);
+
+		return NULL;
+		}
+}
 
 static gint find_file_cb(gconstpointer a, gconstpointer b)
 {
@@ -297,7 +331,11 @@ void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent)
 static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 {
 	Desktop_Data *d = gtk_ctree_get_row_data(GTK_CTREE(ctree), node);
-	if (d->isfolder && !d->expanded ) add_tree_node(ctree, node);
+	if (d->isfolder && !d->expanded )
+		{
+		wait_pixmap(FALSE);
+		add_tree_node(ctree, node);
+		}
 }
 
 static void get_ctree_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
@@ -318,7 +356,30 @@ void add_main_tree_node()
 	gchar *text[2];
 	Desktop_Data *d;
 	GtkWidget *pixmap;
+	GtkWidget *wait_icon;
+	GtkWidget *dialog;
+	GtkWidget *label;
+	GtkWidget *hbox;
 	gint c;
+
+
+	dialog = gnome_dialog_new(_("One Moment"),NULL);
+
+	hbox = gtk_hbox_new(FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 5);
+	gtk_widget_show(hbox);
+
+	wait_icon = wait_pixmap(TRUE);
+	gtk_box_pack_start(GTK_BOX(hbox), wait_icon, TRUE, TRUE, 5);
+	gtk_widget_show(wait_icon);
+
+	label = gtk_label_new(_("Reading Menus..."));
+	gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 5);
+	gtk_widget_show(label);
+
+	gtk_widget_show(dialog);
+
+	while(gtk_events_pending()) gtk_main_iteration();
 
 /*	g_print("adding top node...\n");*/
 
@@ -397,6 +458,8 @@ void add_main_tree_node()
 		}
 
 	current_node = usernode;
+
+	gnome_dialog_close(GNOME_DIALOG(dialog));
 
 	gtk_clist_thaw(GTK_CLIST(menu_tree_ctree));
 

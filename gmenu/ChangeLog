@@ -1,3 +1,12 @@
+Mon Aug 10 08:41:14 1998  John Ellis  <johne@bellatlantic.net>
+
+	* tree.c: Quick hack to test a standby dialog while gmenu reads the
+	menus. If interested in seeing 'walking gnome feet', please try this
+	out and tell me if it's just code bloat. On really fast machines,
+	this dialog may be too quick to really see anything.
+	* wait-feet.h: The pixmaps for the walking feet. Was larger, but
+	managed to use less colors to decrease size.
+
 Sun Aug  9 14:12:18 1998  John Ellis  <johne@bellatlantic.net>
 
 	* tree.c: cleanups, fixes, and optimizations.
