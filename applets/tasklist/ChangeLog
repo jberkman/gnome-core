@@ -1,3 +1,9 @@
+Fri Mar 03 00:03:58 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch],tasklist_menu.c: add a menu field to the
+	  task structure and destroy the menu when the task dies.  Fixes
+	  bug #6780
+
 2000-02-28  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c (draw_task): Get the drawing done right this time.

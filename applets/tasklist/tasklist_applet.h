@@ -32,6 +32,7 @@ struct _TasklistTask {
 	gint width, height;
 	TasklistIcon *icon;
 	GwmhTask *gwmh_task;
+	GtkWidget *menu;
 };
 
 struct _TasklistConfig {

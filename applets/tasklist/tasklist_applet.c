@@ -615,6 +615,8 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 			gdk_bitmap_unref(task->icon->mask);
 			gdk_pixbuf_unref(task->icon->normal);
 			gdk_pixbuf_unref(task->icon->minimized);
+			if(task->menu)
+				gtk_widget_destroy(task->menu);
 			g_free (task->icon);
 			g_free (task);
 			layout_tasklist ();

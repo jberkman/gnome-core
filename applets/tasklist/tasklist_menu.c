@@ -116,11 +116,16 @@ cb_menu (GtkWidget *widget, gpointer data)
 void
 menu_popup (TasklistTask *task, guint button, guint32 activate_time)
 {
-	GtkWidget *menu;
-	
-	menu = get_popup_menu (task);
+	if(task->menu)
+		gtk_widget_destroy(task->menu);
 
-	gtk_menu_popup (GTK_MENU (menu), NULL, NULL,
+	task->menu = get_popup_menu (task);
+
+	gtk_signal_connect(GTK_OBJECT(task->menu), "destroy",
+			   GTK_SIGNAL_FUNC(gtk_widget_destroyed),
+			   &task->menu);
+
+	gtk_menu_popup (GTK_MENU (task->menu), NULL, NULL,
 			cb_menu_position, task,
 			button, activate_time);
 }
