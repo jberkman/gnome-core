@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Startup Hint
+Comment=Options for the startup hint dialog
+Exec=gnome-hint-properties-capplet
+Icon=
+Terminal=0
+Type=Application

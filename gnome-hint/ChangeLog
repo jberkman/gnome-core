@@ -1,3 +1,8 @@
+Sun Oct 03 21:43:54 1999  George Lebl  <jirka@5z.com>
+
+	* gnome-hint-properties.c,Makefile.am,gnome-hint-properties.desktop:
+	  add a capplet for setting the hint options
+
 Sun Oct 03 20:52:06 1999  George Lebl  <jirka@5z.com>
 
 	* gnome-hint.c: Add the possibility of the hints actually being
