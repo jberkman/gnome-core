@@ -124,7 +124,21 @@ typedef struct {
 	int changed;
 } preferences_t;
 
-static void new_terminal (GtkWidget *widget, ZvtTerm *term);
+/*
+ * Exported interfaces, for Gtk modules that hook
+ * into the gnome terminal
+ */
+void close_terminal_cmd   (void *unused, void *data);
+void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
+void color_cmd            (void);
+void show_menu_cmd        (GtkWidget *widget, ZvtTerm *term);
+void hide_menu_cmd        (GtkWidget *widget, ZvtTerm *term);
+void paste_cmd            (GtkWidget *widget, ZvtTerm *term);
+void preferences_cmd      (GtkWidget *widget, ZvtTerm *term);
+
+GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry);
+GtkWidget *new_terminal     (GtkWidget *widget, ZvtTerm *term);
+
 static void parse_an_arg (poptContext state,
 			  enum poptCallbackReason reason,
 			  const struct poptOption *opt,
