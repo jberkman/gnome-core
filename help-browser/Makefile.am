@@ -40,7 +40,7 @@ EXTRA_DIST = sample-help.html gnome-help-browser-help.html \
 #
 #sample_DATA = sample-help.html sample-topic.dat
 #gnome_help_browser_DATA = gnome-help-browser-help.html \
-	    	         gnome-help-browser-topic.dat
+#	    	         gnome-help-browser-topic.dat
 
 sample_helpdir = $(datadir)/gnome/help/sample-help/C
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
