@@ -198,6 +198,19 @@ screensaver_setup ()
 void
 main (int argc, char **argv)
 {
+        gchar *temp = strrchr(argv[0],'/');
+
+        if (!temp)
+                temp = argv [0];
+        else
+                temp++;
+        if (strcmp (temp, "screensaver-properties-init")== 0) {
+                gnome_init ("Screensaver Properties", NULL, argc, argv, 0, NULL);
+                temp = gnome_config_get_string ("/Screensaver/Default/command=xscreensaver");
+                system ("xscreensaver-command -exit");
+                system (temp);
+                return;
+        }
         gnome_capplet_init ("Screensaver Properties", NULL, argc, argv, 0, NULL);
         screensaver_load ();
 	screensaver_setup();
