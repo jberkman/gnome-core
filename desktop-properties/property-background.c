@@ -172,11 +172,19 @@ fill_monitor (int prop_changed)
 		bgColor1.red = r;
 		bgColor1.green = g;
 		bgColor1.blue = b;
+		r >>= 8;
+		g >>= 8;
+		b >>= 8;
+		bgColor1.pixel = gdk_imlib_best_color_match(&r, &g, &b);
 
 		gnome_color_selector_get_color_int(cs2, &r, &g, &b, 0xffff);
 		bgColor2.red = r;
 		bgColor2.green = g;
 		bgColor2.blue = b;
+		r >>= 8;
+		g >>= 8;
+		b >>= 8;
+		bgColor2.pixel = gdk_imlib_best_color_match(&r, &g, &b);
 	}
 	
 	/* are we working on root window ? */
@@ -863,13 +871,26 @@ background_write ()
 static void
 background_read ()
 {
+	GdkColor bgColor;
+	gint r, g, b;
+
 	gdk_color_parse
 		(gnome_config_get_string ("/Desktop/Background/color1=#808080"),
 		 &bgColor1);
+	r = bgColor1.red >> 8;
+	g = bgColor1.green >> 8;
+	b = bgColor1.blue >> 8;
+	bgColor1.pixel = gdk_imlib_best_color_match(&r, &g, &b);
+ 
 	gdk_color_parse
 		(gnome_config_get_string ("/Desktop/Background/color2=#0000ff"),
 		 &bgColor2);
 
+	r = bgColor2.red >> 8;
+	g = bgColor2.green >> 8;
+	b = bgColor2.blue >> 8;
+	bgColor2.pixel = gdk_imlib_best_color_match(&r, &g, &b);
+  
 	bgType = (strcasecmp
 		  (gnome_config_get_string
 		   ("/Desktop/Background/type=simple"),

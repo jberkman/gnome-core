@@ -11,6 +11,8 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <gtk/gtk.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 /*
 #ifdef HAVE_LIBINTL
 #include <libintl.h>
@@ -178,7 +180,7 @@ ConfigScreenSaver::settings_frame ()
 	gtk_misc_set_alignment (GTK_MISC (l3), 0, 0.5);
 
 	adjustment = gtk_adjustment_new (niceV,
-					 0.0, 19.0, 1.0, 1.0, 0.0);
+					 19.0, 0.0, 1.0, 1.0, 0.0);
 	nice = gtk_hscale_new (GTK_ADJUSTMENT (adjustment));
 	gtk_scale_set_digits (GTK_SCALE (nice), 0);
 	gtk_scale_set_draw_value (GTK_SCALE (nice), FALSE);
@@ -358,35 +360,38 @@ ConfigScreenSaver::setup ()
 void
 ConfigScreenSaver::apply ()
 {
-	gchar *cmdLine;
-
 	if (curMode) {
+		gchar *cmdLine = NULL, *tmp;
 		gint pid;
+		gint seconds;
 
 		curMode->run (SS_CMDLINE, niceV, lockV, &cmdLine);
 
-#ifdef DO_BUGGY_DPMS_STUFF
 		/* This is an ugly hack; there has to be a way
 		   to do this directly through dpmsstr.h
 		   - I'm just too clueless to do it ATM */
 		if(dpmsV) {
-		  cmdLine = g_malloc(40);
+		  tmp = g_malloc(40);
 		  system("xset +dpms");
-		  g_snprintf(39, cmdLine, "xset dpms 0 0 %s", waitV);
-		  system(cmdLine);
-		  g_free(cmdLine);
+		  seconds = strtol(waitV, NULL, 10) * 60; 
+		  g_snprintf(tmp, 39, "xset dpms 0 0 %d", seconds);
+		  system(tmp);
+		  g_free(tmp);
 		} else {
 		  system("xset -dpms");
 		}
-#else
-		g_print("DPMS settings are not being set - see the source\n");
-#endif
 
-		/* pid = gnome_config_get_int ("/Desktop/ScreenSaver/xautolock_pid=0");
-	        if (pid)
-			::kill (pid, SIGTERM); */
+		pid = gnome_config_get_int ("/Desktop/ScreenSaver/xautolock_pid=0");
+	        if (pid) {
+			::kill (pid, SIGTERM);
+			waitpid(pid, &pid, 0):
+		}
 
 		pid = fork ();
+
+		/* xautolock is not distributible - we need to make */
+		/* a simple program that watches for inactivity and */
+		/* runs a specified program                         */
 
 		if (!pid) {
 			execlp ("xautolock",
@@ -398,7 +403,8 @@ ConfigScreenSaver::apply ()
 				"-locker",
 				cmdLine,
 				NULL);
-		} else {
+                       g_error("Exec of xautolock failed!\n");
+ 		} else {
 			gnome_config_set_int ("/Desktop/ScreenSaver/xautolock_pid",
 					      pid);
 			gnome_config_sync ();
@@ -444,7 +450,9 @@ screensaver_write ()
 
 	gnome_config_set_string ("/Desktop/ScreenSaver/screensaver",
 				 css->screensaver_name);
-	gnome_config_set_string ("/Desktop/ScreenSaver/mode", css->mode_name);
+	gnome_config_set_string ("/Desktop/ScreenSaver/mode",
+	 ((css->curMode->name) ? css->curMode->name: css->mode_name));
+ 
 	gnome_config_sync ();
 
 	return 1;
@@ -455,12 +463,14 @@ screensaver_apply ()
 {
 	css->apply ();
 	property_applied ();
+	return 1;
 }
 
 static gint
 screensaver_setup ()
 {
 	css->setup ();
+	return 1;
 }
 
 static gint
