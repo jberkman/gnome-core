@@ -1,3 +1,8 @@
+1998-05-25  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Made some changes to the config dir handling code.
+	Now the dir is fixed at .gnome-help-browser.
+
 1998-05-22  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* can accept drops.  does no MIME type checking.

@@ -5,6 +5,7 @@
    toc:man(x)
 
  - fix LANG handling
+   needs to check C (or LINGUAS?) to find file
 
  - cache
    cache mime types

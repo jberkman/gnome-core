@@ -22,6 +22,8 @@
 #include <config.h>
 #include <gnome.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "window.h"
 #include "history.h"
@@ -72,9 +74,10 @@ static int configCancel(GtkWidget *w, GtkWidget *window);
 			  "/usr/share/gnome/help:" 
 #define DEFAULT_MEMCACHESIZE "1000000"
 #define DEFAULT_HISTORYLENGTH "1000"
-#define DEFAULT_HISTORYFILE ".gnome-help-browser/history"
-#define DEFAULT_CACHEFILE ".gnome-help-browser/cache"
-#define DEFAULT_BOOKMARKFILE ".gnome-help-browser/bookmarks"
+#define HELP_BROWSER_RC_DIR ".gnome-help-browser"
+#define DEFAULT_HISTORYFILE "history"
+#define DEFAULT_CACHEFILE "cache"
+#define DEFAULT_BOOKMARKFILE "bookmarks"
 
 /* Argument parsing.  */
 static struct argp_option options[] =
@@ -142,6 +145,7 @@ int
 main(int argc, char *argv[])
 {
     HelpWindow window;
+    gchar buf[BUFSIZ];
 
     argp_program_version = HELP_VERSION;
 
@@ -175,11 +179,16 @@ main(int argc, char *argv[])
     else
 	    g_message("Session Manager not detected");
 
-    historyWindow = newHistory(historyLength, historyCallback, historyFile);
-    cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free,
-			 cacheFile);
+    g_snprintf(buf, sizeof(buf), "%s/%s", HELP_BROWSER_RC_DIR, historyFile);
+    historyWindow = newHistory(historyLength, historyCallback, buf);
+
+    g_snprintf(buf, sizeof(buf), "%s/%s", HELP_BROWSER_RC_DIR, cacheFile);
+    cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free, buf);
+
     toc = newToc(manPath, infoPath, ghelpPath);
-    bookmarkWindow = newBookmarks(bookmarkCallback, NULL, bookmarkFile);
+
+    g_snprintf(buf, sizeof(buf), "%s/%s", HELP_BROWSER_RC_DIR, bookmarkFile);
+    bookmarkWindow = newBookmarks(bookmarkCallback, NULL, buf);
 
     window = makeHelpWindow(defposx, defposy, defwidth, defheight );
 #ifdef UGLY_LE_HACK
@@ -493,6 +502,10 @@ static GnomeClient
 
 static void initConfig(void)
 {
+    gchar buf[BUFSIZ];
+    struct stat statb;
+    gchar *s;
+    
     manPath = gnome_config_get_string("/" NAME "/paths/manpath="
 				      DEFAULT_MANPATH);
     infoPath = gnome_config_get_string("/" NAME "/paths/infopath="
@@ -511,6 +524,39 @@ static void initConfig(void)
     bookmarkFile = gnome_config_get_string("/" NAME "/bookmarks/file="
 					   DEFAULT_BOOKMARKFILE);
 
+    /* Clean up from when we moved to require .gnome-help-browser */
+
+    if (! strncmp(cacheFile, HELP_BROWSER_RC_DIR,
+		  strlen(HELP_BROWSER_RC_DIR))) {
+	s = cacheFile;
+	cacheFile = g_strdup(cacheFile + strlen(HELP_BROWSER_RC_DIR) + 1);
+	g_free(s);
+    }
+    
+    if (! strncmp(historyFile, HELP_BROWSER_RC_DIR,
+		  strlen(HELP_BROWSER_RC_DIR))) {
+	s = historyFile;
+	historyFile = g_strdup(historyFile + strlen(HELP_BROWSER_RC_DIR) + 1);
+	g_free(s);
+    }
+    
+    if (! strncmp(bookmarkFile, HELP_BROWSER_RC_DIR,
+		  strlen(HELP_BROWSER_RC_DIR))) {
+	s = bookmarkFile;
+	bookmarkFile = g_strdup(bookmarkFile +
+				strlen(HELP_BROWSER_RC_DIR) + 1);
+	g_free(s);
+    }
+
+    errno = 0;
+    sprintf(buf, "%s/%s", getenv("HOME"), HELP_BROWSER_RC_DIR);
+    if (stat(buf, &statb)) {
+	if (mkdir(buf, 0755)) {
+	    g_error("Unable to mkdir $HOME/%s: %s",
+		    HELP_BROWSER_RC_DIR, strerror(errno));
+	}
+    }
+    
     saveConfig();
 }
 
