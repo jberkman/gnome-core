@@ -2,9 +2,11 @@
 Name=Help system
 Name[es]=Sistema de ayuda 
 Name[fr]=Système d'Aide
+Name[de]=GNOME Hilfe
 Comment=Integrated help system (Info, man, HTML)
 Comment[es]=Sistema integral de ayuda (Info, man, HTML)
 Comment[fr]=Système d'Aide Intégré (Info, man, HTML)
+Comment[de]=Integriertes Hilfesystem (Info, man, HTML)
 Exec=gnome-help-browser
 Icon=
 Terminal=0
