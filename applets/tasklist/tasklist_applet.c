@@ -116,16 +116,34 @@ fixup_task_label (TasklistTask *task)
 					       "[]");
 
 	if (label_len > task->width - ROW_HEIGHT) {
+		GdkWChar *wstr;
+
 		len = strlen (task->gwmh_task->name);
+		wstr = g_new (GdkWChar, len + 3);
+		len = gdk_mbstowcs (wstr, task->gwmh_task->name, len);
+		if ( len < 0 ) { /* if the conversion is failed */
+			wstr[0] = wstr[1] = wstr[2] = '?'; 
+			wstr[3] = '\0'; /* wcscpy(wstr,"???");*/
+			len = 3;
+			label_len = gdk_text_width_wc(area->style->font,
+                                                      wstr, len);
+			if (label_len <= task->width 
+			    - (Config.show_mini_icons ? 24:6)) {
+				str = gdk_wcstombs(wstr);
+				g_free(wstr);
+				return str;
+			}
+		}
+		wstr[len] = wstr[len+1] = '.';
+		wstr[len+2] = '\0'; /*wcscat(wstr,"..");*/
 		len--;
-		str = g_malloc (len + 4);
-		strcpy (str, task->gwmh_task->name);
-		strcat (str, "..");
+
 		for (; len > 0; len--) {
-			str[len] = '.';
-			str[len + 3] = '\0';
+			wstr[len] = '.';
+			wstr[len + 3] = '\0';
 			
-			label_len = gdk_string_width (area->style->font, str);
+			label_len = gdk_text_width_wc (area->style->font,
+						       wstr, len + 3);
 			
 			if (GWMH_TASK_ICONIFIED (task->gwmh_task))
 				label_len += gdk_string_width (area->style->font,
@@ -133,6 +151,8 @@ fixup_task_label (TasklistTask *task)
 			if (label_len <= task->width - (Config.show_mini_icons ? 24:6))
 				break;
 		}
+		str = gdk_wcstombs (wstr);
+		g_free (wstr);
 	}
 	else
 		str = g_strdup (task->gwmh_task->name);

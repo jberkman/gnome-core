@@ -1,3 +1,9 @@
+
+2000-02-17 TANIGUCHI Toru <g97p0639@mn.waseda.ac.jp>
+
+        * tasklist_applet.c (fixup_task_label): fix i18n problem by
+          using GdkWchar.
+
 2000-02-13  Peter Hawkins <peterhawkins@ozemail.com.au>
 	* Fixed a couple of minor memory leaks, stopped Preferences dialog from
 	  being opened multiple times.
