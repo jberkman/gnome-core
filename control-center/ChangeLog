@@ -1,3 +1,7 @@
+1998-10-08  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* callbacks.h: Remove `#pragma }'.
+
 Tue Oct  6 20:14:10 1998  Jonathan Blandford <jrb@redhat.com>
 	* added gnorba support
 	* made the thing start smaller.

@@ -1,3 +1,8 @@
+1998-10-08  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* gvtconf.h: Removed `#pragma }'.
+	* gvtvt.h: Likewise.
+
 Mon Aug 24 07:46:21 1998  Tim Janik  <timj@gtk.org>
 
 	* gvtvt.c (gvt_vt_get_type): adaptions to new GtkTypeInfo structure,

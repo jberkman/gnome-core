@@ -11,7 +11,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#pragma }
 #endif /* __cplusplus */
 
 void launch_capplet (node_data *data);

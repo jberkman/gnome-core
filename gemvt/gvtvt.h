@@ -23,7 +23,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#pragma }
 #endif /* __cplusplus */
 
 
@@ -122,7 +121,6 @@ void		gvt_vt_do_color_queue	(GvtVt		*vt);
 
 
 #ifdef __cplusplus
-#pragma {
 }
 #endif /* __cplusplus */
 
