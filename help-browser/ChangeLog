@@ -1,3 +1,8 @@
+2001-05-31  Marius Andreiana  <mandreiana@yahoo.com>
+
+	* gnome-info2html/html.c: added stdlib.h to get rid of compile warning
+	about exit()
+	
 2001-02-26  jacob berkman  <jacob@ximian.com>
 
 	* reverting previous patch
