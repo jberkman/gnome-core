@@ -93,6 +93,7 @@ struct terminal_config {
 	char *pixmap_file;
         char *window_title;                     /* the window title */
 	char *wordclass;			/* select-by-word character class */
+	char *termname;				/* TERM variable setting, store as TERM=xxx */
 } ;
 
 /* Initial command */
@@ -445,6 +446,8 @@ load_config (char *class)
 	cfg->pixmap_file = gnome_config_get_string ("pixmap_file");
 	cfg->window_title = NULL;
 
+	cfg->termname = NULL;
+
 	if (strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
 		cfg->color_set = 0;
@@ -522,6 +525,7 @@ terminal_config_dup (struct terminal_config *cfg)
 	n->class = g_strdup (cfg->class);
 	n->font = g_strdup  (cfg->font);
 	n->wordclass = g_strdup  (cfg->wordclass);
+	n->termname = g_strdup  (cfg->termname);
 
 	return n;
 }
@@ -532,6 +536,7 @@ terminal_config_free (struct terminal_config *cfg)
 	g_free (cfg->class);
 	g_free (cfg->font);
 	g_free (cfg->wordclass);
+	g_free (cfg->termname);
 	g_free (cfg);
 }
 
@@ -1737,7 +1742,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	/* Setup the environment for the gnome-terminals:
 	 *
-	 * TERM is set to xterm-color (which is what zvt emulates)
+	 * TERM is set to xterm (which is what zvt emulates)
 	 * COLORTERM is set for slang-based applications to auto-detect color
 	 * WINDOWID spot is reserved for the xterm compatible variable.
 	 * COLS is removed
@@ -1751,9 +1756,15 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		i = p - env;
 		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
-			if (strncmp (*p, "TERM=", 5) == 0)
-				env_copy [i++] = "TERM=xterm";
-			else if ((strncmp (*p, "COLUMNS=", 8) == 0)
+			if (strncmp (*p, "TERM=", 5) == 0) {
+				if (cfg->termname)
+					env_copy [i++] = cfg->termname;
+				else
+					/* DO NOT change this, its here for a reason */
+					/* this emulator doesn't emulate xterm-color, or xterm-debian, or
+					   xterm-old, it emulates xterm.  Get it?  Doh! */
+					env_copy [i++] =  "TERM=xterm";
+			} else if ((strncmp (*p, "COLUMNS=", 8) == 0)
 				 || (strncmp (*p, "LINES=", 6) == 0)){
 				/* nothing: do not copy those */
 			} else
@@ -1978,6 +1989,7 @@ load_session ()
 		
 		/* do this now, since it is only done in a session */
 		cfg->invoke_as_login_shell = gnome_config_get_bool("invoke_as_login_shell");
+		cfg->termname = gnome_config_get_string("termname");
 
 		g_free(class);
 		gnome_config_pop_prefix();
@@ -2061,6 +2073,8 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		/* do this now, since it is only done in a session */
 		gnome_config_set_bool("invoke_as_login_shell",
 				      cfg->invoke_as_login_shell);
+		gnome_config_set_string("termname",
+					cfg->termname);
 
 		gnome_config_pop_prefix ();
 		g_free (prefix);
@@ -2109,7 +2123,8 @@ enum {
 	DONOUTMP_KEY = -10,
 	DOWTMP_KEY   = -11,
 	DONOWTMP_KEY = -12,
-        TITLE_KEY    = -13
+        TITLE_KEY    = -13,
+	TERM_KEY     = -14
 };
 
 static struct poptOption cb_options [] = {
@@ -2156,6 +2171,9 @@ static struct poptOption cb_options [] = {
 	
 	{ "title", 't', POPT_ARG_STRING, NULL, TITLE_KEY,
           N_("Set the window title"), N_("TITLE") },
+
+	{ "termname", '\0', POPT_ARG_STRING, NULL, TERM_KEY,
+          N_("Set the TERM variable"), N_("TERMNAME") },
 
 	{ NULL, '\0', 0, NULL, 0}
 };
@@ -2228,6 +2246,9 @@ parse_an_arg (poptContext state,
 	case TITLE_KEY:
 	        cfg->window_title = g_strdup(arg);
                 break;
+	case TERM_KEY:
+		cfg->termname = g_strdup_printf("TERM=%s", arg);
+		break;
 	default:
 	}
 }
@@ -2349,11 +2370,13 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->color_set = COLORS_CUSTOM;
 	}
 
+
 	/* if the default is different from the commandline, use the commandline */
 	default_config->invoke_as_login_shell =
 		cmdline_login ? cmdline_config->invoke_as_login_shell : 
 		default_config->login_by_default;
-	
+	default_config->termname = g_strdup(cmdline_config->termname);
+
 	terminal_config_free (cmdline_config);
 	
 	if (!load_session ())

@@ -180,7 +180,17 @@
 	  <listitem>
 	    <para><symbol>--command CMD, -e CMD</symbol></para>
 	    <para>
-	      Runs the CMD command at startup time
+	      Runs the CMD command at startup time.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><symbol>--execute CMD ARGS, -x CMD ARGS</symbol></para>
+	    <para>
+	      Executes the command CMD with its arguments ARGS on
+	      startup.  No arguments beyond this one will be processed
+	      by the terminal, this behaviour mimicks the xterm -e
+	      behaviour.
 	    </para>
 	  </listitem>
 	  
@@ -247,6 +257,14 @@
 	    <para><symbol>--title TITLE, -t TITLE</symbol></para>
 	    <para>
 	      Makes GNOME terminal use TITLE for the window caption.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><symbol>--termname TERMNAME</symbol></para>
+	    <para>
+	      Makes GNOME terminal use TERMNAME as the value of the
+	      TERM environment variable.
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -557,15 +575,17 @@
 	      the value to be xterm-colour, colour-xterm or xterm-debian to
 	      support colour.  You might need to change this setting if
 	      your application does not display in colour to one of those
-	      values.
+	      values.  This can now be set via the
+	      --termname <link linkend="Options">command
+	      line option</link>.
 	    </para>
 	  </listitem>
 
 	  <listitem>
-	    <para><symbol>COLOURTERM</symbol></para>
+	    <para><symbol>COLORTERM</symbol></para>
 
 	    <para>
-	      This variable is set to "xterm".
+	      This variable is set to "gnome-terminal".
 	      Various applications (specially the
 	      Slang-based applications) use this setting to determine if
 	      the terminal supports colour.

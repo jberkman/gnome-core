@@ -1,5 +1,8 @@
 1999-06-14  Michael Zucchi  <mzucchi@zedzone.mmc.com.au>
 
+	* C/gnome-terminal.sgml: Updated for new command line options, and
+	to fix a couple of incorrect bits of info.
+
 	* gnome-terminal.c (new_terminal_cmd): Removed size_allocate
 	callback.
 	(new_terminal_cmd): Setup the "realize" signal to set the window
@@ -15,6 +18,14 @@
 	(cb_options): Added "x" and "execute" options to popt options
 	table, these are not used to get the option, just to show it in
 	help, and validate the input.
+	(load_config): Null the termname when loading the config.
+	(terminal_config_free): Free termname on free.
+	(terminal_config_dup): Copy termname on copy.
+	(load_session): Restore termname option for restarted session.
+	(save_session): Save termname in session.
+	(new_terminal_cmd): Set the TERM environment from termname, if it
+	is set.  Otherwise set it to xterm.  Yes xterm, not xterm-debian
+	or xterm-fluffy-bloody-sheep!  (see bug #1374)
 
 1999-05-31  Michael Zucchi  <mzucchi@denr.sa.gov.au>
 
