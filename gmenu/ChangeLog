@@ -1,3 +1,7 @@
+1998-06-29  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gmenu.c (main): Set the proper colormap.
+
 Wed Jun 17 04:13:47 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch]: Finally split the source into smaller files.

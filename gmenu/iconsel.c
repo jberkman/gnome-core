@@ -196,6 +196,7 @@ GtkWidget * icon_selection_dialog( gchar *path1, gchar *path2, gchar *file,
 	gtk_widget_show(progressbar);
 
 	id->clist = gtk_clist_new(1);
+	
 	gtk_clist_set_policy (GTK_CLIST (id->clist), GTK_POLICY_ALWAYS, GTK_POLICY_AUTOMATIC);
 	gtk_clist_set_row_height(GTK_CLIST (id->clist),50);
 	gtk_signal_connect (GTK_OBJECT (id->clist), "select_row",(GtkSignalFunc) select_icon_cb, id);

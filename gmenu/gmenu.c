@@ -305,7 +305,12 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
 	gtk_widget_show(vbox);
 
+	gtk_widget_push_visual (gdk_imlib_get_visual ());
+	gtk_widget_push_colormap (gdk_imlib_get_colormap ());
 	menu_tree_ctree = gtk_ctree_new(1, 0);
+	gtk_widget_pop_visual ();
+	gtk_widget_pop_colormap ();
+	
 	gtk_clist_set_row_height(GTK_CLIST(menu_tree_ctree),22);
 	gtk_clist_set_column_width(GTK_CLIST(menu_tree_ctree),0,300);
 	gtk_clist_set_selection_mode(GTK_CLIST(menu_tree_ctree),GTK_SELECTION_EXTENDED);
