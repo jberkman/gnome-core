@@ -371,7 +371,7 @@ ConfigScreenSaver::apply ()
 		   to do this directly through dpmsstr.h
 		   - I'm just too clueless to do it ATM */
 		if(dpmsV) {
-		  tmp = g_malloc(40);
+		  tmp = g_new(gchar, 40);
 		  system("xset +dpms");
 		  seconds = strtol(waitV, NULL, 10) * 60; 
 		  g_snprintf(tmp, 39, "xset dpms 0 0 %d", seconds);
@@ -395,7 +395,7 @@ ConfigScreenSaver::apply ()
 
 		if (!pid) {
 			int l = strlen(cmdLine) + 20;
-			char *tmp = g_malloc(l);
+			char *tmp = g_new(char, l);
 			g_snprintf(tmp, l, "*programs: %s", cmdLine);
 			execlp ("xscreensaver",
 				"xscreensaver",
