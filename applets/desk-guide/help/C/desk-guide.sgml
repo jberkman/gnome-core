@@ -63,6 +63,10 @@
     <application>Desk Guide Applet</application> to switch to display
     a different virtual desktop on your monitor.</para>
 
+    <para>Click and hold with your middle mouse button on any window
+    image in <application>Desk Guide Applet</application> to drag the
+    window around your virtual desktops.</para>
+
     <note>
       <para>Different window managers use different jargon to describe
       virtual desktops and the subdivided workspaces within
