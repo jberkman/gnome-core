@@ -1,3 +1,8 @@
+Sat Nov  6 01:00:21 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmdesktop.c (gwm_desktop_button_press): added new feature, top-left
+	center window within area on button2-double-click.
+
 Thu Nov  4 01:08:46 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_init_gui): check the retrived pixel_size value,

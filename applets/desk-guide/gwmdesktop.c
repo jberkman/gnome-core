@@ -588,13 +588,30 @@ gwm_desktop_button_press (GtkWidget      *widget,
           if (event->button == 2)
             {
               gwmh_task_raise (task);
-              desktop->grab_task = task;
-              desktop->x_comp = desktop->x_spixels * (grab_area->x - x);
-              desktop->y_comp = desktop->y_spixels * (grab_area->y - y);
-	      if (gwm_desktop_class->move_to_frame_offset)
+	      if (event->type != GDK_2BUTTON_PRESS)
 		{
-		  desktop->x_comp += task->win_x - task->frame_x;
-		  desktop->y_comp += task->win_y - task->frame_y;
+		  desktop->grab_task = task;
+		  desktop->x_comp = desktop->x_spixels * (grab_area->x - x);
+		  desktop->y_comp = desktop->y_spixels * (grab_area->y - y);
+		  if (gwm_desktop_class->move_to_frame_offset)
+		    {
+		      desktop->x_comp += task->win_x - task->frame_x;
+		      desktop->y_comp += task->win_y - task->frame_y;
+		    }
+		}
+	      else
+		{
+		  gint w = gdk_screen_width ();
+		  gint h = gdk_screen_height ();
+		  gint x, y;
+		  
+		  desktop->grab_task = NULL;
+		  x = (task->win_x - (task->win_x < 0) * w + task->win_width / 2) / w;
+		  y = (task->win_y - (task->win_y < 0) * h + task->win_height / 2) / h;
+		  gdk_window_move (task->gdkwindow,
+				   x * w + (task->win_x - task->frame_x),
+				   y * h + (task->win_y - task->frame_y));
+		  gdk_flush ();
 		}
             }
           break;
