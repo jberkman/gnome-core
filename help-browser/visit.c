@@ -1,5 +1,7 @@
 #include <glib.h>
 #include <libgnome/gnome-help.h>
+#include <libgnome/gnome-defs.h>
+#include <libgnome/gnome-i18n.h>
 
 #include "parseUrl.h"
 #include "docobj.h"

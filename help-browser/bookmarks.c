@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
+#include <libgnome/gnome-defs.h>
+#include <libgnome/gnome-i18n.h>
 #include <gtk/gtk.h>
 #include <glib.h>
 
