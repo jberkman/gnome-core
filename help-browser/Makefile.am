@@ -63,6 +63,10 @@ install-data-local:
 	$(INSTALL_DATA)  $(srcdir)/default-page.html $(help_browser_helpdir)/
 	$(INSTALL_DATA)  $(srcdir)/bg.xpm $(help_browser_helpdir)/
 	$(INSTALL_DATA)  $(srcdir)/gnome-logo2.xpm $(help_browser_helpdir)/
+	cd $(help_browser_helpdir); \
+	     ln -fs help-browser.html index.html
+	cd $(sample_helpdir); \
+	     ln -fs sample-help.html index.html
 
 helpdir = $(datadir)/apps
 help_DATA = gnome-help.desktop

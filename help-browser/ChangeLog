@@ -1,3 +1,12 @@
+1998-03-25  Michael Fulbright  <msf@redhat.com>
+
+	* Added support in bookmarks for document titles
+
+	* Updated help document to describe magic URLs
+
+	* Fixed bug which caused entry box to show currentRef
+	  instead of humanRef if a bad URL was given.
+
 Sat Mar 21 15:27:37 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* window.c: Use gnome_message_box_*, not gnome_messagebox_*.
@@ -10,7 +19,7 @@ Sat Mar 21 15:27:37 1998  Tom Tromey  <tromey@cygnus.com>
 	* Implemented 'toc:', 'toc:man', 'toc:info', and 'toc:ghelp'
 	  These load browser with table of contents of respective doc types.
 
-	* Found buf in info code which caused segfault when loading last
+	* Found bug in info code which caused segfault when loading last
 	  section in an info file.
 
 	* Removed visitURL_nohistory - use visitURL() with several booleans

@@ -50,6 +50,7 @@ struct _helpWindow {
     /* The current page reference */
     gchar *currentRef;
     gchar *humanRef;
+    gchar *Title;
 
     gboolean useCache;
 
@@ -184,7 +185,7 @@ static void
 bookmark_cb (GtkWidget *w, HelpWindow win)
 {
     if (win->bookmarks)
-	addToBookmarks(win->bookmarks, win->humanRef);
+	addToBookmarks(win->bookmarks, win->humanRef, win->Title);
 }
 
 static void
@@ -476,6 +477,17 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
     gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), buf);
     g_free(buf);
     gtk_entry_set_text(GTK_ENTRY(w->entryBox), humanRef);
+
+    if (w->Title)
+	g_free(w->Title);
+
+    buf = XmHTMLGetTitle((GTK_WIDGET(w->helpWidget)));
+    if (!buf)
+	w->Title = g_strdup("");
+    else
+	w->Title = g_strdup(buf);
+
+    g_message("Title is ->%s<-\n",w->Title);
 }
 
 void
@@ -529,6 +541,7 @@ helpWindowNew(gchar *name,
 	w->cache = NULL;
 	w->currentRef = NULL;
 	w->humanRef = NULL;
+	w->Title    = NULL;
 
 	w->app = gnome_app_new (name, "Gnome Help Browser");
 	gtk_widget_realize (w->app);
@@ -643,7 +656,7 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 		gnome_message_box_set_modal (GNOME_MESSAGE_BOX (msg));
 		gtk_widget_show(msg);
 
-		gtk_entry_set_text(GTK_ENTRY(win->entryBox), win->currentRef);
+		gtk_entry_set_text(GTK_ENTRY(win->entryBox), win->humanRef);
 		return;
 	} else {
 		/* clear the status bar */
@@ -654,7 +667,7 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 	win->useCache = TRUE;
 
 	/* XXX This should work, but it doesn't */
-	/* printf("TITLE: %s\n", XmHTMLGetTitle(win->helpWidget)); */
+	printf("TITLE: %s\n", XmHTMLGetTitle(GTK_WIDGET(win->helpWidget)));
 
 }
 

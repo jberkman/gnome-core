@@ -12,7 +12,7 @@ Bookmarks newBookmarks(BookmarksCB callback, gpointer data, gchar *file);
 void reconfigBookmarks(Bookmarks b, BookmarksCB callback,
 		       gpointer data, gchar *file);
 void destroyBookmarks(Bookmarks b);
-void addToBookmarks(Bookmarks b, gchar *ref);
+void addToBookmarks(Bookmarks b, gchar *ref, gchar *title);
 void showBookmarks(Bookmarks b);
 void hideBookmarks(Bookmarks b);
 void saveBookmarks(Bookmarks b);

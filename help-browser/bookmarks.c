@@ -19,6 +19,7 @@ struct _bookmarks_struct {
 struct _bookmarks_entry {
     /* Someday this will have more info :-) */
     gchar *ref;
+    gchar *title;
 };
 
 static void createBookmarksWindow(Bookmarks b,
@@ -28,7 +29,7 @@ static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
 static void freeEntry(gchar *key, struct _bookmarks_entry *val, gpointer bar);
 static int hideBookmarksInt(GtkWidget *window);
 static void loadBookmarks(Bookmarks b);
-static void appendEntry(Bookmarks b, gchar *ref);
+static void appendEntry(Bookmarks b, gchar *ref, gchar *title);
 static void removeBookmark(GtkWidget *w, Bookmarks b);
 
 Bookmarks newBookmarks(BookmarksCB callback, gpointer data, gchar *file)
@@ -74,6 +75,7 @@ static void loadBookmarks(Bookmarks b)
 {
     gchar buf[BUFSIZ];
     gchar ref[BUFSIZ];
+    gchar title[BUFSIZ];
     FILE *f;
     
     if (! b->file) {
@@ -85,8 +87,8 @@ static void loadBookmarks(Bookmarks b)
     }
 
     while (fgets(buf, sizeof(buf), f)) {
-	sscanf(buf, "%s", ref);
-	appendEntry(b, ref);
+	sscanf(buf, "%s %s", ref, title);
+	appendEntry(b, ref, title);
     }
 
     fclose(f);
@@ -109,23 +111,27 @@ void saveBookmarks(Bookmarks b)
     x = 0;
     while (x < GTK_CLIST(b->clist)->rows) {
 	entry = gtk_clist_get_row_data(GTK_CLIST(b->clist), x);
-	fprintf(f, "%s\n", entry->ref);
+	fprintf(f, "%s %s\n", entry->ref, entry->title);
 	x++;
     }
 
     fclose(f);
 }
 
-static void appendEntry(Bookmarks b, gchar *ref)
+static void appendEntry(Bookmarks b, gchar *ref, gchar *title)
 {
     struct _bookmarks_entry *entry;
+    gchar  *buf[2];
     gint x;
     
     entry = g_new(struct _bookmarks_entry, 1);
     entry->ref = g_strdup(ref);
+    entry->title = g_strdup(title);
     g_hash_table_insert(b->table, entry->ref, entry);
 
-    x = gtk_clist_append(GTK_CLIST(b->clist), &ref);
+    buf[0] = ref;
+    buf[1] = title;
+    x = gtk_clist_append(GTK_CLIST(b->clist), &buf);
     gtk_clist_set_row_data(GTK_CLIST(b->clist), x, entry);
 }
 
@@ -146,7 +152,7 @@ void destroyBookmarks(Bookmarks b)
     g_free(b);
 }
 
-void addToBookmarks(Bookmarks b, gchar *ref)
+void addToBookmarks(Bookmarks b, gchar *ref, gchar *title)
 {
     struct _bookmarks_entry *entry;
     
@@ -155,7 +161,10 @@ void addToBookmarks(Bookmarks b, gchar *ref)
 	return;
     }
 
-    appendEntry(b, ref);
+    if (!title)
+	appendEntry(b, ref, "");
+    else    
+        appendEntry(b, ref, title);
 }
 
 static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
@@ -205,7 +214,7 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
 				  GtkWidget **clist)
 {
     GtkWidget *box, *button;
-    gchar *titles[1] = { "Bookmark" };
+    gchar *titles[2] = { "Bookmark", "Page Title" };
 
     /* Main Window */
     *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -224,7 +233,7 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
     gtk_widget_show(button);
 
     /* The clist */
-    *clist = gtk_clist_new_with_titles(1, titles);
+    *clist = gtk_clist_new_with_titles(2, titles);
     gtk_clist_set_selection_mode(GTK_CLIST(*clist), GTK_SELECTION_SINGLE);
     gtk_clist_set_policy(GTK_CLIST(*clist),
 			 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -233,6 +242,9 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
     gtk_clist_set_column_justification(GTK_CLIST(*clist), 0,
 				       GTK_JUSTIFY_LEFT);
     gtk_clist_set_column_width(GTK_CLIST(*clist), 0, 280);
+    gtk_clist_set_column_justification(GTK_CLIST(*clist), 1,
+				       GTK_JUSTIFY_LEFT);
+    gtk_clist_set_column_width(GTK_CLIST(*clist), 1, 280);
 
     gtk_box_pack_start(GTK_BOX(box), *clist, TRUE, TRUE, 0);
     gtk_widget_show(*clist);
