@@ -709,6 +709,9 @@ helpWindowNew(gchar *name,
 
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();
+	gtk_xmhtml_set_anchor_underline_type(GTK_XMHTML(w->helpWidget),
+					    GTK_ANCHOR_SINGLE_LINE);
+	gtk_xmhtml_set_anchor_buttons(GTK_XMHTML(w->helpWidget), FALSE);
 	gtk_widget_show(w->helpWidget);
 
 	/* add a status bar */
