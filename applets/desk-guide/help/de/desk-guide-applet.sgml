@@ -1,5 +1,5 @@
 <!DOCTYPE Article PUBLIC "-//GNOME//DTD DocBook PNG Variant V1.0//EN"[
-  <!entity deskguide.sgml SYSTEM "deskguide.sgml">
+  <!entity deskguide.sgml SYSTEM "desk-guide.sgml">
   <!entity this-applet "<application>Desktop-Überblick</application>-Applet">
   <!entity panel "<interface>Panel</interface>">
   <!entity x-system "<application>X-Window</application>-System">

@@ -47,7 +47,7 @@
 	navigieren. Es zeigt dazu eine Miniatur-Karte im GNOME-Panel an, die
 	alle Desktops und Bildschirme enthält und Ihnen ermöglicht, zwischen
 	ihnen zu wechseln.
-
+      </para>
       <para>
 	Das &this-applet; arbeitet eng mit dem Fenstermanager zusammen,
 	einem Programm wie etwa <application>Sawmill</application> oder
@@ -76,7 +76,7 @@
 	  Arbeitsbereich in "Desktops" und unterteilt diese dann weiter
 	  in "Bildschirme". <application>Sawmill</application> unterteilt
 	  Ihren Arbeitsbereich in "Arbeitsbereiche" und unterteilt diese
-	  dann weiter in Zeilen und Spalten. Das &term; nennt diese
+	  dann weiter in Zeilen und Spalten. Das &this-applet; nennt diese
 	  Arbeitsbereiche "Desktops" und die Bereiche in ihnen "Bildschirme".
 	  Nähere Informationen über die Installation und Verwaltung
 	  virtueller Arbeitsbereiche finden Sie in der Dokumentation Ihres
@@ -165,6 +165,7 @@
 	      </graphic>
 	    </screenshot>
 	  </figure>
+        </para>
 	
 	<para>
 	  Konfigurierbare Optionen:
