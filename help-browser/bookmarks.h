@@ -17,4 +17,4 @@ void showBookmarks(Bookmarks b);
 void hideBookmarks(Bookmarks b);
 void saveBookmarks(Bookmarks b);
 
-#endif _GNOME_HELP_BOOKMARKS_H_
+#endif /* _GNOME_HELP_BOOKMARKS_H_ */

@@ -159,7 +159,7 @@ convertMan( docObj obj )
 	g_message("filter: %s %s %s", argv[0], argv[1], argv[2]);
 
 	docObjGetRawData(obj, &raw, &len);
-	getOutputFrom(argv, raw, len, &outbuf, &outbuflen);
+	getOutputFrom(argv, (gchar *)raw, len, &outbuf, &outbuflen);
 	docObjSetConvData(obj, outbuf, outbuflen, TRUE);
 }
 
@@ -212,7 +212,7 @@ convertINFO( docObj obj )
 		  argv[0],argv[1],argv[2],argv[3], argv[4]);
 
 	docObjGetRawData(obj, &raw, &len);
-	getOutputFrom(argv, raw, len, &outbuf, &outbuflen);
+	getOutputFrom(argv, (char *)raw, len, &outbuf, &outbuflen);
 	docObjSetConvData(obj, outbuf, outbuflen, TRUE);
 
 	g_free(basepath);

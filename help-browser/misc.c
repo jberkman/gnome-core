@@ -21,7 +21,7 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	gint toProg[2];
 	gint fromProg[2];
 	gint status;
-	void *oldhandler;
+	void (*oldhandler)(int);
 	gint bytes;
 	guchar buf[8193];
 	guchar *tmpoutbuf;

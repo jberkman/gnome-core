@@ -177,7 +177,7 @@ displayHTML( HelpWindow win, docObj obj )
     
 	/* Load the page */
 	docObjGetConvData(obj, &buf, &buflen);
-	helpWindowHTMLSource(win, buf, buflen,
+	helpWindowHTMLSource(win, (char *)buf, buflen,
 			     docObjGetAbsoluteRef(obj),
 			     docObjGetHumanRef(obj));
 

@@ -91,8 +91,9 @@ gnome_helpwin_get_type(void)
 			sizeof(GnomeHelpWinClass),
 			(GtkClassInitFunc) gnome_helpwin_class_init,
 			(GtkObjectInitFunc) gnome_helpwin_init,
-			(GtkArgSetFunc) NULL,
-			(GtkArgGetFunc) NULL
+			NULL,
+			NULL,
+			(GtkClassInitFunc) NULL
 		};
 
 		GnomeHelpWin_type = gtk_type_unique(gtk_xmhtml_get_type(),

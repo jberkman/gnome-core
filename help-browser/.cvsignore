@@ -1,5 +1,5 @@
-.deps
 .libs
+.deps
 Makefile
 Makefile.in
 gnome-help-browser
@@ -14,3 +14,4 @@ name-skels.c
 name-stubs.c
 name.h
 sample
+my_help_browser_idl

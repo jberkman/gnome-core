@@ -38,16 +38,14 @@ impl_help_browser_simple_browser_show_url(impl_POA_help_browser_simple_browser *
 static PortableServer_ServantBase__epv impl_help_browser_simple_browser_base_epv =
 {
    NULL,			/* _private data */
-   (gpointer) & impl_help_browser_simple_browser__destroy,	/* finalize routine */
+   &impl_help_browser_simple_browser__destroy,	/* finalize routine */
    NULL,			/* default_POA routine */
 };
 static POA_help_browser_simple_browser__epv impl_help_browser_simple_browser_epv =
 {
    NULL,			/* _private */
-   (gpointer) & impl_help_browser_simple_browser_fetch_url,
-
-   (gpointer) & impl_help_browser_simple_browser_show_url,
-
+   & impl_help_browser_simple_browser_fetch_url,
+   & impl_help_browser_simple_browser_show_url
 };
 
 /*** vepv structures ***/

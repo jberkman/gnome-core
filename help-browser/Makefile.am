@@ -53,14 +53,15 @@ ORBIT_GENERATED_SOURCES      = $(ORBIT_HELP_COMMON_SOURCES) \
 		               help-browser-skels.c help-browser-stubs.c
 
 MAINTAINERCLEANFILES = $(ORBIT_GENERATED_SOURCES)
-CLEANFILES = $(ORBIT_GENERATED_SOURCES)
+CLEANFILES = $(ORBIT_GENERATED_SOURCES) my_help_browser_idl
 
-$(ORBIT_GENERATED_SOURCES): $(top_srcdir)/idl/help-browser.idl
+$(ORBIT_GENERATED_SOURCES): my_help_browser_idl
 
 BUILT_SOURCES = $(ORBIT_GENERATED_SOURCES)
 
-$(ORBIT_GENERATED_SOURCES): $(top_srcdir)/idl/help-browser.idl $(ORBIT_IDL)
+my_help_browser_idl: $(top_srcdir)/idl/help-browser.idl $(ORBIT_IDL)
 	$(ORBIT_IDL) $<
+	touch my_help_browser_idl
 
 help-caller.o gnome-help-browser.o: help-browser.h
 

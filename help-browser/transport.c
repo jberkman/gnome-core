@@ -72,8 +72,8 @@ transportFile( docObj obj )
 {
 	guchar *buf;
 	gchar filename[BUFSIZ];
-	gchar *s, *end;
-	gchar *mime;
+	guchar *s, *end;
+	guchar *mime;
 	gint len;
 
 	if (loadFileToBuf(docObjGetDecomposedUrl(obj)->path, &buf, &len)) 
@@ -135,7 +135,7 @@ transportHTTP( docObj obj )
     gchar buf[BUFSIZ];
     gchar *hostname;
     gchar *outbuf;
-    gchar *copy;
+    guchar *copy;
     gchar *s;
     gchar *mimeType, *mimeTypeEnd;
     int bytes;

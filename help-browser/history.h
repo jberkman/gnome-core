@@ -16,4 +16,4 @@ void showHistory(History h);
 void hideHistory(History h);
 void saveHistory(History h);
 
-#endif _GNOME_HELP_HISTORY_H_
+#endif /* _GNOME_HELP_HISTORY_H_ */

@@ -22,7 +22,7 @@ GList *newGhelpTable(struct _toc_config *conf)
     GList *list = NULL;
     struct _big_table_entry *entry;
     char *lang;
-    GList *lang_list = NULL;
+    GList *lang_list = NULL, *new_lang_list = NULL;
     GList *temp = NULL;
     struct stat buf;
     int tmp_array_size = 256, tmp_array_elems = 0;
@@ -30,6 +30,23 @@ GList *newGhelpTable(struct _toc_config *conf)
                                                 tmp_array_size);
 
     lang_list = gnome_i18n_get_language_list ("LC_MESSAGE");
+
+    /* stick in possible variants of languages in lang_list */
+    temp= lang_list;
+    while (temp) {
+      gchar *p;
+
+      lang = g_strdup((gchar*) temp->data);
+      p = strchr(lang, '_');
+      if (p) {
+	new_lang_list = g_list_append(new_lang_list, lang);
+	*p = '\0';
+	new_lang_list = g_list_append(new_lang_list, lang);
+      } else {
+	new_lang_list = g_list_append(new_lang_list, lang);
+      }
+      temp= temp->next;
+    }
 
     while (conf->path) {
 	if (conf->type != TOC_GHELP_TYPE) {
@@ -45,7 +62,7 @@ GList *newGhelpTable(struct _toc_config *conf)
 		    continue;
 		}
 
-		temp= lang_list;
+		temp= new_lang_list;
 		while (temp)
 		  {
 		    lang= (gchar*) temp->data;
@@ -100,6 +117,9 @@ GList *newGhelpTable(struct _toc_config *conf)
 
         g_free(tmp_array);
     }
+
+    /* free up lang lists */
+    g_list_foreach(new_lang_list, (GFunc) g_free, NULL);
 
     return list;
 }

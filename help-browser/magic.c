@@ -87,10 +87,13 @@ resolveMagicURL( docObj obj, Toc toc )
 	anchor = u->anchor;
 
 	/* Call toc code to find the file */
-	if (!(file = tocLookupGhelp(toc, u->path + 1))) {
-	    freeDecomposedUrl(u);
-	    return -1;
-	}
+	if(ref[6] != '/') {
+		if (!(file = tocLookupGhelp(toc, u->path + 1))) {
+	    		freeDecomposedUrl(u);
+	    		return -1;
+		}
+	} else
+		file = u->path;
 
 	/* Construct the final URL */
 	g_snprintf(buf, sizeof(buf), "file:%s", file);
@@ -98,7 +101,7 @@ resolveMagicURL( docObj obj, Toc toc )
 	    strcat(buf, "#");
 	    strcat(buf, anchor);
 	}
-	
+
 	g_message("magic url: %s -> %s", ref, buf);
 
 	docObjSetHumanRef(obj, ref);

@@ -136,7 +136,7 @@ GnomeUIInfo filemenu[] = {
 
 	{GNOME_APP_UI_ITEM, 
 	 N_("_Add Bookmark"), N_("Add bookmark"),
-         bookmark_cb, NULL, NULL, 
+         (gpointer)bookmark_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
 	 0, 0, NULL},
 
@@ -161,12 +161,12 @@ GnomeUIInfo helpmenu[] = {
 GnomeUIInfo windowmenu[] = {
 	{GNOME_APP_UI_ITEM, 
 	 N_("_History"), N_("Show History Window"),
-         ghelpShowHistory, NULL, NULL, 
+         (gpointer)ghelpShowHistory, NULL, NULL, 
 	 GNOME_APP_PIXMAP_NONE, NULL,
 	 0, 0, NULL},
 	{GNOME_APP_UI_ITEM, 
 	 N_("_Bookmarks"), N_("Show Bookmarks Window"),
-         ghelpShowBookmarks, NULL, NULL, 
+         (gpointer)ghelpShowBookmarks, NULL, NULL, 
 	 GNOME_APP_PIXMAP_NONE, NULL,
 	 0, 0, NULL},
 	 GNOMEUIINFO_END
@@ -757,7 +757,7 @@ static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
     GList *urls;
     
     if (data->data) {
-	GList *urls = gnome_uri_list_extract_uris (data->data);
+	GList *urls = gnome_uri_list_extract_uris ((gchar *)data->data);
 
 	if (urls)
 	    helpWindowShowURL(win, (char *)urls->data, TRUE, TRUE);
@@ -924,7 +924,7 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 	if (visitURL(win, ref, useCache, addToQueue, TRUE)) {
 		GtkWidget *msg;
 
-		snprintf(err, sizeof(err), _("Error loading document:\n\n%s"),
+		snprintf(err, sizeof(err), _("Error loading document:\n\n%s\n\nYou probably don't\nhave this documentation\ninstalled on your system."),
 			 ref);
 		msg = gnome_message_box_new(err, GNOME_MESSAGE_BOX_ERROR,
 					   _("Ok"), NULL);
