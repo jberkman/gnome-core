@@ -1,3 +1,15 @@
+1999-09-12  Michael Zucchi  <mzucchi@denr.sa.gov.au>
+
+	* gnome-terminal.c (new_terminal_cmd): Match on url's, if matching
+	available.
+	(button_press): If matching available, and the button press
+	matches a piece of text, then add an 'open url' menu itm.
+	(gnome_Terminal_popup_menu_url): Menu item(s) to add to the main
+	menu when the user clicked on a url.  An empty slot(s) must be
+	placed in the gnome_terminal_popup_menu[] array for this.
+	(load_url_cmd): Called as a menu callback - launches a browser
+	window for the selected match string.
+
 1999-09-07  Kjartan Maraas  <kmaraas@online.no>
 
 	* no/Makefile.am: Merge from gnome-core-1-0 to make

@@ -154,6 +154,16 @@ typedef struct {
  */
 #define POPUP_MENU_TOGGLE_INDEX_MENUBAR 2
 #define POPUP_MENU_TOGGLE_INDEX_SECURE  3
+/* eek, multi-conditaional for backward compatability *sigh* */
+#ifdef ZVT_TERM_MATCH_SUPPORT
+# ifdef HAVE_ZVT_TERM_RESET
+#  define POPUP_MENU_DYNAMIC_INDEX 6
+#  define POPUP_MENU_LAST_INDEX 7
+# else
+#  define POPUP_MENU_DYNAMIC_INDEX 4
+#  define POPUP_MENU_LAST_INDEX 5
+# endif
+#endif
 
 /*
  * Exported interfaces, for Gtk modules that hook
@@ -166,6 +176,9 @@ void toggle_menubar_cmd   (GtkWidget *widget, ZvtTerm *term);
 void paste_cmd            (GtkWidget *widget, ZvtTerm *term);
 void preferences_cmd      (GtkWidget *widget, ZvtTerm *term);
 void toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term);
+
+static int popup_menu_cmd (ZvtTerm *term, GdkEventButton *event,
+			   GtkWidget *menu, GnomeUIInfo *uiinfo);
 
 GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry);
 GtkWidget *new_terminal     (GtkWidget *widget, ZvtTerm *term);
@@ -1469,6 +1482,20 @@ toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term)
 		gdk_keyboard_ungrab (GDK_CURRENT_TIME);
 }
 
+#ifdef ZVT_TERM_MATCH_SUPPORT
+static void
+load_url_cmd (GtkWidget *widget, ZvtTerm *term)
+{
+	char *url;
+
+	url = gtk_object_get_data (GTK_OBJECT (term), "matchstr");
+	if (url) {
+		gnome_url_show(url);
+	}
+
+}
+#endif
+
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
         GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
 	GNOMEUIINFO_SEPARATOR,
@@ -1498,8 +1525,17 @@ static GnomeUIInfo gnome_terminal_popup_menu [] = {
 	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
 	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
 #endif
+#ifdef ZVT_TERM_MATCH_SUPPORT
+	GNOMEUIINFO_END,	/* used as a free slot for dymanic menu item */
+#endif
 	GNOMEUIINFO_END
 };
+
+#ifdef ZVT_TERM_MATCH_SUPPORT
+static GnomeUIInfo gnome_terminal_popup_menu_url [] = {
+	GNOMEUIINFO_ITEM_NONE (N_("_Open in browser"), NULL, load_url_cmd),
+};
+#endif
 
 static GnomeUIInfo gnome_terminal_help_menu [] = {
 	GNOMEUIINFO_HELP ("gnome-terminal"),
@@ -1688,9 +1724,14 @@ static int
 button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 {
 	GtkWidget *menu;
-	struct terminal_config *cfg;
 	GnomeUIInfo *uiinfo;
+	struct terminal_config *cfg;
 	GtkCheckMenuItem *toggle_item;
+#ifdef ZVT_TERM_MATCH_SUPPORT
+	char *match;
+	int x,y;
+	GdkModifierType mask;
+#endif
 
 	if (event->button != 3
 	    || (!(event->state & GDK_CONTROL_MASK) && term->vx->selected)
@@ -1699,12 +1740,26 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 
 	gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
 
-	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
-
-
+#ifdef ZVT_TERM_MATCH_SUPPORT
+	gdk_window_get_pointer(widget->window, &x, &y, &mask);
+	match = zvt_term_match_check(term, x/term->charwidth, y/term->charheight, 0);
+	if (match) {
+		memcpy(&gnome_terminal_popup_menu[POPUP_MENU_DYNAMIC_INDEX],
+		       &gnome_terminal_popup_menu_url[0],
+		       sizeof(gnome_terminal_popup_menu_url));
+		
+		gtk_object_set_data (GTK_OBJECT (term), "matchstr", match);
+	} else {
+		/* make sure the optional menu isn't there */
+		memcpy(&gnome_terminal_popup_menu[POPUP_MENU_DYNAMIC_INDEX],
+		       &gnome_terminal_popup_menu[POPUP_MENU_LAST_INDEX],
+		       sizeof(gnome_terminal_popup_menu[0]));
+	}
+#endif
 	uiinfo = gnome_terminal_popup_menu;
+	menu = gnome_popup_menu_new (gnome_terminal_popup_menu);
 
-	menu = gnome_popup_menu_new (uiinfo);
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
 	/*
 	 * Set the toggle state for the "show menubar"
@@ -1944,6 +1999,10 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	gtk_signal_connect_after (GTK_OBJECT (term), "realize",
 				  GTK_SIGNAL_FUNC (set_hints), term);
+
+#ifdef ZVT_TERM_MATCH_SUPPORT
+	zvt_term_match_add (ZVT_TERM (term), "(ftp|http)://[^ ]*[^\\.]", VTATTR_UNDERLINE, "url");
+#endif
 
 	if (!cfg->menubar_hidden)
 		gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
