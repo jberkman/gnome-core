@@ -197,7 +197,6 @@ transportUnknown( docObj obj )
     int sock;
     DecomposedUrl url;
     gchar key[BUFSIZ];
-    guchar *p, *copy;
     FILE *pipe;
     gint res;
 
@@ -220,13 +219,6 @@ transportHTTP( docObj obj )
     struct in_addr serverAddress;
     gchar buf[BUFSIZ];
     gchar *hostname;
-    gchar *outbuf;
-    guchar *copy;
-    gchar *s;
-    gchar *mimeType, *mimeTypeEnd;
-    int bytes;
-    int outbuflen;
-    gint copylen;
     int sock;
     int res;
 

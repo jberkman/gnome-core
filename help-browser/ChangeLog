@@ -1,3 +1,8 @@
+Sat Jan 15 00:23:22 2000  George Lebl <jirka@5z.com>
+
+	* *.[ch]: while looking for bugs I fixed a bunch of warnings,
+	  but no bugs.
+
 1999-12-17  Pavel Machek  <pavel@artax.karlin.mff.cuni.cz>
 
 	* gnome-convert: add better handling for unknown data types, start

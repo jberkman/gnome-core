@@ -20,12 +20,16 @@
 #include "mime.h"
 #include "misc.h"
 
+#include "gnome-helpwin.h" /* for statusMsg */
+
 static void convertMan(docObj obj);
 static void convertHTML(docObj obj);
-static void convertNone(docObj obj);
 static void convertAll(docObj obj);
 static void convertINFO(docObj obj);
+/*
 static void convertText(docObj obj);
+static void convertNone(docObj obj);
+*/
 
 void
 resolveMIME( docObj obj )
@@ -93,6 +97,9 @@ convertHTML( docObj obj )
 	docObjSetConvData(obj, s, len, FALSE);
 }
 
+/* A assume these should be safe to delete but I dunno if
+   there are any "plans" for these -George */
+#if 0
 static void
 convertNone( docObj obj ) 
 {
@@ -136,6 +143,7 @@ convertText( docObj obj )
 
 	docObjSetConvData(obj, s, len + 27, TRUE);
 }
+#endif
 
 static void
 convertMan( docObj obj )
@@ -231,10 +239,6 @@ static void
 convertAll( docObj obj )
 {
 	char *argv[6];
-	gchar *s;
-	gchar *a;
-	gchar *base;
-	gchar *basepath;
 	guchar *raw, *outbuf;
 	gint len, outbuflen;
 

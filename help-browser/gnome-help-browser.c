@@ -162,7 +162,6 @@ main(int argc, char *argv[])
     PortableServer_POA          root_poa;
     PortableServer_POAManager   pm;
     help_browser_simple_browser browser_object;
-    gchar*                      objref;
     gchar **leftovers;
     int            output_fd;
     poptContext ctx;

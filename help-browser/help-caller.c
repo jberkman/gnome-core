@@ -25,10 +25,7 @@ main(int argc, char* argv[])
 {
   CORBA_ORB orb;
   CORBA_Environment ev;
-  char* dummy_argv[2];
-  gint  dummy_argc;
   CORBA_Object browser;
-  gchar* ior;
   gchar  URL[1024];
   gchar* ptr;
   

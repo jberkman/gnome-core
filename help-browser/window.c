@@ -555,8 +555,6 @@ makeEntryArea(HelpWindow w)
     gnome_dock_add_item (GNOME_DOCK (GNOME_APP (w->app)->dock),
 			 GNOME_DOCK_ITEM (dock), GNOME_DOCK_TOP, 1, 0, 0, FALSE);
     w->entryBox = GTK_COMBO(entry)->entry;
-    
-    return dock;
 }
 
 
@@ -676,8 +674,7 @@ static void init_accel(HelpWindow win)
     static gint page_up_signal = 0;
     static gint page_down_signal = 0;
     static gint up_signal = 0;
-    static down_signal = 0;
-    static gint grab_focus_signal = 0;
+    static gint down_signal = 0;
 
     GtkAccelGroup *accel_group = gtk_accel_group_get_default();
 
@@ -779,8 +776,6 @@ static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 		    GtkSelectionData *data, guint info,
 		    guint time, HelpWindow win)
 {
-    GList *urls;
-    
     if (data->data) {
 	GList *urls = gnome_uri_list_extract_uris ((gchar *)data->data);
 
@@ -801,7 +796,6 @@ helpWindowNew(gchar *name,
 	      HelpWindowCB config_callback)
 {
         HelpWindow w;
-	GtkWidget *entryArea;
 	GtkWidget *vbox;
 	static GtkTargetEntry target_table[] = {
 		{ "text/uri-list", 0, 0 },
