@@ -1,3 +1,8 @@
+1999-03-19  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
+
+	* docobj.c (docObjResolveURL): Use strdup instead of g_strdup to
+	allocate absoluteRef.
+
 1999-03-23  Sung-Hyun Nam  <namsh@lgic.co.kr>
 
 	* gnome-man2html/Makefile.am: do not link to gnome lib.

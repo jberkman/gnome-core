@@ -97,7 +97,7 @@ docObjResolveURL(docObj obj, gchar *currentRef)
         } else {
 	    g_message("absolute ref: %s", obj->ref);
 	    decomp = decomposeUrl(obj->ref);
-	    obj->absoluteRef = g_strdup(obj->ref);
+	    obj->absoluteRef = strdup(obj->ref);
 	}
 
 	g_message("decomposed to: %s, %s, %s, %s", decomp->access, 
