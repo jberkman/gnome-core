@@ -21,9 +21,6 @@
 #define MAX_THRESH 7
 
 
-/* The property configurator we're associated with.  */
-static GnomePropertyConfigurator *config;
-
 /* True if buttons are mapped right-to-left.  */
 static gboolean mouse_rtol;
 
