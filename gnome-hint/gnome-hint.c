@@ -367,8 +367,6 @@ static void
 exit_clicked(void)
 {
 	GtkWidget *message_box;
-#warning put me back in later
-#if 0	
 	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb))) {
 		message_box = gnome_message_box_new (_("You've chosen to disable the startup hint.\n"
 						       "To re-enable it, choose \"Startup Hint\"\n"
@@ -378,7 +376,6 @@ exit_clicked(void)
 						     NULL);
 		gnome_dialog_run (GNOME_DIALOG (message_box));
 	}
-#endif	
 	gnome_config_set_bool ("/Gnome/Login/RunHints", gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb)));
 	gnome_config_sync ();
 	
@@ -437,21 +434,23 @@ get_motd(void)
 
 	motd = gnome_config_get_string("/Gnome/Login/MotdFile=/etc/motd");
 
-	fp = fopen(motd,"r");
+	fp = fopen(motd, "r");
 	g_free(motd);
 	if(fp) {
 		char buf[256];
-		char *ret;
 		GString *gs = g_string_new("");
-		while(fgets(buf,256,fp)) {
+		while(fgets(buf, 256, fp)) {
 			char *p = expand_str(buf);
-			g_string_append(gs,p);
+			g_string_append(gs, p);
 			if(p!=buf) g_free(p);
 		}
 		fclose(fp);
-		ret = gs->str;
-		g_string_free(gs,FALSE);
-		return ret;
+		if(*gs->str) {
+			char *ret = gs->str;
+			g_string_free(gs, FALSE);
+			return ret;
+		} else
+			g_string_free(gs, TRUE);
 	}
 	return g_strdup(_("No message of the day found!"));
 }
@@ -473,7 +472,6 @@ main(int argc, char *argv[])
 	char *hint;
 	GnomeClient *client;
         GnomeClientFlags flags;
-	int token;
 	gboolean is_fortune;
 	gboolean is_motd;
 

@@ -1,3 +1,11 @@
+Sun Apr 02 14:31:25 2000  George Lebl <jirka@5z.com>
+
+	* gnome-hint.c: when the message of the day file is absolutely empty
+	  also display the "there is not motd" message thingie.  Remove
+	  an unused var from main function.  Also reenabled the message box
+	  with the "to reenable hints, do such and such", why was this
+	  disabled and why wasn't there a changelog for this
+
 2000-03-27  Jacob Berkman  <jacob@helixcode.com>
 
 	* Makefile.am (gnome_hint_properties_capplet_LDADD): use capplet
