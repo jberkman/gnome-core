@@ -1,3 +1,9 @@
+Sun Jan 02 02:07:23 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_config.c: made the horizontal size default to 300 if the
+	  screen width is less then 800 otherwise to 450 as usual, makes the
+	  default panel config look nice on a 640x480 screen
+
 1999-12-10  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* tasklist_applet.c (task_notifier): #if 0 the KWM mini icons
