@@ -58,6 +58,6 @@ Comment[sv]=琌ervakningspanelprogram
 Comment[tr]=Durumu g飉teren uygulaklar
 Comment[uk]=鯠衲攪峖 迍峖婘疶 婘椿
 Comment[zh_CN.GB2312]=潼諷炵苀袨怓腔最宒
-Comment[zh_TW.Big5]=監控系統狀態的程式
+Comment[zh_TW.Big5]=系統監控 (處理器、磁碟空間、記憶體等等)
 Icon=gnome-monitor.png
 Type=Directory
