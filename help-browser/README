@@ -26,37 +26,7 @@ The program 'gnome-man2html' is installed in the standard bin location
 for GNOME binaries, and is used by the help browser. Also, lynx is
 expected to be on the standard PATH for http transfers.
 
-
-TODO
-----
- - Make a better scheme to reference files/section than using a real filename?
- - add caching code (its written, need to integrate)
- - work on DocBook output to generate topic.dat automatically (need to use
-   special tags in DocBook to denote links which should go into the 'Help' 
-   menu).
- - Need to have help browser<->application communication for better
-   integration into GNOME apps in the future
- - fix broken toc
-    use real path for ghelp
-    toss the tree widget -- too slow
-    geometry and ui cleanups
-    use gnome-config    
- - fix history
-    broken clist
-    first visit
-    save to file
-    better date string
- - add entry box to main window
- - info
- - code cleanup
-    rethink the url/docobj processing and callback entries to the
-     docobj processing path
-    encapsulate all globals & allow for multiple windows
- - add "magic" urls (eg "man:ls")
- - man2html remove contents and man2html tags
-   fix path (eg /usr/X11R6/man)
- - make man2html & info loadable modules
-
+[ TODO moved to TODO ]
 
 Dr Mike <msf@redhat.com>
 Marc Ewing <marc@redhat.com>
