@@ -203,7 +203,8 @@ void close_capplet (GtkWidget *widget, gpointer data)
         nd->modified = FALSE;
         capplet_list = g_list_remove (capplet_list, nd);
         if (nd->capplet) {
-                CORBA_Object_release (nd->capplet, &ev);
+                /* FIXME: need to handle multi_capplets here... */
+                /* CORBA_Object_release (nd->capplet, &ev);*/
                 nd->capplet = NULL;
         }
         for (temp = capplet_list; temp; temp = temp->next)

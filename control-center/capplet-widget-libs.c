@@ -211,6 +211,11 @@ gint get_ccid (gint cid)
         g_warning ("received an unknown cid: %d\n", cid);
         return id;
 }
+gint get_capid ()
+{
+        return capid;
+}
+
 gint
 capplet_widget_corba_init(char *app_id,
                                struct argp *app_parser,

@@ -56,6 +56,20 @@ capplet_widget_get_type (void)
         return capplet_widget_type;
 }
 static void
+capplet_close_callback (GtkWidget *capplet)
+{
+        GList *temp;
+        for (temp = capplet_list; temp; temp=temp->next)
+                if (CAPPLET_WIDGET (temp->data) == CAPPLET_WIDGET (capplet)) {
+                        g_print ("we got a match!\n");
+                        capplet_list = g_list_remove_link (capplet_list, temp);
+                        if (capplet_list == NULL) {
+                                g_print ("all done!!!!\nexitting capplet");
+                                capplet_corba_gtk_main_quit ();
+                        }
+                }
+}
+static void
 capplet_widget_class_init (CappletWidgetClass *klass)
 {
         GtkObjectClass *object_class;
@@ -123,7 +137,7 @@ capplet_widget_init (CappletWidget *widget)
 {
         capplet_list = g_list_prepend (capplet_list, widget);
         gtk_signal_connect (GTK_OBJECT (widget), "destroy",
-                            (GtkSignalFunc) capplet_corba_gtk_main_quit, NULL);
+                            (GtkSignalFunc) capplet_close_callback, NULL);
         widget->changed = FALSE;
 }
 GtkWidget *
@@ -133,7 +147,7 @@ capplet_widget_new ()
 
         retval = CAPPLET_WIDGET (gtk_type_new (capplet_widget_get_type()));
         /* we should set this: */
-        retval->capid = -1;
+        retval->capid = get_capid ();
 
         retval->control_center_id = get_ccid (retval->capid);
         gtk_plug_construct (GTK_PLUG (retval), get_xid (retval->capid));
