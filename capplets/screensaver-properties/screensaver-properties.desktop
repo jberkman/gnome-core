@@ -1,10 +1,12 @@
 [Desktop Entry]
-Name=Screensaver Properties
+Name=Screensaver
+Name[de]=Bildschirmschoner
 Name[es]=Propiedades Protege pantalla
 Name[fr]=Propirétés Économiseur écran
 Name[pt]=Propriedades da protecção de ecrã
 Name[no]=Egenskaper for skjermsparer
 Comment=Configure the settings of the screensaver.
+Comment[de]=Bildschirmschoner einrichten
 Comment[es]=Configurar el protector de pantalla
 Comment[fr]=Configurer l'économiseur d'écran
 Comment[pt]=Configura as opções da protecção de ecrã.
