@@ -210,9 +210,14 @@ sound_properties_regenerate_ctree(SoundProps *props)
     gtk_clist_freeze(GTK_CLIST(props->ctree));
     gtk_clist_clear(GTK_CLIST(props->ctree));
 
-    sound_properties_read_path(props, tmpstr, GNOMESYSCONFDIR "/sound/apps");
-    ctmp = gnome_util_home_file("sound/apps");
-    sound_properties_read_path(props, tmpstr, ctmp);
+    ctmp = gnome_config_file("/sound/events");
+    if(ctmp)
+        sound_properties_read_path(props, tmpstr, ctmp);
+    g_free(ctmp);
+
+    ctmp = gnome_util_home_file("sound/events");
+    if(ctmp)
+        sound_properties_read_path(props, tmpstr, ctmp);
     g_free(ctmp);
 
     g_string_free(tmpstr, TRUE);
@@ -247,12 +252,16 @@ sound_properties_read_path(SoundProps *props,
         return;
 
     while((dent = readdir(dirh))) {
-	    if (!strcmp(dent->d_name, ".") || !strcmp(dent->d_name, ".."))
+	    if (!strcmp(dent->d_name, ".")
+            || !strcmp(dent->d_name, ".."))
 		    continue;
 
-        g_string_sprintf(tmpstr, "=%s/%s=/events", path, dent->d_name);
+        arow[0] = g_strdup(dent->d_name); arow[1] = NULL; arow[2] = NULL;
 
-        arow[0] = dent->d_name; arow[1] = NULL; arow[2] = NULL;
+        if(strstr(arow[0], ".soundlist")) {
+            *strstr(arow[0], ".soundlist") = '\0';
+        }
+
         category_node = gtk_ctree_insert_node(GTK_CTREE(props->ctree),
                                               NULL, NULL,
                                               arow, GNOME_PAD_SMALL,
@@ -260,6 +269,10 @@ sound_properties_read_path(SoundProps *props,
                                               FALSE);
         gtk_ctree_node_set_selectable(GTK_CTREE(props->ctree), category_node,
                                       FALSE);
+        g_free(arow[0]);
+
+        g_string_sprintf(tmpstr, "=%s/%s=/events", path, dent->d_name);
+
         gnome_config_push_prefix(tmpstr->str);
 
         event_node = NULL;
@@ -345,7 +358,7 @@ sound_properties_event_apply(GtkCTreeNode *node,
     if(!strcmp(cur_filename, ev->file))
         return;
 
-    ctmp = g_copy_strings("/sound/apps/", ev->category, "/events/", ev->name);
+    ctmp = g_copy_strings("/sound/events/", ev->category, "/events/", ev->name);
     gnome_config_set_string(ctmp, cur_filename);
     g_free(ctmp);
 }
