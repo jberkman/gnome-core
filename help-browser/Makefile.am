@@ -73,7 +73,7 @@ EXTRA_DIST = gnome-help-browser-help.html \
 	     default-page.html bg.png gnome-logo2.png \
 	     toc.c toc-man.c toc-ghelp.c toc-info.c \
 	     toc.h toc-man.h toc-ghelp.h toc-info.h \
-	     $(PIXMAPS) gnome-help.desktop
+	     $(PIXMAPS) gnome-help.desktop help-browser.gnorba
 
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
 install-data-local:
