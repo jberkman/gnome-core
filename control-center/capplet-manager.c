@@ -33,6 +33,7 @@ void ok_button_callback(GtkWidget *widget, gpointer data);
 void cancel_button_callback(GtkWidget *widget, gpointer data);
 void help_button_callback(GtkWidget *widget, gpointer data);
 void close_capplet (GtkWidget *widget, gpointer data);
+static void exec_capplet (node_data *data);
 node_data *
 find_node_by_id (gint id)
 {
@@ -44,11 +45,59 @@ find_node_by_id (gint id)
         return NULL;
                     
 }
+static void
+exec_capplet (node_data *data)
+{
+        gchar *temp;
+        gint i;
+        gchar *argv[4];
+        GList *list;
+
+        /* is the silly thing a multi-capplet */
+        for (i = 1;data->gde->exec[i];i++) { 
+                g_print ("temp|%s|\n", data->gde->exec[i]);
+                if (strstr (data->gde->exec[i], "--cap-id=")) {
+                        g_print ("it's a capid\n");
+                        for (list = capplet_list; list; list = list->next) {
+                                g_print ("exec|%s|\n", ((node_data *)list->data)->gde->exec[0]);
+                                if (strcmp (((node_data *)list->data)->gde->exec[0], data->gde->exec[0]) == 0) {
+                                /* do multi-capplet stuff... */
+                                        data->capplet = ((node_data *)list->data)->capplet;
+                                        GNOME_capplet_new_multi_capplet(data->capplet,
+                                                                        ((node_data *)list->data)->id,
+                                                                        data->id,
+                                                                        GDK_WINDOW_XWINDOW (data->socket->window),
+                                                                        atoi (data->gde->exec[i] + 9),
+                                                                        &ev);
+                                        return; 
+                                }
+                        }
+                }
+        }
+
+
+        /* set up the arguments for the capplet */
+        temp = g_malloc (sizeof (char[11]));
+        sprintf (temp, "--id=");
+        sprintf (temp + 5, "%d", data->id);
+        argv[0] = temp;
+
+        temp = g_malloc (sizeof (char[17]));
+        sprintf (temp, "--xid=");
+        sprintf (temp + 6, "%d",  GDK_WINDOW_XWINDOW (data->socket->window));
+        argv[1] = temp;
+
+        temp = g_malloc (sizeof (gchar[7 + strlen(ior)]));
+        sprintf (temp, "--ior=");
+        sprintf (temp + 6, "%s",  ior);
+        argv[2] = temp;
+                
+        /*argv[3] = "--gtk-module=gle";*/
+        gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
+}
 void
 launch_capplet (node_data *data)
 {
-        gchar *argv[4];
-        gchar *temp;
         GtkWidget *vbox;
         GtkWidget *separator;
         GtkWidget *bbox;
@@ -112,25 +161,8 @@ launch_capplet (node_data *data)
                 gtk_widget_show_all (vbox);
                 data->notetab_id = current_page++;
                 data->id = id++;
+                exec_capplet (data);
 
-                /* set up the arguments for the capplet */
-                temp = g_malloc (sizeof (char[11]));
-                sprintf (temp, "--id=");
-                sprintf (temp + 5, "%d", data->id);
-                argv[0] = temp;
-
-                temp = g_malloc (sizeof (char[17]));
-                sprintf (temp, "--xid=");
-                sprintf (temp + 6, "%d",  GDK_WINDOW_XWINDOW (data->socket->window));
-                argv[1] = temp;
-
-                temp = g_malloc (sizeof (gchar[7 + strlen(ior)]));
-                sprintf (temp, "--ior=");
-                sprintf (temp + 6, "%s",  ior);
-                argv[2] = temp;
-                
-                /*argv[3] = "--gtk-module=gle";*/
-                gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
                 capplet_list = g_list_prepend (capplet_list, data);
         }
         if (data->notetab_id != -1)
@@ -141,7 +173,6 @@ launch_capplet (node_data *data)
 void try_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
-        g_print ("in try callback\n");
         gtk_widget_set_sensitive (nd->try_button, FALSE);
 
         GNOME_capplet_try (nd->capplet,nd->id, &ev);
@@ -161,7 +192,8 @@ void ok_button_callback(GtkWidget *widget, gpointer data)
 }
 void cancel_button_callback(GtkWidget *widget, gpointer data)
 {
-        revert_button_callback (widget, data);
+        node_data *nd = (node_data *) data;
+        GNOME_capplet_cancel (nd->capplet,nd->id, &ev);
         close_capplet (widget, data);
 }
 void close_capplet (GtkWidget *widget, gpointer data)

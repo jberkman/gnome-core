@@ -1,6 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
 #include "capplet-widget-libs.h"
 #include "control-center.h"
+#include <libgnorba/gnorba.h>
 #include <orb/orbit.h>
 
 static CORBA_ORB orb;
@@ -11,24 +12,35 @@ static gchar* cc_ior = NULL;
 static gint id = -1;
 static guint32 xid = 0;
 static gint capid = -1;
+static GList *id_list = NULL;
+/* structs */
+typedef struct _keyval keyval;
+struct _keyval
+{
+        gint capid;
+        guint32 xid;
+        gint id;
+};
 
-/* prototypes... (: */
+/* prototypes... */
 static void orb_add_connection(GIOPConnection *cnx);
 static void orb_remove_connection(GIOPConnection *cnx);
 static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond);
 static void server_try (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
 static void server_revert (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
 static void server_ok (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
+static void server_cancel (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
 static void server_help (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
-void _capplet_widget_server_try(gint id);
-void _capplet_widget_server_revert(gint id);
-void _capplet_widget_server_ok(gint id);
-void _capplet_widget_server_help(gint id);
-
-
+static void server_new_multi_capplet(GNOME_capplet _obj, CORBA_long id, CORBA_long newid, CORBA_unsigned_long newxid, CORBA_long newcapid, CORBA_Environment * ev);
+extern void _capplet_widget_server_try(gint id);
+extern void _capplet_widget_server_revert(gint id);
+extern void _capplet_widget_server_ok(gint id);
+extern void _capplet_widget_server_cancel(gint id);
+extern void _capplet_widget_server_help(gint id);
+extern void _capplet_widget_server_new_multi_capplet(gint id, gint capid);
 
 /* parser stuff...*/
-error_t
+static error_t
 parse_an_arg (int key, char *arg, struct argp_state *state)
 {
         switch (key) {
@@ -72,7 +84,9 @@ POA_GNOME_capplet__epv capplet_epv =
         (gpointer)&server_try, 
         (gpointer)&server_revert,
         (gpointer)&server_ok,
+        (gpointer)&server_cancel,
         (gpointer)&server_help,
+        (gpointer)&server_new_multi_capplet
 };
 POA_GNOME_capplet__vepv poa_capplet_vepv = { &base_epv, &capplet_epv };
 POA_GNOME_capplet poa_capplet_servant = { NULL, &poa_capplet_vepv };
@@ -107,22 +121,47 @@ orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond)
 static void
 server_try (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_try(id);
+        _capplet_widget_server_try (id);
 }
 static void
 server_revert (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_revert(id);
+        _capplet_widget_server_revert (id);
 }
 static void
 server_ok (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_ok(id);
+        _capplet_widget_server_ok (id);
+}
+static void
+server_cancel (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
+{
+        _capplet_widget_server_cancel (id);
 }
 static void
 server_help (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
-        _capplet_widget_server_help(id);
+        _capplet_widget_server_help (id);
+}
+static void
+server_new_multi_capplet(GNOME_capplet _obj, CORBA_long id, CORBA_long newid, CORBA_unsigned_long newxid, CORBA_long newcapid, CORBA_Environment * ev)
+{
+        GList *temp;
+        keyval *nkv;
+        g_print ("in new multi_capplet\n");
+        for (temp = id_list; temp; temp = temp->next)
+                if (((keyval *)temp->data)->capid == capid) {
+                        ((keyval *)temp->data)->xid = xid;
+                        ((keyval *)temp->data)->id = newid;
+                        _capplet_widget_server_new_multi_capplet (id, capid);
+                        return;
+                };
+        nkv = g_malloc (sizeof (nkv));
+        nkv->capid = capid;
+        nkv->id = newid;
+        nkv->xid = newcapid;
+        id_list = g_list_prepend (id_list, nkv);
+        _capplet_widget_server_new_multi_capplet (id, capid);
 }
 
 /* public methods... */
@@ -150,17 +189,27 @@ capplet_corba_state_changed (gint id, gboolean undoable)
 guint32
 get_xid (gint cid)
 {
+        GList *temp;
         if ((cid == -1) || (cid == capid))
                 return xid;
-        /* here, we should really talk to the control-center... */
-        return xid;
+
+        for (temp = id_list; temp; temp = temp->next)
+                if (((keyval *)temp->data)->capid == cid)
+                        return ((keyval *)temp->data)->xid;
+        g_warning ("received an unknown cid: %d\n", cid);
+        return 0;
 }
 gint get_ccid (gint cid)
 {
-        if ((cid == -1) || (cid == capid));
+        GList *temp;
+        if ((cid == -1) || (cid == capid))
                 return id;
-        /* here, we should really talk to the control-center... */
-        return cid;
+
+        for (temp = id_list; temp; temp = temp->next)
+                if (((keyval *)temp->data)->capid == cid)
+                        return ((keyval *)temp->data)->id;
+        g_warning ("received an unknown cid: %d\n", cid);
+        return id;
 }
 gint
 capplet_widget_corba_init(char *app_id,

@@ -34,7 +34,9 @@ struct _CappletWidgetClass
         void (* try) 		(CappletWidget *capplet);
         void (* revert) 	(CappletWidget *capplet);
         void (* ok) 		(CappletWidget *capplet);
+        void (* cancel)		(CappletWidget *capplet);
         void (* help)	 	(CappletWidget *capplet);
+        void (* new_multi_capplet) 	(CappletWidget *capplet);
 };
 
 guint           capplet_widget_get_type       	(void);
