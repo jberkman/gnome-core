@@ -1,3 +1,12 @@
+Sat Jul 25 00:02:56 1998  John Ellis  <johne@bellatlantic.net>
+
+        * order.c (get_desktop_file_info): blank names and comments in .desktop
+        entries now handled.
+        * tree.c (add_main_tree_node): re-enabled root user detection.
+        * dialogs.c (save_pressed_cb): don't save if the name field is blank,
+        and notify the user.
+        (save_dialog_cb): fix segv on file overwrite, but it's not in the tree.
+
 1998-07-24  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* edit.c, tree.c, dialogs.c: Include <config.h>.

@@ -274,23 +274,29 @@ static void save_dialog_cb( gint button, gpointer data)
 		gnome_desktop_entry_save (dentry);
 		gnome_desktop_entry_destroy (dentry);
 
-		if (overwrite)
+		if (overwrite && edit_area_orig_data && edit_area_orig_data->isfolder)
+			{
+			g_free(path);
+			path = strdup(edit_area_orig_data->path);
+			}
+
+		d = get_desktop_file_info (path);
+		if (!d)
+			{
+			g_print("unable to load desktop file for: %s\n", path);
+			g_free(path);
+			return;
+			}
+
+		if (overwrite) node = find_file_in_tree(GTK_CTREE(menu_tree_ctree), path);
+
+		if (overwrite && node)
 			{
 			gint8 spacing;
 			gboolean leaf;
 			gboolean expanded;
 
-			if (edit_area_orig_data && edit_area_orig_data->isfolder)
-				{
-				g_free(path);
-				path = strdup(edit_area_orig_data->path);
-				}
-
-			node = find_file_in_tree(GTK_CTREE(menu_tree_ctree), path);
-			d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), node);
-			free_desktop_data(d);
-
-			d = get_desktop_file_info (path);
+			free_desktop_data(gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), node));
 
 			/* since we are saving, it it safe to assume a folder's
 			submenus have been read */
@@ -308,43 +314,39 @@ static void save_dialog_cb( gint button, gpointer data)
 			}
 		else
 			{
-			d = get_desktop_file_info (path);
-			if (d)
+			gchar *text[2];
+			gboolean leaf;
+
+			text[0] = d->name;
+			text[1] = NULL;
+
+			gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),current_node,
+				NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
+
+			if (leaf)
 				{
-				gchar *text[2];
-				gboolean leaf;
-
-				text[0] = d->name;
-				text[1] = NULL;
-
-				gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),current_node,
-					NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
-
-				if (leaf)
-					{
-					node = current_node;
-					parent = GTK_CTREE_ROW(current_node)->parent;
-					}
-				else
-					{
-					parent = current_node;
-					if (GTK_CTREE_ROW(current_node)->children)
-						node = GTK_CTREE_ROW(current_node)->children;
-					else
-						node = NULL;
-					}
-
-				if (d->isfolder)
-					node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
-						GNOME_PIXMAP(d->pixmap)->pixmap,
-						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
-				else
-					node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
-						GNOME_PIXMAP(d->pixmap)->pixmap,
-						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-				gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
-				save_order_of_dir(node);
+				node = current_node;
+				parent = GTK_CTREE_ROW(current_node)->parent;
 				}
+			else
+				{
+				parent = current_node;
+				if (GTK_CTREE_ROW(current_node)->children)
+					node = GTK_CTREE_ROW(current_node)->children;
+				else
+					node = NULL;
+				}
+
+			if (d->isfolder)
+				node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
+					GNOME_PIXMAP(d->pixmap)->pixmap,
+					GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
+			else
+				node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
+					GNOME_PIXMAP(d->pixmap)->pixmap,
+					GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
+			gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
+			save_order_of_dir(node);
 			}
 
 		edit_area_reset_revert(d);
@@ -358,8 +360,18 @@ static void save_dialog_cb( gint button, gpointer data)
 void save_pressed_cb()
 {
 	char *path;
+	GnomeDesktopEntry *dentry;
 
 	path = g_copy_strings(current_path, "/", edit_area_get_filename(), NULL);
+
+	dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
+	if (!dentry->name)
+		{
+		gnome_warning_dialog (_("The Name text field can not be blank."));
+		gnome_desktop_entry_destroy(dentry);
+		return;
+		}
+	gnome_desktop_entry_destroy(dentry);
 
 	if (!is_node_editable(current_node))
 		{

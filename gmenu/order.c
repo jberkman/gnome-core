@@ -141,7 +141,10 @@ Desktop_Data * get_desktop_file_info (char *file)
 		dentry = gnome_desktop_entry_load_unconditional(dirfile);
 		if (dentry)
 			{
-			if (dentry->name) d->name = strdup(dentry->name);
+			if (dentry->name)
+				d->name = strdup(dentry->name);
+			else
+				d->name = strdup(file + g_filename_index(file));
 			if (dentry->comment)
 				d->comment = strdup(dentry->comment);
 			else
@@ -170,8 +173,14 @@ Desktop_Data * get_desktop_file_info (char *file)
 
 	if (!dentry) return NULL;
 
-	if (dentry->name) d->name = strdup(dentry->name);
-	if (dentry->comment) d->comment = strdup(dentry->comment);
+	if (dentry->name)
+		d->name = strdup(dentry->name);
+	else
+		d->name = strdup(file + g_filename_index(file));
+	if (dentry->comment)
+		d->comment = strdup(dentry->comment);
+	else
+		d->comment = strdup("");
 	if (dentry->icon)
 		{
 		d->pixmap = gnome_pixmap_new_from_file_at_size (dentry->icon, 20, 20);
