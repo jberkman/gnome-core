@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.2.4         ##*/
+/*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
 /*###################################################################*/
 
 #include <dirent.h>
@@ -15,7 +15,7 @@
 	/* definitions */
 #define GMENU_VERSION_MAJOR 0
 #define GMENU_VERSION_MINOR 2
-#define GMENU_VERSION_REV 4
+#define GMENU_VERSION_REV 5
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data
@@ -23,12 +23,7 @@ struct _Desktop_Data
 	gchar *path;
 	gchar *name;
 	gchar *comment;
-	gchar *tryexec;
-	gchar *exec;
-	gchar *icon;
-	gint terminal;
-	gchar *doc;
-	gchar *type;
+	GnomeDesktopEntry *dentry;
 	GtkWidget *pixmap;
 	gint isfolder;
 	gint expanded;
@@ -53,8 +48,6 @@ extern GtkWidget *infolabel;
 extern GtkWidget *infopixmap;
 extern GtkWidget *pathlabel;
 
-extern GtkWidget *filename_entry;
-
 extern GtkObject *edit_area;
 
 extern GList *topnode;
@@ -62,6 +55,8 @@ extern GList *usernode;
 extern GList *systemnode;
 extern GList *current_node;
 extern gchar *current_path;
+
+extern Desktop_Data *edit_area_orig_data;
 
 /* gmenu.c --------------- */
 
@@ -85,9 +80,11 @@ void add_main_tree_node();
 
 /* edit.c ---------------- */
 
+gchar * edit_area_get_filename();
 void update_edit_area(Desktop_Data *d);
 void revert_edit_area();
 void new_edit_area();
+GtkWidget * create_edit_area();
 
 /* order.c --------------- */
 

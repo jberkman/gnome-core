@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.2.4         ##*/
+/*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
 /*###################################################################*/
 
 #include "gmenu.h"
@@ -28,7 +28,7 @@ static GList *check_file_match(GtkCTree *ctree, GList *node, gpointer data)
 		}
 
 	d = gtk_ctree_get_row_data(GTK_CTREE(ctree), node);
-	if (!strcmp(d->path, path))
+	if (d->path && !strcmp(d->path, path))
 		{
 		ret = node;
 		return ret;
@@ -184,12 +184,11 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 
 	current_node = node;
 
-	if (!d->isfolder)
+	if (node == systemnode || node == usernode) return;
+
+	if ( event->type == GDK_2BUTTON_PRESS || event->button == 2 )
 		{
-		if ( event->type == GDK_2BUTTON_PRESS || event->button == 2 )
-			{
-			update_edit_area(d);
-			}
+		update_edit_area(d);
 		}
 
 	if (d->isfolder)
@@ -350,7 +349,7 @@ void add_main_tree_node()
 		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
 		FALSE, TRUE);
 
-	d = g_new(Desktop_Data, 1);
+	d = g_new0(Desktop_Data, 1);
 
 	d->comment = strdup(_("GNOME"));
 	d->expanded = TRUE;

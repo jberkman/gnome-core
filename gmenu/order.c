@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.2.4         ##*/
+/*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
 /*###################################################################*/
 
 #include "gmenu.h"
@@ -122,17 +122,12 @@ Desktop_Data * get_desktop_file_info (char *file)
 		return NULL;
 		}
 
-	d = g_new(Desktop_Data, 1);
+	d = g_new0(Desktop_Data, 1);
 
 	d->path = strdup(file);
 	d->name = NULL;
 	d->comment = NULL;
-	d->tryexec = NULL;
-	d->exec = NULL;
-	d->icon = NULL;
-	d->terminal = 0;
-	d->doc = NULL;
-	d->type = NULL;
+	d->dentry = NULL;
 	d->pixmap = NULL;
 	d->isfolder = FALSE;
 	d->expanded = FALSE;
@@ -141,10 +136,33 @@ Desktop_Data * get_desktop_file_info (char *file)
 
 	if (isdir(file))
 		{
+		gchar *dirfile = g_concat_dir_and_file(file, ".directory");
 		d->isfolder = TRUE;
-		d->name = strdup(file + g_filename_index(file));
-		d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
-		d->pixmap = gnome_pixmap_new_from_xpm_d (folder_xpm);
+		dentry = gnome_desktop_entry_load_unconditional(dirfile);
+		if (dentry)
+			{
+			if (dentry->name) d->name = strdup(dentry->name);
+			if (dentry->comment)
+				d->comment = strdup(dentry->comment);
+			else
+				d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
+			if (dentry->icon)
+				{
+				d->pixmap = gnome_pixmap_new_from_file_at_size (dentry->icon, 20, 20);
+				if (!d->pixmap)
+					d->pixmap = gnome_pixmap_new_from_xpm_d (folder_xpm);
+				}
+			else
+				d->pixmap = gnome_pixmap_new_from_xpm_d (folder_xpm);
+			gnome_desktop_entry_destroy(dentry);
+			}
+		else
+			{
+			d->name = strdup(file + g_filename_index(file));
+			d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
+			d->pixmap = gnome_pixmap_new_from_xpm_d (folder_xpm);
+			}
+		g_free(dirfile);
 		return d;
 		}
 
@@ -154,20 +172,9 @@ Desktop_Data * get_desktop_file_info (char *file)
 
 	if (dentry->name) d->name = strdup(dentry->name);
 	if (dentry->comment) d->comment = strdup(dentry->comment);
-	if (dentry->tryexec) d->tryexec = strdup(dentry->tryexec);
-	d->exec = NULL;
-	if (dentry->icon) d->icon = strdup(dentry->icon);
-	if (dentry->type) d->type = strdup(dentry->type);
-	d->terminal = dentry->terminal;
-	if (dentry->docpath) d->doc = strdup(dentry->docpath);
-
-	if (d->icon)
+	if (dentry->icon)
 		{
-/*		gchar *icon_path;
-		icon_path = correct_path_to_file(SYSTEM_PIXMAPS, USER_PIXMAPS, d->icon);
-		if (icon_path)
-*/
-		d->pixmap = gnome_pixmap_new_from_file_at_size (d->icon, 20, 20);
+		d->pixmap = gnome_pixmap_new_from_file_at_size (dentry->icon, 20, 20);
 		if (!d->pixmap)
 			d->pixmap = gnome_pixmap_new_from_xpm_d (unknown_xpm);
 		}
@@ -182,17 +189,11 @@ Desktop_Data * get_desktop_file_info (char *file)
 
 void free_desktop_data(Desktop_Data *d)
 {
-	if (d->path) free (d->path);
-	if (d->name) free (d->name);
-	if (d->comment) free (d->comment);
-	if (d->tryexec) free (d->tryexec);
-	if (d->exec) free (d->exec);
-	if (d->icon) free (d->icon);
-	if (d->type) free (d->type);
-	if (d->doc) free (d->doc);
-
-	/*what to do with this? if (d->pixmap) gtk_unref (d->pixmap); */
-
+	if (!d) return;
+	if (d->path) g_free (d->path);
+	if (d->name) g_free (d->name);
+	if (d->comment) g_free (d->comment);
+	if (d->dentry) gnome_desktop_entry_destroy (d->dentry);
 	free (d);
 }
 

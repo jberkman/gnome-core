@@ -1,3 +1,9 @@
+Mon Jul 20 22:50:21 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.[ch], edit.c, order.c, tree.c, dialogs.c: added ability to
+	edit directory info (.directory). Many many code changes.
+	bumped version to 0.2.5
+
 Sun Jul 19 03:20:21 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c: used N_ instead of _ for internationalization.

@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.2.4         ##*/
+/*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
 /*###################################################################*/
 
 #include "gmenu.h"
@@ -54,6 +54,16 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 				{
 				gchar *text[2];
 				gboolean leaf;
+				GnomeDesktopEntry *dentry;
+
+				dentry = g_new0(GnomeDesktopEntry, 1);
+				dentry->location = g_concat_dir_and_file(d->path, ".directory");
+				dentry->name = strdup(d->name);
+				dentry->type = strdup("Directory");
+				gnome_desktop_entry_save(dentry);
+				gnome_desktop_entry_destroy(dentry);
+
+				update_edit_area(d);
 
 				text[0] = d->name;
 				text[1] = NULL;
@@ -140,6 +150,14 @@ static void delete_dialog_cb( gint button, gpointer data)
 
 		if (d->isfolder)
 			{
+			gchar *dirfile = g_concat_dir_and_file (d->path, ".directory");
+			if (g_file_exists(dirfile))
+				{
+				if ( (unlink (dirfile) < 0) )
+					g_print("Failed to delete %s\n", dirfile);
+				}
+			g_free(dirfile);
+
 			if ( (rmdir (d->path) < 0) )
 				{
 				gnome_warning_dialog (_("Failed to delete the folder."));
@@ -236,9 +254,18 @@ static void save_dialog_cb( gint button, gpointer data)
 		char *path;
 		GnomeDesktopEntry *dentry = NULL;
 
-		path = g_copy_strings(current_path, "/", gtk_entry_get_text(GTK_ENTRY(filename_entry)), NULL);
 
-		overwrite = isfile(path);
+		if (edit_area_orig_data && edit_area_orig_data->isfolder)
+			{
+			path = strdup(edit_area_get_filename());
+			overwrite = TRUE;
+			}
+		else
+			{
+			path = g_copy_strings(current_path, "/",
+				edit_area_get_filename(), NULL);
+			overwrite = isfile(path);
+			}
 
 		dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
 		dentry->location = strdup(path);
@@ -251,11 +278,21 @@ static void save_dialog_cb( gint button, gpointer data)
 			gboolean leaf;
 			gboolean expanded;
 
-			node = find_file_in_tree(GTK_CTREE(menu_tree_ctree) ,path);
+			if (edit_area_orig_data && edit_area_orig_data->isfolder)
+				{
+				g_free(path);
+				path = strdup(edit_area_orig_data->path);
+				}
+
+			node = find_file_in_tree(GTK_CTREE(menu_tree_ctree), path);
 			d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), node);
 			free_desktop_data(d);
 
 			d = get_desktop_file_info (path);
+
+			/* since we are saving, it it safe to assume a folder's
+			submenus have been read */
+			if (d->isfolder) d->expanded = TRUE;
 
 			gtk_ctree_set_row_data(GTK_CTREE(menu_tree_ctree), node, d);
 
@@ -263,7 +300,8 @@ static void save_dialog_cb( gint button, gpointer data)
 						NULL, NULL, NULL, NULL, &leaf, &expanded);
 			gtk_ctree_set_node_info (GTK_CTREE(menu_tree_ctree), node, d->name, spacing,
 						GNOME_PIXMAP(d->pixmap)->pixmap, GNOME_PIXMAP(d->pixmap)->mask,
-						NULL, NULL, leaf, expanded);
+						GNOME_PIXMAP(d->pixmap)->pixmap, GNOME_PIXMAP(d->pixmap)->mask,
+						leaf, expanded);
 			save_order_of_dir(node);
 			}
 		else
@@ -316,7 +354,7 @@ void save_pressed_cb()
 {
 	char *path;
 
-	path = g_copy_strings(current_path, "/", gtk_entry_get_text(GTK_ENTRY(filename_entry)), NULL);
+	path = g_copy_strings(current_path, "/", edit_area_get_filename(), NULL);
 
 	if (!is_node_editable(current_node))
 		{
@@ -324,14 +362,23 @@ void save_pressed_cb()
 			gnome_warning_dialog (_("You can't edit an entry in that folder!\nTo edit system entries you must be root."));
 		else
 			gnome_warning_dialog (_("You can't add an entry to that folder!\nTo edit system entries you must be root."));
+		g_free(path);
 		return;
 		}
 
+	if (edit_area_orig_data && edit_area_orig_data->isfolder)
+		{
+		gnome_question_dialog (_("Save Changes?"),
+			(GnomeReplyCallback) save_dialog_cb, NULL);
+		g_free(path);
+		return;
+		}
 
 	if (isfile(path))
 		{
 		gnome_question_dialog (_("Overwrite existing file?"),
 			(GnomeReplyCallback) save_dialog_cb, NULL);
+		g_free(path);
 		return;
 		}
 

@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.2.4         ##*/
+/*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
 /*###################################################################*/
 
 #include <config.h>
@@ -18,8 +18,6 @@ GtkWidget *infolabel;
 GtkWidget *infopixmap;
 GtkWidget *pathlabel;
 
-GtkWidget *filename_entry;
-
 GtkObject *edit_area;
 
 GList *topnode;
@@ -27,6 +25,8 @@ GList *usernode;
 GList *systemnode;
 GList *current_node = NULL;
 gchar *current_path;
+
+Desktop_Data *edit_area_orig_data = NULL;
 
 int isfile(char *s);
 int isdir(char *s);
@@ -257,7 +257,6 @@ int main (int argc, char *argv[])
 	GtkWidget *hbox;
 	GtkWidget *hbox1;
 	GtkWidget *vbox;
-	GtkWidget *notebook;
 	GtkWidget *frame;
 	GtkWidget *pixmap;
 	GtkWidget *label;
@@ -399,93 +398,9 @@ int main (int argc, char *argv[])
 	gtk_widget_show(button);
 
 	/* edit area */
-	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_border_width (GTK_CONTAINER (vbox), 5);
+	vbox = create_edit_area();
 	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
 	gtk_widget_show(vbox);
-
-	notebook = gtk_notebook_new();
-	gtk_notebook_set_tab_pos (GTK_NOTEBOOK(notebook), GTK_POS_TOP);
-	gtk_box_pack_start (GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
-	gtk_widget_show(notebook);
-
-	edit_area = gnome_dentry_edit_new (GTK_NOTEBOOK(notebook));
-
-	hbox = gtk_hbox_new(FALSE,5);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,5);
-	gtk_widget_show(hbox);
-
-	label = gtk_label_new(_("File name:"));
-	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,0);
-	gtk_widget_show(label);
-
-	filename_entry = gtk_entry_new_with_max_length(255);
-	gtk_box_pack_start(GTK_BOX(hbox),filename_entry,TRUE,TRUE,0);
-	gtk_widget_show(filename_entry);
-
-	hbox1 = gtk_hbox_new(TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox1,FALSE,FALSE,10);
-	gtk_widget_show(hbox1);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(save_pressed_cb), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(button),hbox);
-	gtk_widget_show(hbox);
-
-	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_SAVE );
-	gtk_box_pack_start(GTK_BOX(hbox),pixmap,FALSE,FALSE,0);
-	gtk_widget_show(pixmap);
-
-	label = gtk_label_new(_("Save"));
-	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
-	gtk_widget_show(label);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(revert_edit_area), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(button),hbox);
-	gtk_widget_show(hbox);
-
-	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_REVERT );
-	gtk_box_pack_start(GTK_BOX(hbox),pixmap,FALSE,FALSE,0);
-	gtk_widget_show(pixmap);
-
-	label = gtk_label_new(_("Revert"));
-	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
-	gtk_widget_show(label);
-
-	button = gtk_button_new();
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(new_edit_area), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
-	gtk_widget_show(button);
-
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(button),hbox);
-	gtk_widget_show(hbox);
-
-	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_NEW );
-	gtk_box_pack_start(GTK_BOX(hbox),pixmap,FALSE,FALSE,0);
-	gtk_widget_show(pixmap);
-
-	label = gtk_label_new(_("New"));
-	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
-	gtk_widget_show(label);
-
-	frame = gtk_frame_new(NULL);
-	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_IN);
-	gtk_box_pack_end(GTK_BOX(vbox),frame,FALSE,FALSE,0);
-	gtk_widget_show(frame);
-
-	pathlabel = gtk_label_new(USER_APPS);
-	gtk_container_add(GTK_CONTAINER(frame),pathlabel);
-	gtk_widget_show(pathlabel);
 
 	gtk_widget_show(app);
 
