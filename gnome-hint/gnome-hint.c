@@ -563,6 +563,7 @@ main(int argc, char *argv[])
 	gnome_canvas_set_scroll_region(GNOME_CANVAS(canvas),
 				       0.0,0.0,width,height);
 	gtk_widget_set_usize(canvas,width,height);
+	gtk_widget_ensure_style(canvas);
 	
 	if(is_motd) {
 		hint = get_motd();

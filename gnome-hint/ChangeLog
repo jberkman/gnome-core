@@ -1,3 +1,8 @@
+Sun Apr 16 22:07:51 2000  George Lebl <jirka@5z.com>
+
+	* gnome-hint.c: add ensure_style to make it work for other then -1
+	  locales.  Patch from KUSANO Takayuki <AE5T-KSN@asahi-net.or.jp>
+
 2000-04-14  Fatih Demir	<kabalak@gmx.net>
 
 	* gnome-hint-properties.desktop : Added [tr] ..
