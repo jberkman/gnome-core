@@ -56,8 +56,8 @@ $(ORBIT_GENERATED_SOURCES): $(srcdir)/idl/help-browser.idl
 
 BUILT_SOURCES = $(ORBIT_GENERATED_SOURCES)
 
-$(ORBIT_GENERATED_SOURCES): $(srcdir)/idl/help-browser.idl 
-	orbit-idl $(srcdir)/idl/help-browser.idl
+$(ORBIT_GENERATED_SOURCES): $(srcdir)/idl/help-browser.idl $(ORBIT_IDL)
+	$(ORBIT_IDL) $<
 
 
 gnome_help_browser_LDADD = $(LDADD) $(RES_LIBS) $(GTKXMHTML_LIBS)
