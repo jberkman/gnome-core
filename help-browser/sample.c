@@ -37,21 +37,29 @@ GtkMenuEntry hello_menu [] = {
 };
 
 
-GnomeMenuInfo filemenu[] = {
-    {GNOME_APP_MENU_ITEM, N_("Exit"), quit_cb, NULL},
-    {GNOME_APP_MENU_ENDOFINFO, NULL, NULL, NULL}
+GnomeUIInfo filemenu[] = {
+    {GNOME_APP_UI_ITEM, N_("Exit"), NULL, quit_cb,
+     GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT, 0, 0, NULL},
+    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
 
-GnomeMenuInfo helpmenu[] = {
-    {GNOME_APP_MENU_ITEM, N_("About..."), about_cb, NULL},
-    {GNOME_APP_MENU_HELP, NULL, "sample-help", NULL},
-    {GNOME_APP_MENU_ENDOFINFO, NULL, NULL, NULL}
+GnomeUIInfo helpmenu[] = {
+    {GNOME_APP_UI_HELP, NULL, NULL, "sample-help",
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_ITEM, N_("About..."), NULL, about_cb,
+     GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0, NULL},
+    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
- 
-GnomeMenuInfo mainmenu[] = {
-    {GNOME_APP_MENU_SUBMENU, N_("File"), filemenu, NULL},
-    {GNOME_APP_MENU_SUBMENU, N_("Help"), helpmenu, NULL},
-    {GNOME_APP_MENU_ENDOFINFO, NULL, NULL, NULL}
+
+GnomeUIInfo mainmenu[] = {
+    {GNOME_APP_UI_SUBTREE, N_("File"), NULL, filemenu,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_SUBTREE, N_("Help"), NULL, helpmenu,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
+     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
  
 int
