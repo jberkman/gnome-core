@@ -25,38 +25,34 @@ char **env;
 /* Name of section to discard if --discard given.  */
 static char *discard_section = NULL;
 
-/* Font used by the terminals */
-char *font = NULL;
-
-/* Number of scrollbacklines */
-int scrollback;
-
 /* Initial geometry */
 char *geometry = 0;
 
-/* The color mode */
-int color_type;
 
 /* The color set */
-enum {
-	COLORS_WHITE_ON_BLACK,
+enum color_set_enum { COLORS_WHITE_ON_BLACK,
 	COLORS_BLACK_ON_WHITE,
 	COLORS_GREEN_ON_BLACK,
 	COLORS_BLACK_ON_LIGHT_YELLOW,
 	COLORS_CUSTOM
 };
-int color_set;
 
-/* Scrollbar position */
-enum {
-	SCROLLBAR_LEFT, SCROLLBAR_RIGHT, SCROLLBAR_HIDDEN
-} scrollbar_position;
+enum scrollbar_position_enum { SCROLLBAR_LEFT = 0, SCROLLBAR_RIGHT = 1, SCROLLBAR_HIDDEN = 2 };
 
-/* How to invoke the shell */
-int invoke_as_login_shell = 0;
+struct terminal_config {
+	int color_type; 			/* The color mode */
+	enum color_set_enum color_set;
+	char *font; 				/* Font used by the terminals */
+	int scrollback; 			/* Number of scrollbacklines */
+	char * terminal_class;
+	enum scrollbar_position_enum scrollbar_position;
+	int invoke_as_login_shell; 		/* How to invoke the shell */
+	int blink; 				/* Do we want blinking cursor? */
+	GdkColor user_fore, user_back; 		/* The custom colors */
+	int menubar_hidden; 			/* Whether to show the menubar */
+} ;
 
-/* Do we want blinking cursor? */
-int blink;
+struct terminal_config cfg;
 
 /* Initial command */
 char **initial_command = NULL;
@@ -68,15 +64,6 @@ GtkWidget *initial_term = NULL;
 /* A list of all the open terminals */
 GList *terminals = 0;
 
-/* The custom colors */
-GdkColor user_fore, user_back;
-
-/* The colors specified on the command line */
-char *fore_color = NULL, *back_color = NULL;
-
-/* Whether to show the menubar */
-int menubar_hidden = 0;
-
 typedef struct {
 	GtkWidget *prop_win;
 	GtkWidget *blink_checkbox;
@@ -85,9 +72,14 @@ typedef struct {
 	GtkWidget *def_fore_back;
 	GtkWidget *scrollbar;
 	GtkWidget *scrollback_spin;
+	GtkWidget *class_box;
 	GnomeColorSelector *fore_cs;
 	GnomeColorSelector *back_cs;
+	int changed;
 } preferences_t;
+
+static char * user_fore_color, * user_back_color;	/* as specified on command line */
+static char * user_font;
 
 void new_terminal (void);
 
@@ -230,7 +222,7 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		blue = rxvt_blu;
 		break;
 	}
-	switch (color_set){
+	switch (cfg.color_set){
 		/* White on black */
 	case COLORS_WHITE_ON_BLACK:
 		red   [16] = red [7];
@@ -273,12 +265,12 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		
 		/* Custom foreground, custom background */
 	case COLORS_CUSTOM:
-		red   [16] = user_fore.red;
-		green [16] = user_fore.green;
-		blue  [16] = user_fore.blue;
-		red   [17] = user_back.red;
-		green [17] = user_back.green;
-		blue  [17] = user_back.blue;
+		red   [16] = cfg.user_fore.red;
+		green [16] = cfg.user_fore.green;
+		blue  [16] = cfg.user_fore.blue;
+		red   [17] = cfg.user_back.red;
+		green [17] = cfg.user_back.green;
+		blue  [17] = cfg.user_back.blue;
 		break;
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
@@ -286,50 +278,210 @@ set_color_scheme (ZvtTerm *term, int color_type)
 }
 
 static void
-apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
+load_config (struct terminal_config * cfg, char * class)
 {
-	int scrollpos;
-	int r, g, b;
+	char *p;
+	char * fore_color = NULL;
+	char * back_color = NULL;
+ 	char * prefix = alloca(strlen(class) + 20);
+
+	/* FIXME: memory leak */
+	memset(cfg, 0, sizeof(*cfg));
+
+	/* It's very odd that these are here */
+	cfg->font = NULL;
+	cfg->invoke_as_login_shell = 0;
+	cfg->menubar_hidden = 0;
+	cfg->terminal_class = g_strdup(class);
+
+	sprintf(prefix, "/Terminal/%s/", class);
+	gnome_config_push_prefix(prefix);
+
+	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
+	cfg->font    = gnome_config_get_string ("font=" DEFAULT_FONT);
+	p = gnome_config_get_string ("scrollpos=left");
+	if (strcasecmp (p, "left") == 0)
+		cfg->scrollbar_position = SCROLLBAR_LEFT;
+	else if (strcasecmp (p, "right") == 0)
+		cfg->scrollbar_position = SCROLLBAR_RIGHT;
+	else
+		cfg->scrollbar_position = SCROLLBAR_HIDDEN;
+	p = gnome_config_get_string ("color_scheme=linux");
+	if (strcasecmp (p, "linux") == 0)
+		cfg->color_type = 0;
+	else if (strcasecmp (p, "xterm") == 0)
+		cfg->color_type = 1;
+	else
+		cfg->color_type = 2;
+	cfg->blink = gnome_config_get_bool ("blinking-0");
+
+	/* Default colors in the case the color set is the custom one */
+	fore_color = gnome_config_get_string ("foreground=gray");
+	back_color = gnome_config_get_string ("background=black");
+	cfg->color_set = gnome_config_get_int ("color_set=0");
+
+	cfg->menubar_hidden = !gnome_config_get_bool ("menubar=true");
+	
+	if (strcasecmp (fore_color, back_color) == 0)
+		/* don't let them set identical foreground and background colors */
+		cfg->color_set = 0;
+	else {
+		if (!gdk_color_parse (fore_color, &cfg->user_fore) || !gdk_color_parse (back_color, &cfg->user_back)){
+			/* or illegal colors */
+			cfg->color_set = 0;
+		}
+	}
+
+	gnome_config_pop_prefix();
+}
+
+static struct terminal_config * 
+gather_changes (ZvtTerm *term) {
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+	int r, g, b;
+	struct terminal_config * newcfg = g_malloc(sizeof(*newcfg));
+
+	memset(newcfg, 0, sizeof(*newcfg));
+
+	newcfg->blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
+	newcfg->scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin)); 
+	(int) newcfg->scrollbar_position = gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
+
+	if (newcfg->font)
+		g_free (newcfg->font);
+	newcfg->font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
+
+	free(newcfg->terminal_class);
+	if (!strcmp(gtk_entry_get_text(GTK_ENTRY (GTK_COMBO(prefs->class_box)->entry)),
+			_("Default")))
+		newcfg->terminal_class = g_strdup(_("Config"));
+	else
+		newcfg->terminal_class = g_strconcat("Class-", gtk_entry_get_text(GTK_ENTRY (GTK_COMBO(prefs->class_box)->entry)), NULL);
+
+	newcfg->color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
+	newcfg->color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
+
+	gnome_color_selector_get_color_int (prefs->fore_cs, &r, &g, &b, 65535);
+	newcfg->user_fore.red   = r;
+	newcfg->user_fore.green = g;
+	newcfg->user_fore.blue  = b;
+	gnome_color_selector_get_color_int (prefs->back_cs, &r, &g, &b, 65535);
+	newcfg->user_back.red   = r;
+	newcfg->user_back.green = g;
+	newcfg->user_back.blue  = b;
+
+	return newcfg;
+}
+
+/* prototype */
+static void switch_terminal_class (ZvtTerm *term, struct terminal_config * newcfg);
+
+static int
+apply_changes (ZvtTerm *term, struct terminal_config * newcfg)
+{
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
 
-	/* get page details separately */
-	switch(page) {
-	case 0:
-		zvt_term_set_font_name (term, gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
-		zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
-		scrollpos  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
-		blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
-		scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin)); 
-		zvt_term_set_scrollback (term, scrollback);
-		if (font)
-			g_free (font);
-		font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
-		scrollbar_position = scrollpos;
-		if (scrollpos == SCROLLBAR_HIDDEN)
-			gtk_widget_hide (scrollbar);
-		else {
-			gtk_box_reorder_child (GTK_BOX (box), scrollbar,
-					       scrollpos == SCROLLBAR_LEFT ? 0 : 1);
-			gtk_widget_show (scrollbar);
-		}
-		break;
-	case 1:
-		color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
-		color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
-		gnome_color_selector_get_color_int (prefs->fore_cs, &r, &g, &b, 65535);
-		user_fore.red   = r;
-		user_fore.green = g;
-		user_fore.blue  = b;
-		gnome_color_selector_get_color_int (prefs->back_cs, &r, &g, &b, 65535);
-		user_back.red   = r;
-		user_back.green = g;
-		user_back.blue  = b;
-		
-		set_color_scheme (term, color_type);
-		break;
+	if (strcmp(cfg.terminal_class, newcfg->terminal_class)) {
+		switch_terminal_class(term, newcfg);
+		return 1;
 	}
+
+	free(cfg.font);
+	free(cfg.terminal_class);
+	cfg = *newcfg;
+
+	zvt_term_set_font_name (term, newcfg->font);
+	zvt_term_set_blink (term, newcfg->blink);
+	zvt_term_set_scrollback (term, cfg.scrollback);
+	if (cfg.scrollbar_position == SCROLLBAR_HIDDEN)
+		gtk_widget_hide (scrollbar);
+	else {
+		gtk_box_reorder_child (GTK_BOX (box), scrollbar,
+			       (cfg.scrollbar_position == SCROLLBAR_LEFT) ? 0 : 1);
+		gtk_widget_show (scrollbar);
+	}
+
+	set_color_scheme (term, cfg.color_type);
+
+	return 0;
+}
+
+static void
+apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term) {
+	struct terminal_config * newcfg;
+
+	if (page != -1) return;
+
+	newcfg = gather_changes (term);
+	if (!apply_changes(term, newcfg))
+		free(newcfg);
+}
+
+static void
+switch_terminal_cb (GnomeMessageBox * mbox, gint button, void * term)
+{
+	struct terminal_config * newcfg, loaded_cfg;
+
+	newcfg = gtk_object_get_data (GTK_OBJECT (term), "newcfg");
+
+	if (button == 0) {
+		/* yes */
+		load_config(&loaded_cfg, newcfg->terminal_class);
+		free(cfg.terminal_class);
+		cfg.terminal_class = g_strdup(loaded_cfg.terminal_class);
+		apply_changes(term, &loaded_cfg);
+	} else if (button == 1) {
+		/* no */
+		free(cfg.terminal_class);
+		cfg.terminal_class = g_strdup(newcfg->terminal_class);
+		apply_changes(term, newcfg);
+	} else {
+		/* cancel -- don't do anything about the 'apply' at all */
+	}
+}
+
+static void
+switch_terminal_closed (GtkWidget *w, void *data)
+{
+	ZvtTerm *term = ZVT_TERM (data);
+	struct terminal_config *newcfg;
+
+	newcfg = gtk_object_get_data (GTK_OBJECT (term), "newcfg");
+	g_free (newcfg);
+	gtk_object_set_data (GTK_OBJECT (term), "newcfg", NULL);
+}
+
+static void
+switch_terminal_class (ZvtTerm *term, struct terminal_config * newcfg) 
+{
+	GtkWidget * mbox;
+	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+
+	gtk_object_set_data(GTK_OBJECT(term), "newcfg", newcfg);
+
+	if (!prefs->changed) {
+	    /* just do it! */
+	    switch_terminal_cb (NULL, 0, term);
+	    free(newcfg);
+	    gtk_object_set_data (GTK_OBJECT (term), "newcfg", NULL);
+	    return;
+	}
+
+	mbox = gnome_message_box_new(_("You have switched the class of this window. Do you\n "
+				    "want to reconfigure this window to match the default\n"
+				    "configuration of the new class?"),
+				 GNOME_MESSAGE_BOX_QUESTION,
+                                 GNOME_STOCK_BUTTON_YES,
+                                 GNOME_STOCK_BUTTON_NO, GNOME_STOCK_BUTTON_CANCEL, NULL);
+
+	gtk_signal_connect(GTK_OBJECT(mbox), "clicked", GTK_SIGNAL_FUNC(switch_terminal_cb),
+			   term);
+	gtk_signal_connect(GTK_OBJECT(mbox), "destroy", GTK_SIGNAL_FUNC(switch_terminal_closed),
+			   term);
+
+	gtk_widget_show(mbox);
+
 }
 
 static void
@@ -359,6 +511,8 @@ window_closed_event (GtkWidget *w, GdkEvent *event, void *data)
 static void
 prop_changed (GtkWidget *w, preferences_t *prefs)
 {
+	if (w != GTK_WIDGET (GTK_COMBO(prefs->class_box)->entry)) 
+		prefs->changed = 1;
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prefs->prop_win));
 }
 
@@ -376,6 +530,7 @@ prop_changed_zvt (void *data, char *font_name)
 typedef struct {
 	GtkWidget        *menu;
 	GnomePropertyBox *box;
+	preferences_t	 *prefs;
 	int              idx;
 	void             *data1, *data2;
 } lambda_t;
@@ -394,6 +549,8 @@ static void
 set_active (GtkWidget *widget, lambda_t *t)
 {
 	set_active_data(t->menu, t->idx, t->data1, t->data2);
+	t->prefs->changed = 1;
+	gnome_property_box_changed (GNOME_PROPERTY_BOX (t->box));
 }
 
 static void
@@ -403,7 +560,7 @@ free_lambda (GtkWidget *w, void *l)
 }
 		    
 static GtkWidget *
-create_option_menu_data (GnomePropertyBox *box, char **menu_list, int item, GtkSignalFunc func, void *data1, void *data2)
+create_option_menu_data (GnomePropertyBox *box, preferences_t * prefs, char **menu_list, int item, GtkSignalFunc func, void *data1, void *data2)
 {
 	GtkWidget *omenu;
 	GtkWidget *menu;
@@ -421,6 +578,7 @@ create_option_menu_data (GnomePropertyBox *box, char **menu_list, int item, GtkS
 		t->box   = box;
 		t->data1 = data1;
 		t->data2 = data2;
+		t->prefs = prefs;
 		entry = gtk_menu_item_new_with_label (_(*menu_list));
 		gtk_signal_connect (GTK_OBJECT (entry), "activate", func, t);
 		gtk_signal_connect (GTK_OBJECT (entry), "destroy",
@@ -438,9 +596,9 @@ create_option_menu_data (GnomePropertyBox *box, char **menu_list, int item, GtkS
 }
 
 static GtkWidget *
-create_option_menu (GnomePropertyBox *box, char **menu_list, int item, GtkSignalFunc func)
+create_option_menu (GnomePropertyBox *box, preferences_t * prefs, char **menu_list, int item, GtkSignalFunc func)
 {
-	return create_option_menu_data (box, menu_list, item, func, NULL, NULL);
+	return create_option_menu_data (box, prefs, menu_list, item, func, NULL, NULL);
 }
 
 char *color_scheme [] = {
@@ -471,10 +629,11 @@ enum {
 	FOREBACK_ROW  = 2,
 	FORECOLOR_ROW = 3,
 	BACKCOLOR_ROW = 4,
-	SCROLL_ROW    = 1,
-	SCROLLBACK_ROW = 2,
-	FONT_ROW      = 3,
-	BLINK_ROW     = 4
+	CLASS_ROW    = 1,
+	SCROLL_ROW    = 2,
+	SCROLLBACK_ROW = 3,
+	FONT_ROW      = 4,
+	BLINK_ROW     = 5
 };
 
 /* called back to free the ColorSelector */
@@ -490,20 +649,25 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	GtkWidget *l, *table, *o, *m, *b1, *b2;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
+	GList * class_list = NULL;
+	void * iter;
+	char * some_class;
 
 	/* Is a property window for this terminal already running? */
-	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
-	if (prefs)
+	if (gtk_object_get_data (GTK_OBJECT (term), "prefs") ||
+	    gtk_object_get_data (GTK_OBJECT (term), "newcfg"))
 		return;
 
 	prefs = g_new0 (preferences_t, 1);
+	prefs->changed = 0;
+
 	prefs->prop_win = gnome_property_box_new ();
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", prefs);
 
-	/* Look page */
+	/* general page */
 	table = gtk_table_new (3, 4, FALSE);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
-					table, gtk_label_new (_("Look")));
+					table, gtk_label_new (_("General")));
 
 	/* Font */
 	l = aligned_label (_("Font:"));
@@ -521,15 +685,42 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	m = create_font_menu (term, GTK_SIGNAL_FUNC (prop_changed_zvt));
 	gtk_option_menu_set_menu (GTK_OPTION_MENU (o), m);
 	gtk_table_attach (GTK_TABLE (table), o,
-			  3, 4, FONT_ROW, FONT_ROW+1, 0, 0, 0, 0);
+			  3, 5, FONT_ROW, FONT_ROW+1, 0, 0, 0, 0);
+
+	/* Terminal class */
+	l = aligned_label (_("Terminal Class"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->class_box = gtk_combo_new ();
+	iter = gnome_config_init_iterator_sections("/Terminal");
+	while (gnome_config_iterator_next(iter, &some_class, NULL)) {
+		if (!strcmp(some_class, "Config") || !strncmp(some_class, "Class-", 6)) {
+		    if (!strcmp(some_class, "Config")) 
+			    some_class = _("Default");
+		    else
+			    some_class += 6;
+
+		    class_list = g_list_append(class_list, some_class);
+		}
+	}
+	gtk_combo_set_popdown_strings (GTK_COMBO (prefs->class_box), class_list);
+	if (!strcmp(cfg.terminal_class, "Config")) 
+		some_class = _("Default");
+	else
+		some_class = cfg.terminal_class + 6;
+	gtk_entry_set_text (GTK_ENTRY (GTK_COMBO(prefs->class_box)->entry), some_class);
+	gtk_signal_connect (GTK_OBJECT (GTK_COMBO(prefs->class_box)->entry), "changed",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->class_box,
+			  2, 3, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	
 	/* Scrollbar position */
 	l = aligned_label (_("Scrollbar position"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
+	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 					       scrollbar_position_list,
-					       scrollbar_position, GTK_SIGNAL_FUNC (set_active));
+					       cfg.scrollbar_position, GTK_SIGNAL_FUNC (set_active));
 	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
 			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
@@ -545,7 +736,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Scroll back */
 	l = aligned_label (_("Scrollback lines"));
         gtk_table_attach (GTK_TABLE (table), l, 1, 2, SCROLLBACK_ROW, SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	adj = (GtkAdjustment *) gtk_adjustment_new ((gfloat)scrollback, 1.0, 1000.0, 1.0, 5.0, 0.0);
+	adj = (GtkAdjustment *) gtk_adjustment_new ((gfloat)cfg.scrollback, 1.0, 1000.0, 1.0, 5.0, 0.0);
 	prefs->scrollback_spin = gtk_spin_button_new (adj, 0, 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->scrollback_spin), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -559,8 +750,8 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	l = aligned_label (_("Color palette:"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
-						  color_scheme, color_type, GTK_SIGNAL_FUNC (set_active));
+	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
+						  color_scheme, cfg.color_type, GTK_SIGNAL_FUNC (set_active));
 	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
 			  2, 6, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
@@ -572,7 +763,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), b1 = gnome_color_selector_get_button (prefs->fore_cs),
 			  2, 3, FORECOLOR_ROW, FORECOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
 	gtk_signal_connect (GTK_OBJECT (b1), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->fore_cs);
-	gnome_color_selector_set_color_int (prefs->fore_cs, user_fore.red, user_fore.green, user_fore.blue, 65355);
+	gnome_color_selector_set_color_int (prefs->fore_cs, cfg.user_fore.red, cfg.user_fore.green, cfg.user_fore.blue, 65355);
 	
 	l = aligned_label (_("Background color:"));
 	gtk_table_attach (GTK_TABLE (table), l,
@@ -581,22 +772,22 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), b2 = gnome_color_selector_get_button (prefs->back_cs),
 			  2, 3, BACKCOLOR_ROW, BACKCOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
 	gtk_signal_connect (GTK_OBJECT (b2), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->back_cs);
-	gnome_color_selector_set_color_int (prefs->back_cs, user_back.red, user_back.green, user_back.blue, 65355);
+	gnome_color_selector_set_color_int (prefs->back_cs, cfg.user_back.red, cfg.user_back.green, cfg.user_back.blue, 65355);
 
 	/* default foreground/backgorund selector */
 	l = aligned_label (_("Colors:"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win),
-							fore_back_table, color_set, GTK_SIGNAL_FUNC (set_active),
+	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
+							fore_back_table, cfg.color_set, GTK_SIGNAL_FUNC (set_active),
 							b1, b2);
-	set_active_data(prefs->def_fore_back, color_set, b2, b2);
+	set_active_data(prefs->def_fore_back, cfg.color_set, b2, b2);
 	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
 			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
-			    GTK_SIGNAL_FUNC (apply_changes), term);
+			    GTK_SIGNAL_FUNC (apply_changes_cmd), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "delete_event",
 			    GTK_SIGNAL_FUNC (window_closed_event), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
@@ -633,22 +824,34 @@ get_color_string (GdkColor c)
 }
 
 static void
-save_preferences (GtkWidget *widget, ZvtTerm *term)
+save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config * cfg)
 {
-	if (font)
-		gnome_config_set_string ("/Terminal/Config/font", font);
-	gnome_config_set_string ("/Terminal/Config/scrollpos",
-				 scrollbar_position == SCROLLBAR_LEFT ? "left" :
-				 scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
-	gnome_config_set_bool   ("/Terminal/Config/blinking", blink);
-	gnome_config_set_int    ("/Terminal/Config/scrollbacklines", scrollback);
-	gnome_config_set_int    ("/Terminal/Config/color_set", color_set);
-	gnome_config_set_string ("/Terminal/Config/color_scheme",
-				 color_type == 0 ? "linux" : (color_type == 1 ? "xterm" : "rxvt"));
-	gnome_config_set_string ("/Terminal/Config/foreground", get_color_string (user_fore));
-	gnome_config_set_string ("/Terminal/Config/background", get_color_string (user_back));
-	gnome_config_set_bool   ("/Terminal/Config/menubar", !menubar_hidden);
+ 	char * prefix = alloca(strlen(cfg->terminal_class) + 20);
+
+	sprintf(prefix, "/Terminal/%s/", cfg->terminal_class);
+	gnome_config_push_prefix(prefix);
+
+	if (cfg->font)
+		gnome_config_set_string ("font", cfg->font);
+	gnome_config_set_string ("scrollpos",
+				 cfg->scrollbar_position == SCROLLBAR_LEFT ? "left" :
+				 cfg->scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
+	gnome_config_set_bool   ("blinking", cfg->blink);
+	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
+	gnome_config_set_int    ("color_set", cfg->color_set);
+	gnome_config_set_string ("color_scheme",
+		     cfg->color_type == 0 ? "linux" : (cfg->color_type == 1 ? "xterm" : "rxvt"));
+	gnome_config_set_string ("foreground", get_color_string (cfg->user_fore));
+	gnome_config_set_string ("background", get_color_string (cfg->user_back));
+	gnome_config_set_bool   ("menubar", !cfg->menubar_hidden);
 	gnome_config_sync ();
+
+	gnome_config_pop_prefix();
+}
+
+static void
+save_preferences_cmd (GtkWidget *widget, ZvtTerm *term) {
+	save_preferences(widget, term, &cfg);
 }
 
 static void
@@ -656,14 +859,14 @@ hide_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 
-	menubar_hidden = 1;
+	cfg.menubar_hidden = 1;
 	gtk_widget_hide (app->menubar);
-	save_preferences (widget, term);
+	save_preferences (widget, term, &cfg);
 }
 
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
 	{ GNOME_APP_UI_ITEM, N_("New terminal"),    NULL, new_terminal },
-	{ GNOME_APP_UI_ITEM, N_("Save preferences"),NULL, save_preferences },
+	{ GNOME_APP_UI_ITEM, N_("Save preferences"),NULL, save_preferences_cmd },
 	{ GNOME_APP_UI_ITEM, N_("Close terminal"),  NULL, close_terminal_cmd },
 	{ GNOME_APP_UI_SEPARATOR },
 	{ GNOME_APP_UI_ITEM, N_("Hide menubar..."), NULL, hide_cmd },
@@ -697,7 +900,7 @@ set_shell_to (char *the_shell, char **shell, char **name)
 	only_name = strrchr (the_shell, '/');
 	only_name++;
 	
-	if (invoke_as_login_shell){
+	if (cfg.invoke_as_login_shell){
 		len = strlen (only_name);
 		
 		*name  = g_malloc (len + 2);
@@ -763,31 +966,31 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 		row = y / term->charheight;
 
 		/* Switch to custom colors and */
-		color_set = COLORS_CUSTOM;
+		cfg.color_set = COLORS_CUSTOM;
 		
 		the_char = vt_get_attr_at (term->vx, col, row) & 0xff;
 		if (the_char == ' ' || the_char == 0){
 			/* copy the current foreground color */
-			user_fore.red   = red [16];
-			user_fore.green = green [16];
-			user_fore.blue  = blue [16];
+			cfg.user_fore.red   = red [16];
+			cfg.user_fore.green = green [16];
+			cfg.user_fore.blue  = blue [16];
 
 			/* Accept the dropped colors */
-			user_back.red   = data [1] * 65535;
-			user_back.green = data [2] * 65535;
-			user_back.blue  = data [3] * 65535;
+			cfg.user_back.red   = data [1] * 65535;
+			cfg.user_back.green = data [2] * 65535;
+			cfg.user_back.blue  = data [3] * 65535;
 		} else {
 			/* copy the current background color */
-			user_back.red   = red [17];
-			user_back.green = green [17];
-			user_back.blue  = blue [17];
+			cfg.user_back.red   = red [17];
+			cfg.user_back.green = green [17];
+			cfg.user_back.blue  = blue [17];
 			
 			/* Accept the dropped colors */
-			user_fore.red   = data [1] * 65535;
-			user_fore.green = data [2] * 65535;
-			user_fore.blue  = data [3] * 65535;
+			cfg.user_fore.red   = data [1] * 65535;
+			cfg.user_fore.green = data [2] * 65535;
+			cfg.user_fore.blue  = data [3] * 65535;
 		}
-		set_color_scheme (term, color_type);
+		set_color_scheme (term, cfg.color_type);
 	}
 }
 
@@ -808,11 +1011,12 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 
 	/* FIXME: this should popup a menu instead */
 	if (event->state & GDK_CONTROL_MASK){
-		menubar_hidden = 0;
+		cfg.menubar_hidden = 0;
 		gtk_widget_show (app->menubar);
-		save_preferences (widget, term);
+		save_preferences (widget, term, &cfg);
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -879,9 +1083,9 @@ new_terminal_cmd (char **cmd)
 			      80 * term->charwidth,
 			      25 * term->charheight);
 #endif
-	zvt_term_set_scrollback (term, scrollback);
-	gnome_term_set_font (term, font);
-	zvt_term_set_blink (term, blink);
+	zvt_term_set_scrollback (term, cfg.scrollback);
+	gnome_term_set_font (term, cfg.font);
+	zvt_term_set_blink (term, cfg.blink);
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
 
@@ -892,7 +1096,7 @@ new_terminal_cmd (char **cmd)
 			    GTK_SIGNAL_FUNC (button_press), term);
 	
 	gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
-	if (menubar_hidden)
+	if (cfg.menubar_hidden)
 		gtk_widget_hide (GNOME_APP (app)->menubar);
 	
 	/* Decorations */
@@ -904,11 +1108,11 @@ new_terminal_cmd (char **cmd)
 	gtk_object_set_data (GTK_OBJECT (term), "scrollbar", scrollbar);
 	GTK_WIDGET_UNSET_FLAGS (scrollbar, GTK_CAN_FOCUS);
 	
-	if (scrollbar_position == SCROLLBAR_LEFT)
+	if (cfg.scrollbar_position == SCROLLBAR_LEFT)
 		gtk_box_pack_start (GTK_BOX (hbox), scrollbar, 0, 1, 0);
 	else
 		gtk_box_pack_end (GTK_BOX (hbox), scrollbar, 0, 1, 0);
-	if (scrollbar_position != SCROLLBAR_HIDDEN)
+	if (cfg.scrollbar_position != SCROLLBAR_HIDDEN)
 		gtk_widget_show (scrollbar);
 
 	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 0);
@@ -933,7 +1137,7 @@ new_terminal_cmd (char **cmd)
 	}
 	configure_term_dnd (term);
 	gtk_widget_show (app);
-	set_color_scheme (term, color_type);
+	set_color_scheme (term, cfg.color_type);
 
 	switch (zvt_term_forkpty (term)){
 	case -1:
@@ -960,59 +1164,6 @@ void
 new_terminal ()
 {
 	new_terminal_cmd (NULL);
-}
-
-static void
-terminal_load_defaults (void)
-{
-	char *p;
-	int color_specified;	/* true if the user provided colors on the command line */
-
-	scrollback = gnome_config_get_int    ("/Terminal/Config/scrollbacklines=100");
-	if (!font)
-		font       = gnome_config_get_string ("/Terminal/Config/font=" DEFAULT_FONT);
-	p = gnome_config_get_string ("/Terminal/Config/scrollpos=left");
-	if (strcasecmp (p, "left") == 0)
-		scrollbar_position = SCROLLBAR_LEFT;
-	else if (strcasecmp (p, "right") == 0)
-		scrollbar_position = SCROLLBAR_RIGHT;
-	else
-		scrollbar_position = SCROLLBAR_HIDDEN;
-	p = gnome_config_get_string ("/Terminal/Config/color_scheme=linux");
-	if (strcasecmp (p, "linux") == 0)
-		color_type = 0;
-	else if (strcasecmp (p, "xterm") == 0)
-		color_type = 1;
-	else
-		color_type = 2;
-	blink = gnome_config_get_bool ("/Terminal/Config/blinking=0");
-
-	color_specified = (fore_color || back_color);
-
-	/* Default colors in the case the color set is the custom one */
-	if (!fore_color)
-		fore_color = gnome_config_get_string ("/Terminal/Config/foreground=gray");
-	if (!back_color)
-		back_color = gnome_config_get_string ("/Terminal/Config/background=black");
-
-	/* If colors are specified on the command line, ignore the color scheme */
-	if (!color_specified){
-		color_set = gnome_config_get_int ("/Terminal/Config/color_set=0");
-	} else
-		color_set = COLORS_CUSTOM;
-
-	menubar_hidden = !gnome_config_get_bool ("/Terminal/Config/menubar=true");
-	
-	/* Custom colors: load them */
-	if (color_set == COLORS_CUSTOM){
-		if (strcasecmp (fore_color, back_color) == 0)
-			color_set = 0;
-		else {
-			if (!gdk_color_parse (fore_color, &user_fore) || !gdk_color_parse (back_color, &user_back)){
-				color_set = 0;
-			}
-		}
-	}
 }
 
 static gboolean
@@ -1097,12 +1248,12 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 
 		args[argc++] = (char *) client_data;
 		args[argc++] = "--font";
-		args[argc++] = font;
-		args[argc++] = invoke_as_login_shell ? "--login" : "--nologin";
+		args[argc++] = cfg.font;
+		args[argc++] = cfg.invoke_as_login_shell ? "--login" : "--nologin";
 		args[argc++] = "--foreground";
-		args[d1 = argc++] = g_strdup (get_color_string (user_fore));
+		args[d1 = argc++] = g_strdup (get_color_string (cfg.user_fore));
 		args[argc++] = "--background";
-		args[d2 = argc++] = g_strdup (get_color_string (user_back));
+		args[d2 = argc++] = g_strdup (get_color_string (cfg.user_back));
 
 		args[argc] = NULL;
 
@@ -1139,11 +1290,13 @@ enum {
 	COMMAND_KEY  = -5,
 	FORE_KEY     = -6,
 	BACK_KEY     = -7,
-	DISCARD_KEY  = -8
+	DISCARD_KEY  = -8,
+	CLASS_KEY    = -9
 };
 
 static struct argp_option argp_options [] = {
-	{ "font",       FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"),                    0 },
+	{ "class",      CLASS_KEY,    N_("CLASS"), 0, N_("Tmerinal class name"), 0 },
+	{ "font",       FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"), 0 },
 	{ "nologin",    NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
 	{ "login",      LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
 	{ "geometry",   GEOMETRY_KEY, N_("GEOMETRY"),0,N_("Specifies the geometry for the main window"), 0 },
@@ -1158,14 +1311,18 @@ static error_t
 parse_an_arg (int key, char *arg, struct argp_state *state)
 {
 	switch (key){
+	case CLASS_KEY:
+		free(cfg.terminal_class);
+		cfg.terminal_class = g_strconcat("Class-", arg, NULL);
+		break;
 	case FONT_KEY:
-		font = arg;
+		user_font = arg;
 		break;
 	case LOGIN_KEY:
-		invoke_as_login_shell = 1;
+		cfg.invoke_as_login_shell = 1;
 		break;
 	case NOLOGIN_KEY:
-	        invoke_as_login_shell = 0;
+	        cfg.invoke_as_login_shell = 0;
 	        break;
 	case GEOMETRY_KEY:
 		geometry = arg;
@@ -1175,12 +1332,12 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 		state->next = state->argc;
 		break;
 	case FORE_KEY:
-		fore_color = arg;
-		color_set  = COLORS_CUSTOM;
+		user_fore_color = arg;
+		cfg.color_set  = COLORS_CUSTOM;
 		break;
 	case BACK_KEY:
-		back_color = arg;
-		color_set  = COLORS_CUSTOM;
+		user_back_color = arg;
+		cfg.color_set  = COLORS_CUSTOM;
 		break;
 	case DISCARD_KEY:
 		gnome_client_disable_master_connection ();
@@ -1201,6 +1358,8 @@ int
 main (int argc, char *argv [], char **environ)
 {
 	GnomeClient *client, *clone;
+	char * program_name;
+	char * class;
 
 	argp_program_version = VERSION;
 
@@ -1208,6 +1367,19 @@ main (int argc, char *argv [], char **environ)
 	
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
+
+	program_name = strrchr(argv[0], '/');
+	if (!program_name) 
+		program_name = argv[0];
+	else
+		program_name++;
+
+	if (getenv("GNOME_TERMINAL_CLASS"))
+		class = g_strconcat("Class-", getenv("GNOME_TERMINAL_CLASS"), NULL);
+	else if (strcmp(program_name, "gnome-terminal"))
+		class = g_strconcat("Class-", program_name, NULL);
+	else
+		class = g_strdup("Config");
 	
 	gnome_init ("Terminal", &parser, argc, argv, 0, NULL);
 
@@ -1222,7 +1394,26 @@ main (int argc, char *argv [], char **environ)
 	gtk_signal_connect (GTK_OBJECT (client), "die",
 			    GTK_SIGNAL_FUNC (die), NULL);
 
-	terminal_load_defaults ();
+	load_config (&cfg, class);
+	g_free(class);
+
+	/* now to override the defaults */
+	if (user_font)
+	    free(cfg.font), cfg.font = g_strdup(user_font);
+	if (user_fore_color || user_back_color) {
+		int failed = 0;
+		
+		if (user_fore_color && !gdk_color_parse (user_fore_color, &cfg.user_fore))
+			failed = 1;
+
+		if (user_back_color && !gdk_color_parse (user_back_color, &cfg.user_back))
+			failed = 1;
+
+		if (failed) 
+			cfg.color_set = 0;
+		else
+			cfg.color_set = COLORS_CUSTOM;
+	}
 
 	clone = gnome_cloned_client ();
 	if (! clone || ! load_session (clone))

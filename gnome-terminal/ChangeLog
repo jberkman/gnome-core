@@ -1,7 +1,21 @@
+1998-59-28  Erik Troan  <ewt@redhat.com>
+
+	* gnome_terminal.c: store all configuration information
+	in a single structure
+
+	* gnome_terminal.c: added terminal classes, and put class
+	on the preferences panel
+
 1998-17-26  Erik Troan  <ewt@redhat.com>
 
-	* gnome_terminal.: the color_style attribute wasn't tied
-	the color_style preferences menu
+	* gnome_terminal.c: added terminal classes for storing
+	multiple configurations
+
+	* gnome_terminal.c (set_active): the color_style attribute wasn't 
+	tied the color_style preferences menu
+
+* Wed Aug 26 1998 Erik Troan <ewt@redhat.com>
+d
 
 1998-08-06  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
