@@ -145,6 +145,7 @@ property_main (int argc, char *argv [])
 
 	gtk_init (&argc, &argv);
 	gnome_init (&argc, &argv);
+	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 
 	display_config = gnome_property_configurator_new ();
