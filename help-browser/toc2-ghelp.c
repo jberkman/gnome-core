@@ -47,8 +47,9 @@ GList *newGhelpTable(struct _toc_config *conf)
 		while (temp)
 		  {
 		    lang= (gchar*) temp->data;
-		    sprintf (filename, "%s/%s/%s/index.html",
-			conf->path, dirp->d_name, lang);
+		    snprintf (filename, sizeof(fullname),
+			      "%s/%s/%s/index.html",
+			      conf->path, dirp->d_name, lang);
 		    
 		    if (stat (filename, &buf) == 0)
 		      break;

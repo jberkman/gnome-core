@@ -40,7 +40,7 @@ static char *makeBaseName(char *name)
     char buf[BUFSIZ];
     char *end, *s, *ss;
 
-    strcpy(buf, name);
+    strncpy(buf, name, sizeof(buf));
     end = buf + strlen(buf);
 
     /* Strip off any trailing `.gz' */
@@ -110,7 +110,8 @@ void expandInfoRoot(GtkWidget *item)
 		}
 		
 		p = malloc(sizeof(*p));
-		sprintf(fullname, "%s/%s", toc->path, dirp->d_name);
+		snprintf(fullname, sizeof(fullname),
+			 "%s/%s", toc->path, dirp->d_name);
 		p->filename = g_strdup(fullname);
 		p->len = strlen(fullname);
 		p->basename = makeBaseName(dirp->d_name);

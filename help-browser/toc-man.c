@@ -71,7 +71,7 @@ void expandManPagesIndex(GtkWidget *item, struct _man_sections *ext)
 	    toc++;
 	    continue;
 	}
-	sprintf(dirname, "%s/man%c", toc->path, ext->ch);
+	snprintf(dirname, sizeof(dirname), "%s/man%c", toc->path, ext->ch);
 
 	d = opendir(dirname);
 	if (d) {
@@ -80,7 +80,8 @@ void expandManPagesIndex(GtkWidget *item, struct _man_sections *ext)
 		       && strcmp(".", dirp->d_name))) {
 		    continue;
 		}
-		sprintf(fullname, "%s/%s", dirname, dirp->d_name);
+		snprintf(fullname, sizeof(fullname),
+			 "%s/%s", dirname, dirp->d_name);
 		list = g_list_insert_sorted(list, g_strdup(fullname),
 					    (GCompareFunc)compareItems);
 	    }
@@ -97,7 +98,8 @@ void expandManPagesIndex(GtkWidget *item, struct _man_sections *ext)
 	/* Make item, link it in, show it */
 	this = strrchr(listItem->data, '/') + 1;
 	if (! strcmp(this, last)) {
-	    sprintf(fullname, "%s (%s)", this, (char *)listItem->data);
+	    snprintf(fullname, sizeof(fullname),
+		     "%s (%s)", this, (char *)listItem->data);
 	    newitem = gtk_tree_item_new_with_label(fullname);
 	} else {
 	    newitem = gtk_tree_item_new_with_label(this);
@@ -153,7 +155,7 @@ void expandManPagesRoot(GtkWidget *item)
 	}
 	p = man_sections;
 	while (p->ch) {
-	    sprintf(dirname, "%s/man%c", toc->path, p->ch);
+	    snprintf(dirname, sizeof(dirname), "%s/man%c", toc->path, p->ch);
 	    d = opendir(dirname);
 	    if (d) {
 	        while (d && (dirp = readdir(d))) {

@@ -138,11 +138,11 @@ static void appendEntry(History h, gchar *ref, gint date, guint count)
     entry->timestamp = (time_t)date;
     g_hash_table_insert(h->table, entry->ref, entry);
 
-    sprintf(buf0, "%s", ref);
+    snprintf(buf0, sizeof(buf0), "%s", ref);
     timet = (time_t)entry->timestamp;
     tstruct = localtime(& timet);
     strftime(buf1, sizeof(buf1), "%b %d, %Y %H:%M", tstruct);
-    sprintf(buf2, "%d", entry->count);
+    snprintf(buf2, sizeof(buf2), "%d", entry->count);
 
     text[0] = buf0;
     text[1] = buf1;
@@ -193,11 +193,11 @@ void addToHistory(History h, gchar *ref)
     }
     entry->timestamp = time(NULL);
 
-    sprintf(buf0, "%s", ref);
+    snprintf(buf0, sizeof(buf0), "%s", ref);
     timet = (time_t)entry->timestamp;
     tstruct = localtime(& timet);
     strftime(buf1, sizeof(buf1), "%b %d, %Y %H:%M", tstruct);
-    sprintf(buf2, "%d", entry->count);
+    snprintf(buf2, sizeof(buf2), "%d", entry->count);
 
     text[0] = buf0;
     text[1] = buf1;

@@ -59,7 +59,8 @@ GList *newInfoTable(struct _toc_config *conf)
 		
 		p = g_malloc(sizeof(*p));
 		p->basename = makeBaseName(dirp->d_name);
-		sprintf(fullname, "%s/%s", conf->path, dirp->d_name);
+		snprintf(fullname, sizeof(fullname),
+			 "%s/%s", conf->path, dirp->d_name);
 		p->filename = g_strdup(fullname);
 		p->len = strlen(fullname);
 		
@@ -112,7 +113,7 @@ static gchar *makeBaseName(gchar *name)
     gchar buf[BUFSIZ];
     gchar *end, *s, *ss;
 
-    strcpy(buf, name);
+    strncpy(buf, name, sizeof(buf));
     end = buf + strlen(buf);
 
     /* Strip off any trailing `.gz' */
@@ -291,7 +292,7 @@ static gchar *findInfoFile(gchar *rootFile, gchar *name)
     gchar buf[BUFSIZ];
     gchar *s;
 
-    strcpy(buf, rootFile);
+    strncpy(buf, rootFile, sizeof(buf));
     s = strrchr(buf, '/');
     s++;
     *s = '\0';

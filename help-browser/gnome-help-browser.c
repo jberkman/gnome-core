@@ -548,7 +548,7 @@ static void initConfig(void)
     }
 
     errno = 0;
-    sprintf(buf, "%s/%s", getenv("HOME"), HELP_BROWSER_RC_DIR);
+    snprintf(buf, sizeof(buf), "%s/%s", getenv("HOME"), HELP_BROWSER_RC_DIR);
     if (stat(buf, &statb)) {
 	if (mkdir(buf, 0755)) {
 	    g_error("Unable to mkdir $HOME/%s: %s",
@@ -656,7 +656,7 @@ generateConfigWidgets(GnomePropertyBox *property, struct _config_entry *configs,
 	p->entry = entry;
 
 	if (p->type == CONFIG_INT) {
-	    sprintf(buf, "%d", *(gint *)(p->var));
+	    snprintf(buf, sizeof(buf), "%d", *(gint *)(p->var));
 	    gtk_entry_set_text(GTK_ENTRY(entry), buf);
 	} else if (p->type == CONFIG_TEXT) {
 	    gtk_entry_set_text(GTK_ENTRY(entry), *(gchar **)(p->var));

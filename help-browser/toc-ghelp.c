@@ -54,7 +54,7 @@ void expandGHelpRoot(GtkWidget *item)
 		    lang = getenv("LANG");
 		if (!lang)
 		    lang = "C";
-		sprintf(fullname, "%s/%s/%s/index.html",
+		snprintf(fullname, sizeof(fullname), "%s/%s/%s/index.html",
 			toc->path, dirp->d_name, lang);
 		
 		/* XXX need to traverse LANGUAGE to find right

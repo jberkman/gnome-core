@@ -30,7 +30,7 @@ transport( docObj obj, DataCache cache )
     gint len;
 
     url = docObjGetDecomposedUrl(obj);
-    sprintf(key, "%s://%s%s", url->access, url->host, url->path);
+    snprintf(key, sizeof(key), "%s://%s%s", url->access, url->host, url->path);
 
     if (docObjUseCache(obj) && cache) {
 	p = lookupInDataCacheWithLen(cache, key, &len);
@@ -82,7 +82,8 @@ transportFile( docObj obj )
 	mime = docObjGetMimeType(obj);
 	if (mime && !strcmp(mime, "application/x-troff-man")) {
 	    if (!strncmp(buf, ".so ", 4)) {
-		strcpy(filename, docObjGetDecomposedUrl(obj)->path);
+		strncpy(filename, docObjGetDecomposedUrl(obj)->path,
+		       sizeof(filename));
 		if ((s = strrchr(filename, '/'))) {
 		    *s = '\0';
 		    if ((s = strrchr(filename, '/'))) {
@@ -166,7 +167,7 @@ transportHTTP( docObj obj )
 	return -1;
     }
 
-    sprintf(buf, "GET %s HTTP/1.0\n\n", docObjGetDecomposedUrl(obj)->path);
+    snprintf(buf, sizeof(buf), "GET %s HTTP/1.0\n\n", docObjGetDecomposedUrl(obj)->path);
     write(sock, buf, strlen(buf));
 
     /* This is not efficient */

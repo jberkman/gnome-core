@@ -53,7 +53,7 @@ struct _toc_config *addToConfig(struct _toc_config *index,
 	return index;
     }
 
-    strcpy(buf, paths);
+    strncpy(buf, paths, sizeof(buf));
     rest = buf;
 
     while ((s = strtok(rest, ":"))) {
