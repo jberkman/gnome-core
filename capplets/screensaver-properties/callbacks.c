@@ -82,7 +82,7 @@ get_and_set_pword ()
         static GtkWidget *retval = NULL;
 
         if (!retval) {
-                retval = gtk_check_button_new_with_label (_("Requires Password"));
+                retval = gtk_check_button_new_with_label (_("Require Password"));
                 gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (retval), password);
                 gtk_signal_connect (GTK_OBJECT (retval), "toggled", (GtkSignalFunc) password_callback, NULL);
         } else
