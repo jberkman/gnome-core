@@ -2270,7 +2270,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	
 	bonobo_ui_component_add_verb_list_with_data (uic, terminal_verbs, term);
 	bonobo_ui_util_set_ui (uic, GNOME_TERMINAL_DATADIR,
-			       "gnome-terminal.xml", "gnome-terminal");
+			       "gnome-terminal.xml", "gnome-terminal", NULL);
 	
 	bonobo_ui_component_add_listener (uic, "ToggleMenuBar", 
 					  toggle_menubar_cmd, term);

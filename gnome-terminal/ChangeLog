@@ -1,3 +1,7 @@
+2001-11-05  Michael Meeks  <michael@ximian.com>
+
+	* gnome-terminal.c (new_terminal_cmd): fixup _set_ui.
+
 2001-11-02  Havoc Pennington  <hp@pobox.com>
 
 	* gnome-terminal.desktop (Exec): remove NO_XALF crack. 
