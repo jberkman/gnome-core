@@ -201,7 +201,7 @@ gint capplet_widget_corba_init(const char *app_id,
 
         orb = gnome_CORBA_init_with_popt_table (app_id, app_version,
                                                 argc, argv, options, flags,
-                                                return_ctx, &ev);
+                                                return_ctx, GNORBA_INIT_SERVER_FUNC, &ev);
 
         /* sanity check */
         if ((xid == 0) || (cc_ior == NULL) || (id == -1)) {

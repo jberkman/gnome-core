@@ -65,7 +65,7 @@ control_center_corba_gtk_init(gint *argc, char **argv)
         CORBA_exception_init(&ev);
         //        gnome_init("desktop-manager", NULL, *argc, argv, 0, NULL);
         //        orb = CORBA_ORB_init(argc, argv, "orbit-local-orb", &ev);
-        orb = gnome_CORBA_init ("desktop-manager", VERSION, argc, argv, &ev);
+        orb = gnome_CORBA_init ("desktop-manager", VERSION, argc, argv, GNORBA_INIT_SERVER_FUNC, &ev);
         poa = CORBA_ORB_resolve_initial_references(orb, "RootPOA", &ev);
         POA_GNOME_control_center__init(&poa_control_center_servant, &ev);
         PortableServer_POAManager_activate(PortableServer_POA__get_the_POAManager(poa, &ev), &ev);

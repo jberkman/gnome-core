@@ -165,9 +165,6 @@ main(int argc, char *argv[])
     CORBA_Object                name_service;
     gchar*                      objref;
     gchar **leftovers;
-    CosNaming_NameComponent nc[3] = {{"GNOME", "subcontext"},
-				     {"Servers", "subcontext"}};
-    CosNaming_Name nom = {0, 3, nc, CORBA_FALSE};
     int            output_fd;
     poptContext ctx;
     
@@ -179,7 +176,8 @@ main(int argc, char *argv[])
     textdomain (PACKAGE);
 
     orb = gnome_CORBA_init_with_popt_table(NAME, VERSION, &argc, argv,
-					   options, 0, &ctx, &ev);
+					   options, 0, &ctx, GNORBA_INIT_SERVER_FUNC, &ev);
+
     leftovers = poptGetArgs(ctx);
     if(leftovers && leftovers[0]) {
       helpURL = leftovers[0];
@@ -241,7 +239,7 @@ main(int argc, char *argv[])
     name_service = gnome_name_service_get();
     if (!CORBA_Object_is_nil(name_service, &ev))
       {
-	goad_server_register(name_service, browser_object, "help-browser", "object", &ev);
+	goad_server_register(name_service, browser_object, "gnome-help-browser", "object", &ev);
         fprintf(stderr,"\n%s\n", objref);
       }
 
