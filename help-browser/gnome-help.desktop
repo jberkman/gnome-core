@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Help system
+Name[ja]=¥Ø¥ë¥×¥·¥¹¥Æ¥à
 Name[es]=Sistema de ayuda 
 Name[fr]=Système d'Aide
 Name[de]=GNOME Hilfe
@@ -7,6 +8,7 @@ Name[ko]=µµ¿ò¸» ½Ã½ºÅÛ
 Name[no]=GNOME Hjelp
 Name[pt]=Ajuda GNOME
 Comment=Integrated help system (Info, man, HTML)
+Comment[ja]=¥Ø¥ë¥×¥·¥¹¥Æ¥à(Info, man, HTML)
 Comment[es]=Sistema integral de ayuda (Info, man, HTML)
 Comment[fr]=Système d'Aide Intégré (Info, man, HTML)
 Comment[de]=Integriertes Hilfesystem (Info, man, HTML)

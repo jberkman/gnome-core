@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Mouse Properties
+Name[ja]=¥Þ¥¦¥¹
 Name[es]=Propiedades del ratón
 Name[de]=Maus Einstellungen
 Name[ko]=¸¶¿ì½º ¼³Á¤
@@ -7,6 +8,7 @@ Name[fr]=Propriétés de la souris
 Name[no]=Egenskaper for mus
 Name[pt]=Propriedades do Rato
 Comment=Mouse Properties
+Comment[ja]=¥Þ¥¦¥¹¥×¥í¥Ñ¥Æ¥£
 Comment[es]=Modifica las propiedades del ratón
 Comment[de]=Einstellungen für die Maus
 Comment[ko]=¸¶¿ì½º ¼³Á¤

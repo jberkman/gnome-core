@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Keyboard Properties
+Name[ja]=¥­¡¼¥Ü¡¼¥É
 Name[es]=Propiedades del teclado
 Name[de]=Tastatur Einstellungen
 Name[ko]=Å°º¸µå ¼³Á¤
@@ -7,6 +8,7 @@ Name[fr]=Propriétés du clavier
 Name[no]=Egenskaper for tastatur
 Name[pt]=Propriedades do Teclado
 Comment=Keyboard Properties
+Comment[ja]=¥­¡¼¥Ü¡¼¥É¥×¥í¥Ñ¥Æ¥£
 Comment[es]=Modifica las propiedades del teclado
 Comment[de]=Einstellungen für die Tastatur
 Comment[ko]=Å°º¸µå ¼³Á¤

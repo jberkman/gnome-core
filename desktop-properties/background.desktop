@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Background Properties
+Name[ja]=¥Ð¥Ã¥¯¥°¥é¥¦¥ó¥É
 Name[es]=Propiedades del tapiz
 Name[de]=Hintergrund Einstellungen
 Name[ko]=¹è°æ ¼³Á¤
@@ -7,6 +8,7 @@ Name[fr]=Propriètés de l'Arrière-plan
 Name[no]=Egenskaper for bakgrunn
 Name[pt]=Propriedades do Fundo
 Comment=Background Properties
+Comment[ja]=¥Ð¥Ã¥¯¥°¥é¥¦¥ó¥É¥×¥í¥Ñ¥Æ¥£
 Comment[es]=Propiedades del tapiz
 Comment[de]=Einstellungen für den Desktop Hintergrund
 Comment[ko]=¹è°æ ¼³Á¤
