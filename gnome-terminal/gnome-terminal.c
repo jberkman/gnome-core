@@ -52,6 +52,7 @@ enum targets_enum {
 };
 
 struct terminal_config {
+        int bell        :1;                     /* Do we want the bell? */
 	int blink       :1; 			/* Do we want blinking cursor? */
 	int scroll_key  :1;			/* Scroll on input? */
 	int scroll_out  :1;			/* Scroll on output? */
@@ -94,6 +95,7 @@ typedef struct {
 	GtkWidget *transparent_checkbox;
 	GtkWidget *shaded_checkbox;
 	GtkWidget *menubar_checkbox;
+        GtkWidget *bell_checkbox;
 	GtkWidget *font_entry;
 	GtkWidget *color_scheme;
 	GtkWidget *def_fore_back;
@@ -391,6 +393,7 @@ gather_changes (ZvtTerm *term)
 
 	memset (newcfg, 0, sizeof (*newcfg));
 
+	newcfg->bell           = GTK_TOGGLE_BUTTON (prefs->bell_checkbox)->active;
 	newcfg->blink          = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
 	newcfg->swap_keys      = GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox)->active;
 	newcfg->menubar_hidden = GTK_TOGGLE_BUTTON (prefs->menubar_checkbox)->active;
@@ -467,6 +470,7 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 
 	/*zvt_term_set_font_name (term, cfg->font);*/
 	gnome_term_set_font (term, cfg->font);
+	zvt_term_set_bell(term, !cfg->bell);
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
@@ -754,11 +758,12 @@ enum {
 	FONT_ROW        = 2,
 	BLINK_ROW       = 3,
 	MENUBAR_ROW     = 4,
-	SWAPKEYS_ROW    = 5,
-	PIXMAP_ROW	= 6,
-	PIXMAP_FILE_ROW	= 7,
-	TRANSPARENT_ROW = 8,
-	SHADED_ROW      = 9,
+	BELL_ROW        = 5,
+	SWAPKEYS_ROW    = 6,
+	PIXMAP_ROW	= 7,
+	PIXMAP_FILE_ROW	= 8,
+	TRANSPARENT_ROW = 9,
+	SHADED_ROW      = 10,
 	SCROLL_ROW      = 1,
 	SCROLLBACK_ROW  = 2,
 	KBDSCROLL_ROW   = 3,
@@ -874,6 +879,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
 			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Toggle the bell */
+	prefs->bell_checkbox = gtk_check_button_new_with_label (_("Silence Terminal bell"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->bell_checkbox),
+				     zvt_term_get_bell(term) ? 0 : 1);
+	gtk_signal_connect (GTK_OBJECT (prefs->bell_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->bell_checkbox,
+			  2, 3, BELL_ROW, BELL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Swap keys */
 	prefs->swapkeys_checkbox = gtk_check_button_new_with_label (_("Swap DEL/Backspace"));
@@ -1070,6 +1084,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg)
 	gnome_config_set_string ("scrollpos",
 				 cfg->scrollbar_position == SCROLLBAR_LEFT ? "left" :
 				 cfg->scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
+	gnome_config_set_bool   ("bell_silenced", cfg->bell);
 	gnome_config_set_bool   ("blinking", cfg->blink);
 	gnome_config_set_bool   ("swap_del_and_backspace", cfg->swap_keys);
 	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
@@ -1430,6 +1445,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 #endif
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	gnome_term_set_font (term, cfg->font);
+	zvt_term_set_bell  (term, !cfg->bell);
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
