@@ -1,3 +1,8 @@
+1999-02-10  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
+
+	* gnome-terminal.c (gather_changes): When modifying the Default
+	terminal class, save it under "Config" instead of _("Config").
+
 1999-02-09  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (hide_menu_cmd): Save show/hide setting here.

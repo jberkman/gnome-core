@@ -418,7 +418,7 @@ gather_changes (ZvtTerm *term)
 
 	if (!strcmp (gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (prefs->class_box)->entry)),
 			_("Default")))
-		newcfg->class = g_strdup (_("Config"));
+		newcfg->class = g_strdup ("Config");
 	else
 		newcfg->class = g_strconcat ("Class-", gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (prefs->class_box)->entry)), NULL);
 
