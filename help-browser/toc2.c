@@ -137,7 +137,7 @@ static GString *generateHTML(Toc toc)
 	
 	s = g_string_new(NULL);
 	/* XXX should also have mime type info */
-	g_string_sprintf(s, "<a href=\"file:%s\">%s</a> ", link, name);
+	g_string_sprintf(s, "<a href=\"man:%s(%c)\">%s</a> ", name, ext, name);
 	g_string_append(res, s->str);
 	g_string_free(s, TRUE);
 
