@@ -104,6 +104,8 @@ static void setCurrent(HelpWindow w);
 
 static void pageUp(GtkWidget *w, HelpWindow win);
 static void pageDown(GtkWidget *w, HelpWindow win);
+static void spaceUp(GtkWidget *w, HelpWindow win);
+static void spaceDown(GtkWidget *w, HelpWindow win);
 static void focusEnter(GtkWidget *w, HelpWindow win);
 
 static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
@@ -580,6 +582,8 @@ static void init_accel(HelpWindow win)
 {
     static gint page_up_signal = 0;
     static gint page_down_signal = 0;
+    static gint up_signal = 0;
+    static down_signal = 0;
     static gint grab_focus_signal = 0;
 
     GtkAccelGroup *accel_group = gtk_accel_group_get_default();
@@ -597,6 +601,18 @@ static void init_accel(HelpWindow win)
 	 GTK_RUN_FIRST,
 	 gtk_marshal_NONE__NONE,
 	 GTK_TYPE_NONE, 0);
+      up_signal = gtk_object_class_user_signal_new
+	(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb)->klass,
+	 "up",
+	 GTK_RUN_FIRST,
+	 gtk_marshal_NONE__NONE,
+	 GTK_TYPE_NONE, 0);
+      down_signal = gtk_object_class_user_signal_new
+	(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb)->klass,
+	 "down",
+	 GTK_RUN_FIRST,
+	 gtk_marshal_NONE__NONE,
+	 GTK_TYPE_NONE, 0);
     }
     gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
 		       "page_up", 
@@ -604,6 +620,12 @@ static void init_accel(HelpWindow win)
     gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
 		       "page_down", 
 		       GTK_SIGNAL_FUNC(pageDown), win);
+    gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
+		       "up", 
+		       GTK_SIGNAL_FUNC(spaceUp), win);
+    gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
+		       "down", 
+		       GTK_SIGNAL_FUNC(spaceDown), win);
     gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
 			       "page_up", accel_group, 
 			       'b', 0, 0);
@@ -617,6 +639,12 @@ static void init_accel(HelpWindow win)
     gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
 			       "page_down", accel_group, 
 			       GDK_Page_Down, 0, 0);
+    gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
+			       "up", accel_group, 
+			       GDK_Up, 0, 0);
+    gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
+			       "down", accel_group, 
+			       GDK_Down, 0, 0);
     gtk_widget_add_accelerator(win->entryBox, 
 			       "grab_focus", accel_group, 
 			       'g', 0, 0);
@@ -636,6 +664,22 @@ static void pageDown(GtkWidget *w, HelpWindow win)
     
     adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
     gtk_adjustment_set_value(adj, adj->value + (adj->page_size));
+}
+
+static void spaceUp(GtkWidget *w, HelpWindow win)
+{
+    GtkAdjustment *adj;
+    
+    adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
+    gtk_adjustment_set_value(adj, adj->value - (adj->step_increment));
+}
+
+static void spaceDown(GtkWidget *w, HelpWindow win)
+{
+    GtkAdjustment *adj;
+    
+    adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
+    gtk_adjustment_set_value(adj, adj->value + (adj->step_increment));
 }
 
 static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
