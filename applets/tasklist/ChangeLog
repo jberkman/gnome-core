@@ -1,3 +1,7 @@
+2000-04-22 John Fleck <jfleck@inkstain.net>
+
+	* updated tasklist-fig.png to reflect wmhint icon support
+
 2000-04-16  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_properties.c (cb_spin_button): connect to "changed" on the
