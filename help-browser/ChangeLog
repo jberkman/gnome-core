@@ -1,3 +1,9 @@
+1999-05-15  Jacob Berkman  <jberk+@cmu.edu>
+
+	* help/wa/.cvsignore: added file
+
+	* help/eu/.cvsignore: added file
+
 1999-03-17  Ettore Perazzoli  <ettore@comm2000.it>
 
 	* gnome-help.desktop: Added Italian translations.
