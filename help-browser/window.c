@@ -454,9 +454,7 @@ makeEntryArea(HelpWindow w)
     gtk_widget_show(entry);
     gtk_signal_connect(GTK_OBJECT(GTK_COMBO(entry)->entry),
 		       "activate", (GtkSignalFunc)entryChanged, w);
-    gtk_signal_disconnect(GTK_OBJECT(GTK_COMBO(entry)->entry),
-			  GTK_COMBO(entry)->activate_id);
-    
+
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
     gtk_container_add(GTK_CONTAINER(handleBox), hbox);
@@ -732,7 +730,7 @@ helpWindowNew(gchar *name,
 					     GTK_SIGNAL_FUNC(formActivate), w);
 
 	gtk_box_pack_start(GTK_BOX(vbox), w->helpWidget, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), w->appBar, FALSE, FALSE, 0);
+
 	gnome_app_set_contents(GNOME_APP(w->app), vbox);
 
 	/* HACKHACKHACK this will grab images via http */
