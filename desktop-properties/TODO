@@ -1,0 +1,10 @@
+global
+- bug in gtk - when rc changes font => improper geometry management
+background
+screensaver
+- position of xlock parent window - something is wrong
+- special handling for random mode - maybe make own
+- xlock global settings
+
+- change double-click speed on mouse page
+  this requires changes to gtk

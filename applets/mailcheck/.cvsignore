@@ -1,0 +1,6 @@
+Makefile.in
+Makefile
+.deps
+mailcheck.lo
+_libs
+libpanel_mailcheck.la
