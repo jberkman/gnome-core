@@ -15,6 +15,7 @@ gnomecc_SOURCES =	\
 	callbacks.h	\
 	$(CORBA_SRCLIST)
 
+BUILT_SOURCES = $(CORBA_SRCLIST)
 
 CORBA_SRCLIST = control-center-skels.c control-center-stubs.c control-center-common.c control-center.h
 
