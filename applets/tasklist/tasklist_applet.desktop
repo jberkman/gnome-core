@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Tasklist
 Name[cs]=Seznam ϊloh
+Name[da]=Jobliste
 Name[de]=Taskliste
 Name[el]=Λίστα Διεργασιών
 Name[es]=Lista de tareas
@@ -17,6 +18,7 @@ Name[zh_TW.Big5]=€u§@¦Cͺν
 Name[zh_CN.GB2312]=Ή€ΧχΑΠ±ν
 Comment=GNOME Tasklist
 Comment[cs]=Seznam ϊloh/procesω pro Gnome
+Comment[da]=Oversigt over kψrende programmer
 Comment[de]=GNOMEs Taskliste
 Comment[el]=Λίστα Διεργασιών GNOME
 Comment[es]=Lista de tareas de GNOME
