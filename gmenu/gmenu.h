@@ -1,6 +1,6 @@
 /*
  * GNOME menu editor revision 2
- * (C)1999
+ * (C)2000
  *
  * Authors: John Ellis <johne@bellatlantic.net>
  *          Nat Friedman <nat@nat.org>
@@ -21,10 +21,6 @@
 
 #include <gnome.h>
 
-        /* definitions */
-#define GMENU_VERSION_MAJOR 1
-#define GMENU_VERSION_MINOR 0
-#define GMENU_VERSION_MICRO 1
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data

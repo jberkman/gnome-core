@@ -1,6 +1,6 @@
 /*
  * GNOME menu editor revision 2
- * (C)1999
+ * (C)2000
  *
  * Authors: John Ellis <johne@bellatlantic.net>
  *          Nat Friedman <nat@nat.org>
@@ -226,7 +226,6 @@ static gint about_close_cb(GtkWidget *widget, GdkEventAny *event, gpointer data)
 static void about_dialog(void)
 {
 	const gchar *authors[3];
-	gchar version[32];
 
 	if (about)
 	{
@@ -235,14 +234,12 @@ static void about_dialog(void)
 		return; /* avoid duplicates */
 	}
 
-	sprintf(version,"%d.%d.%d",GMENU_VERSION_MAJOR, GMENU_VERSION_MINOR, GMENU_VERSION_MICRO);
-
 	authors[0] = "John Ellis <johne@bellatlantic.net>";
 	authors[1] = "Nat Friedman <nat@nat.org>";
 	authors[2] = NULL;
 
-	about = gnome_about_new ( _("GNOME menu editor"), version,
-			"(C) 1999",
+	about = gnome_about_new ( _("GNOME menu editor"), VERSION,
+			"(C) 2000",
 			authors,
 			_("Released under the terms of the GNU Public License.\n"
 			"GNOME menu editor."),

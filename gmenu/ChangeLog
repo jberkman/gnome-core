@@ -1,3 +1,7 @@
+Wed Oct 18 17:37:58 2000  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.h, main.c(about_dialog): Use right VERSION in about dialog.
+
 Wed Sep 27 17:04:25 2000  George Lebl <jirka@5z.com>
 
 	* desktop.c, edit.c, gmenu.h, order.c, save.c, tree.c, treenew.c,
