@@ -222,7 +222,12 @@ gnome_term_set_font (ZvtTerm *term, char *font_name)
 
 	font = gdk_font_load (font_name);
 	if (font)
-		zvt_term_set_fonts  (term, font, 0);
+#ifdef ZVT_TERM_EMBOLDEN_SUPPORT
+		if (zvt_term_get_capabilities(term) & ZVT_TERM_EMBOLDEN_SUPPORT)
+			zvt_term_set_fonts  (term, font, 0);
+		else
+#endif
+			zvt_term_set_fonts  (term, font, font);
 	
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
@@ -1597,10 +1602,13 @@ size_allocate (GtkWidget *widget)
 	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	g_assert (app != NULL);
 
+	/* eek, this isn't right, but it kinda works */
+#define PADDING 2
 	sizehints.base_width = 
 	  (GTK_WIDGET (app)->allocation.width) +
-	  (GTK_WIDGET (term)->style->klass->xthickness * 2) -
-	  (GTK_WIDGET (term)->allocation.width);
+	  (GTK_WIDGET (term)->style->klass->xthickness * 4) -
+	  (GTK_WIDGET (term)->allocation.width) +
+		PADDING;
 
 	sizehints.base_height =
 	  (GTK_WIDGET (app)->allocation.height) +

@@ -1,3 +1,10 @@
+1999-04-04  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
+
+	* gnome-terminal.c (gnome_term_set_font): Only call
+	zvt_term_set_fonts() with a NULL bold_font if
+	ZVT_TERM_EMBOLDEN_SUPPORT is defined _and_ enabled.  Otherwise
+	dont.
+
 1999-04-02  Jacob Berkman  <jberk+@cmu.edu>
 
 	* gnome-terminal.c: Added a configuration option to start the
@@ -16,6 +23,7 @@
 	* gnome-terminal.c (gnome_term_set_font): Since we dont know the
 	bold font name, dont try and set it.  Let the widget automagically
 	enbolden the font at render time.
+	(size_allocate): Make sure we add the PADDING value.
 
 	* C/gnome-terminal.sgml: Buckets of changes to the documentation.
 	Added descriptions of all the menu's, selecting stuff, bring up
