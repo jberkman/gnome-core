@@ -1,16 +1,21 @@
-pixmapdir = $(datadir)/pixmaps/mailcheck
+INCLUDES = -I. -I$(srcdir) 				\
+	-I$(srcdir)/../../panel				\
+	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"	\
+	-I$(includedir) $(GNOME_INCLUDEDIR)
 
-INCLUDES = 			\
-	-I../../.. 		\
-	-I$(srcdir)/../../.. 	\
-	-I$(includedir)
+bin_PROGRAMS = mailcheck_applet
 
-lib_LTLIBRARIES = libpanel_mailcheck.la
+mailcheck_applet_SOURCES = mailcheck.c
 
-libpanel_mailcheck_la_SOURCES = 	\
-	mailcheck.c
+MICO_VERS = 2.0.3
+MICO_LIBS = -lmicocoss$(MICO_VERS) -lmicoaux$(MICO_VERS) -lmico$(MICO_VERS)
 
+mailcheck_applet_LDADD = ../../panel/libpanel_applet.la \
+		     $(GNOME_LIBDIR) $(MICO_LIBS) -lXt \
+		     $(GNOMEUI_LIBS) $(INTLLIBS) -lstdc++
 
-pixmap_DATA = email.xpm email-e.xpm
-EXTRA_DIST = $(pixmap_DATA)
+EXTRA_DIST = mailcheck_applet.desktop
+
+sysdir = $(datadir)/applets/Network
+sys_DATA = mailcheck_applet.desktop
 

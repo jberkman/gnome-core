@@ -7,26 +7,26 @@
  */
 
 #include <config.h>
+#ifdef HAVE_LIBINTL
+#    include <libintl.h>
+#endif
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
 #include <gnome.h>
-#include "../panel_cmds.h"
-#include "../applet_cmds.h"
-#include "../panel.h"
+#include "applet-lib.h"
+#include "panel.h"
 #include <gdk_imlib.h>
 
 #define WIDGET_HEIGHT 48
 
-#define APPLET_ID "Mail check"
+GtkWidget *plug = NULL;
 
-static PanelCmdFunc panel_cmd_func;
+int applet_id = -1;/*this is our id we use to comunicate with the panel */
 
 static char *mail_file;
-
-gpointer applet_cmd_func(AppletCommand *cmd);
 
 /* If set, the user has launched the mail viewer */
 static int mailcleared;
@@ -53,9 +53,6 @@ static GtkWidget *containee;
 static GtkWidget *da;
 static GdkPixmap *email_pixmap;
 static GdkBitmap *email_mask;
-
-/* The panel main window */
-static GtkWidget *panel_window;
 
 /* handle for the timeout */
 static int mail_timeout;
@@ -86,7 +83,7 @@ static GtkWidget *property_window;
 
 static char *mailcheck_text_only;
 
-static char *config_animation_file = "/panel/Mail Check/animation_file";
+static char *animation_file = NULL;
 
 
 static void close_callback (GtkWidget *widget, void *data);
@@ -97,21 +94,21 @@ mail_animation_filename ()
 {
 	char *fname;
 
-	fname = gnome_config_get_string (config_animation_file);
+	fname = g_strdup(animation_file);
 	if (fname && *fname){
 		if (g_file_exists (fname))
 			return fname;
 		else
-			free (fname);
+			g_free (fname);
 	} else if(fname && !*fname) {
-		free (fname);
+		g_free (fname);
 		/*we are using text only, since the filename was ""!*/
 		return NULL;
 	}
 	fname = gnome_unconditional_pixmap_file ("mailcheck/email.xpm");
 	if (g_file_exists (fname))
 		return fname;
-	free (fname);
+	g_free (fname);
 	return NULL;
 }
 
@@ -313,34 +310,6 @@ create_mail_widgets ()
 	return bin;
 }
 
-static void
-create_instance (PanelWidget *panel, char *params, int pos)
-{
-	PanelCommand cmd;
-	GtkWidget *mailcheck;
-
-	/* Only allow one instance of this module */
-	if (bin)
-		return;
-	
-	mail_file = getenv ("MAIL");
-	if (!mail_file)
-		return;
-
-	/* default: use animations */
-	report_mail_mode = REPORT_MAIL_USE_ANIMATION;
-
-	panel_window = GTK_WIDGET(panel);
-	mailcheck = create_mail_widgets ();
-	cmd.cmd = PANEL_CMD_REGISTER_TOY;
-	cmd.params.register_toy.applet = mailcheck;
-	cmd.params.register_toy.id     = APPLET_ID;
-	cmd.params.register_toy.pos    = pos;
-	cmd.params.register_toy.flags  = APPLET_HAS_PROPERTIES;
-
-	(*panel_cmd_func) (&cmd);
-}
-
 void
 set_selection (GtkWidget *widget, void *data)
 {
@@ -418,7 +387,8 @@ load_new_pixmap_callback (GtkWidget *widget, void *data)
 	if (selected_pixmap_name == mailcheck_text_only) {
 		report_mail_mode = REPORT_MAIL_USE_TEXT;
 		containee = label;
-		gnome_config_set_string (config_animation_file, "");
+		if(animation_file) g_free(animation_file);
+		animation_file = NULL;
 		mail_check_timeout (0);
 	} else {
 		char *fname = g_copy_strings ("mailcheck/", selected_pixmap_name, NULL);
@@ -429,15 +399,12 @@ load_new_pixmap_callback (GtkWidget *widget, void *data)
 		
 		mailcheck_load_animation (full);
 		containee = da;
-		gnome_config_set_string (config_animation_file, full);
-		free (full);
+		if(animation_file) g_free(animation_file);
+		animation_file = full;
 	}
 	gtk_widget_set_uposition (GTK_WIDGET (containee), 0, 0);
 	gtk_container_add (GTK_CONTAINER (bin), containee);
 	gtk_widget_show (containee);
-
-	/* save new setting */
-	gnome_config_sync ();
 }
 
 static GnomeActionAreaItem sel_actions [] = {
@@ -499,49 +466,115 @@ mailcheck_properties (void)
 	gtk_widget_show (property_window);
 }
 
-gpointer
-applet_cmd_func(AppletCommand *cmd)
+
+/*these are commands sent over corba:*/
+void
+change_orient(int id, int orient)
 {
-	g_assert(cmd != NULL);
+	PanelOrientType o = (PanelOrientType)orient;
+}
 
-	switch (cmd->cmd) {
-		case APPLET_CMD_QUERY:
-			return APPLET_ID;
+void
+session_save(int id, const char *cfgpath, const char *globcfgpath)
+{
+	char *query;
 
-		case APPLET_CMD_INIT_MODULE:
-			mailcheck_text_only = _("No bitmap, use only text");
-			panel_cmd_func = cmd->params.init_module.cmd_func;
-			break;
+	query = g_copy_strings(cfgpath,"animation_file",NULL);
+	gnome_config_set_string(query,animation_file?animation_file:"");
+	g_free(query);
 
-		case APPLET_CMD_DESTROY_MODULE:
-			mail_destroy ();
-			break;
+	gnome_config_sync();
+	gnome_config_drop_all();
+}
 
-		case APPLET_CMD_GET_DEFAULT_PARAMS:
-			return g_strdup("");
+static gint
+quit_applet(gpointer data)
+{
+	exit(0);
+}
 
-		case APPLET_CMD_CREATE_INSTANCE:
-			create_instance(cmd->panel,
-					cmd->params.create_instance.params,
-					cmd->params.create_instance.pos);
-			break;
+void
+shutdown_applet(int id)
+{
+	/*kill our plug using destroy to avoid warnings we need to
+	  kill the plug but we also need to return from this call*/
+	if(plug) gtk_widget_destroy(plug);
+	gtk_idle_add(quit_applet,NULL);
+}
 
-		case APPLET_CMD_GET_INSTANCE_PARAMS:
-			return g_strdup("");
+static int
+properties_corba_callback(int id, gpointer data)
+{
+	mailcheck_properties();
+}
 
-		case APPLET_CMD_ORIENTATION_CHANGE_NOTIFY:
-			break;
 
-		case APPLET_CMD_PROPERTIES:
-			mailcheck_properties ();
-			break;
+int
+main(int argc, char **argv)
+{
+	GtkWidget *mailcheck;
+	char *result;
+	char *cfgpath;
+	char *globcfgpath;
 
-		default:
-			fprintf(stderr,
-				APPLET_ID " applet_cmd_func: Oops, unknown command type %d\n",
-				(int) cmd->cmd);
-			break;
-	}
+	char *myinvoc;
+	guint32 winid;
 
-	return NULL;
+	myinvoc = get_which_output(argv[0]);
+	if(!myinvoc)
+		return 1;
+
+	panel_corba_register_arguments ();
+	gnome_init("cdplayer_applet", NULL, argc, argv, 0, NULL);
+
+	/*initial state*/
+	report_mail_mode = REPORT_MAIL_USE_ANIMATION;
+
+	mail_file = getenv ("MAIL");
+	if (!mail_file)
+		return 1;
+
+	if (!gnome_panel_applet_init_corba ())
+		g_error ("Could not comunicate with the panel\n");
+
+	result = gnome_panel_applet_request_id(myinvoc,&applet_id,
+					       &cfgpath,&globcfgpath,
+					       &winid);
+
+	g_free(myinvoc);
+	if (result)
+		g_error ("Could not talk to the Panel: %s\n", result);
+
+	if(cfgpath && *cfgpath) {
+		char *query = g_copy_strings(cfgpath,"animation_file=",NULL);
+		animation_file = gnome_config_get_string(query);
+		g_free(query);
+	} else 
+		animation_file = NULL;
+		
+
+	g_free(globcfgpath);
+	g_free(cfgpath);
+
+	plug = gtk_plug_new (winid);
+
+	mailcheck = create_mail_widgets ();
+	gtk_widget_show(mailcheck);
+	gtk_container_add (GTK_CONTAINER (plug), mailcheck);
+	gtk_widget_show (plug);
+
+
+	result = gnome_panel_applet_register(plug,applet_id);
+	if (result)
+		g_error ("Could not talk to the Panel: %s\n", result);
+
+	gnome_panel_applet_register_callback(applet_id,
+					     "properties",
+					     _("Properties"),
+					     properties_corba_callback,
+					     NULL);
+
+	applet_corba_gtk_main ("IDL:GNOME/Applet:1.0");
+
+	return 0;
 }
