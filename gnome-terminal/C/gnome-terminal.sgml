@@ -1,10 +1,13 @@
-<!DOCTYPE BOOK PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
-<!ENTITY GNOME-APPS SYSTEM "gnome-terminal.sgml">] >
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
+<!ENTITY GNOME-APPS SYSTEM "gnome-terminal.sgml">
+<!ENTITY term "<application>GNOME Terminal</application>">
+ ]>
 
 
-<Book id="index">
+<article id="index">
+ 
+  <artheader> 
   <title>GNOME Terminal User's Guide</title>
-  <bookinfo>
     <authorgroup>
       <author>
 	<firstname>Miguel</firstname>
@@ -15,56 +18,334 @@
 	<surname>Zucchi</surname>
       </author>
     </authorgroup>
-    <releaseinfo>documentation in progress</releaseinfo>
      <legalnotice>
       <para>
 	This document can be freely redistributed according to the
 	terms of the GNU General Public License.</para>
+<!-- let us comment this out for now, as suggested by RMS... 
+       <para> UNIX is a trademark of X/Open Group.</para>
+      <para> Linux is a trademark of Linus Torvalds.</para>
+      <para> X Window System is a trademark of X Consortium,
+	Inc.</para>
+	<para> DEC is a trademark of Digital Equipment
+	Corporation.</para>
+ -->
+
     </legalnotice>
-  </bookinfo>
-  <toc></toc>
+
+    </artheader>
+
   
-  <chapter id="terminal">
-    <title>The GNOME terminal users guide.</title>
     
     <sect1 id="Description">
       <title>Description</title>
       <para>
-	gnome-terminal is a terminal emulator program that is part of the
+	&term;  is a terminal emulator program that is part of the
 	GNOME project.  It provides access to the Unix shell on the GNOME
-	environment. </para>
-
-      <para>
-	gnome-terminal supports colour display (see the section on
-	<link linkend="environment">environment</link> variables for details) and provides mouse support
-	to applications that are aware of mouse events for xterm-like
-	terminals. </para>
-    </sect1>	
-    
-    <sect1 id="Emulation">
-      <title>Emulation</title>
-
-      <para>The GNOME terminal program (gnome-terminal) is designed
-      to emulate the 'xterm' program provided by the X Consortium.
-      The 'xterm' program in turn is an almost-complete emulation of 
-      the DEC VT102 terminal.</para>
-      
-      <para>The GNOME terminal program supports the same extensions to 
-      the VT102 that the xterm program provides, through special escape 
-      sequences. The xterm program is an evolving program. Recent changes 
-      to xterm have been been incorporated into gnome-terminal. This 
-      includes emulation of the newer DEC VT220 escape sequences.
+	environment. 
       </para>
 
+      <para>
+	&term; supports colour display (see <xref
+	linkend="config-colour"> for 
+	details) and provides mouse support to applications that are
+	aware of mouse events for xterm-like terminals. </para>
+	</sect1>
+    
+    <sect1 id="usage">
+      <title> Basic usage</title>
+      <sect2 id="shells">
+	<title>Shells</title>
+	<para> 
+	 &term; starts the default shell (command line
+	interpreter) for the user. Advanced UNIX shells can
+	significantly extend the capabilities of the usual command
+	line prompt. For example, 
+	<application>bash</application> shell (which is the default
+	shell for most Linux distributions) provides command 
+	completion (try entering beginning of a command or file name
+	and press <keycap>Tab</keycap> key), history buffer (you can
+	recall previously entered commands by pressing
+	<keycap>Up</keycap> arrow key), and much more.  For complete
+	documentation, see the manual pages for appropriate shells. 
+	</para>
+      </sect2>
+
+      <sect2 id="scrolling"> 
+	<title>Scrolling</title> 
+	<para>
+	  &term; provides scrollbar so that you can scroll
+	  back and see previous commands and output; this is
+	  especially convenient  when a command output
+	  does not fit in one screen. By default, the scrollbar is
+	  placed on the right side of the terminal window. You can
+	  change its location or remove the scrollbar altogether using
+	  the <link linkend="config"><interface>Preferences</interface>
+	  dialog</link>.
+	</para>
+	<para> 
+	  You can also use keyboard for scrolling:
+	  <keysym>Shift-PgUp</keysym> scrolls up,
+	  <keysym>Shift-PgDown</keysym> &mdash; down. 
+	</para>
+      </sect2>
+
+    <sect2 id="emulation">
+      <title>Emulation</title>
+
+      <para>The term is designed to emulate the
+      <application>xterm</application> program provided by the X
+      Consortium.  The <application>xterm</application> program in
+      turn is an almost-complete emulation of the DEC VT102
+      terminal.</para>
+      
+      <para>The GNOME terminal program supports the same extensions to
+      the VT102 that the <application>xterm</application> program
+      provides, through special escape sequences. The xterm program is
+      an evolving program. Recent changes to xterm have been been
+      incorporated into &term;. This includes emulation of the newer
+      DEC VT220 escape sequences.
+      </para>
+
+	<para> In simpler terms, this means that GNOME terminal
+	understands all the commands (escape sequences) used by
+	VT102/VT220 terminals  for things like
+	positioning of the cursor on screen. Therefore, you can
+	run in &term; any application that is designed to work
+	inside VT102/VT220/xterm terminals and all the controls (such as
+	arrows, <keycap>PageUp/PageDown</keycap> keys, <keycap>Tab
+	</keycap> key, etc) will work as expected.  
+	</para>
+
+    </sect2>
+
     </sect1>
+
+    <sect1 id="menus">
+      <title>Menus</title>
+      <para>
+	&term; provides a number of control features accessible via the
+	menus located at the top of the terminal window, and a
+	<guimenu>pop-up</guimenu>  menu available by pressing the right
+	mouse button while holding the <keycap>CTRL</keycap> key. 
+      </para>
+      <sect2 id="menu-file">
+	<title>File menu</title>
+	<variablelist>
+	  <varlistentry>
+	    <term><guimenuitem>New terminal</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Create a new terminal.  This is an efficient way to
+		create multiple terminals, as they are all processed
+		by the same program and PID.  Each starts its own sub-shell
+		process however.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Hide menubar</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Hides the main menu bar on the terminal, creating a
+		neater, smaller terminal.  The menu bar can be
+		retrieved using the <link linkend="menu-popup">
+		<guimenu>pop-up</guimenu> menu</link>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Close terminal</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Closes the current terminal. It also closes any other 
+                terminals opened via the command line in that terminal.
+                If this is the last terminal to be closed, then the 
+                &term; program exits. 
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </sect2>
+
+      <sect2 id="menu-edit">
+	<title>Edit menu</title>
+	<variablelist>
+	  <varlistentry>
+	    <term><guimenuitem>Paste</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Pastes the current selection or clipboard into the
+		terminal.  This can also be achieved by pressing the
+		middle mouse button.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </sect2>
+
+      <sect2 id="menu-settings">
+	<title>Settings menu</title>
+	<variablelist>
+	  <varlistentry>
+	    <term><guimenuitem>Preferences ...</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Displays the <interface>Preferences</interface>
+		dialogue,  described in <xref
+		linkend="config">.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Reset Terminal</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Resets the terminal parameters.  This will not clear
+		the screen or move the cursor, but any subsequent
+		terminal output will be reset to the default font and
+		attributes.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Reset and Clear</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Resets the terminal parameters, also clearing the
+		screen.  All character fonts and attributes are reset.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Colour selector ...</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Can be used to drag-and-drop colours into the
+		terminal.  See <xref
+		linkend="config-colour"> for details.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </sect2>
+
+      <sect2 id="menu-help">
+	<title>Help menu</title>
+	<variablelist>
+	  <varlistentry>
+	    <term><guimenuitem>GNOME terminal users guide ...
+                </guimenuitem></term>
+	    <listitem>
+	      <para>
+		How to get to this document from within &term;.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>About ...</guimenuitem></term>
+	    <listitem>
+	      <para>
+		A little bit of kudos for all of the very hard working
+		guys who made it all possible.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </sect2>
+
+      <sect2 id="menu-popup">
+	<title>Pop-up menu</title>
+	<para>
+	  The <guimenu>pop-up</guimenu> control menu can be invoked by
+	  clicking with the right mouse button anywhere in the
+	  terminal window with the <keycap>CTRL</keycap> key
+	  depressed. (It is sometimes not necessary to hold down the
+	  <keycap>CTRL</keycap> key to get the pop-up menu, but do not
+	  assume this is always so.).  It is provided as a simple
+	  short-cut to some of the commands of the main menus; this is
+	  especailly useful when the menubar is hidden.  The following
+	  items are available:
+	</para>
+	<variablelist>
+	  <varlistentry>
+	    <term><guimenuitem>New terminal ...</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Creates a new terminal window.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Preferences ...</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Displays the <interface>Preferences</interface>
+		dialogue,  described in <xref
+		linkend="config">. 
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Show menubar</guimenuitem></term>
+	    <listitem>
+	    <para>
+	      Checking/unchecking this option shows or hides the
+	      menubar at the top of the terminal window.
+	    </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Secure keyboard</guimenuitem></term>
+	    <listitem>
+	    <para>FIXME
+	    </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Reset terminal</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Resets the terminal attributes (font and background)
+		without clearing the screen.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Reset and Clear</guimenuitem></term>
+	    <listitem>
+	      <para>
+		Resets the terminal attributes and clears the
+		screen.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guimenuitem>Open in browser</guimenuitem></term>
+	    <listitem>
+	      <para>
+	        If the mouse pointer was over a URL (for example, an
+		Internet address) when the pop-up menu was invoked,
+		then this option is available to launch a browser to
+		view the URL.  Using <keycap>CTRL</keycap>-left mouse
+		button is a shortcut for this menu item.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </sect2>
+
+    </sect1>
+
+
 
     <sect1 id="config">
       <title>Configurable options</title>
       <para>
-	Configurable options are configurable via the preferences dialogue,
-	which can be invoked from the <link
-	linkend="menu-settings">preferences menu item</link>, found under
-	"Settings" in the gnome-terminal menubar.
+	Configurable options are configurable via the preferences
+	dialogue, which can be invoked by selecting  <link
+	linkend="menu-settings"><guimenuitem>Preferences</guimenuitem>
+	menu item </link> in the <guimenu> Settings</guimenu> menu. 
       </para>
 
       <sect2 id="config-general">
@@ -75,7 +356,7 @@
 	</para>
 	<variablelist>
 	  <varlistentry>
-	    <term>Terminal Class</term>
+	    <term><guilabel>Terminal Class</guilabel></term>
 	    <listitem>
 	      <para>Sets the terminal class for the current
 	      configuration or terminal.  Refer to the section on
@@ -85,7 +366,7 @@
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Select-by-word characters</term>
+	    <term><guilabel>Select-by-word characters</guilabel></term>
 	    <listitem>
 	      <para>Defines a list of characters (or
 		<emphasis>character classes</emphasis>) that should be
@@ -97,46 +378,115 @@
 	  </varlistentry>
 	</variablelist>
       </sect2>
+    <sect2 id="confog-image">
+      <title>Background image configuration</title>
+      <para>
+	In the <guilabel>Image</guilabel> tab, you can set the
+	background image to use for the terminal. Possible choices are
+	</para>
+	<itemizedlist>
+	  <listitem> 
+            <para><guilabel>None</guilabel> &mdash; in this
+	    case, &term; will use the background color as set in
+	  <guilabel>Colors</guilabel> tab 
+	    </para>
+	  </listitem>
+	  <listitem> 
+	    <para> <guilabel>Background pixmap</guilabel> &mdash; this
+	    option allows you to choose an image file to be used as 
+	    background. You can press <guibutton>Browse</guibutton>
+	    button to choose the image file. 
+	    </para>
+	  </listitem>
+	<listitem> 
+	  <para> 
+	    <guilabel>Transparent</guilabel> &mdash; this
+	    option makes &term; use "transparent"
+	    background. It is not really transparent: it
+	    just mimics the background of your desktop (root
+	    window), much like a chameleon does. Do not expect to see
+	    other windows through the &term;, though.
+	    </para>
+	    </listitem>
+	    </itemizedlist>
+	      <para> 
+		     For <guilabel>Pixmap</guilabel> and
+		<guilabel>Transparent</guilabel> 
+		backgrounds, you can also check the button
+		<guibutton>Shade background</guibutton>, which will
+		"shade", or "dim", the background image.  
+	   </para> 
+     </sect2>
+
+	      
+	      
+		
+
+
 
       <sect2 id="config-colour">
 	<title>Colour configuration</title>
 	<para>
 	  Gnome terminal fully supports the colour extensions used by
-	  xterm.  These options allow you to control those colours.
+	  <application>xterm</application>.
+	  <guilabel>Colors</guilabel> tab allows you
+	  to control those colours.
 	</para>
+
 	<variablelist>
 	  <varlistentry>
-	    <term>Colour palette</term>
+	    <term><guilabel>Colour scheme</guilabel></term>
 	    <listitem>
-	      <para>gnome-terminal supports four colour schemes: the Linux
-		console scheme, the colour Xterm scheme, the rxvt colour
-		scheme, and a completely customisable colour scheme.
-		These define the intensity and colours for the
-		sixteen ANSI colour combinations that are supported by these
-		terminals.</para>
+	      <para> Some applications are capable of using the colour
+	      capabilities of a terminal. The way the interaction
+	      between an application and the terminal is set up is
+	      that the application can request one of sixteen named
+	      colours (ANSI colours), such as "blue" or "bright red":
+	      for example, <application>mutt</application> mail reader
+	      can use red colour to show urgent messages. However, it
+	      is up to the terminal to decide which exact tint to use
+	      for "bright red" or "blue". This collection of sixteen
+	      colours is called a palette, or "colour scheme".
+	      </para>
+	      <para>&term; supports four colour schemes: the
+		<guilabel>Linux console</guilabel> scheme, the
+		<guilabel>Color Xterm</guilabel> scheme, the
+		<guilabel>rxvt</guilabel> colour scheme, and a
+		completely customizable colour scheme. They all are
+		slightly different: for example, Linux console uses
+		light gray in place of "white", while rxvt uses real
+		white.
+	      </para>
 	      <para>
-		If you have selected the custom option, then all 16
-		colours (nominally 8 colours, and 8 bright colours)
-		can be customised by clicking on the colour selectors.
+		If you have selected the <guilabel>custom</guilabel>
+		option, then all 16 colours (nominally 8 colours and 8
+		bright colours) can be customized by clicking on the
+		colour selector buttons.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Primary colour combination</term>
+	    <term><guilabel>Foreground/Background colours</guilabel></term>
 	    <listitem>
-	      <para>When no colours have been requested by the
-		application running inside of gnome-terminal,
-		gnome-terminal allows you to over-ride the default
-		terminal foreground and background
-		colours.</para>
+	      <para>Here you can set the default terminal foreground
+		and background colours, which are used when no colours
+		have been requested by the application running inside
+		of &term;.
+		</para>
 	      
-	      <para>The following options are available: white on black, black
-		on white, green on black, black on light yellow, and
-		custom.  How these actually appear depends on the
-		palette selected (for the white on black and black on
-		white options).
-		Custom allows you to select the default foreground and
-		background colours individually and separate to the palette.</para>
+	      <para>
+                The following options are available:
+		<guilabel>white on black</guilabel>, <guilabel>black
+		on white</guilabel>, <guilabel>green on
+		black</guilabel>, <guilabel>black on light
+		yellow</guilabel>, and <guilabel>custom</guilabel>.
+		How these actually appear depends on the palette
+		selected (for the <guilabel>white on black</guilabel>
+		and <guilabel>black on white</guilabel> options).
+		<guilabel>Custom</guilabel> allows you to select the
+		default foreground and background colours individually
+		and separate from the palette.
+	    </para>
 
 	      <para>Additionally, the user can drag a colour from the
 		rectangular box beneath the colour wheel from any GNOME
@@ -144,8 +494,9 @@
 		terminal.  If the user drops the colour on a blank space, it
 		will set the background, if the user drops the colour on a
 		cell that contains a character, it will change the
-		foreground.  This will also automatically change to
-		custom colours, and set the custom foreground or
+		foreground.  This will also automatically change
+		foreground/background type to <guilabel>Custom
+		colours</guilabel>  and set the custom foreground or
 		background colour.
 	      </para>
 	    </listitem>
@@ -153,184 +504,30 @@
 	</variablelist>
       </sect2>
 
-    </sect1>
-    
-    <sect1 id="classes">
-      <title>Terminal classes</title>
-      <para>The GNOME terminal allows you to have different configuration
-	profiles to suit different uses (different background colours, 
-        presence, absence or position of scrollbars, and so on).  To set
-        these up, you invoke the preferences dialogue box from the settings
-        menu of gnome-terminal. Select the options you prefer (these changes
-        will be made to your currently-open terminal, so you can see what
-        they look like), and before closing the preferences box, make sure 
-        you have put a new name in the space marked "Terminal Class". 
-       </para>
-      
-      <para>To activate a specific class at program startup you can use
-	the --tclass command line option
-      </para>
-    </sect1>
-    
-    <sect1 id="Options">
-      <title>Command line options</title>
+    <sect2 id="config-scrolling">  
+     <title>Scrolling</title>
       <para>
-	<itemizedlist>
-	  <listitem>
-	    <para><symbol>--background COLOUR</symbol></para>
-	    
-	    <para>Used to specify the 
-	      background colour for the terminal at startup.  The COLOUR can be
-	      any form accepted by your windowing system.
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--tclass CLASSNAME</symbol></para>
-	    <para>
-	      Specifies the terminal class used to configure the
-	      terminal at startup.
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--command CMD, -e CMD</symbol></para>
-	    <para>
-	      Runs the CMD command at startup time.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para><symbol>--execute CMD ARGS, -x CMD ARGS</symbol></para>
-	    <para>
-	      Executes the command CMD with its arguments ARGS on
-	      startup.  No arguments beyond this one will be processed
-	      by the terminal.  This behaviour mimics the xterm -e
-	      behaviour.
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--font FONT</symbol></para>
-	    <para>
-	      Sets the font of the terminal to FONT
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--foreground COLOUR</symbol></para>
-	    <para>
-	      Sets the foreground of the terminal to COLOUR.
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--geometry GEOMETRY</symbol></para>
-	    <para>
-	      Specifies the startup geometry for this terminal.   The
-	      geometry specifies the desired width and height in
-	      terminal characters.  For example: --geometry=80x40 will
-	      create an eighty-column by forty-line terminal.</para>
-	      <para>FIXME:  LInk to gnome-libs document on GEOMETRY specifications
-	      when it is written
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--login</symbol></para>
-	    <para>
-	      Make gnome-terminal launch the shell in login mode (it will run
-	      all of your login initialization scripts in this mode). 
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--nologin</symbol></para>
-	    <para>
-	      Make gnome-terminal only launch a shell, without running any
-              login initialization scripts.
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--noutmp</symbol></para>
-	    <para>
-	      Indicates that this and the associated shell should not be
-	      registered in the system database of users logged into the
-	      computer. 
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--utmp</symbol></para>
-	    <para>
-	      Indicates that the user wants this terminal to be
-	      registered in the system database of users logged into
-	      the computer (the utmp database).  This is the default.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para><symbol>--lastlog</symbol></para>
-	    <para>
-	      Always create a lastlog entry for each terminal login.
-	    </para>
-	  </listitem>
-	  
-	  <listitem>
-	    <para><symbol>--lastlog</symbol></para>
-	    <para>
-	      Do not create a lastlog entry for each terminal login.
-	    </para>
-	  </listitem>
-	  	  
-	  <listitem>
-	    <para><symbol>--title TITLE, -t TITLE</symbol></para>
-	    <para>
-	      Makes GNOME terminal use TITLE for the window caption.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para><symbol>--termname TERMNAME</symbol></para>
-	    <para>
-	      Makes GNOME terminal use TERMNAME as the value of the
-	      TERM environment variable.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para><symbol>--start-factory-server</symbol></para>
-	    <para>
-	      Try to start the TerminalFactory service for this terminal.
-	    </para>
-	  </listitem>
-
-	  <listitem>
-	    <para><symbol>--use-factory</symbol></para>
-	    <para>
-	      Try to create a terminal window from the TerminalFactory
-	      service.
-	    </para>
-	  </listitem>
-	</itemizedlist>		
+	In this tab you can set the position of the scrollbar and the
+	number of lines to keep in memory for scrolling. 
       </para>
-      <para>You can use more than one option at once: for example, on
-            a machine with the text-based web browser Lynx installed,
-            'gnome-terminal --title Web --command lynx' will open a
-            gnome-terminal which starts up Lynx and has a titlebar 
-            which says "Web". 
-      </para>
+    </sect2>
 
     </sect1>
+
+
+
+
+
+
     
     <sect1 id="pointerusage">
-      <title>Pointer usage</title>
+      <title>Mouse usage</title>
       <para>
-	The pointer can be used to select (copy), and extend-select
+	The mouse can be used to select (copy), and extend-select
 	text, paste text from other terminals or applications, and
 	bring up a menu.
       </para>
+
       <sect2 id="pointer-select">
 	<title>Selection</title>
         <para>
@@ -347,22 +544,22 @@
 	  up.
 	</para>
 	<para>
-	  If the left mouse button is double-clicked then the selection
-	  will be by word-characters.  Hold the mouse button down on
-	  the second click to drag the mouse and enlarge the
-	  selection.  The word-characters are defined
-	  in the <link linkend="config-general">preferences
-	  dialogue</link> under the word class option.
+	  If the left mouse button is double-clicked, then the
+	  selection will be by word-characters.  Hold the mouse button
+	  down on the second click to drag the mouse and enlarge the
+	  selection.  The word-characters are defined in the
+	  <guilabel> General options</guilabel> tab of <link
+	  linkend="config-general">Preferences dialogue</link>.
 	</para>
 	<para>
 	  Finally, if the left mouse button is triple-clicked and
 	  held, whole lines are selected as you drag the mouse up and
 	  down.
 	</para>
-	<para>
+	<para>FIXME:
 	  The middle mouse button can be used to extend the
 	  selection.  Simply scroll to where you wish to extend the
-	  selection to, and click the right mouse button whilst the
+	  selection to, and click the right mouse button while the
           mouse is still in the scrollbar.  Again, single, double and 
           triple click-drags will result in by-character, by-word, or 
           by-line selection.
@@ -371,9 +568,11 @@
 	  For all cases, releasing the mouse button automatically
 	  copies the selected text into the clipboard, and may be
 	  pasted to other applications.  Note that any screen output
-	  will reset the rendered selection, but this does not lose
-	  the clipboard contents.
+	  will clear the highlighting of the selection, but it will
+	  still be kept in the clipboard. 
 	</para>
+      </sect2>
+
       <sect2 id="pointer-paste">
 	<title>Pasting text</title>
 	<para>
@@ -383,32 +582,41 @@
 	</para>
 	<para>
 	  If you only have a two-button mouse, then your X server
-	  probably has a method of emulating the middle mouse button.
-	  Refer to your X server documentation for further
-	  information.
+	  probably has a method of emulating the middle mouse
+	  button. The most common method is to emulate the middle
+	  mouse button by simultaneous pressing of left and right
+	  mouse buttons.  Refer to your X server documentation for
+	  further information.
 	</para>
+      </sect2>
+
       <sect2 id="pointer-wheel">
-	<title>Mouse Wheels</title>
+	<title>Wheel mouse</title>
 	<para>
-	  If you have a wheel'd mouse (which sends mouse button 4 and
+	  If you have a wheel mouse (which sends mouse button 4 and
 	  mouse button 5 events), then you can use the wheel to scroll
 	  up and down through the scrollback buffer.
 	</para>
+      </sect2>
+
       <sect2 id="pointer-menu">
 	<title>Control Menu</title>
 	<para>
-	  The pointer can also be used to bring up a <link linkend="menu-popup">control-menu</link>,
-	  which can be used to reset the terminal, or bring back the
-	  main menu bar, if it has been hidden.
+	  The pointer can also be used to bring up a <link
+	  linkend="menu-popup">control-menu</link>, 
+	  which can be used to reset the terminal or bring back the
+	  main menu bar, if it has been hidden. To invoke this menu,
+	  click anywhere in the terminal with the right mouse button
+	  while holding down the <keycap>CTRL</keycap> key.
 	</para>
-	<para>
-	  While holding down the CTRL key, the right mouse button can
-	  be used to display this menu.
-	</para>
+      </sect2>
+ 
       <sect2 id="url-highlight">
         <title>Launching URL's</title>
         <para>
-          Gnome terminal can be used to select URL's from the text
+          Gnome terminal can be used to select URL's (Uniform Resource
+          Locators; most commonly, Internet addresses, such as
+          <literal>http://www.gnome.org</literal>) from the text
           display, simply by moving the mouse over the URL text.  The
           URL will be highlighted, by being redrawn with an underline,
           and the mouse pointer will change to a pointing hand.
@@ -416,12 +624,15 @@
         <para>
           Invoking the <link linkend="menu-popup">control-menu</link>
           while over a highlighted URL will add a new option to load
-          that url into a browser.
+          that URL into a browser.
 	</para>
 	<para>
-	  Pressing the left mouse button, while holding down the CTRL
-	  key is a shortcut to launch the url immediately.
+	  Pressing the left mouse button, while holding down the
+	  <keycap>CTRL</keycap> 
+	  key is a shortcut to launch the URL immediately.
         </para>
+      </sect2>
+
       <sect2 id="pointer-dnd">
 	<title>Drag and Drop</title>
 	<para>
@@ -448,7 +659,8 @@
 		display.  If they land on a character, it sets the
 		foreground colour, otherwise it sets the background
 		colour.  Refer to the
-		<link linkend="config-colour">colour configuration</link> section.
+		<link linkend="config-colour">colour
+		configuration</link> section. 
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -456,216 +668,211 @@
       </sect2>
    </sect1>
     
-    <sect1 id="menus">
-      <title>Menus</title>
-      <para>
-	Gnome-terminal provides a number of control features via the
-	main menu, and a pop-up menu available by pressing the right
-	mouse button while holding the CTRL key. (It is sometimes not
-        necessary to hold down the CTRL key to get the pop-up menu, but 
-        do not assume this is always so.)
+
+
+
+    
+  <sect1 id="classes">
+    <title>Terminal classes</title> 
+
+    <para>The GNOME terminal allows you to have different
+      configuration profiles to suit different uses (different
+      background colours, presence, absence or position of scrollbars,
+      and so on).  To set these up, invoke the
+      <interface>Preferences</interface> dialogue from the
+      <guimenu>Settings</guimenu> menu of &term;. Select the options
+      you prefer (these changes will be made to your currently-open
+      terminal, so you can see what they look like), and before
+      closing the preferences box, make sure you have put a new name
+      in the <guilabel>Terminal Class</guilabel> field.
+    </para>
+      
+    <para>To activate a specific class at program startup you can use
+      the <option>--tclass</option> command line option
+    </para>
+  </sect1>
+    
+  <sect1 id="options">
+    <title>Command line options</title>
+    <para>
+      <itemizedlist>
+	<listitem>
+	  <para><option>--background <replaceable>COLOUR</replaceable>
+	    </option>
+	  </para>
+	  
+	  <para>Used to specify the 
+	    background colour for the terminal at startup.  The
+	    <replaceable>COLOUR</replaceable> can be
+	    any form accepted by your windowing system.
+	  </para>
+	</listitem>
+	  
+	<listitem>
+	  <para><option>--tclass <replaceable>CLASSNAME</replaceable>
+	    </option></para>
+	  <para>
+	    Specifies the terminal class used to configure the
+	    terminal at startup.
+	  </para>
+	</listitem>
+	
+	<listitem>
+	  <para><option>--command <replaceable>CMD</replaceable>,
+	      -e <replaceable>CMD</replaceable>
+	    </option></para>
+	  <para>
+	    Runs the <replaceable>CMD</replaceable> command at startup time.
+	  </para>
+	  </listitem>
+
+	<listitem>
+	  <para><option>--execute <replaceable>CMD ARGS</replaceable>, 
+                        -x <replaceable>CMD ARGS</replaceable>
+           </option></para>
+	  <para>
+	    Executes the command <replaceable>CMD</replaceable> with
+	    its arguments <replaceable>ARGS</replaceable> on startup.
+	    No arguments beyond this one will be processed by the
+	    terminal.  This behaviour mimics the <command>xterm
+	    -e</command> behaviour.
+	  </para>
+	</listitem>
+	  
+	<listitem>
+	  <para><option>--font <replaceable>FONT</replaceable></option></para>
+	  <para>
+	    Sets the font of the terminal to
+	    <replaceable>FONT</replaceable> 
+	  </para>
+	</listitem>
+	  
+	<listitem>
+	  <para><option>--foreground <replaceable>COLOUR</replaceable>
+           </option></para>
+	  <para>
+	    Sets the foreground of the terminal to
+	    <replaceable>COLOUR</replaceable> .
+	  </para>
+	</listitem>
+	  
+	<listitem>
+	  <para><option>--geometry <replaceable>GEOMETRY</replaceable>
+           </option></para>
+	  <para>
+	    Specifies the startup geometry for this terminal.  The
+	    geometry specifies the desired width and height in
+	    terminal characters.  For example:
+	    <option>--geometry=80x40</option> will create an
+	    eighty-column by forty-line terminal.</para>
+            <!--
+	      <para>FIXME: LInk to gnome-libs document on GEOMETRY
+	      specifications when it is written
+	    </para> -->
+	</listitem>
+	  
+	<listitem>
+	  <para><option>--login</option></para>
+	  <para>
+	    Make &term; launch the shell in login mode (it will run
+	    all of your login initialization scripts in this mode). 
+	  </para>
+	  </listitem>
+	  
+	<listitem>
+	  <para><option>--nologin</option>
+	  </para>
+	  <para>
+	    Make &term; only launch a shell, without running any
+	    login initialization scripts.
+	  </para>
+	  </listitem>
+	  
+	    <listitem>
+	    <para><option>--noutmp</option></para>
+	    <para>
+	      Indicates that this and the associated shell should not be
+	      registered in the system database of users logged into the
+	      computer. 
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <para><option>--utmp</option></para>
+	    <para>
+	      Indicates that the user wants this terminal to be
+	      registered in the system database of users logged into
+	      the computer (the utmp database).  This is the default.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><option>--lastlog</option></para>
+	    <para>
+	      Always create a lastlog entry for each terminal login.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <para><option>--lastlog</option></para>
+	    <para>
+	      Do not create a lastlog entry for each terminal login.
+	    </para>
+	  </listitem>
+	  	  
+	  <listitem>
+	    <para><option>--title <replaceable>TITLE</replaceable>,
+                           -t <replaceable>TITLE</replaceable>
+            </option></para>
+	    <para>
+	      Makes &term use <replaceable>TITLE</replaceable> for the
+	      window caption.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><option>--termname <replaceable>TERMNAME</replaceable>
+             </option></para>
+	    <para>
+	      Makes &term; use
+	      <replaceable>TERMNAME</replaceable> as the value of the
+	      <envar>TERM</envar> environment variable.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><option>--start-factory-server</option></para>
+	    <para>
+	      Try to start the TerminalFactory service for this terminal.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><option>--use-factory</option></para>
+	    <para>
+	      Try to create a terminal window from the TerminalFactory
+	      service.
+	    </para>
+	  </listitem>
+	</itemizedlist>		
       </para>
-      <sect2 id="menu-file">
-	<title>File menu</title>
-	<variablelist>
-	  <varlistentry>
-	    <term>New terminal</term>
-	    <listitem>
-	      <para>
-		Create a new terminal.  This is an efficient way to
-		create multiple terminals, as they are all processed
-		by the same program and PID.  Each starts its own sub-shell
-		process however.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Hide menubar</term>
-	    <listitem>
-	      <para>
-		Hides the main menu bar on the terminal, creating a
-		neater, smaller terminal.  The menu bar can be
-		retrieved using the control menu, which can be
-		displayed by holding down the CTRL key, and pressing
-		the right mouse button.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Close terminal</term>
-	    <listitem>
-	      <para>
-		Closes the current terminal. It also closes any other 
-                terminals opened via the command line in that terminal.
-                If this is the last terminal to be closed, then the 
-                gnome-terminal program exits. 
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	</variablelist>
-      </sect2>
-
-      <sect2 id="menu-edit">
-	<title>Edit menu</title>
-	<variablelist>
-	  <varlistentry>
-	    <term>Paste</term>
-	    <listitem>
-	      <para>
-		Pastes the current selection or clipboard into the
-		terminal.  This can also be achieved using the middle
-		mouse button.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	</variablelist>
-      </sect2>
-
-      <sect2 id="menu-settings">
-	<title>Settings menu</title>
-	<variablelist>
-	  <varlistentry>
-	    <term>Preferences ...</term>
-	    <listitem>
-	      <para>
-		Displays the preferences dialogue.  The settings
-		which can be controlled from this dialogue are
-		described in the <link linkend="config">config
-		section</link>.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Reset Terminal</term>
-	    <listitem>
-	      <para>
-		Resets the terminal parameters.  This will not clear
-		the screen or move the cursor, but any subsequent
-		terminal output will be reset to the default font and
-		attributes.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Reset and Clear</term>
-	    <listitem>
-	      <para>
-		Resets the terminal parameters, also clearing the
-		screen.  All character fonts and attributes are reset.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Colour selector ...</term>
-	    <listitem>
-	      <para>
-		Can be used to drag-and-drop colours into the
-		terminal.  Refer to the <link
-		linkend="config-colour">colour selector</link> description.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	</variablelist>
-      </sect2>
-
-      <sect2 id="menu-help">
-	<title>Help menu</title>
-	<variablelist>
-	  <varlistentry>
-	    <term>GNOME terminal users guide ...</term>
-	    <listitem>
-	      <para>
-		How to get to this document from within gnome-terminal.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>About ...</term>
-	    <listitem>
-	      <para>
-		A little bit of kudos for all of the very hard working
-		guys who made it all possible.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	</variablelist>
-      </sect2>
-
-      <sect2 id="menu-popup">
-	<title>Pop-up menu</title>
-	<para>
-	  The pop-up control menu can be shown by pressing the right
-	  mouse button with the CTRL key depressed.  It is provided as
-	  a simple short-cut to the main menu, or for when the main
-	  menu is hidden.  The following items are available:
-	</para>
-	<variablelist>
-	  <varlistentry>
-	    <term>New terminal ...</term>
-	    <listitem>
-	      <para>
-		Creates a new terminal window.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Preferences ...</term>
-	    <listitem>
-	      <para>
-		Displays the preferences dialogue.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Hide/Show menubar</term>
-	    <listitem>
-	      <para>
-		Either hide or show the main menu bar, depending on
-		its current state.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Reset terminal</term>
-	    <listitem>
-	      <para>
-		Resets the terminal attributes without clearing the
-		screen.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Reset and Clear</term>
-	    <listitem>
-	      <para>
-		Resets the terminal attributes and clears the
-		screen.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Open in browser</term>
-	    <listitem>
-	      <para>
-	        If the mouse pointer was over a URL when the popup
-		menu is invoked, then this option is available to
-		launch a browser to view the URL.  Using
-		CTRL-left mouse button is a shortcut for this menu item.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	</variablelist>
-      </sect2>
+      <para>You can use more than one option at once: for example, on
+            a machine with the text-based web browser
+            <application>Lynx</application> installed, <command>gnome-terminal
+            --title Web --command lynx</command> will open a &term; which
+            starts up <application>Lynx</application> and has a
+            titlebar which says "Web".
+      </para>
 
     </sect1>
     
     <sect1 id="environment">
       <title>Environment</title>
       <para>
-	The following variables are set by gnome-terminal: 
+	The following variables are set by &term;: 
 	<itemizedlist>
 	  <listitem>
-	    <para><symbol>TERM</symbol></para>
+	    <para><envar>TERM</envar></para>
 
 	    <para>
 	      This variable is set to "xterm" by default.  Some curses
@@ -674,13 +881,13 @@
 	      support colour.  You might need to change this setting if
 	      your application does not display in colour to one of those
 	      values.  This can now be set via the
-	      --termname <link linkend="Options">command
+	      <option>--termname </option> <link linkend="options">command
 	      line option</link>.
 	    </para>
 	  </listitem>
 
 	  <listitem>
-	    <para><symbol>COLORTERM</symbol></para>
+	    <para><envar>COLORTERM</envar></para>
 
 	    <para>
 	      This variable is set to "gnome-terminal".
@@ -691,7 +898,7 @@
 	  </listitem>
 
 	  <listitem>
-	    <para><symbol>WINDOWID</symbol></para>
+	    <para><envar>WINDOWID</envar></para>
 
 	    <para>
 	      This variable contains the X11 Window identifier.
@@ -708,7 +915,7 @@
 
       <para>
 	A large number of people work together to bring you the
-	gnome-terminal:</para>
+	&term;:</para>
 
       <para>
 	Michael Zucchi coded the Zvt widget engine; Miguel de Icaza
@@ -725,16 +932,26 @@
 	features.  Jeff Garzik, Jay, Christopher Blizzard, Michael,
 	Jens Lautenbacher, Tom Tromey, Tristan Tarrant, Jonathan
 	Blandford and Michael Zucchi provided extra bug fixes and
-	minor enhancements.  Nat Friedman review the user interface to
+	minor enhancements.  Nat Friedman reviewed the user interface to
 	conform to the GNOME guidelines.  Felix Bellaby, Tom Tromey
 	and Manish Vachharajani implemented and improved the session
 	management code.
       </para>
+
+    <para> 
+      Please send all comments, suggestions, and bug reports to the
+      <ulink url="http://bugs.gnome.org" type="http">GNOME bug
+      tracking database</ulink>. Instructions for submitting bug reports
+      can be found on-line at <ulink
+      url="http://bugs.gnome.org/Reporting.html" type="http">
+      http://bugs.gnome.org/Reporting.html</ulink>. If you are using GNOME
+      1.1 or later, you can also use command
+      <command>bug-buddy</command> for submitting bug reports. 
+      </para>
     </sect1>
     
-  </chapter>
   
-</book>
+</article>
 
 <!-- Keep this comment at the end of the file
 Local variables:
