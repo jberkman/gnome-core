@@ -141,7 +141,7 @@ create_window ()
         container = gtk_frame_new(NULL);
         gtk_frame_set_shadow_type (GTK_FRAME (container), GTK_SHADOW_NONE);;
         splash_screen = gtk_drawing_area_new ();
-        gdk_imlib_load_file_to_pixmap ("splash.png", &temp_splash, NULL);
+        /*gdk_imlib_load_file_to_pixmap ("splash.png", &temp_splash, NULL);*/
         gtk_widget_set_usize (container, 500, 375);
         status_bar = gtk_statusbar_new();
 
@@ -155,7 +155,7 @@ create_window ()
         
         /* and make everyting visible */
         gtk_widget_show_all (retval);
-        gdk_window_set_back_pixmap (splash_screen->window, temp_splash, FALSE);
+        /*gdk_window_set_back_pixmap (splash_screen->window, temp_splash, FALSE); */
         return retval;
 }
 gint
