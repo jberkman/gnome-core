@@ -95,7 +95,6 @@ mouse_read (void)
                                 mouse_acceleration = MAX_ACCEL - acc_den;
                 }
         }
-        g_print ("rtol=%d\naccel=%d\nthresh=%d\n",mouse_rtol,mouse_acceleration,mouse_thresh);
 }
 
 static void
@@ -296,6 +295,25 @@ mouse_setup (void)
 void
 main (int argc, char **argv)
 {
+        gchar *temp = strrchr(argv[0],'/');
+        gboolean init = FALSE;
+        /* this is a truly ridiculous ugly silly hack that will let us play bomberman and go home... */
+        if (argv[1] && strcmp (argv[1], "--init")== 0) 
+                init = TRUE;
+        if (!temp)
+                temp = argv [0];
+        else
+                temp++;
+        if (strcmp (temp, "mouse-properties-init")== 0) 
+                init = TRUE;
+        if (init) {
+                argv[1] = NULL;
+                gnome_init ("Mouse Properties", NULL, 1, argv, 0, NULL);
+                mouse_read ();
+                mouse_apply ();
+                return;
+        }
+
         gnome_capplet_init ("Mouse Properties", NULL, argc, argv, 0, NULL);
         
         mouse_read ();
