@@ -3,4 +3,5 @@ Makefile
 .deps
 mailcheck.lo
 _libs
+.libs
 libpanel_mailcheck.la
