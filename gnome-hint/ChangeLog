@@ -1,3 +1,7 @@
+2000-05-19  Andreas Hyden  <a.hyden@cyberpoint.se>
+
+	* gnome-hint.desktop, gnome-hint-properties.desktop: Added Swedish translation.
+
 2000-05-14  Karl Eichwalder  <ke@suse.de>
 
 	* gnome-hint.desktop (Comment): Add de.
