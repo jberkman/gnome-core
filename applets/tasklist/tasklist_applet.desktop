@@ -1,9 +1,11 @@
 [Desktop Entry]
 Name=Tasklist
+Name[et]=Programmipaneel
 Name[ja]=¥¿¥¹¥¯¥ê¥¹¥È
 Name[no]=Oppgaveliste
 Name[pl]=Lista zadañ
 Comment=GNOME Tasklist
+Comment[et]=Programmide juhtpaneel
 Comment[ja]=¥¦¥¤¥ó¥É¥¦°ìÍ÷
 Comment[no]=GNOME oppgaveliste
 Comment[pl]=Lista zadañ dla GNOME

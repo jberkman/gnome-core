@@ -1,9 +1,11 @@
 [Desktop Entry]
 Name=Desk Guide
+Name[et]=Desk Guide
 Name[ja]=デスクガイド
 Name[no]=Skrivebord-guide
 Name[pl]=Desk Guide
 Comment=GNOME Desktop Guide (Pager)
+Comment[et]=GNOME virtuaalsete t��laudade haldur (pager)
 Comment[ja]=GNOMEデスクトップガイド(ページャー)
 Comment[no]=GNOME Skrivebord-guide (pager)
 Comment[pl]=Pager dla GNOME
