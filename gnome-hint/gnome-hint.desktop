@@ -1,22 +1,24 @@
 [Desktop Entry]
 Name=Startup Hint
+Name[cs]=Pøíhla¹ovací rady
 Name[da]=Opstartstips
 Name[de]=Tipps beim Start
 Name[el]=Õğüäåéîç åêêßíçóçò
 Name[fi]=Aloitusvihjeet
 Name[gl]=Axudas no Inicio
-Name[it]=Suggerimenti
 Name[hu]=Indítási segédszövegek
+Name[it]=Suggerimenti
 Name[ja]=¥¹¥¿¡¼¥È¥¢¥Ã¥×¥Ò¥ó¥È
+Name[lt]=Pradşios patarimai
 Name[no]=Oppstartstips
 Name[pl]=Porada GNOME
 Name[pt_BR]=Dicas na Inicialização
 Name[tr]=Başlangıç yardımları
 Name[uk]=óÔÁÒÔÏ×¦ ĞÏÒÁÄÉ
-Name[cs]=Pøíhla¹ovací rady
 Comment=Browse the startup hints
 Comment[cs]=Prohlí¾ení pøihla¹ovacích rad
 Comment[de]=Die bei Start angezeigten Tipps durchblättern
+Comment[lt]=Narğyti pradşios patarimus
 Exec=gnome-hint --browse-hints
 Icon=gnome-hint.png
 Terminal=false
