@@ -17,7 +17,6 @@ gchar     e_opt_slide_cleanup = 1;
 gchar     e_opt_slide_map = 1;
 gchar     e_opt_slide_desk = 1;
 gchar     e_opt_hq_background = 1;
-gchar     e_opt_autosave = 1;
 
 gint      e_opt_focus = 1;
 gint      e_opt_move = 0;
@@ -27,8 +26,10 @@ gint      e_opt_slide_mode = 0;
 gchar     e_opt_tooltips = 1;
 gfloat    e_opt_tooltiptime = 1.5;
 
-gfloat    e_opt_button_move_resistance = 5.0;
 gfloat    e_opt_shade_speed = 4000.0;
+gfloat    e_opt_map_speed = 4000.0;
+gfloat    e_opt_cleanup_speed = 4000.0;
+gfloat    e_opt_desk_speed = 4000.0;
 
 FILE *eesh = NULL;
 
@@ -36,45 +37,35 @@ static void
 e_try (void)
 {
   gchar cmd[4096];
-  gchar *foc[3] = {"pointer","sloppy","click"};
 
-  if (!eesh)
-    {
-      eesh = popen("eesh", "w");
-      if (!eesh)
-	return;
-    }
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 29, (int)e_opt_sound);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 27, (int)e_opt_slide_cleanup);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 28, (int)e_opt_slide_map);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 38, (int)e_opt_slide_desk);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 40, (int)e_opt_hq_background);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 44, (int)e_opt_autosave);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %s\n", 23, foc[(int)e_opt_focus]);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 24, (int)e_opt_move);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 25, (int)e_opt_resize);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 26, (int)e_opt_slide_mode);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 57, (int)e_opt_tooltips);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-/*  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 29, (int)e_opt_tooltiptime);
-  fwrite(cmd, 1, strlen(cmd), eesh);*/
-  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 30, (int)e_opt_button_move_resistance);
-  fwrite(cmd, 1, strlen(cmd), eesh);
-/*  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 29, (int)e_opt_shade_speed);
-  fwrite(cmd, 1, strlen(cmd), eesh);*/
-  fflush(eesh);
-  pclose(eesh);
-  eesh = NULL;
+  g_snprintf(cmd, sizeof(cmd), "eesh -e \"set_controls"
+	     " SOUND: %i"
+	     " CLEANUPSLIDE: %i"
+	     " MAPSLIDE: %i"
+	     " DESKSLIDEIN: %i"
+	     " HIQUALITYBG: %i"
+	     " FOCUSMODE: %i"
+	     " MOVEMODE: %i"
+	     " RESIZEMODE: %i"
+	     " SLIDEMODE: %i"
+	     " TOOLTIPS: %i"
+	     " TIPTIME: %f"
+	     " SHADESPEED: %i"
+	     " SLIDESPEEDMAP: %i"
+	     " SLIDESPEEDCLEANUP: %i"
+	     " DESKSLIDESPEED: %i"
+	     "\""
+	     ,
+	     e_opt_sound, e_opt_slide_cleanup, e_opt_slide_map, 
+	     e_opt_slide_desk, e_opt_hq_background,
+	     e_opt_focus, e_opt_move, e_opt_resize, e_opt_slide_mode,
+	     e_opt_tooltips, e_opt_tooltiptime,
+	     (gint)e_opt_shade_speed,
+	     (gint)e_opt_map_speed,
+	     (gint)e_opt_cleanup_speed,
+	     (gint)e_opt_desk_speed
+	     );
+  system(cmd);
 }
 
 static void
@@ -95,6 +86,96 @@ e_cancel (void)
 static void
 e_read (void)
 {
+  gchar cmd[4096];
+  gchar buf[10240];
+
+  if (!eesh)
+    {
+      eesh = popen("eesh -ewait \"get_controls\"", "r");
+      if (!eesh)
+	return;
+    }
+  while (fgets(buf, sizeof(buf), eesh))
+    {
+      sscanf(buf, "%4000s", cmd);
+      if (!strcmp(cmd, "SOUND:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_sound = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "CLEANUPSLIDE:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_slide_cleanup = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "MAPSLIDE:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_slide_map = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "DESKSLIDEIN:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_slide_desk = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "HIQUALITYBG:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_hq_background = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "FOCUSMODE:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_focus = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "MOVEMODE:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_move = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "RESIZEMODE:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_resize = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "SLIDEMODE:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_resize = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "TOOLTIPS:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_tooltips = atoi(cmd);
+	}
+      else if (!strcmp(cmd, "TIPTIME:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_tooltiptime = atof(cmd);
+	}
+      else if (!strcmp(cmd, "SHADESPEED:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_shade_speed = atof(cmd);
+	}
+      else if (!strcmp(cmd, "SLIDESPEEDMAP:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_map_speed = atof(cmd);
+	}
+      else if (!strcmp(cmd, "SLIDESPEEDCLEANUP:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_cleanup_speed = atof(cmd);
+	}
+      else if (!strcmp(cmd, "DESKSLIDESPEED:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_desk_speed = atof(cmd);
+	}
+    }
+  pclose(eesh);
+  eesh = NULL;
 }
 
 void
@@ -589,7 +670,7 @@ e_setup (GtkWidget *c)
   e_add_rangeonoff_to_frame(frame, 
 			    _("Shading speed (pixels / sec)"),
 			    &e_opt_shade_speed,
-			    1.0, 20000.0, 
+			    16.0, 20000.0, 
 			    _("Slower"), _("Faster"), 
 			    NULL, 99999.0);
 
@@ -600,9 +681,24 @@ e_setup (GtkWidget *c)
   
   e_add_multi_to_frame(frame, _("Slide mode"), 
 		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_slide_mode);
-  e_add_onoff_to_frame(frame, _("Windows slide on cleanup"), &e_opt_slide_cleanup);
-  e_add_onoff_to_frame(frame, _("Windows slide on map"), &e_opt_slide_map);
-  e_add_onoff_to_frame(frame, _("Desktops slide on change"), &e_opt_slide_desk);
+  e_add_rangeonoff_to_frame(frame, 
+			    _("Windows slide in on Map (pixels / sec)"),
+			    &e_opt_map_speed,
+			    16.0, 20000.0, 
+			    _("Slower"), _("Faster"), 
+			    &e_opt_slide_map, 0.0);
+  e_add_rangeonoff_to_frame(frame, 
+			    _("Windows slide in on Cleanup (pixels / sec)"),
+			    &e_opt_cleanup_speed,
+			    16.0, 20000.0, 
+			    _("Slower"), _("Faster"), 
+			    &e_opt_slide_cleanup, 0.0);
+  e_add_rangeonoff_to_frame(frame, 
+			    _("Desktops slide in on change (pixels / sec)"),
+			    &e_opt_desk_speed,
+			    16.0, 20000.0, 
+			    _("Slower"), _("Faster"), 
+			    &e_opt_slide_desk, 0.0);
 
   capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
 }
@@ -628,62 +724,6 @@ e_setup_desktops (GtkWidget *c)
 static void
 e_setup_fonts (GtkWidget *c)
 {
-  GtkWidget *frame, *frame2, *hbox;
-  
-  current_capplet = c;
-  hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-  gtk_widget_show (hbox);
-  gtk_container_add (GTK_CONTAINER (c), hbox);
-    
-  frame = e_create_frame (_("Options"));
-  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
-  
-  frame2 = e_create_frame (_("Window Display"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_multi_to_frame(frame2, _("Focus style"), 
-		       _("Pointer\nSloppy\nClick to focus"), &e_opt_focus);
-  e_add_multi_to_frame(frame2, _("Move mode"), 
-		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_move);
-  e_add_multi_to_frame(frame2, _("Resize mode"), 
-		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_resize);
-
-  frame2 = e_create_frame (_("Miscellaneous"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_range_to_frame(frame2, _("Button move resistance (pixels)"), 
-		       &e_opt_button_move_resistance,
-		       1.0, 20.0, _("Less"), _("More"));
-  e_add_rangeonoff_to_frame(frame2, 
-			    _("Tooltip timeout (sec)"),
-			    &e_opt_tooltiptime,
-			    0.0, 10.0, 
-			    _("Shorter"), _("Longer"), 
-			    &e_opt_tooltips, 0.0);
-  e_add_rangeonoff_to_frame(frame2, 
-			    _("Shading speed (pixels / sec)"),
-			    &e_opt_shade_speed,
-			    1.0, 20000.0, 
-			    _("Slower"), _("Faster"), 
-			    NULL, 99999.0);
-  e_add_onoff_to_frame(frame2, _("Autosave"), &e_opt_autosave);
-  
-  frame = e_create_frame (_("Effects"));
-  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
-  
-
-  frame2 = e_create_frame (_("Sliding"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_multi_to_frame(frame2, _("Slide mode"), 
-		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_slide_mode);
-  e_add_onoff_to_frame(frame2, _("Windows slide on cleanup"), &e_opt_slide_cleanup);
-  e_add_onoff_to_frame(frame2, _("Windows slide on map"), &e_opt_slide_map);
-  e_add_onoff_to_frame(frame2, _("Desktops slide on change"), &e_opt_slide_desk);
-
-  frame2 = e_create_frame (_("Miscellaneous"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_onoff_to_frame(frame2, _("Sound Effects"), &e_opt_sound);
-  e_add_onoff_to_frame(frame2, _("Dither backgrounds"), &e_opt_hq_background);
-
-  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
 }
 
 static void
@@ -707,62 +747,6 @@ e_setup_sound (GtkWidget *c)
 static void
 e_setup_colors (GtkWidget *c)
 {
-  GtkWidget *frame, *frame2, *hbox;
-  
-  current_capplet = c;
-  hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-  gtk_widget_show (hbox);
-  gtk_container_add (GTK_CONTAINER (c), hbox);
-    
-  frame = e_create_frame (_("Options"));
-  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
-  
-  frame2 = e_create_frame (_("Window Display"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_multi_to_frame(frame2, _("Focus style"), 
-		       _("Pointer\nSloppy\nClick to focus"), &e_opt_focus);
-  e_add_multi_to_frame(frame2, _("Move mode"), 
-		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_move);
-  e_add_multi_to_frame(frame2, _("Resize mode"), 
-		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_resize);
-
-  frame2 = e_create_frame (_("Miscellaneous"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_range_to_frame(frame2, _("Button move resistance (pixels)"), 
-		       &e_opt_button_move_resistance,
-		       1.0, 20.0, _("Less"), _("More"));
-  e_add_rangeonoff_to_frame(frame2, 
-			    _("Tooltip timeout (sec)"),
-			    &e_opt_tooltiptime,
-			    0.0, 10.0, 
-			    _("Shorter"), _("Longer"), 
-			    &e_opt_tooltips, 0.0);
-  e_add_rangeonoff_to_frame(frame2, 
-			    _("Shading speed (pixels / sec)"),
-			    &e_opt_shade_speed,
-			    1.0, 20000.0, 
-			    _("Slower"), _("Faster"), 
-			    NULL, 99999.0);
-  e_add_onoff_to_frame(frame2, _("Autosave"), &e_opt_autosave);
-  
-  frame = e_create_frame (_("Effects"));
-  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
-  
-
-  frame2 = e_create_frame (_("Sliding"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_multi_to_frame(frame2, _("Slide mode"), 
-		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_slide_mode);
-  e_add_onoff_to_frame(frame2, _("Windows slide on cleanup"), &e_opt_slide_cleanup);
-  e_add_onoff_to_frame(frame2, _("Windows slide on map"), &e_opt_slide_map);
-  e_add_onoff_to_frame(frame2, _("Desktops slide on change"), &e_opt_slide_desk);
-
-  frame2 = e_create_frame (_("Miscellaneous"));
-  e_add_widget_to_frame(frame, frame2);
-  e_add_onoff_to_frame(frame2, _("Sound Effects"), &e_opt_sound);
-  e_add_onoff_to_frame(frame2, _("Dither backgrounds"), &e_opt_hq_background);
-
-  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
 }
 
 void 
