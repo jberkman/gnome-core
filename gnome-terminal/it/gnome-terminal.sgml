@@ -33,7 +33,7 @@
       <title>Descrizione</title>
       <para>
 	gnome-terminal è un programma emulatore di terminale che fa 
-	parte del progetto Gnome. Fornisce accesso alla shell Unix 
+	parte del progetto Gnome. Fornisce l'accesso alla shell Unix 
 	all'interno dell'ambiente di lavoro di Gnome.
       </para>
       <para>
@@ -41,7 +41,7 @@
 	la sezione sulle <link linkend="environment">variabili di
 	  ambiente</link> per i dettagli) e fornisce il supporto
 	per il mouse alle applicazioni che tengono conto degli
-	eventi generati da questo in terminale di tipo xterm.
+	eventi generati da questo in un terminale di tipo xterm.
       </para>
     </sect1>	
     
@@ -49,9 +49,9 @@
       <title>Emulazione</title>
 
       <para>
-	Il programma termianel di Gnome (gnome-terminal) è progettato
+	Il programma terminale di Gnome (gnome-terminal) è progettato
 	per emulare il programma 'xterm' fornito dal X Consortium.
-	Questo è, d'altra parte, una completa emulazione del terminale
+	D'altra parte, quest'ultimo è una completa emulazione del terminale
 	DEC VT102.
       </para>
             
@@ -59,7 +59,7 @@
 	Il programma terminale di Gnome supporta le stesse estensioni
 	del VT102 fornite da xterm, attraverso particolari sequenze
 	di escape. Il programma xterm è un programma in continua
-	evoluzione. Cambiamenti recenti a xterm sono stati aggiunti
+	evoluzione. I recenti cambiamenti a xterm sono stati aggiunti
 	a gnome-terminal. Tra questi, l'emulazione delle sequenze di
 	escape del nuovo terminale VT220.
       </para>
@@ -79,12 +79,12 @@
 	<title>Opzioni generiche</title>
 	<para>
 	  Mentre la maggior parte delle opzioni si spiegano da sole,
-	  discuteremo qui alcune di queste, a cui dovete dedicare
+	  qui ne discuteremo alcune a cui dovete dedicare
 	  particolare attenzione.
 	</para>
 	<variablelist>
 	  <varlistentry>
-	    <term>Classe di terminale</term>
+	    <term>Classe del terminale</term>
 	    <listitem>
 	      <para>
 		Imposta la classe del terminale utilizzata all'interno
@@ -99,7 +99,7 @@
 	    <listitem>
 	      <para>
 		Definisce una lista di caratteri (o <emphasis>classi
-		  di caratteri</emphasis> che devono essere considerati
+		  di caratteri</emphasis>) che devono essere considerati
 		come appartenenti ad una parola. Questi vengono utilizzati
 		quando si <link linkend="pointer-select">seleziona</link>
 		una parola.
@@ -130,8 +130,8 @@
 	      </para>
 	      <para>
 		Se avete selezionato l'opzione personalizzabile, allora
-		tutti e sedici i colori (nominalmente 8 colori, e 8
-		chiari) possono essere personalizzati selezionando
+		tutti e sedici i colori (nominalmente 8 colori normali e 8
+		più chiari) possono essere personalizzati selezionando
 		l'apposito selettore.
 	      </para>
 	    </listitem>
@@ -142,28 +142,27 @@
 	      <para>
 		Quando nessun colore è richiesto dall'applicazione in
 		esecuzione all'interno del gnome-terminal,
-		questi vi permette di ignorare i colori standard per
+		questo vi permette di ignorare i colori standard per
 		il testo e per lo sfondo.
 	      </para>
 	      
 	      <para>
 		Sono disponibili le seguenti opzioni: bianco su nero,
-		nero su bianco, verde su nero, nero su giallo chiaro, e
-		personalizzabile. Su come queste appaiono sullo schermo
+		nero su bianco, verde su nero, nero su giallo chiaro e
+		personalizzabile. Come queste appaiono sullo schermo
 		dipende dalla tavolozza in uso (per il bianco su nero e
 		nero su bianco).
-		Personalizzabile vi permette di selezionare il colore 
-		default per il testo e lo sfondo individualmente e 
-		separatamente dalla tavolozza.
+		Personalizzabile vi permette di selezionare indipendentemente
+		dalla tavolozza il colore predefinito per il testo e lo sfondo.
 	      </para>
 
 	      <para>
-		In aggiunta, l'utente può trascinare un colore dal rettangolo
+		Inoltre l'utente può trascinare un colore dal rettangolo
 		a fianco della ruota dei colori e rilasciarlo all'interno del
 		terminale. Se l'utente trascina il colore su uno spazio
-		vuoto, questo verrà utilizzato per lo sfondo, mentre invece
-		se verrà rilasciato su testo questo diventerà il colore per 
-		il testo. Questo inoltre modificherà automaticamente 
+		vuoto, questo verrà utilizzato per lo sfondo, invece 
+		 se verrà rilasciato su testo questo diventerà il colore per 
+		il testo. Ciò inoltre modificherà automaticamente 
 		i colori personalizzabili, e impostare il nuovo colore
 		per lo sfondo e per il testo.
 	      </para>
@@ -180,11 +179,11 @@
 	Il terminale di Gnome vi permette di gestire differenti
 	configurazioni per soddisfare particolari esigenze (sfondi
 	differenti, presenza, assenza o posizione delle barre di
-	scorrimento, e così via). Per impostare queste opzioni, visualizzate
+	scorrimento e così via). Per impostare queste opzioni, visualizzate
 	la finestre di dialogo delle preferenze dal menu impostazione del
 	gnome-terminal. Selezionate le vostre opzioni preferite (queste
 	modifiche avranno luogo nel terminale che state utilizzando
-	correntemente, quindi avrete una idea di cosa state modificando),
+	correntemente, quindi avrete una idea di cosa state modificando)
 	e prima di chiudere la finestra di dialogo, assicuratevi
 	di aver inserito un nuovo nome nello spazio "Classe del terminale".
        </para>
@@ -203,8 +202,8 @@
 	    <para><symbol>--background COLORE</symbol></para>
 	    
 	    <para>
-	      Viene utilizzata per specificare il colore di sfondo del
-	      terminale al momento dell'avvio. COLORE può essere espresso
+	      Viene utilizzata per specificare all'avvio il colore di 
+	      sfondo del terminale. COLORE può essere espresso
 	      in qualunque forma sia riconosciuta dal vostro sistema 
 	      a finestre.
 	    </para>
@@ -213,8 +212,8 @@
 	  <listitem>
 	    <para><symbol>--tclass NOMECLASSE</symbol></para>
 	    <para>
-	      Specifica la classe di terminale da utilizzare per
-	      configurare il terminale al momento dell'avvio.
+	      Specifica la classe di terminale da utilizzare all'avvio
+	      configurare il terminale.
 	    </para>
 	  </listitem>
 	  
@@ -255,7 +254,7 @@
 	    <para>
 	      Specifica la dimensione (geometria) iniziale per questo
 	      terminale. La geometria specifica l'altezza e la larghezza
-	      desiderati espressi in numero di caratteri del terminale.
+	      desiderate espresse in numero di caratteri del terminale.
 	      Ad esempio: --geometry=80x40 creerà un terminal di ottanta
 	      colonne per quaranta righe.
 	    </para>
@@ -345,10 +344,10 @@
 	</itemizedlist>		
       </para>
       <para>
-	È possibile utilizzare,più di una opzione alla volta. Ad esempio, 
+	È possibile utilizzare più di una opzione alla volta. Ad esempio, 
 	su un sistema munito del browser web testuale Lynx, è possibile
 	eseguire 'gnome-terminal --title Web --command lynx', il quale
-	aprirà un gnome-terminal che avvia al suo interno Lynx e che abbia
+	aprirà un gnome-terminal che avvia al suo interno Lynx e che ha
 	come titolo della finestra la stringa "Web".
       </para>
 
@@ -357,9 +356,9 @@
     <sect1 id="pointerusage">
       <title>Uso del puntatore</title>
       <para>
-	Il puntatore può essere utilizzato per selezionare (copiare), ed
+	Il puntatore può essere utilizzato per selezionare (copiare) ed
 	estendere la selezione del testo, incollarlo da altri terminali
-	o applicazioni, e visualizzare un menu.
+	o applicazioni e visualizzare un menu.
       </para>
       <sect2 id="pointer-select">
 	<title>Selezione</title>
@@ -371,8 +370,8 @@
         </para>
 	<para>
 	  Il pulsante sinistro del mouse può essere utilizzato per
-	  iniziare una selezione. Se il pulsante del mouse viene cliccato
-	  una volta sola, e trascinato, i caratteri verranno selezionati 
+	  iniziare una selezione. Se viene premtuo una volta e trascinato, 
+	  i caratteri verranno selezionati 
 	  individualmente. Se trascinate oltre i limiti della finestra
 	  questa scorrerà assieme al movimento del cursore.
 	</para>
@@ -389,7 +388,7 @@
 	  di testo al trascinamento del cursore verso l'alto e/o il basso.
 	</para>
 	<para>
-	  Il pulsante centrale del mouse può essere utilizzato per 
+	  Il pulsante destro del mouse può essere utilizzato per 
 	  estendere per estendere la selezione. Scorrete semplicemente
 	  al punto dove volete estenderla e cliccate il pulsante
 	  destro del mouse mentre il mouse si trova ancora sulla 
@@ -399,16 +398,16 @@
 	<para>
 	  In tutti i casi, rilasciare il pulsante del mouse copierà 
 	  automaticamente il testo selezionato all'interno del
-	  clipboard, e eventualmente copiato in altre applicazioni. 
+	  clipboard e può essere eventualmente copiato in altre applicazioni. 
 	  Notare che qualunque nuovo inserimento nella finestra di
 	  testo annullerà le selezione fatta, ma il contenuto del clipboard
 	  non verrà perso.
 	</para>
       </sect2>
       <sect2 id="pointer-paste">
-	<title>Incollare il testox</title>
+	<title>Incollare il testo</title>
 	<para>
-	  Se il pulsante centrale del mouse viene premuto, allora
+	  Se viene premtuo il pulsante centrale del mouse, allora
 	  la selezione corrente viene incollata nella finestra. Questa
 	  funzionalità può essere sfruttata per trasferire del testo
 	  tra applicazioni.
@@ -425,7 +424,7 @@
 	<para>
 	  Se il vostro mouse possiede una rotella (che emula gli eventi
 	  del quarto e quinto pulsante del mouse), allora è possibile
-	  utilizzare questa per scorrere in alto e in basso il buffer
+	  utilizzarla per scorrere in alto e in basso il buffer
 	  di testo.
 	</para>
       </sect2>
@@ -434,8 +433,8 @@
 	<para>
 	  Il puntatore può inoltre essere utilizzato per visualizzare un
 	  <link linkend="menu-popup">menu di controllo</link>,
-	  il quale può essere utilizzato per resettare il terminale,
-	  oppure mostrare la barra del menu, se questa è stata 
+	  il quale può essere utilizzato per reinizializzare il terminale,
+	  oppure per mostrare la barra del menu, se questa è stata 
 	  precedentemente nascosta.
 	</para>
 	<para>
@@ -524,12 +523,12 @@
 	      <para>
 		Nasconde la barra principale del menu nel terminale,
 		rendendolo più piccolo. La barra del menu può essere
-		nuovamente visualizzata utilizzato il menu di controllo,
+		nuovamente visualizzata utilizzato il menu di controllo.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term>Chiudi il terminal</term>
+	    <term>Chiudi il terminale</term>
 	    <listitem>
 	      <para>
 		Chiude il terminale corrente. Chiude inoltre qualunque
@@ -577,10 +576,10 @@
 	    <term>Ripristina il terminale</term>
 	    <listitem>
 	      <para>
-		Ripristina i parametri del terminale. Queste non cancellerà
+		Ripristina i parametri del terminale. Questo non cancellerà
 		lo schermo o sposterà l cursore, ma ogni terminale aperto
-		successivamente sarà resettato con i font e attributi di
-		default.
+		successivamente sarà inizializzato con i font e attributi 
+		predefiniti.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -660,7 +659,7 @@
 	    <term>Mostra la barra del menu</term>
 	    <listitem>
 	      <para>
-		Nasconda/visualizza la barra principale del menu.
+		Nasconde/visualizza la barra principale del menu.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -687,8 +686,8 @@
 	    <listitem>
 	      <para>
 		Se il puntatore del mouse si trova sopra un URL
-		quando il menu a tendina viene visualizzato, allora
-		questa opzione sarà disponibile per aprire il browser
+		quando viene visualizzato il menu a tendina, allora
+		sarà disponibile questa opzione per aprire il browser
 		all'URL selezionato. Utilizzando il tasto CTRL assieme
 		al pulsante sinistro del mouse si ottiene il medesimo
 		effetto.
@@ -708,8 +707,8 @@
 	  <listitem>
 	    <para><symbol>TERM</symbol></para>
 	    <para>
-	      Questa variabile viene impostata uguale a "xterm" per
-	      default. Alcune implementazioni di curses e applicazioni
+	      Per default questa variabile viene impostata uguale a "xterm".
+	      Alcune implementazioni di curses e applicazioni
 	      basate su queste possono richiedere un valore uguale a 
 	      "xterm-color", "color-xterm" oppure "xterm-debian" per
 	      sfruttare il supporto dei colori. Potreste aver bisogno
