@@ -876,7 +876,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Swap keys */
-	prefs->swapkeys_checkbox = gtk_check_button_new_with_label (_("Swap DEL/Backsapce"));
+	prefs->swapkeys_checkbox = gtk_check_button_new_with_label (_("Swap DEL/Backspace"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox),
 				     cfg->swap_keys ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->swapkeys_checkbox), "toggled",
