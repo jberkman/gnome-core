@@ -27,7 +27,7 @@ void
 application_register (GnomePropertyConfigurator *pconf)
 {
   background_register (pconf);
-/*  screensaver_register (pconf); */
+  screensaver_register (pconf);
 }
 
 int
