@@ -1,3 +1,8 @@
+Mon Apr 23 19:51:06 2001  George Lebl <jirka@5z.com>
+
+	* gnome-terminal.desktop:  prepend NO_XALF to the exec field so that
+	  xalf isn't started
+
 Thu Apr 19 15:46:59 2001  Jonathan Blandford  <jrb@redhat.com>
 
 	* gnome-terminal.c (preferences_cmd): set transient_for on the
