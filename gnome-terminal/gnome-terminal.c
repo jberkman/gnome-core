@@ -1406,7 +1406,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
 			    GTK_SIGNAL_FUNC (window_destroy), term);
 
-	help_entry.name = gnome_app_id;
+	help_entry.name = "gnome-terminal";
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "help",
 			    GTK_SIGNAL_FUNC (gnome_help_pbox_display),
 			    &help_entry);

@@ -1,4 +1,9 @@
-1999-12-11    <miguel@gnu.org>
+1999-12-28  Miguel de Icaza  <miguel@gnu.org>
+
+	* gnome-terminal.c (preferences_cmd): Use the proper directory
+	location for the help item.
+
+1999-12-11 Miguel de Icaza   <miguel@gnu.org>
 
 	* gnome-terminal.c (paste_cmd): Use the current event time,
 	instead of GDK_CURRENT_TIME
