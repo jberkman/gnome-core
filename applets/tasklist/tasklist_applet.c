@@ -456,7 +456,7 @@ layout_tasklist (void)
 		}
 
 		curheight = ROW_HEIGHT;
-		if(Config.follow_panel_size)
+		if (Config.follow_panel_size)
 			curwidth = panel_size - 4;
 		else
 			curwidth = Config.vert_width - 4;
@@ -743,10 +743,10 @@ change_size (gboolean layout)
 	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
-		if (Config.horz_fixed)
+/*		if (Config.horz_fixed)
 			horz_width = Config.horz_width;
 		else
-			horz_width = 4;
+		horz_width = 4;*/
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
 		gtk_widget_set_usize (handle, 
 				      DRAG_HANDLE_SIZE + horz_width,
@@ -757,10 +757,10 @@ change_size (gboolean layout)
 		break;
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
-		if (Config.vert_fixed)
+/*		if (Config.vert_fixed)
 			vert_height = Config.vert_height;
 		else
-			vert_height = 4;
+		vert_height = 4;*/
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
 		gtk_widget_set_usize (handle, 
 				      (Config.follow_panel_size?
