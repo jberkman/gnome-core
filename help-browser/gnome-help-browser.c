@@ -25,6 +25,7 @@
 #include "toc2.h"
 #include "cache.h"
 
+#define NAME "GnomeHelp"
 #define VERSION "0.4"
 
 static void aboutCallback(void);
@@ -38,6 +39,21 @@ void warningHandler(gchar *s);
 void errorHandler(gchar *s);
 void setErrorHandlers(void);
 static HelpWindow makeHelpWindow(void);
+static void initConfig(void);
+static void saveConfig(void);
+
+/* MANPATH should probably come from somewhere */
+#define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
+#define DEFAULT_INFOPATH "/usr/info:/usr/local/info"
+/* GHELPPATH probably needs some automatic additions inside toc */
+#define DEFAULT_GHELPPATH "/opt/gnome/share/gnome/help:" \
+                          "/usr/local/share/gnome/help:" \
+			  "/usr/local/gnome/share/gnome/help:" \
+			  "/usr/share/gnome/help"
+
+static gchar *manPath;			  
+static gchar *infoPath;			  
+static gchar *ghelpPath;			  
 
 static Toc tocWindow;
 static History historyWindow;
@@ -50,13 +66,16 @@ main(int argc, char *argv[])
 {
     HelpWindow window;
     
-    gnome_init("gnome_help_browser", &argc, &argv);
+    gnome_init(NAME, &argc, &argv);
 
+    initConfig();
+    
     setErrorHandlers();
 	
     historyWindow = newHistory(0, (GSearchFunc)historyCallback, NULL); 
     cache = newDataCache(10000000, 0, (GCacheDestroyFunc)g_free);
-    tocWindow = newToc((GtkSignalFunc)tocCallback);
+    tocWindow = newToc(manPath, infoPath, ghelpPath,
+		       (GtkSignalFunc)tocCallback);
 
     window = makeHelpWindow();
 
@@ -73,7 +92,7 @@ makeHelpWindow()
 {
     HelpWindow window;
     
-    window = helpWindowNew(aboutCallback, newWindowCallback,
+    window = helpWindowNew(NAME, aboutCallback, newWindowCallback,
 			   closeWindowCallback, setCurrentCallback);
     helpWindowSetHistory(window, historyWindow);
     helpWindowSetCache(window, cache);
@@ -176,4 +195,28 @@ void setErrorHandlers(void)
     g_set_warning_handler((GErrorFunc) warningHandler);
     g_set_message_handler((GErrorFunc) messageHandler);
     g_set_print_handler((GErrorFunc) printf);
+}
+
+/**********************************************************************/
+
+/* Configure stuff */
+
+static void initConfig(void)
+{
+    manPath = gnome_config_get_string("/" NAME "/paths/manpath="
+				      DEFAULT_MANPATH);
+    infoPath = gnome_config_get_string("/" NAME "/paths/infopath="
+				       DEFAULT_INFOPATH);
+    ghelpPath = gnome_config_get_string("/" NAME "/paths/ghelppath="
+					DEFAULT_GHELPPATH);
+
+    saveConfig();
+}
+
+static void saveConfig(void)
+{
+    gnome_config_set_string("/" NAME "/paths/manpath", manPath);
+    gnome_config_set_string("/" NAME "/paths/infopath", infoPath);
+    gnome_config_set_string("/" NAME "/paths/ghelppath", ghelpPath);
+    gnome_config_sync();
 }

@@ -25,7 +25,8 @@ struct _big_table_entry {
 
 typedef struct _toc *Toc;
 
-Toc newToc(GtkFunction callback);
+Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
+	   GtkFunction callback);
 void showToc(Toc toc);
 void hideToc(Toc toc);
 

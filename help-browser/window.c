@@ -437,7 +437,8 @@ helpWindowClose(HelpWindow win)
 }
 
 HelpWindow
-helpWindowNew(GtkSignalFunc about_callback,
+helpWindowNew(gchar *name,
+	      GtkSignalFunc about_callback,
 	      GtkSignalFunc new_window_callback,
 	      GtkSignalFunc close_window_callback,
 	      GHashFunc set_current_callback)
@@ -457,7 +458,7 @@ helpWindowNew(GtkSignalFunc about_callback,
 	w->cache = NULL;
 	w->currentRef = NULL;
 
-	w->app = gnome_app_new ("GnomeHelp", "Gnome Help Browser");
+	w->app = gnome_app_new (name, "Gnome Help Browser");
 	gtk_widget_realize (w->app);
 
 	gtk_signal_connect (GTK_OBJECT (w->app), "delete_event",

@@ -14,17 +14,7 @@
 #include "toc2-ghelp.h"
 #include "toc2-info.h"
 
-struct _toc_config toc_config[] = {
-    { "/usr/man",              TOC_MAN_TYPE   },
-    { "/usr/local/man",        TOC_MAN_TYPE   },
-    { "/usr/X11R6/man",        TOC_MAN_TYPE   },
-    { "/usr/info",             TOC_INFO_TYPE  },
-    { "/opt/gnome/share/gnome/help",       TOC_GHELP_TYPE },
-    { "/usr/local/share/gnome/help",       TOC_GHELP_TYPE },
-    { "/usr/local/gnome/share/gnome/help", TOC_GHELP_TYPE },
-    { "/usr/share/gnome/help",             TOC_GHELP_TYPE },
-    { NULL, 0 }
-};
+static struct _toc_config *toc_config;
 
 struct _toc {
     GList *manTable;
@@ -36,6 +26,10 @@ struct _toc {
     GtkFunction callback;
 };
 
+static struct _toc_config *addToConfig(struct _toc_config *index,
+				       gchar *paths, gint type);
+static gint countChars(gchar *s, gchar ch);
+static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath);
 static int hideTocInt(GtkWidget *window);
 static GString *generateHTML(Toc res);
 static void tocClicked(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, Toc toc);
@@ -58,11 +52,69 @@ static int hideTocInt(GtkWidget *window)
     return FALSE;
 }
 
-Toc newToc(GtkFunction callback)
+static gint countChars(gchar *s, gchar ch)
+{
+    gint count = 0;
+    
+    while (s && *s) {
+	if (*s == ch)
+	    count++;
+	s++;
+    }
+    
+    return count;
+}
+
+static struct _toc_config *addToConfig(struct _toc_config *index,
+				       gchar *paths, gint type)
+{
+    gchar buf[BUFSIZ];
+    gchar *rest, *s;
+
+    if (!paths) {
+	return index;
+    }
+
+    strcpy(buf, paths);
+    rest = buf;
+
+    while ((s = strtok(rest, ":"))) {
+	rest = NULL;
+	index->path = g_strdup(s);
+	index->type = type;
+	index++;
+    }
+
+    return index;
+}
+
+static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
+{
+    gint count;
+    struct _toc_config *index;
+
+    count = 3;
+    count += countChars(manPath, ':');
+    count += countChars(infoPath, ':');
+    count += countChars(ghelpPath, ':');
+
+    toc_config = g_malloc(count * sizeof(*toc_config));
+    index = toc_config;
+    index = addToConfig(index, manPath, TOC_MAN_TYPE);
+    index = addToConfig(index, infoPath, TOC_INFO_TYPE);
+    index = addToConfig(index, ghelpPath, TOC_GHELP_TYPE);
+    index->path = NULL;
+    index->type = 0;
+}
+
+Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
+	   GtkFunction callback)
 {
     Toc res;
     GString *s;
 
+    buildTocConfig(manPath, infoPath, ghelpPath);
+    
     res = g_malloc(sizeof(*res));
     res->manTable = newManTable(toc_config);
     res->ghelpTable = newGhelpTable(toc_config);
