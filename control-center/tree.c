@@ -4,7 +4,7 @@
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
 #include "tree.h"
-#include "caplet-manager.h"
+#include "capplet-manager.h"
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
@@ -26,7 +26,7 @@ gint button_press (GtkCTree *ctree, GdkEventButton *event, gpointer data)
                 /* g_print ("stoping the button press...\n");
                    gtk_signal_emit_stop_by_name (GTK_OBJECT (ctree), "button_press_event");*/
         }
- 
+        return TRUE;
 }
 
 gboolean
@@ -212,14 +212,16 @@ generate_tree ()
         gtk_clist_set_selection_mode(GTK_CLIST(retval), GTK_SELECTION_BROWSE);
         gtk_signal_connect( GTK_OBJECT (retval),"tree_select_row", GTK_SIGNAL_FUNC (selected_row_callback), NULL);
 
-        /*hard_coded for now... */
+        /* load the directories */
         root_prefix = gnome_unconditional_datadir_file ("control-center");
-        g_print ("root_prefix=%s\n",root_prefix);
         global_node = read_directory (root_prefix);
-        user_prefix = gnome_util_home_file ("control_center");
-        g_print ("user_prefix=%s\n",user_prefix);
+        user_prefix = gnome_util_home_file ("control-center");
         user_node = read_directory (user_prefix);
-        merge_nodes (user_node,global_node);
+        
+        if (user_node == NULL)
+                user_node = global_node;
+        else 
+                merge_nodes (user_node,global_node);
 
         /* now we actually set up the tree... */
         /* we prolly want to use the gtree_insert_node function to do this, 
@@ -259,5 +261,7 @@ selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column)
                 gtk_statusbar_push (GTK_STATUSBAR (status_bar), 1, (gde->name));
 
         if (event && event->type == GDK_2BUTTON_PRESS)
-                launch_caplet (data);
+                launch_capplet (data);
+        g_print ("did we get here?\n");
+
 }

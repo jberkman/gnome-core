@@ -18,7 +18,6 @@ extern "C" {
 void control_center_corba_gtk_main_quit(void);
 void control_center_corba_gtk_main (gint *argc, char **argv);
 
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

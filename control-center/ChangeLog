@@ -1,3 +1,12 @@
+Tue Aug 26 18:13:17 1998  Jonathan Blandford <jrb@redhat.com>
+	* caplet*: renamed to capplet*
+	* corba-glue: added working support for Corba
+	
+Mon Aug 24 13:06:33 1998  Jonathan Blandford <jrb@redhat.com>
+	* tree.c: Fixed a bug in logic while merging trees.
+	* *.[ch]: by request of Dr. Mike, changed the spelling of caplet.
+	It will henceforth be known as 'capplet'. (:
+
 Fri Aug 21 19:42:11 1998  Jonathan Blandford <jrb@redhat.com>
 	* caplet-manager.c: now trys to start the caplet
 	* caplet-widget-*: cleaned up testing code. Now works mostly.

@@ -7,6 +7,7 @@
 #define __TREE_H__
 
 #include <gnome.h>
+#include "control-center.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,11 +25,17 @@ void selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column);
 typedef struct _node_data node_data;
 struct _node_data
 {
+        GNOME_capplet capplet;
         GnomeDesktopEntry *gde;
         GtkWidget *socket;
         gint id;
         gint notetab_id;
         gboolean modified;
+        GtkWidget *try_button;
+        GtkWidget *revert_button;
+        GtkWidget *ok_button;
+        GtkWidget *cancel_button;
+        GtkWidget *help_button;
 };
 
 

@@ -3,8 +3,8 @@
 /* Copyright (C) 1998 Redhat Software Inc. 
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
-#ifndef __CAPLET_MANAGER_H__
-#define __CAPLET_MANAGER_H__
+#ifndef __CAPPLET_MANAGER_H__
+#define __CAPPLET_MANAGER_H__
 
 #include "control-center.h"
 #include "tree.h"
@@ -14,9 +14,8 @@ extern "C" {
 #pragma }
 #endif /* __cplusplus */
 
-void request_new_id (CORBA_Object *cco, CORBA_unsigned_long *xid, CORBA_short *id);
-void launch_caplet (node_data *data);
-
+void launch_capplet (node_data *data);
+node_data *find_node_by_id (gint id);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

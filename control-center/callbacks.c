@@ -6,10 +6,11 @@
 #include "callbacks.h"
 #include "tree.h"
 #include "corba-glue.h"
-#include "caplet-manager.h"
+#include "capplet-manager.h"
 extern GtkWidget *exit_dialog;
+extern GtkWidget *notebook;
 extern GtkWidget *create_exit_dialog();
-extern GList *caplet_list;
+extern GList *capplet_list;
 
 /* this is meant to be called with a foreach to make a list of all modified nodes. */
 void
@@ -26,7 +27,7 @@ exit_callback(GtkWidget *widget, gpointer data)
         if (exit_dialog)
                 gnome_dialog_close (GNOME_DIALOG (exit_dialog));
 
-        g_list_foreach (caplet_list, create_templist, &templist);
+        g_list_foreach (capplet_list, create_templist, &templist);
 
         if (!templist) {
                 control_center_corba_gtk_main_quit();                
@@ -70,19 +71,6 @@ about_callback(GtkWidget *widget, gpointer data)
 				NULL);
         gtk_widget_show(about);
 }
-void try_button_callback(GtkWidget *widget, gpointer data)
-{
-}
-
-void revert_button_callback(GtkWidget *widget, gpointer data)
-{
-}
-void ok_button_callback(GtkWidget *widget, gpointer data)
-{
-}
-void cancel_button_callback(GtkWidget *widget, gpointer data)
-{
-}
 void help_button_callback(GtkWidget *widget, gpointer data)
 {
 }
@@ -96,6 +84,6 @@ exit_row_callback(GtkWidget *widget, gint row, gint column, GdkEventButton * eve
                 data = (node_data *) gtk_clist_get_row_data (GTK_CLIST (widget),row);
                 gnome_dialog_close (GNOME_DIALOG (exit_dialog));
                 exit_dialog = NULL;
-                launch_caplet (data);
+                launch_capplet (data);
         }
 }

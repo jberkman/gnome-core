@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
 #include "corba-glue.h"
-#include "caplet-manager.h"
+#include "capplet-manager.h"
 #include <orb/orbit.h>
 #include <gnome.h>
 
@@ -9,12 +9,14 @@ static void orb_add_connection(GIOPConnection *cnx);
 static void orb_remove_connection(GIOPConnection *cnx);
 void control_center_corba_gtk_init(gint *argc, char **argv);
 static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond);
-
+void server_register_capplet(PortableServer_Servant servant, CORBA_long id, GNOME_capplet cap, CORBA_Environment * ev);
+void server_state_changed(PortableServer_Servant servant, CORBA_long id, CORBA_boolean undoable, CORBA_Environment * ev);
 
 /* Variables */
 CORBA_ORB orb = NULL;
 CORBA_Environment ev;
-GNOME_control_center control_center;
+GNOME_control_center control_center = NULL;
+
 gchar *ior;
 PortableServer_ServantBase__epv base_epv = {
         NULL,
@@ -24,7 +26,8 @@ PortableServer_ServantBase__epv base_epv = {
 POA_GNOME_control_center__epv control_center_epv = 
 {  
         NULL, 
-        NULL,
+        (gpointer)&server_register_capplet,
+        (gpointer)&server_state_changed,
         NULL,
 };
 POA_GNOME_control_center__vepv poa_control_center_vepv = { &base_epv, &control_center_epv };
@@ -90,7 +93,8 @@ control_center_corba_gtk_main (gint *argc, char **argv)
         gtk_main();
 }
 
-static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond)
+static void
+orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond)
 {
         switch(cond) {
         case GDK_INPUT_EXCEPTION:
@@ -99,4 +103,26 @@ static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCond
         default:
                 giop_main_handle_connection(cnx);
         }
+}
+void
+server_register_capplet(PortableServer_Servant servant, CORBA_long id, GNOME_capplet cap, CORBA_Environment * ev)
+{
+        node_data *nd = find_node_by_id (id);
+
+        if (nd == NULL) {
+                g_print ("error -- unable to locate node %d\n",id);
+                return;
+        }
+        nd->capplet = cap;
+}
+void
+server_state_changed(PortableServer_Servant servant, CORBA_long id, CORBA_boolean undoable, CORBA_Environment * ev)
+{
+        node_data *nd = find_node_by_id (id);
+
+        nd->modified = TRUE;
+        gtk_widget_set_sensitive (nd->try_button, TRUE);
+        if (undoable)
+                gtk_widget_set_sensitive (nd->revert_button, TRUE);
+        gtk_widget_set_sensitive (nd->ok_button, TRUE);
 }

@@ -11,7 +11,7 @@ gnomecc_SOURCES =	\
 	tree.h		\
 	callbacks.c	\
 	corba-glue.c	\
-	caplet-manager.c\
+	capplet-manager.c\
 	callbacks.h	\
 	$(CORBA_SRCLIST)
 
@@ -30,12 +30,12 @@ EXTRA_DIST = gnomecc.desktop control-center.idl
 sysdir = $(datadir)/apps/System
 sys_DATA = gnomecc.desktop
 
-libcaplet_la_SOURCES=caplet-widget.c caplet-widget-libs.c
-libcaplet_la_LDFLAGS = -version-info 0:0:0 -rpath $(libdir)
-libcaplet_la_LIBADD = $(ORB_LIBS) -lm $(DL_LIB)
+libcapplet_la_SOURCES=capplet-widget.c capplet-widget-libs.c $(CORBA_SRCLIST)
+libcapplet_la_LDFLAGS = -version-info 0:0:0 -rpath $(libdir)
+libcapplet_la_LIBADD = $(ORB_LIBS) -lm $(DL_LIB)
 
 
-lib_LTLIBRARIES = libcaplet.la
+lib_LTLIBRARIES = libcapplet.la
 
 test: $(test_SOURCES)
 MAINTAINERCLEANFILES = $(CORBA_SRCLIST)
