@@ -176,7 +176,6 @@ static void delete_dialog_cb( gint button, gpointer data)
 		free_desktop_data(d);
 		save_order_of_dir(node);
 
-		edit_area_orig_data = NULL;
 		new_edit_area();
 		}
 }
@@ -246,18 +245,6 @@ static void save_dialog_cb( gint button, gpointer data)
 		gnome_desktop_entry_save (dentry);
 		gnome_desktop_entry_destroy (dentry);
 
-/*		save_desktop_file_info (path,
-					gtk_entry_get_text(GTK_ENTRY(name_entry)),
-					gtk_entry_get_text(GTK_ENTRY(comment_entry)),
-					gtk_entry_get_text(GTK_ENTRY(tryexec_entry)),
-					gtk_entry_get_text(GTK_ENTRY(exec_entry)),
-					gtk_entry_get_text(GTK_ENTRY(icon_entry)),
-					GTK_TOGGLE_BUTTON (terminal_button)->active,
-					gtk_entry_get_text(GTK_ENTRY(type_entry)),
-					gtk_entry_get_text(GTK_ENTRY(doc_entry)),
-					GTK_TOGGLE_BUTTON (multi_args_button)->active);
-
-*/
 		if (overwrite)
 			{
 			gint8 spacing;

@@ -3,7 +3,6 @@
 /*###################################################################*/
 
 #include "gmenu.h"
-#include "unknown.xpm"
 #include "up.xpm"
 #include "down.xpm"
 
@@ -19,18 +18,6 @@ GtkWidget *infopixmap;
 GtkWidget *pathlabel;
 
 GtkWidget *filename_entry;
-GtkWidget *name_entry;
-GtkWidget *comment_entry;
-GtkWidget *icon_entry;
-GtkWidget *type_entry;
-GtkWidget *exec_entry;
-GtkWidget *desktop_icon;
-GtkWidget *icon_entry;
-GtkWidget *terminal_button;
-GtkWidget *multi_args_button;
-
-GtkWidget *tryexec_entry;
-GtkWidget *doc_entry;
 
 GnomeDEntryEdit *edit_area;
 
@@ -38,7 +25,6 @@ GList *topnode;
 GList *usernode;
 GList *systemnode;
 GList *current_node = NULL;
-Desktop_Data *edit_area_orig_data;
 gchar *current_path;
 
 int isfile(char *s);
@@ -242,7 +228,7 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename)
 static void about_cb()
 {
 	GtkWidget *about;
-	gchar *authors[2];
+	const gchar *authors[2];
 	gchar version[32];
 
 	sprintf(version,"%d.%d.%d",GMENU_VERSION_MAJOR, GMENU_VERSION_MINOR, GMENU_VERSION_REV);
@@ -271,7 +257,6 @@ int main (int argc, char *argv[])
 	GtkWidget *hbox1;
 	GtkWidget *vbox;
 	GtkWidget *notebook;
-	GtkWidget *table;
 	GtkWidget *frame;
 	GtkWidget *pixmap;
 	GtkWidget *label;
@@ -434,115 +419,6 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(hbox),filename_entry,TRUE,TRUE,0);
 	gtk_widget_show(filename_entry);
 
-	/* properties page */
-/*	frame = gtk_frame_new(NULL);
-	gtk_container_border_width (GTK_CONTAINER (frame), 5);
-	gtk_widget_show(frame);
- 
-	table = gtk_table_new( 7, 2, FALSE);
-	gtk_container_border_width (GTK_CONTAINER (table), 5);
-	gtk_container_add (GTK_CONTAINER(frame),table);
-	gtk_widget_show(table);
-
-	label = gtk_label_new(_("Name:"));
-	gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, 0, 0, 0, 0);
-	gtk_widget_show(label);
-
-	name_entry = gtk_entry_new_with_max_length(255);
-	gtk_table_attach_defaults(GTK_TABLE(table),name_entry, 1, 2, 0, 1);
-	gtk_widget_show(name_entry);
-
-	label = gtk_label_new(_("Comment:"));
-	gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0, 0, 0, 0);
-	gtk_widget_show(label);
-
-	comment_entry = gtk_entry_new_with_max_length(255);
-	gtk_table_attach_defaults(GTK_TABLE(table),comment_entry, 1, 2, 1, 2);
-	gtk_widget_show(comment_entry);
-
-	label = gtk_label_new(_("File name:"));
-	gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, 0, 0, 0, 0);
-	gtk_widget_show(label);
-
-	filename_entry = gtk_entry_new_with_max_length(255);
-	gtk_table_attach_defaults(GTK_TABLE(table),filename_entry, 1, 2, 2, 3);
-	gtk_widget_show(filename_entry);
-
-	label = gtk_label_new(_("Command:"));
-	gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, 0, 0, 0, 0);
-	gtk_widget_show(label);
-
-	exec_entry = gtk_entry_new_with_max_length(255);
-	gtk_table_attach_defaults(GTK_TABLE(table),exec_entry, 1, 2, 3, 4);
-	gtk_widget_show(exec_entry);
-
-	label = gtk_label_new(_("Type:"));
-	gtk_table_attach(GTK_TABLE(table),label, 0, 1, 4, 5, 0, 0, 0, 0);
-	gtk_widget_show(label);
-
-	type_entry = gtk_entry_new_with_max_length(255);
-	gtk_table_attach_defaults(GTK_TABLE(table),type_entry, 1, 2, 4, 5);
-	gtk_widget_show(type_entry);
-
-	gtk_widget_realize(app);
-
-	button = gtk_button_new();
-	gtk_widget_set_usize(button, 48, 48);
-	gtk_signal_connect (GTK_OBJECT(button),"clicked",(GtkSignalFunc) icon_button_pressed, NULL);
-	gtk_table_attach(GTK_TABLE(table),button, 0, 1, 5, 6, 0, 0, 0, 0);
-	gtk_widget_show(button);
-
-	desktop_icon = gnome_pixmap_new_from_xpm_d (unknown_xpm);
-	gtk_container_add(GTK_CONTAINER(button),desktop_icon);
-	gtk_widget_show(desktop_icon);
-
-	icon_entry = gtk_entry_new_with_max_length(255);
-	gtk_entry_set_editable (GTK_ENTRY(icon_entry),FALSE);
-	gtk_table_attach_defaults(GTK_TABLE(table),icon_entry, 1, 2, 5, 6);
-	gtk_widget_show(icon_entry);
-
-	terminal_button = gtk_check_button_new_with_label ("Run in Terminal");
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON(terminal_button), FALSE);
-	gtk_table_attach_defaults(GTK_TABLE(table),terminal_button, 1, 2, 6, 7);
-	gtk_widget_show(terminal_button);
-
-	label = gtk_label_new(_("Properties"));
-	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
-
-*/	/* advanced page */
-/*	frame = gtk_frame_new(NULL);
-	gtk_container_border_width (GTK_CONTAINER (frame), 5);
-	gtk_widget_show(frame);
- 
-	table = gtk_table_new( 7, 2, FALSE);
-	gtk_container_border_width (GTK_CONTAINER (table), 5);
-	gtk_container_add (GTK_CONTAINER(frame),table);
-	gtk_widget_show(table);
-
-	label = gtk_label_new(_("Try and Exec:"));
-	gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, 0, 0, 0, 0);
-	gtk_widget_show(label);
-
-	tryexec_entry = gtk_entry_new_with_max_length(255);
-	gtk_table_attach_defaults(GTK_TABLE(table),tryexec_entry, 1, 2, 0, 1);
-	gtk_widget_show(tryexec_entry);
-
-	label = gtk_label_new(_("Documentation:"));
-	gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0, 0, 0, 0);
-	gtk_widget_show(label);
-
-	doc_entry = gtk_entry_new_with_max_length(255);
-	gtk_table_attach_defaults(GTK_TABLE(table),doc_entry, 1, 2, 1, 2);
-	gtk_widget_show(doc_entry);
-
-	multi_args_button = gtk_check_button_new_with_label ("Allow multiple Args");
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON(multi_args_button), FALSE);
-	gtk_table_attach_defaults(GTK_TABLE(table),multi_args_button, 1, 2, 2, 3);
-	gtk_widget_show(multi_args_button);
-
-	label = gtk_label_new(_("Advanced"));
-	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
-*/
 	hbox1 = gtk_hbox_new(TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox1,FALSE,FALSE,10);
 	gtk_widget_show(hbox1);

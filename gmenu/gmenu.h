@@ -11,7 +11,6 @@
 #include <sys/types.h>
 
 #include <gnome.h>
-#include "iconsel.h"
 
 	/* definitions */
 #define GMENU_VERSION_MAJOR 0
@@ -56,18 +55,6 @@ extern GtkWidget *infopixmap;
 extern GtkWidget *pathlabel;
 
 extern GtkWidget *filename_entry;
-extern GtkWidget *name_entry;
-extern GtkWidget *comment_entry;
-extern GtkWidget *icon_entry;
-extern GtkWidget *type_entry;
-extern GtkWidget *exec_entry;
-extern GtkWidget *desktop_icon;
-extern GtkWidget *icon_entry;
-extern GtkWidget *terminal_button;
-extern GtkWidget *multi_args_button;
-
-extern GtkWidget *tryexec_entry;
-extern GtkWidget *doc_entry;
 
 extern GnomeDEntryEdit *edit_area;
 
@@ -75,7 +62,6 @@ extern GList *topnode;
 extern GList *usernode;
 extern GList *systemnode;
 extern GList *current_node;
-extern Desktop_Data *edit_area_orig_data;
 extern gchar *current_path;
 
 /* gmenu.c --------------- */
@@ -100,7 +86,6 @@ void add_main_tree_node();
 
 /* edit.c ---------------- */
 
-void icon_button_pressed();
 void update_edit_area(Desktop_Data *d);
 void revert_edit_area();
 void new_edit_area();
@@ -109,9 +94,6 @@ void new_edit_area();
 
 GList *get_order_of_dir(char *dir);
 void save_order_of_dir(GList *node);
-int save_desktop_file_info (gchar *path, gchar *name, gchar *comment, gchar *tryexec,
-					gchar *exec, gchar *icon, gint terminal, gchar *type,
-					gchar *doc, gint multiple_args);
 void free_desktop_data(Desktop_Data *d);
 Desktop_Data * get_desktop_file_info (char *file);
 

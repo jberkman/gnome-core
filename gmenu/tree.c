@@ -83,7 +83,7 @@ void update_tree_highlight(GtkWidget *w, GList *old, GList *new, gint move)
 		}
 
         if (move)
-		gtk_ctree_scroll_to (GTK_CTREE(w), new, 0, 0.5, 0.0);
+		gtk_ctree_moveto (GTK_CTREE(w), new, 0, 0.5, 0.0);
 }
 
 static void move_item_down(GList *node)
@@ -104,7 +104,7 @@ static void move_item_down(GList *node)
 		next = node;
 	row = g_list_position(topnode, next);
 	if (!gtk_clist_row_is_visible(GTK_CLIST(menu_tree_ctree),row ))
-		gtk_ctree_scroll_to (GTK_CTREE(menu_tree_ctree), next, 0, 1.0, 0.0);
+		gtk_ctree_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 1.0, 0.0);
 }
 
 static void move_item_up(GList *node)
@@ -127,7 +127,7 @@ static void move_item_up(GList *node)
 		next = node;
 	row = g_list_position(topnode, next);
 	if (!gtk_clist_row_is_visible(GTK_CLIST(menu_tree_ctree),row ))
-		gtk_ctree_scroll_to (GTK_CTREE(menu_tree_ctree), next, 0, 0.0, 0.0);
+		gtk_ctree_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 0.0, 0.0);
 }
 
 void move_down_cb(GtkWidget *w, gpointer data)

@@ -109,44 +109,6 @@ void free_order_list(GList *orderlist)
 		}
 }
 
-int save_desktop_file_info (gchar *path, gchar *name, gchar *comment, gchar *tryexec,
-					gchar *exec, gchar *icon, gint terminal, gchar *type,
-					gchar *doc, gint multiple_args)
-{
-	FILE *f;
-
-/*	g_print("saving file: %s\n", path);*/
-	f = fopen(path,"w");
-	if (!f)
-		{
-		gnome_warning_dialog (_("Could not write file."));
-		return FALSE;
-		}
-
-	fprintf(f, "[Desktop Entry]\n");
-	if (name) fprintf(f, "Name=%s\n",name);
-	if (comment) fprintf(f, "Comment=%s\n",comment);
-	if (tryexec) fprintf(f, "TryExec=%s\n",tryexec);
-	if (exec) fprintf(f, "Exec=%s\n",exec);
-	if (icon) fprintf(f, "Icon=%s\n",icon);
-
-	if (terminal)
-		fprintf(f, "Terminal=1\n");
-	else
-		fprintf(f, "Terminal=0\n");
-
-	if (type) fprintf(f, "Type=%s\n",type);
-	if (doc) fprintf(f, "DocPath=%s\n",doc);
-
-	if (multiple_args)
-		fprintf(f, "MultipleArgs=1\n");
-	else
-		fprintf(f, "MultipleArgs=0\n");
-
-	fclose(f);
-	return TRUE;
-}
-
 Desktop_Data * get_desktop_file_info (char *file)
 {
 	Desktop_Data *d;

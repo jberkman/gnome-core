@@ -1,3 +1,11 @@
+Fri Jul 17 17:47:41 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.[ch], edit.c, dialogs.c, order.c: removed the code
+	no longer needed after switch to gnome-[dentry-edit/icon-sel].
+	* tree.c: changed occurences of gtk_ctree_scroll_to to
+	gtk_ctree_moveto.
+	* iconsel.[ch]: no longer needed, removed.
+
 Fri Jul 17 15:58:12 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch], edit.c, dialogs.c: quick hack to test
