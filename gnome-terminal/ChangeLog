@@ -1,3 +1,18 @@
+2000-01-24  NotZed  <notzed@zedzone.helixcode.com>
+
+	* gnome-terminal.c (new_terminal_for_client): Merge changes from
+	g-t-merge-1-0 to g-t-merge-1-1 into HEAD.
+
+2000-01-23  NotZed  <notzed@zedzone.helixcode.com>
+
+ 	* gnome-terminal.c (close_terminal_cmd): Removed duplicated code
+ 	that is in close_app(), and call that instead.
+ 	(terminal_kill): Call close_app() instead of close_terminal_cmd()
+ 	to close it.
+ 	(close_app): Blow away the prefs dialog if it is there.  This
+ 	fixes the crash-on-quit bug when you have a prefs dialogue hanging
+ 	around (some bug in the bug system).
+
 2000-01-23  Jacob Berkman  <jacob@helixcode.com>
 
 	* corba.c: remove ^L's

@@ -104,6 +104,7 @@ struct terminal_config {
 	int transparent;
 	int shaded;
 	int background_pixmap;
+	int terminal_id;			/* terminal id for this terminal */
 	char *pixmap_file;
         char *window_title;                     /* the window title */
 	char *wordclass;			/* select-by-word character class */
@@ -125,6 +126,8 @@ GList *terminals = 0;
 int use_terminal_factory   = FALSE;
 int start_terminal_factory = FALSE;
 
+/* current new terminal window id */
+static int terminal_id = 0;
 
 typedef struct {
 	GtkWidget *prop_win;
@@ -188,7 +191,7 @@ void paste_cmd            (GtkWidget *widget, ZvtTerm *term);
 void preferences_cmd      (GtkWidget *widget, ZvtTerm *term);
 void toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term);
 
-GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry);
+GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, int termid);
 GtkWidget *new_terminal     (GtkWidget *widget, ZvtTerm *term);
 
 static void parse_an_arg (poptContext state,
@@ -204,13 +207,19 @@ about_terminal_cmd (void)
         GtkWidget *about;
 
         const gchar *authors[] = {
-		"Zvt terminal widget: ",
-		"    Michael Zucchi (zucchi@zedzone.mmc.com.au)",
-		"GNOME terminal: ",
-		"    Miguel de Icaza (miguel@kernel.org)",
-		"    Erik Troan (ewt@redhat.com)",
+	     N_("Zvt terminal widget: "
+		"    Michael Zucchi (zucchi@zedzone.mmc.com.au)"),
+	     N_("GNOME terminal: "
+		"    Miguel de Icaza (miguel@kernel.org)"),
+	     N_("    Erik Troan (ewt@redhat.com)"),
 		NULL
 	};
+
+#ifdef ENABLE_NLS
+	authors[0]=_(authors[0]);
+	authors[1]=_(authors[1]);
+	authors[2]=_(authors[2]);
+#endif
 
         about = gnome_about_new (_("GNOME Terminal"), VERSION,
 				 "(C) 1998, 1999 the Free Software Foundation",
@@ -223,12 +232,18 @@ about_terminal_cmd (void)
 static void
 close_app (GtkWidget *app)
 {
+	preferences_t *prefs;
+
         terminals = g_list_remove (terminals, app);
 
 	/* FIXME: this should free the config info for the window */
 
 	if (app == initial_term)
 		initial_term = NULL;
+
+	prefs = gtk_object_get_data (GTK_OBJECT (gtk_object_get_data(GTK_OBJECT(app), "term")), "prefs");
+	if (prefs)
+		gtk_object_destroy(GTK_OBJECT(prefs->prop_win));
 
 	gtk_widget_destroy (app);
 
@@ -242,12 +257,7 @@ close_terminal_cmd (void *unused, void *data)
 {
 	GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (data));
 
-	terminals = g_list_remove (terminals, top);
-	if (top == initial_term)
-		initial_term = NULL;
-	gtk_widget_destroy (gtk_widget_get_toplevel (GTK_WIDGET (data)));
-	if (terminals == NULL)
-		gtk_main_quit ();
+	close_app(top);
 }
 
 #if 0
@@ -502,6 +512,7 @@ load_config (char *class)
 	cfg->window_title = NULL;
 
 	cfg->termname = NULL;
+	cfg->terminal_id = 0;
 
 	cfg->update_records = ZVT_TERM_DO_UTMP_LOG|ZVT_TERM_DO_WTMP_LOG;
 
@@ -760,6 +771,7 @@ switch_terminal_class (ZvtTerm *term, struct terminal_config *newcfg)
 	gtk_widget_show (mbox);
 }
 
+/* this is the PREFS window destroy event ... */
 static void
 window_destroy (GtkWidget *w, gpointer data)
 {
@@ -1640,7 +1652,10 @@ get_shell_name (char **shell, char **name, int isLogin)
 	g_assert (*shell != NULL);
 
 	only_name = strrchr (*shell, '/');
-	only_name++;
+	if (only_name != NULL)
+		only_name++;
+	else
+		only_name = *shell;
 	
 	if (isLogin){
 		len = strlen (only_name);
@@ -1659,7 +1674,7 @@ terminal_kill (GtkWidget *widget, void *data)
 {
 	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (data)));
 
-	close_terminal_cmd (widget, app);
+	close_app (app);
 }
 
 /* called for "title_changed" event.  Use it to change the window title */
@@ -1965,7 +1980,7 @@ show_pty_error_dialog (int errcode)
 }
 
 GtkWidget *
-new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
+new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, int termid)
 {
 	GtkWidget *app, *hbox, *scrollbar;
 	ZvtTerm   *term;
@@ -1983,6 +1998,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	/* FIXME: is seems like a lot of this stuff should be done by apply_changes instead */
 
 	cfg = terminal_config_dup (cfg_in);
+
+	cfg->terminal_id = termid;
 
 	/* Setup the environment for the gnome-terminals:
 	 *
@@ -2037,7 +2054,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
-	sprintf(winclass, "GnomeTerminal:%p", app);
+	sprintf(winclass, "GnomeTerminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", winclass);
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
@@ -2212,7 +2229,7 @@ new_terminal (GtkWidget *widget, ZvtTerm *term)
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	return new_terminal_cmd (NULL, cfg, initial_global_geometry);
+	return new_terminal_cmd (NULL, cfg, NULL, terminal_id++);
 }
 
 GtkWidget *
@@ -2226,7 +2243,8 @@ new_terminal_for_client (char *geom)
 		struct terminal_config *cfg
 			= gtk_object_get_data (GTK_OBJECT (term), "config");
 		GtkWidget *w = new_terminal_cmd (NULL, cfg, geom ? geom
-						 : initial_global_geometry);
+						 : initial_global_geometry,
+						 terminal_id++);
 		return w;
 	}
 	else
@@ -2275,7 +2293,9 @@ load_session ()
 		char *class, *class_path;
 		int argc;
 		char *prefix = g_strdup_printf ("%s%d/", file, i);
-	  
+		int termid;
+		char termconf[16];
+
 		gnome_config_push_prefix (prefix);
 
 		/* NAUGHTY: The ICCCM requires that the WM stores
@@ -2306,15 +2326,17 @@ load_session ()
 		if (gnome_config_get_bool ("do_wtmp=true"))
 			cfg->update_records |= ZVT_TERM_DO_WTMP_LOG;
 
-		start_terminal_factory = gnome_config_get_bool (
-			"start_terminal_factory=false");
-		use_terminal_factory = gnome_config_get_bool (
-			"use_terminal_factory=false");
+		start_terminal_factory = gnome_config_get_bool ("start_terminal_factory=false");
+		use_terminal_factory = gnome_config_get_bool ("use_terminal_factory=false");
+
+		termid = gnome_config_get_int("terminal_id=-1");
+		if (termid!=-1)
+			terminal_id = termid;
 
 		g_free(class);
 		gnome_config_pop_prefix();
 
-		new_terminal_cmd (argv, cfg, geom);
+		new_terminal_cmd (argv, cfg, geom, terminal_id++);
 
 		g_free(cfg);
 		g_free (geom);
@@ -2387,6 +2409,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		g_string_free (geom, TRUE);
 		
 		gnome_config_set_string("class", cfg->class);
+		gnome_config_set_int("terminal_id", cfg->terminal_id);
 		
 		if (top == initial_term){
 			int n;
@@ -2805,9 +2828,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 			CORBA_exception_free (&ev);
 		}
 		if (!has_terminal_factory) {
-			new_terminal_cmd (initial_command,
-					  default_config,
-					  initial_global_geometry);
+			new_terminal_cmd (initial_command, default_config, initial_global_geometry, terminal_id++);
 		}
 	}
 
