@@ -12,10 +12,11 @@
 #include <dirent.h>
 
 /* prototypes */
-void create_list (GtkList *list, gchar *directory);
 GtkWidget *get_saver_frame ();
 GtkWidget *get_power_frame ();
 void screensaver_setup ();
+
+extern gboolean ignore_changes;
 
 /* vars. */
 GtkWidget *capplet;
@@ -34,89 +35,6 @@ screensaver_data *sd;
 
 
 /* saving info */
-void
-create_list (GtkList *list, gchar *directory)
-{
-        DIR *dir;
-        gchar *label;
-        GtkWidget *list_item = NULL;
-        GtkWidget *temp_item;
-        struct dirent *child;
-        gchar *prefix;
-        GList *items = NULL;
-        screensaver_data *sdnew;
-
-        dir = opendir (directory);
-        if (dir == NULL)
-                return;
-
-        while ((child = readdir (dir)) != NULL) {
-                if (child->d_name[0] != '.') {
-                        prefix = g_copy_strings ("=", directory, child->d_name, "=/Desktop Entry/", NULL);
-                        gnome_config_push_prefix (prefix);
-                        g_free (prefix);
-
-                        sdnew = g_malloc (sizeof (screensaver_data));
-                        sdnew->desktop_filename = g_copy_strings (directory, child->d_name, NULL);
-                        sdnew->name = gnome_config_get_translated_string ("Name");
-                        sdnew->tryexec = gnome_config_get_string ("TryExec");
-                        gnome_config_pop_prefix ();
-                        sdnew->args = NULL;
-
-                        prefix = g_copy_strings ("=", directory, child->d_name, "=/Screensaver Data/", NULL);
-                        gnome_config_push_prefix (prefix);
-                        g_free (prefix);
-                        sdnew->windowid = gnome_config_get_string ("WindowIdCommand");
-                        sdnew->root = gnome_config_get_string ("RootCommand");
-                        sdnew->author = gnome_config_get_string ("Author");
-                        sdnew->comment = gnome_config_get_translated_string ("ExtendedComment");
-                        sdnew->demo = gnome_config_get_string ("Demo");
-                        prefix =  gnome_config_get_string ("Icon");
-                        if (prefix) {
-                                if (prefix[0] == '/')
-                                        sdnew->icon = prefix;
-                                else {
-                                        /* we want to set up the initial settings */
-                                        sdnew->icon = g_copy_strings (directory, prefix, NULL);
-
-                                        g_free (prefix);
-                                }
-                        } else
-                                sdnew->icon = NULL;
-                        
-                        gnome_config_pop_prefix ();
-                        sdnew->dialog = NULL;
-                        sdnew->setup_data = NULL;
-                        if (!sdnew->name) {
-                                /* bah -- useless file... */
-                                break;
-                        }
-                        temp_item = gtk_list_item_new_with_label (sdnew->name);
-                        items = g_list_prepend (items, temp_item);
-                        if (strcmp (sdnew->name, screensaver) == 0) {
-                                sd = sdnew;
-                                list_item = temp_item;
-                                init_screensaver_data (sdnew);
-                                if (sdnew->setup_data == NULL)
-                                        gtk_widget_set_sensitive (setup_button, FALSE);
-                        }
-                        gtk_signal_connect (GTK_OBJECT (items->data),
-                                            "button_press_event",
-                                            (GtkSignalFunc) list_click_callback,
-                                            sdnew);
-                }
-        }
-        if (items) {
-                gtk_list_append_items (list, items);
-                if (list_item) {
-                        gtk_list_select_child (list, list_item);
-                }
-                else
-                        gtk_widget_set_sensitive (setup_button, FALSE);
-        } 
-
-                
-}
 GtkWidget *
 get_saver_frame ()
 {
@@ -133,8 +51,10 @@ get_saver_frame ()
         gchar tempmin [5];
         gchar *tempdir;
         GList *templist = NULL;
+
         retval = gtk_frame_new (_("Screen Saver"));
 
+        ignore_changes = TRUE;
 
         /* we define setup_button way early to make it settable. */
         hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
@@ -144,24 +64,9 @@ get_saver_frame ()
 
         /* left side -- with list */
 	swindow = gtk_scrolled_window_new (NULL, NULL);
-        list = gtk_list_new();
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (swindow),
 					GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_list_set_selection_mode (GTK_LIST (list), GTK_SELECTION_BROWSE);
-        templist = g_list_prepend (templist, gtk_list_item_new_with_label ("No Screensaver"));
-        gtk_signal_connect (GTK_OBJECT (templist->data), 
-                            "button_press_event", 
-                            (GtkSignalFunc) list_click_callback, 
-                            NULL); 
-
-        gtk_list_prepend_items (GTK_LIST (list), templist);
-        
-        tempdir = gnome_unconditional_datadir_file ("control-center/.data/");
-        create_list (GTK_LIST (list), tempdir);
-        g_free (tempdir);
-        tempdir = gnome_util_home_file ("control-center/.data/");
-        create_list (GTK_LIST (list), tempdir);
-        g_free (tempdir);
+        list = get_and_set_mode();
 	gtk_container_add (GTK_CONTAINER (swindow), list);
 
         /* right side -- buttons et al. */
@@ -186,7 +91,7 @@ get_saver_frame ()
         gtk_box_pack_start (GTK_BOX (temphbox), gtk_label_new (_("Priority:")), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (tempvbox), temphbox, FALSE, FALSE, 0);
         temphbox = gtk_hbox_new (FALSE, 0);
-	adjustment = get_and_set_nice ();
+	adjustment = GTK_OBJECT(get_and_set_nice ());
 					 
 	nice = gtk_hscale_new (GTK_ADJUSTMENT (adjustment));
         gtk_scale_set_draw_value (GTK_SCALE (nice), FALSE);
@@ -209,6 +114,9 @@ get_saver_frame ()
         gtk_container_add (GTK_CONTAINER (foobox), hbox);
         gtk_container_border_width (GTK_CONTAINER (foobox), GNOME_PAD_SMALL);
         gtk_container_add (GTK_CONTAINER (retval), foobox);
+
+        ignore_changes = FALSE;
+
         return retval;
 }
 GtkWidget *
@@ -217,6 +125,8 @@ get_power_frame()
         GtkWidget *retval;
         GtkWidget *frame, *vbox, *dpmscheck, *hbox, *label, *entry, *tempvbox;
         gchar tempmin [5];
+
+        ignore_changes = TRUE;
         
         retval = gtk_frame_new (_("Power Management"));
         frame = gtk_frame_new (NULL);
@@ -241,6 +151,9 @@ get_power_frame()
 
         gtk_container_add (GTK_CONTAINER (frame), vbox);
         gtk_container_add (GTK_CONTAINER (retval), frame);
+
+        ignore_changes = FALSE;
+
         return retval;
 }
 void
@@ -261,6 +174,7 @@ screensaver_setup ()
         
         
         monitor = gtk_drawing_area_new ();
+
         gtk_widget_set_usize (monitor, 200, 150);
         gtk_container_add (GTK_CONTAINER (frame), monitor);
 
@@ -279,9 +193,7 @@ screensaver_setup ()
 
         gtk_container_add (GTK_CONTAINER (capplet), vbox);
         gtk_widget_show_all (capplet);
-        
 }
-
 
 void
 main (int argc, char **argv)
@@ -294,7 +206,7 @@ main (int argc, char **argv)
         gtk_signal_connect (GTK_OBJECT (capplet), "try", GTK_SIGNAL_FUNC (try_callback), NULL);
         gtk_signal_connect (GTK_OBJECT (capplet), "revert", GTK_SIGNAL_FUNC (revert_callback), NULL);
         gtk_signal_connect (GTK_OBJECT (capplet), "ok", GTK_SIGNAL_FUNC (ok_callback), NULL);
-        gtk_signal_connect (GTK_OBJECT (monitor), "expose_event", (GtkSignalFunc) list_click_callback, sd);
+        gtk_signal_connect (GTK_OBJECT (monitor), "expose_event", (GtkSignalFunc) list_expose_callback, sd);  /* disabled for now */
         sd = NULL;
 
         capplet_gtk_main ();

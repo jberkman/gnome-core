@@ -21,7 +21,7 @@ make_dialog (screensaver_data *sd)
         GtkWidget *label;
         GtkWidget *align2;
 
-        dialog = gnome_dialog_new (sd->name, "Preview", GNOME_STOCK_BUTTON_CLOSE, NULL);
+        dialog = gnome_dialog_new (sd->name, "Preview", GNOME_STOCK_BUTTON_OK, NULL);
         gnome_dialog_set_default (GNOME_DIALOG (dialog), 1);
         gnome_dialog_set_parent (GNOME_DIALOG (dialog), GTK_WINDOW (capplet));
         gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);

@@ -10,9 +10,11 @@
 #include <gdk/gdkx.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <dirent.h>
 #include <errno.h>
 #ifndef errno
 extern int errno;
@@ -33,6 +35,7 @@ extern GList *sdlist;
 static pid_t pid = 0;
 static pid_t pid_big = 0;
 
+gboolean ignore_changes = FALSE;
 
 /* Loading info... */
 void
@@ -80,9 +83,11 @@ get_and_set_pword ()
 
         if (!retval) {
                 retval = gtk_check_button_new_with_label (_("Requires Password"));
+                gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (retval), password);
                 gtk_signal_connect (GTK_OBJECT (retval), "toggled", (GtkSignalFunc) password_callback, NULL);
-        }
-        gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (retval), password);
+        } else
+                gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (retval), password);
+
         return retval;
 }
 
@@ -139,6 +144,150 @@ get_and_set_dpmscheck (GtkWidget *box)
         return retval;
 }
 
+void
+create_list (GtkList *list, gchar *directory)
+{
+        DIR *dir;
+        gchar *label;
+        GtkWidget *list_item = NULL;
+        GtkWidget *temp_item;
+        struct dirent *child;
+        gchar *prefix;
+        GList *items = NULL;
+        screensaver_data *sdnew;
+        dir = opendir (directory);
+        if (dir == NULL)
+                return;
+
+        while ((child = readdir (dir)) != NULL) {
+                if (!strstr(child->d_name, ".desktop"))
+                        continue;
+
+                if (child->d_name[0] != '.') {
+                        prefix = g_copy_strings ("=", directory, child->d_name, "=/Desktop Entry/", NULL);
+                        gnome_config_push_prefix (prefix);
+                        g_free (prefix);
+
+                        sdnew = g_malloc (sizeof (screensaver_data));
+                        sdnew->desktop_filename = g_copy_strings (directory, child->d_name, NULL);
+                        sdnew->name = gnome_config_get_translated_string ("Name");
+                        sdnew->tryexec = gnome_config_get_string ("TryExec");
+                        gnome_config_pop_prefix ();
+                        sdnew->args = NULL;
+
+                        prefix = g_copy_strings ("=", directory, child->d_name, "=/Screensaver Data/", NULL);
+                        gnome_config_push_prefix (prefix);
+                        g_free (prefix);
+                        sdnew->windowid = gnome_config_get_string ("WindowIdCommand");
+                        sdnew->root = gnome_config_get_string ("RootCommand");
+                        sdnew->author = gnome_config_get_string ("Author");
+                        sdnew->comment = gnome_config_get_translated_string ("ExtendedComment");
+                        sdnew->demo = gnome_config_get_string ("Demo");
+                        prefix =  gnome_config_get_string ("Icon");
+                        if (prefix) {
+                                if (prefix[0] == '/') {
+                                        sdnew->icon = prefix;
+                                        g_free (prefix);
+                                } else {
+                                        /* we want to set up the initial settings */
+                                        sdnew->icon = g_copy_strings (directory, prefix, NULL);
+
+                                        g_free (prefix);
+                                }
+                        } else
+                                sdnew->icon = NULL;
+                        
+                        gnome_config_pop_prefix ();
+                        sdnew->dialog = NULL;
+                        sdnew->setup_data = NULL;
+                        if (!sdnew->name) {
+                                /* bah -- useless file... */
+                                break;
+                        }
+                        temp_item = gtk_list_item_new_with_label (sdnew->name);
+                        items = g_list_prepend (items, temp_item);
+                        if (strcmp (sdnew->name, screensaver) == 0) {
+                                sd = sdnew;
+                                list_item = temp_item;
+                                init_screensaver_data (sdnew);
+                                if (sdnew->setup_data == NULL)
+                                        gtk_widget_set_sensitive (setup_button, FALSE);
+                        }
+                        gtk_object_set_data(GTK_OBJECT(items->data), "sdata",
+                                            sdnew);
+/*                        gtk_signal_connect (GTK_OBJECT (items->data),
+                                            "button_press_event",
+                                            (GtkSignalFunc) list_click_callback,
+                                            sdnew);
+*/
+                }
+        }
+        if (items) {
+                gtk_list_append_items (list, items);
+                if (list_item) {
+                        gtk_list_select_child (list, list_item);
+                }
+                else
+                        gtk_widget_set_sensitive (setup_button, FALSE);
+        } 
+
+                
+}
+
+GtkWidget
+*get_and_set_mode()
+{
+        GList *templist = NULL;
+        gchar *tempdir;
+
+        static GtkWidget *list = NULL;
+
+        if (!list) {
+                list = gtk_list_new();
+                gtk_list_set_selection_mode (GTK_LIST (list), GTK_SELECTION_BROWSE);
+                templist = g_list_prepend (templist, gtk_list_item_new_with_label ("No Screensaver"));
+                /*
+                gtk_signal_connect (GTK_OBJECT (templist->data), 
+                                    "button_press_event", 
+                                    (GtkSignalFunc) list_click_callback, 
+                                    NULL); 
+                */
+                gtk_list_prepend_items (GTK_LIST (list), templist);
+                
+                tempdir = gnome_unconditional_datadir_file ("control-center/.data/");
+                create_list (GTK_LIST (list), tempdir);
+                g_free (tempdir);
+                tempdir = gnome_util_home_file ("control-center/.data/");
+                create_list (GTK_LIST (list), tempdir);
+                g_free (tempdir);
+                gtk_signal_connect (GTK_OBJECT (list), 
+                                    "selection_changed",
+                                    (GtkSignalFunc) list_click_callback, 
+                                    NULL); 
+        } else {
+                gint i=0;
+                GList *dlist = NULL;
+
+                screensaver = gnome_config_get_string ("/Screensaver/Default/mode=NONE");
+
+                dlist = gtk_container_children(GTK_CONTAINER(list));
+                while (dlist) {
+                        gchar *str;
+
+                        gtk_label_get(GTK_LABEL(GTK_BIN(dlist->data)->child),
+                                &str);
+                        if (strcmp(str, screensaver) == 0) 
+                                break;
+                        dlist = g_list_next(dlist);
+                        i++;
+                }
+                if (dlist)
+                        gtk_list_select_item(GTK_LIST(list), i);
+
+        }
+
+                return list;
+}
 
 void
 launch_miniview (screensaver_data *sd)
@@ -191,20 +340,12 @@ setup_callback (GtkWidget *widget, gpointer data)
         }
 }
 void
-list_click_callback (GtkWidget *widget, GdkEventButton *event, void *data)
+handle_list_change(void *data)
 {
-        static gint visited = FALSE;
         gchar *label;
 
-        if (data == sd)
+        if (sd == data)
                 return;
-
-        if (!visited) {
-                gtk_signal_disconnect_by_func (GTK_OBJECT (widget), list_click_callback, data);
-                visited = TRUE;
-
-        } else
-                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
         if (data == NULL){
                 screensaver = NULL;
                 sd = NULL;
@@ -232,6 +373,26 @@ list_click_callback (GtkWidget *widget, GdkEventButton *event, void *data)
         screensaver = sd->name;
 }
 void
+list_click_callback (GtkWidget *widget,  void *data)
+{
+        GList *temp = GTK_LIST (widget)->selection;
+        if (!temp)
+                return;
+        if (!ignore_changes)
+                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        handle_list_change(gtk_object_get_data(GTK_OBJECT(temp->data), "sdata"));
+}
+
+void
+list_expose_callback(GtkWidget *widget, GdkEventButton *event, void *data)
+{
+        gtk_signal_disconnect_by_func (GTK_OBJECT (widget), list_expose_callback, data);
+        gdk_draw_rectangle (monitor->window,monitor->style->black_gc, TRUE, 0, 0, monitor->allocation.width, monitor->allocation.height);
+        handle_list_change(data);
+}
+
+
+void
 insert_text_callback (GtkEditable    *editable, const gchar    *text,
                            gint length, gint *position,
                            void *data)
@@ -251,7 +412,8 @@ insert_text_callback2 (GtkEditable    *editable, const gchar    *text,
                             void *data)
 {
         *((gshort *) data) = atoi (gtk_entry_get_text (GTK_ENTRY (editable)));
-        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        if (!ignore_changes)
+                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 void
 delete_text_callback (GtkEditable    *editable,
@@ -260,7 +422,8 @@ delete_text_callback (GtkEditable    *editable,
                             void *data)
 {
         *((gshort *) data) = atoi (gtk_entry_get_text (GTK_ENTRY (editable)));
-        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        if (!ignore_changes)
+                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 void
 dpms_callback (GtkWidget *check, void *data)
@@ -271,19 +434,23 @@ dpms_callback (GtkWidget *check, void *data)
         else
                 gtk_widget_set_sensitive (GTK_WIDGET (data), FALSE);
 
-        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        if (!ignore_changes)
+                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 void
 password_callback (GtkWidget *pword, void *data)
 {
+
         password = !password;
-        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        if (!ignore_changes)
+                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 void
 nice_callback (GtkObject *adj, void *data)
 {
         ss_priority = (gint) GTK_ADJUSTMENT(adj)->value;
-        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        if (!ignore_changes)
+                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 static void
 ssaver_callback (GtkWidget *dialog, GdkEventKey *event, GdkWindow *sswin)
@@ -390,13 +557,13 @@ ok_callback ()
         if (sd && waitmins) {
                 if (sd->dialog)
                         store_screensaver_data (sd);
-                command = g_string_new ("xscreensaver -no-splash -timeout ");
+                command = g_string_new ("xscreensaver -timeout ");
                 snprintf (temp, 5, "%d", waitmins );
                 g_string_append (command, temp);
                 g_string_append (command, " -nice ");
                 snprintf (temp, 5, "%d",20 - ss_priority);
                 g_string_append (command, temp);
-                if (!password)
+                if (password)
                         g_string_append (command, " -lock-mode");
                 g_string_append (command," -xrm \"*programs:\t");
                 g_string_append (command, sd->args);
@@ -405,7 +572,6 @@ ok_callback ()
                         g_string_append (command, sd->root);
                 }
                 g_string_append (command, "\"&");
-                
                 system (command->str);
                 gnome_config_set_string ("/Screensaver/Default/command", command->str);
                 g_string_free (command, TRUE);
@@ -438,13 +604,13 @@ try_callback ()
         if (sd && waitmins) {
                 if (sd->dialog)
                         store_screensaver_data (sd);
-                command = g_string_new ("xscreensaver -no-splash -timeout ");
+                command = g_string_new ("xscreensaver -timeout ");
                 snprintf (temp, 5, "%d", waitmins );
                 g_string_append (command, temp);
                 g_string_append (command, " -nice ");
                 snprintf (temp, 5, "%d",20 - ss_priority);
                 g_string_append (command, temp);
-                if (!password)
+                if (password)
                         g_string_append (command, " -lock-mode");
                 g_string_append (command," -xrm \"*programs:\t");
                 g_string_append (command, sd->args);
@@ -478,7 +644,9 @@ void
 revert_callback ()
 {
         gchar *temp, *temp2;
-        
+
+        ignore_changes = TRUE;
+
         if (sd && sd->dialog) {
                 gnome_dialog_close (GNOME_DIALOG (sd->dialog));
                 sd->dialog = NULL;
@@ -487,18 +655,35 @@ revert_callback ()
         gnome_config_drop_all ();
         screensaver_load ();
 
-        temp = gnome_config_get_string ("/Screensaver/Default/command=xscreensaver -no-splash");
-        temp2 = g_copy_strings (temp, " &", NULL);
-        system (temp2);
-        g_free (temp);
-        g_free (temp2);
+        /* try to kill any existing xscreensaver */
+        system ("xscreensaver-command -exit");
+        if (pid) {
+                kill (pid, SIGTERM);
+                pid = 0;
+        }
+        gdk_draw_rectangle (monitor->window,monitor->style->black_gc, TRUE, 0, 0, monitor->allocation.width, monitor->allocation.height);
+
+        temp = gnome_config_get_string ("/Screensaver/Default/command=xscreensaver");
+        if (!strchr(temp, '&')) {
+                /* ugh! */
+                temp2 = g_copy_strings (temp, " &", NULL);
+                system (temp2);
+                g_free (temp2);
+        } else {
+                system (temp);
+                g_free (temp);
+        }
+
         /* set the devices to the correct one. */
         get_and_set_min_entry ();
         get_and_set_pword ();
         get_and_set_nice ();
         get_and_set_dpmsmin();
         get_and_set_dpmscheck(NULL);
-        
+
+        get_and_set_mode();
+
+        ignore_changes = FALSE;
 }
 void
 sig_child(int sig)

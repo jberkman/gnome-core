@@ -21,9 +21,9 @@ screensaver_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 	-lImlib
 
 EXTRA_DIST =
-	#screensaver-properties.desktop 
+	screensaver-properties.desktop 
 
 SUBDIRS=screensaver-desktops
 
 sysdir = $(datadir)/control-center/Workspace
-sys_DATA = #screensaver-properties.desktop
+sys_DATA = screensaver-properties.desktop
