@@ -1,3 +1,7 @@
+2002-01-20  Kjartan Maraas  <kmaraas@gnome.org>
+
+	* C/gnome-terminal.sgml: Merge typo fix from stable.
+
 2002-01-16  Darin Adler  <darin@bentspoon.com>
 
 	* Makefile.am:
