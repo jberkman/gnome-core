@@ -167,7 +167,13 @@ transportHTTP( docObj obj )
 	return -1;
     }
 
-    snprintf(buf, sizeof(buf), "GET %s HTTP/1.0\n\n", docObjGetDecomposedUrl(obj)->path);
+    if (sizeof (buf) == snprintf(buf, sizeof(buf),
+				 "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n",
+				 docObjGetDecomposedUrl(obj)->path,
+				 docObjGetDecomposedUrl(obj)->host)) {
+        g_warning ("buffer too small");
+	return -1;
+    }
     write(sock, buf, strlen(buf));
 
     /* This is not efficient */
