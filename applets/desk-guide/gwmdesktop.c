@@ -739,6 +739,8 @@ thumb_queue_remove (gpointer data)
 {
   GwmThumbNail *thumb = data;
   
+  if (!g_slist_find (thumb_queue, thumb)) /* FIXME */
+    g_error ("removing thumbnail from queue failed");
   thumb_queue = g_slist_remove (thumb_queue, thumb);
   if (thumb->pixbuf)
     gwm_thumb_nail_destroy (thumb);

@@ -1,3 +1,17 @@
+Tue Nov 14 04:23:58 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c (get_task_root_and_frame): shut up for a creation/destruction
+	race that we already handle gracefully.
+
+	* gwmdesktop.c (thumb_queue_remove): put in a paranoia check.
+	i want backtraces if this is triggered.
+
+	* deskguide_applet.c: reenable thumbnail shooting.
+
+	* gwmthumbnail.c (pixbuf_from_drawable): account for failing gc
+	creation. gdk_window_get_visual() may return NULL, so get the
+	depth from the colormap.
+
 2000-11-02  Jacob "Ulysses" Berkman  <jacob@helixcode.com>
 
 	* deskguide_applet.c: disable thumbnails by default since this

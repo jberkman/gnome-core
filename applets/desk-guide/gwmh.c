@@ -646,7 +646,10 @@ get_task_root_and_frame (GwmhTask *task)
     {
       xparent = None;
       xframe = None;
-      g_warning (G_GNUC_PRETTY_FUNCTION "(): task window id %ld invalid?", task->xwin);
+      /* aparently this can happen if a window is destructed shortly after
+       * creation, just be silent.
+       * g_warning (G_GNUC_PRETTY_FUNCTION "(): task window id %ld invalid?", task->xwin);
+       */
     }
 
   if (!task->sroot || GSTC_PARENT_XWINDOW (task->sroot) != xparent)

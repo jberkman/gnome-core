@@ -274,6 +274,7 @@ pixbuf_from_drawable (GdkDrawable *drawable,
   gint sheight = gdk_screen_height ();
   GdkColormap *cmap = gdk_window_get_colormap (drawable);
   GdkPixbuf *shot_pixbuf = NULL;
+  GdkVisual *visual;
 
   /* the drawable relative rectangle (x, y, width, height) must be
    * confined to the root window rectangle (0, 0, swidth, sheight)
@@ -283,10 +284,10 @@ pixbuf_from_drawable (GdkDrawable *drawable,
   if (!shm_image)
     shm_image = gdk_image_new_shared_with_pixmap (NULL, swidth, SHM_IMAGE_HEIGHT, &shm_pixmap);
 
-  /* fallback to root window's colormap */
+  /* fallback to root window's colormap and fetch visual */
   if (!cmap)
     {
-      GdkVisual *visual = gdk_window_get_visual (drawable);
+      visual = gdk_window_get_visual (drawable);
 
       if (visual && visual->depth == gdk_window_get_visual (NULL)->depth)
 	cmap = gdk_window_get_colormap (NULL);
@@ -294,11 +295,17 @@ pixbuf_from_drawable (GdkDrawable *drawable,
       if (!cmap)	/* guess we're screwed */
 	return NULL;
     }
+  else
+    visual = gdk_colormap_get_visual (cmap);
+
+  /* we need a visual for depth determination */
+  if (!visual)
+    return NULL;
 
   /* for depth matches, we first try to grab the image using our global
    * shared memory pixmap image
    */
-  if (shm_image && shm_image->depth == gdk_window_get_visual (drawable)->depth)
+  if (shm_image && shm_image->depth == visual->depth)
     {
       GdkGCValues gc_values;
       GdkGC *gc;
@@ -306,6 +313,8 @@ pixbuf_from_drawable (GdkDrawable *drawable,
 
       gc_values.subwindow_mode = GDK_INCLUDE_INFERIORS;
       gc = gdk_gc_new_with_values (drawable, &gc_values, GDK_GC_SUBWINDOW);
+      if (!gc)
+	return NULL;
 
       shot_pixbuf = gdk_pixbuf_new (GDK_COLORSPACE_RGB, FALSE, 8, width, height);
 
@@ -330,7 +339,6 @@ pixbuf_from_drawable (GdkDrawable *drawable,
 	  y += n;
 	  pix_y += n;
 	}
-
       gdk_gc_unref (gc);
     }
 
@@ -349,12 +357,15 @@ pixbuf_from_drawable (GdkDrawable *drawable,
 	  gc_values.subwindow_mode = GDK_INCLUDE_INFERIORS;
 	  gc = gdk_gc_new_with_values (drawable, &gc_values, GDK_GC_SUBWINDOW);
 
-          gdk_error_trap_push ();
-	  gdk_draw_pixmap (pixmap, gc, drawable, x, y, 0, 0, width, height);
-	  gdk_flush ();
-          if (!gdk_error_trap_pop ())
-	    shot_pixbuf = gdk_pixbuf_from_image (image, 0, 0, width, height, cmap);
-	  gdk_gc_unref (gc);
+	  if (gc)
+	    {
+	      gdk_error_trap_push ();
+	      gdk_draw_pixmap (pixmap, gc, drawable, x, y, 0, 0, width, height);
+	      gdk_flush ();
+	      if (!gdk_error_trap_pop ())
+		shot_pixbuf = gdk_pixbuf_from_image (image, 0, 0, width, height, cmap);
+	      gdk_gc_unref (gc);
+	    }
 
 	  gdk_image_destroy (image);
 	  gdk_pixmap_unref (pixmap);
