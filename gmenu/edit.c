@@ -163,7 +163,7 @@ GtkWidget * create_edit_area(void)
 	gtk_box_pack_start (GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
 	gtk_widget_show(notebook);
 
-	edit_area = gnome_dentry_edit_new (GTK_NOTEBOOK(notebook));
+	edit_area = gnome_dentry_edit_new_notebook (GTK_NOTEBOOK(notebook));
 	gtk_signal_connect(GTK_OBJECT(edit_area), "changed", GTK_SIGNAL_FUNC(edit_area_changed), NULL);
 
 	hbox = gtk_hbox_new(FALSE,5);
