@@ -1,3 +1,7 @@
+1998-03-27  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* window.c (helpWindowShowURL): Don't pass NULL pointers to printf.
+
 1998-03-26  Michael Fulbright  <msf@redhat.com>
 
 	* Added 'whatis:' magic URL. You just type something like

@@ -688,7 +688,12 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 	win->useCache = TRUE;
 
 	/* XXX This should work, but it doesn't */
-	printf("TITLE: %s\n", XmHTMLGetTitle(GTK_WIDGET(win->helpWidget)));
+	{
+	  const char *title = XmHTMLGetTitle(GTK_WIDGET(win->helpWidget));
+	  if (!title) title = "";
+	  printf("TITLE: %s\n", title);
+	}
+	
 
 }
 
