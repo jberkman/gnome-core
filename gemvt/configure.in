@@ -1,0 +1,200 @@
+dnl
+dnl Configure script for GemVT
+dnl
+AC_INIT(acconfig.h)
+AM_CONFIG_HEADER(config.h)
+GEMVT_MAJOR=0
+GEMVT_REVISION=3
+GEMVT_PATCHLEVEL=0
+GEMVT_VERSION="$GEMVT_MAJOR.$GEMVT_REVISION.$GEMVT_PATCHLEVEL"
+VERSION="$GEMVT_MAJOR.$GEMVT_REVISION.$GEMVT_PATCHLEVEL"
+AM_INIT_AUTOMAKE(gemvt, [$VERSION])
+
+dnl Support porgram name conversion.
+AC_ARG_PROGRAM
+
+dnl Disable automatic maintainer mode.
+AM_MAINTAINER_MODE
+
+dnl Make sure else configure stuff exists.
+AC_CANONICAL_HOST
+
+dnl Additional arguments.
+AC_ARG_ENABLE(debug,
+[  --enable-debug          turn on debugging [default=yes]],
+,
+enable_debug=yes)
+AC_ARG_ENABLE(pedantic-ansi,
+[  --enable-pedantic-ansi  turn on pedantic ansi compilation [default=no]],
+,
+enable_pedantic_ansi=no)
+  
+dnl Define package requirements.
+AC_DEFUN(AC_GEMVT_REQUIREMENTS,
+[
+	saved_cflags="$CFLAGS"
+	saved_ldflags="$LDFLAGS"
+	CFLAGS="$X_CFLAGS"
+	LDFLAGS="$X_LDFLAGS $X_LIBS"
+
+	dnl Checks for libraries. 
+	AC_CHECK_LIB(X11, XOpenDisplay,
+		x_libs="-lX11 $X_EXTRA_LIBS",
+		[AC_MSG_ERROR(No X11 installed)],
+		$X_EXTRA_LIBS)
+
+	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS $x_libs"
+	AC_CHECK_LIB(Xext, XShmAttach,
+		x_libs="$x_libs -lXext", ,
+		$x_libs)
+
+	dnl Assume that if we have -lSM then we also have -lICE.
+	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS"
+	AC_CHECK_LIB(SM, SmcSaveYourselfDone,
+		[AC_DEFINE(HAVE_LIBSM)
+		x_libs="$x_libs -lSM -lICE"], ,
+		$x_libs -lICE)
+
+	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS"
+	AC_CHECK_LIB(gtk, gtk_init,
+		X_LIBS="$X_LIBS -lgtk -lgdk -lglib $x_libs -lm",
+		[AC_MSG_ERROR(Can not link with gtk/gdk/glib)],
+		-lgdk -lglib $x_libs -lm)
+
+	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS"
+	AC_CHECK_LIB(gtktty, gtk_tty_get_type,
+		X_LIBS="$X_LIBS -lgtktty",
+		[AC_MSG_ERROR(Can not link with libgtktty)],
+		-lgtk -lgdk -lglib $x_libs -lm)
+
+	dnl Check for functions.
+	AC_CHECK_FUNC(putenv,,[AC_MSG_ERROR(Can not set environment variables)])
+
+	AC_CHECK_FUNC(getopt_long,
+		      GETOPT_OBJS="",
+		      GETOPT_OBJS="getopt.o getopt1.o")
+	AC_SUBST(GETOPT_OBJS)
+
+	CFLAGS="$saved_cflags"
+	LDFLAGS="$saved_ldflags"
+
+	dnl Type checks.
+	AC_TYPE_SIGNAL
+])
+
+dnl Setup default CFLAGS value.
+MC_IF_VAR_EQ(CFLAGS, "", CFLAGS="-g")
+CFLAGS_saved="$CFLAGS"
+unset CFLAGS
+dnl Checks for compiler characteristics, header files, typedefs and structures.
+AC_PROG_CC
+MC_STR_CONTAINS($CFLAGS, -g, CFLAGS_include_g=yes)
+MC_STR_CONTAINS($CFLAGS, -O, CFLAGS_include_O=yes)
+CFLAGS="$CFLAGS_saved"
+AC_PROG_CPP
+AC_C_CONST
+AC_PROG_GCC_TRADITIONAL
+AC_C_INLINE
+AC_HEADER_STDC
+
+dnl Setup CFLAGS for debugging.
+MC_IF_VAR_EQ(enable_debug, yes,
+	MC_IF_VAR_EQ(CFLAGS_include_g, yes,
+		MC_ADD_TO_VAR(CFLAGS, -g, -g)
+	)
+	
+	MC_IF_VAR_EQ(GCC, yes,
+		dnl MC_ADD_TO_VAR(CFLAGS, -fvolatile-global, -fvolatile-global)
+		dnl MC_ADD_TO_VAR(CFLAGS, -fverbose-asm, -fverbose-asm)
+	)
+)
+
+dnl Further setup CFLAGS for GCC.
+MC_IF_VAR_EQ(GCC, yes,
+        	
+	dnl Warnings.
+	MC_ADD_TO_VAR(CFLAGS, -Wall, -Wall)
+	MC_ADD_TO_VAR(CFLAGS, -Wmissing-prototypes, -Wmissing-prototypes)
+	MC_ADD_TO_VAR(CFLAGS, -Wstrict-prototypes, -Wstrict-prototypes)
+	MC_ADD_TO_VAR(CFLAGS, -Winline, -Winline)
+	MC_ADD_TO_VAR(CFLAGS, -Wpointer-arith, -Wpointer-arith)
+	MC_IF_VAR_EQ(enable_pedantic_ansi, yes,
+		MC_ADD_TO_VAR(CFLAGS, -ansi, -ansi)
+		MC_ADD_TO_VAR(CFLAGS, -pedantic, -pedantic)
+	)
+
+	dnl Optimizations
+	MC_ADD_TO_VAR(CFLAGS, -O, -O6)
+	MC_ADD_TO_VAR(CFLAGS, -fstrength-reduce, -fstrength-reduce)
+	MC_ADD_TO_VAR(CFLAGS, -fexpensive-optimizations, -fexpensive-optimizations)
+	MC_ADD_TO_VAR(CFLAGS, -finline-functions, -finline-functions)
+	MC_ADD_TO_VAR(CFLAGS, -frerun-cse-after-loop, -frerun-cse-after-loop)
+	MC_ADD_TO_VAR(CFLAGS, -freg-struct-return, -freg-struct-return)
+	MC_ADD_TO_VAR(CFLAGS, -fnonnull-objects, -fnonnull-objects)
+	dnl use of -pipe breaks most gcc setups that aren't using GNU binutils
+	dnl MC_ADD_TO_VAR(CFLAGS, -pipe, -pipe)
+	dnl -funroll-loops gives problems with -O and templates (see Rep-CppBug_1.C)
+	dnl MC_ADD_TO_VAR(CFLAGS, -funroll-loops, -funroll-loops)
+	dnl MC_ADD_TO_VAR(CFLAGS, -fhandle-signatures, -fhandle-signatures)
+	dnl MC_ADD_TO_VAR(CFLAGS, -fhandle-exceptions, -fhandle-exceptions)
+	dnl MC_ADD_TO_VAR(CFLAGS, -frtti, -frtti)
+,
+	MC_IF_VAR_EQ(CFLAGS_include_O, yes,
+		MC_ADD_TO_VAR(CFLAGS, -O, -O2)
+	)
+)
+
+dnl Checks for programs.
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AM_PROG_LIBTOOL
+
+dnl Check for package requirements.
+AC_PATH_X
+AC_PATH_XTRA
+MC_IF_VAR_EQ($no_x, yes,
+	AC_MSG_ERROR(This package requires the X Window System)
+)
+AC_GEMVT_REQUIREMENTS
+AC_DEFINE_UNQUOTED(GEMVT_MAJOR, $GEMVT_MAJOR)
+AC_DEFINE_UNQUOTED(GEMVT_REVISION, $GEMVT_REVISION)
+AC_DEFINE_UNQUOTED(GEMVT_PATCHLEVEL, $GEMVT_PATCHLEVEL)
+AC_DEFINE_UNQUOTED(GEMVT_VERSION, "$GEMVT_VERSION")
+
+dnl Feature GLE?
+AC_CHECK_LIB(gle, gle_init)
+
+dnl Check for Gnome target
+AC_MSG_CHECKING(for GNOMEfication)
+MC_IF_VAR_EQ(gnome_cv_use_gnome, yes,
+	AC_DEFINE(HAVE_GNOME)
+	AC_MSG_RESULT(yes)
+,
+	AC_MSG_RESULT(no)
+)
+GEMVT_LD_EXTRA=""
+MC_IF_VAR_EQ(gnome_cv_use_gnome, yes,
+	AC_CHECK_LIB(intl, bindtextdomain, GEMVT_LD_EXTRA="-lintl", ,)
+	AC_CHECK_LIB(gdk_imlib,
+		gdk_imlib_create_image_from_xpm_data,
+		GEMVT_LD_EXTRA="-lgdk_imlib $GEMVT_LD_EXTRA", ,)
+	GEMVT_LD_EXTRA="-lgnomeui -lgnome $GEMVT_LD_EXTRA"
+,
+)
+
+
+dnl Automake @VARIABLE@ exports.
+AC_SUBST(x_libs)
+AC_SUBST(CFLAGS)
+AC_SUBST(CPPFLAGS)
+AC_SUBST(LDFLAGS)
+AC_SUBST(GEMVT_LD_EXTRA)
+AC_SUBST(GEMVT_MAJOR)
+AC_SUBST(GEMVT_REVISION)
+AC_SUBST(GEMVT_PATCHLEVEL)
+AC_SUBST(GEMVT_VERSION)
+
+dnl Create files.
+AC_OUTPUT([
+Makefile 
+])

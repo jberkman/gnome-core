@@ -1,0 +1,22 @@
+rename gtk_menu_position_func
+
+- add small scripts to the toolbar
+
+- we need to add dingus support to it (http://dingus.mit.edu).
+
+- add more menuing functionality
+
+- font selection,  we need a gnome independant font selector for this.
+
+- need the different color schemes that miguel wants to have
+  implemented.
+
+- support xterm arguments
+
+- enable multiple term mode, configurable like so:
+  - all terms in a notebook
+  - all terms in different windows
+  - all terms in one window but having only one visible (like
+    a real console does)
+  switch between terms with <ctrl>+Fxx keys, this requires real
+  keymap support in libgtktty
