@@ -1,3 +1,7 @@
+1998-07-15  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c: Add support for hidden menubars.
+
 1998-07-14  Tristan Tarrant  <ttarrant@suntlc.etnoteam.it>
 	* gnome-terminal.c: Added ability to set scrollback lines from 
 	  preferences (at last)
@@ -36,7 +40,7 @@ Sat Jun 13 13:13:50 1998  Tom Tromey  <tromey@cygnus.com>
 	* gnome-terminal.c (drop_data_available): Add support for changing
 	the foreground with drag and drop.
 	(color_cmd): Add a color selector.  I am tired of starting up
-	background-properties to test DnD.
+	background-properties to test color DnD.
 
 Fri May 22 18:31:33 1998  Tom Tromey  <tromey@cygnus.com>
 

@@ -74,6 +74,9 @@ GdkColor user_fore, user_back;
 /* The colors specified on the command line */
 char *fore_color = NULL, *back_color = NULL;
 
+/* Whether to show the menubar */
+int menubar_hidden = 0;
+
 typedef struct {
 	GtkWidget *prop_win;
 	GtkWidget *blink_checkbox;
@@ -641,8 +644,18 @@ save_preferences (GtkWidget *widget, ZvtTerm *term)
 				 color_type == 0 ? "linux" : (color_type == 1 ? "xterm" : "rxvt"));
 	gnome_config_set_string ("/Terminal/Config/foreground", get_color_string (user_fore));
 	gnome_config_set_string ("/Terminal/Config/background", get_color_string (user_back));
-	
+	gnome_config_set_bool   ("/Terminal/Config/menubar", !menubar_hidden);
 	gnome_config_sync ();
+}
+
+static void
+hide_cmd (GtkWidget *widget, ZvtTerm *term)
+{
+	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+
+	menubar_hidden = 1;
+	gtk_widget_hide (app->menubar);
+	save_preferences (widget, term);
 }
 
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
@@ -650,6 +663,7 @@ static GnomeUIInfo gnome_terminal_terminal_menu [] = {
 	{ GNOME_APP_UI_ITEM, N_("Save preferences"),NULL, save_preferences },
 	{ GNOME_APP_UI_ITEM, N_("Close terminal"),  NULL, close_terminal_cmd },
 	{ GNOME_APP_UI_SEPARATOR },
+	{ GNOME_APP_UI_ITEM, N_("Hide menubar..."), NULL, hide_cmd },
 	{ GNOME_APP_UI_ITEM, N_("Properties..."),   NULL, preferences_cmd, 0, 0,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP },
 	{ GNOME_APP_UI_ITEM, N_("Color selector..."),   NULL, color_cmd },
@@ -785,6 +799,21 @@ configure_term_dnd (ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (drop_data_available), term);
 }
 
+static int
+button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
+{
+	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+
+	/* FIXME: this should popup a menu instead */
+	if (event->state & GDK_CONTROL_MASK){
+		menubar_hidden = 0;
+		gtk_widget_show (app->menubar);
+		save_preferences (widget, term);
+		return 1;
+	}
+	return 0;
+}
+
 void
 new_terminal_cmd (char **cmd)
 {
@@ -857,7 +886,12 @@ new_terminal_cmd (char **cmd)
 	gtk_signal_connect(GTK_OBJECT(app), "delete_event",
 			   GTK_SIGNAL_FUNC(close_app), term);
 
+	gtk_signal_connect (GTK_OBJECT (term), "button_press_event",
+			    GTK_SIGNAL_FUNC (button_press), term);
+	
 	gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
+	if (menubar_hidden)
+		gtk_widget_hide (GNOME_APP (app)->menubar);
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
@@ -965,6 +999,8 @@ terminal_load_defaults (void)
 	} else
 		color_set = COLORS_CUSTOM;
 
+	menubar_hidden = !gnome_config_get_bool ("/Terminal/Config/menubar=true");
+	
 	/* Custom colors: load them */
 	if (color_set == COLORS_CUSTOM){
 		if (strcasecmp (fore_color, back_color) == 0)
