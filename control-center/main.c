@@ -19,25 +19,25 @@ GtkWidget *splash_screen;
 static GnomeUIInfo mainMenu[] = {
         //        {GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
         //         GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-        {GNOME_APP_UI_ITEM, N_("Exit"), NULL, exit_callback, NULL, NULL,
-         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0, NULL},
+        {GNOME_APP_UI_ITEM, N_("_Quit"), NULL, exit_callback, NULL, NULL,
+         GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 'q', GDK_CONTROL_MASK, NULL},
         {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL, NULL, NULL,
          GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
 static GnomeUIInfo helpMenu[] = {
         //        {GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
         //         GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-        {GNOME_APP_UI_ITEM, N_("Help with GNOME..."), NULL, help_callback, NULL, NULL,
+        {GNOME_APP_UI_ITEM, N_("_Help with GNOME..."), NULL, help_callback, NULL, NULL,
          GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0, NULL},
-        {GNOME_APP_UI_ITEM, N_("About..."), NULL, about_callback, NULL, NULL,
+        {GNOME_APP_UI_ITEM, N_("_About..."), NULL, about_callback, NULL, NULL,
          GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0, NULL},
         {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL, NULL, NULL,
          GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
 static GnomeUIInfo parentMenu[] = {
-        {GNOME_APP_UI_SUBTREE, N_("Main"), NULL, mainMenu, NULL, NULL,
+        {GNOME_APP_UI_SUBTREE, N_("_Main"), NULL, mainMenu, NULL, NULL,
          GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-        {GNOME_APP_UI_SUBTREE, N_("Help"), NULL, helpMenu, NULL, NULL,
+        {GNOME_APP_UI_SUBTREE, N_("_Help"), NULL, helpMenu, NULL, NULL,
          GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
         {GNOME_APP_UI_ENDOFINFO}
 };
