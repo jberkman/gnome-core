@@ -1,3 +1,7 @@
+2000-02-26  Christopher R. Gabriel  <cgabriel@firenze.linux.it>
+
+	* gnome-terminal.desktop: fixed italian translation
+
 2000-02-23  Peter Hawkins  <peterhawkins@ozemail.com.au>
 
 	* gnome-terminal.c: stopped about box from being opened multiple times at once.
