@@ -1,3 +1,7 @@
+1999-01-25  Jonathan Blandford  <jrb@redhat.com>
+
+	* gmenu.c (main): Some very miniscule UI changes to the ctree.
+
 1999-01-25  Nat Friedman  <nat@nat.org>
 
 	* desktop.c: New file to contain all of the .desktop file
