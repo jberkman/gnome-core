@@ -1,3 +1,8 @@
+1999-10-22  Michael Zucchi  <mzucchi@denr.sa.gov.au>
+
+	* gnome-terminal.c: Merge from stable.  It is now identical, to
+	the g-t-merge-1-0 tag point.
+
 1999-10-11  Miguel de Icaza  <miguel@gnu.org>
 
 	* gnome-terminal.c (EXTRA): Applied patch from housel@acm.org,

@@ -24,18 +24,20 @@
 #include <gnome.h>
 #include <zvt/zvtterm.h>
 
+#include <X11/Xatom.h>
+
 #include "gnome-terminal.h"
 
 /* The program environment */
 extern char **environ;		
 
+/* Initial geometry */
+static char *initial_global_geometry = NULL;
+
 char **env;
 
 #define DEFAULT_FONT "-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1"
-#define EXTRA 3
-
-/* Initial geometry */
-char *geometry = 0;
+#define EXTRA 6
 
 /* is there pixmap compiled into zvt */
 static gboolean zvt_pixmap_support = FALSE;
@@ -512,7 +514,7 @@ load_config (char *class)
 	for (i=0;i<18;i++) {
 		if (i<colour_count)
 			gdk_color_parse(colours[i], &cfg->palette[i]);
-		else {
+		else if (i<16) {
 			cfg->palette[i].red = linux_red[i];
 			cfg->palette[i].green = linux_grn[i];
 			cfg->palette[i].blue = linux_blu[i];
@@ -618,7 +620,7 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	gtk_object_set_data (GTK_OBJECT (term), "config", cfg);
 
 	gnome_term_set_font (term, cfg->font);
-	zvt_term_set_wordclass (term, cfg->wordclass);
+	zvt_term_set_wordclass (term, (guchar *)cfg->wordclass);
 	zvt_term_set_bell(term, !cfg->bell);
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
@@ -756,11 +758,18 @@ window_destroy (GtkWidget *w, gpointer data)
 {
 	ZvtTerm *term = ZVT_TERM (data);
 	preferences_t *prefs;
+	char *tmp;
 
 	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
 	gtk_signal_disconnect_by_data (GTK_OBJECT (prefs->pixmap_entry), prefs);
 	g_free (prefs);
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", NULL);
+
+	tmp = gtk_object_get_data (GTK_OBJECT (term), "matchstr");
+	if (tmp) {
+		g_free(tmp);
+		gtk_object_set_data(GTK_OBJECT (term), "matchstr", NULL);
+	}
 }
 
 /* 
@@ -997,7 +1006,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	for (i=0;i<18;i++)
 		colours[i] = g_strdup_printf ("rgb:%04x/%04x/%04x", cfg->palette[i].red,
 					      cfg->palette[i].green, cfg->palette[i].blue);
-	gnome_config_set_vector ("palette", 18, colours);
+	gnome_config_set_vector ("palette", 18, (const char **)colours);
 	for (i=0;i<18;i++)
 		g_free(colours[i]);
 
@@ -1064,8 +1073,10 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->font_entry), "changed",
 			    GTK_SIGNAL_FUNC (font_changed), prefs);
-		gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
+	gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
 			  2, 3, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
+				      GTK_EDITABLE (prefs->font_entry));
 
 	picker = gnome_font_picker_new();
 	gnome_font_picker_set_font_name(GNOME_FONT_PICKER(picker),
@@ -1090,12 +1101,12 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	iter = gnome_config_init_iterator_sections ("/Terminal");
 	while (gnome_config_iterator_next (iter, &some_class, NULL)){
 		if (!strcmp (some_class, "Config") || !strncmp (some_class, "Class-", 6)){
-		    if (!strcmp (some_class, "Config")) 
-			    some_class = _("Default");
-		    else
-			    some_class += 6;
+			if (!strcmp (some_class, "Config")) 
+				some_class = _("Default");
+			else
+				some_class += 6;
 
-		    class_list = g_list_append (class_list, some_class);
+			class_list = g_list_append (class_list, some_class);
 		}
 	}
 	if(class_list)
@@ -1113,7 +1124,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Blinking status */
 	prefs->blink_checkbox = gtk_check_button_new_with_label (_("Blinking cursor"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->blink_checkbox),
-				     term->blink_enabled ? 1 : 0);
+				      term->blink_enabled ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->blink_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->blink_checkbox,
@@ -1122,7 +1133,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Show menu bar */
 	prefs->menubar_checkbox = gtk_check_button_new_with_label (_("Hide menu bar"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->menubar_checkbox),
-				     cfg->menubar_hidden ? 1 : 0);
+				      cfg->menubar_hidden ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->menubar_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
@@ -1131,7 +1142,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Toggle the bell */
 	prefs->bell_checkbox = gtk_check_button_new_with_label (_("Silence Terminal bell"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->bell_checkbox),
-				     zvt_term_get_bell(term) ? 0 : 1);
+				      zvt_term_get_bell(term) ? 0 : 1);
 	gtk_signal_connect (GTK_OBJECT (prefs->bell_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->bell_checkbox,
@@ -1140,7 +1151,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Swap keys */
 	prefs->swapkeys_checkbox = gtk_check_button_new_with_label (_("Swap DEL/Backspace"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox),
-				     cfg->swap_keys ? 1 : 0);
+				      cfg->swap_keys ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->swapkeys_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->swapkeys_checkbox,
@@ -1166,7 +1177,10 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->wordclass_entry,
 			  2, 3, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	
+	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
+				      GTK_EDITABLE (prefs->wordclass_entry));
+
+
 	/* Image page */
 	/* if pixmap support isn't in zvt, we still create the widgets for
 	   the page, so that we can query them later, but they won't be shown
@@ -1196,7 +1210,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 		gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (r),
 							     _("Background pixmap"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox),
-				     term->pixmap_filename ? 1 : 0);
+				      term->pixmap_filename ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (subtable), r,
@@ -1227,7 +1241,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 #ifdef ZVT_BACKGROUND_SCROLL
 	prefs->pixmap_scrollable_checkbox = gtk_check_button_new_with_label (_("Background pixmap scrolls"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_scrollable_checkbox),
-				     cfg->scroll_background ? 1 : 0);
+				      cfg->scroll_background ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_scrollable_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (subtable), prefs->pixmap_scrollable_checkbox,
@@ -1240,7 +1254,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 		gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (r),
 							     _("Transparent"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->transparent_checkbox),
-				     term->transparent ? 1 : 0);
+				      term->transparent ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->transparent_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (subtable), r,
@@ -1267,7 +1281,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Shaded */
 	prefs->shaded_checkbox = gtk_check_button_new_with_label (_("Background should be shaded"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->shaded_checkbox),
-				     term->shaded ? 1 : 0);
+				      term->shaded ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->shaded_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->shaded_checkbox,
@@ -1321,7 +1335,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			gtk_table_attach(GTK_TABLE(paltable), prefs->palette[i], i&7, (i&7)+1,
 					 i/8, i/8+1, 0, 0, 0, 0);
 		}
-		gnome_color_picker_set_i16(prefs->palette[i], cfg->palette[i].red,
+		gnome_color_picker_set_i16(GNOME_COLOR_PICKER(prefs->palette[i]), cfg->palette[i].red,
 					   cfg->palette[i].green, cfg->palette[i].blue, 0);
 		gtk_signal_connect (GTK_OBJECT (prefs->palette[i]), "color_set",
 				    GTK_SIGNAL_FUNC (color_changed), prefs);
@@ -1365,11 +1379,13 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->scrollback_spin, 2, 3, SCROLLBACK_ROW, 
 			  SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
+				      GTK_EDITABLE (prefs->scrollback_spin));
 
 	/* Scroll on keystroke checkbox */
 	prefs->scroll_kbd_checkbox = gtk_check_button_new_with_label (_("Scroll on keystroke"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox),
-				     cfg->scroll_key);
+				      cfg->scroll_key);
 	gtk_signal_connect (GTK_OBJECT (prefs->scroll_kbd_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->scroll_kbd_checkbox, 2, 3, 
@@ -1378,7 +1394,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Scroll on output checkbox */
 	prefs->scroll_out_checkbox = gtk_check_button_new_with_label (_("Scroll on output"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox),
-				     cfg->scroll_out);
+				      cfg->scroll_out);
 	gtk_signal_connect (GTK_OBJECT (prefs->scroll_out_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->scroll_out_checkbox, 2, 3, 
@@ -1625,11 +1641,36 @@ static void
 title_changed(ZvtTerm *term, VTTITLE_TYPE type, char *newtitle)
 {
 	GnomeApp *window = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	XTextProperty text_prop;
+	Atom aprop;
+	char *pchEndPropName;
 
 	switch(type){
 	case VTTITLE_WINDOW:
 	case VTTITLE_WINDOWICON:
 		gtk_window_set_title((GtkWindow *)window, newtitle);
+		break;
+	/* this is a enumeration, so we can't #ifdef check it */
+	/* case VTTITLE_XPROPERTY: */
+	case 3:
+		pchEndPropName = strchr(newtitle,'=');
+		if (pchEndPropName)
+			*pchEndPropName = '\0';
+		aprop = XInternAtom(GDK_DISPLAY(), newtitle, False);
+		if (pchEndPropName == NULL) {
+			/* no "=value" given, so delete the property */
+			XDeleteProperty(GDK_DISPLAY(),
+					GDK_WINDOW_XWINDOW(GTK_WIDGET(window)->window),
+					aprop);
+		} else {
+			text_prop.value = pchEndPropName+1;
+			text_prop.encoding = XA_STRING;
+			text_prop.format = 8;
+			text_prop.nitems = strlen(text_prop.value);
+			XSetTextProperty(GDK_DISPLAY(),
+					 GDK_WINDOW_XWINDOW(GTK_WIDGET(window)->window),
+					 &text_prop,aprop);
+		}
 		break;
 	default:
 		break;
@@ -1749,22 +1790,19 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	GdkModifierType mask;
 #endif
 
-	if (event->button == 1 && GDK_CONTROL_MASK){
-		gdk_window_get_pointer(widget->window, &x, &y, &mask);
-		match = zvt_term_match_check(term, x/term->charwidth, y/term->charheight, 0);
-		if (!match)
-			return FALSE;
-		
-		/*
-		 * If shift-button-3 is pressed, open the url
-		 */
-		if (event->state & GDK_CONTROL_MASK){
-			gnome_url_show (match);
-			return TRUE;
-		}
-		return FALSE;
+#ifdef ZVT_TERM_MATCH_SUPPORT
+	gdk_window_get_pointer(widget->window, &x, &y, &mask);
+	match = zvt_term_match_check(term, x/term->charwidth, y/term->charheight, 0);
+
+	if (event->button == 1
+	    && (event->state & GDK_CONTROL_MASK)
+	    && match) {
+		gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
+		gnome_url_show (match);
+		return TRUE;
 	}
-	
+#endif /* ZVT_TERM_MATCH_SUPPORT */
+
 	if (event->button != 3
 	    || (!(event->state & GDK_CONTROL_MASK) && term->vx->selected)
 	    || (term->vx->vt.mode & VTMODE_SEND_MOUSE))
@@ -1773,22 +1811,18 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
 
 #ifdef ZVT_TERM_MATCH_SUPPORT
-	gdk_window_get_pointer(widget->window, &x, &y, &mask);
-	match = zvt_term_match_check(term, x/term->charwidth, y/term->charheight, 0);
+	/* construct the popup menu properly */
 	if (match) {
-		/*
-		 * If shift-button-3 is pressed, open the url
-		 */
-		if (event->state & GDK_CONTROL_MASK){
-			gnome_url_show (match);
-			return TRUE;
-		}
-			
+		char *tmp;
+
 		memcpy(&gnome_terminal_popup_menu[POPUP_MENU_DYNAMIC_INDEX],
 		       &gnome_terminal_popup_menu_url[0],
 		       sizeof(gnome_terminal_popup_menu_url));
-		
-		gtk_object_set_data (GTK_OBJECT (term), "matchstr", match);
+
+		tmp = gtk_object_get_data(GTK_OBJECT (term), "matchstr");
+		if (tmp)
+			g_free(tmp);
+		gtk_object_set_data (GTK_OBJECT (term), "matchstr", g_strdup(match));
 	} else {
 		/* make sure the optional menu isn't there */
 		memcpy(&gnome_terminal_popup_menu[POPUP_MENU_DYNAMIC_INDEX],
@@ -1912,10 +1946,12 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	static char **env_copy;
 	static int winid_pos;
 	char buffer [40];
+	char winclass [64];
 	char *shell, *name;
 	int i = 0;
 	struct terminal_config *cfg;
 	int width, height;
+	int xpos, ypos;
 	gboolean term_found = FALSE;
 		
 	/* FIXME: is seems like a lot of this stuff should be done by apply_changes instead */
@@ -1939,20 +1975,20 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
 			if (strncmp (*p, "TERM=", 5) == 0) {
-				if (cfg->termname && *cfg->termname)
+				if (cfg->termname && cfg->termname [0])
 					env_copy [i++] = cfg->termname;
 				else {
 					/*
-					 * DO NOT change this, its here for a reason
+					 * DO NOT change this, its here for a reason 
 					 * this emulator doesn't emulate xterm-color, or xterm-debian, or
 					 * xterm-old, it emulates xterm.  
 					 */
 					env_copy [i++] =  "TERM=xterm";
 				}
 				term_found = TRUE;
-			} else if ((strncmp (*p, "COLUMNS=", 8) == 0) ||
-				   (strncmp (*p, "LINES=", 6) == 0) ||
-				   (strncmp (*p, "WINDOWID=", 8) == 0)){
+			} else if ((strncmp (*p, "COLUMNS=", 8) == 0)
+				   || (strncmp (*p, "LINES=", 6) == 0)
+				   || (strncmp(*p, "WINDOWID=", 9) == 0)) {
 				/* nothing: do not copy those */
 			} else
 				env_copy [i++] = *p;
@@ -1963,6 +1999,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 			else
 				env_copy [i++] = "TERM=xterm";
 		}
+		
 		env_copy [i++] = "COLORTERM=gnome-terminal";
 		winid_pos = i++;
 		env_copy [winid_pos] = "TEST";
@@ -1974,7 +2011,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
-	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
+	sprintf(winclass, "GnomeTerminal:%p", app);
+	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", winclass);
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
 	if (cmd != NULL)
@@ -1989,14 +2027,13 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	 * Handle geometry specification; height and width are in
 	 * terminal rows and columns
 	 */
+
 	width=80;
 	height=24;
-	if (geometry){
-		int xpos, ypos;
-		
+	xpos=-1;
+	ypos=-1;
+	if (geometry) {
 		gnome_parse_geometry (geometry, &xpos, &ypos, &width, &height);
-		if (xpos != -1 && ypos != -1)
-			gtk_widget_set_uposition (GTK_WIDGET (app), xpos, ypos);
 		if (width == -1 || height == -1) {
 			width=80;
 			height=24;
@@ -2006,19 +2043,24 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	}
 
 	term = (ZvtTerm *)zvt_term_new_with_size(width, height);
+	if (xpos != -1 && ypos != -1)
+		gtk_widget_set_uposition (GTK_WIDGET (app), xpos, ypos);
 
 	if ((zvt_term_get_capabilities (term) & ZVT_TERM_PIXMAP_SUPPORT) != 0){
 		zvt_pixmap_support = TRUE;
 	}
 	gtk_object_set_data(GTK_OBJECT(app), "term", term);
+	gtk_widget_grab_focus(GTK_WIDGET(term));
+
 	gtk_widget_show (GTK_WIDGET (term));
+
 	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
 				  GTK_SIGNAL_FUNC(term_change_pos),
 				  GTK_OBJECT(term));
 
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	gnome_term_set_font (term, cfg->font);
-	zvt_term_set_wordclass  (term, cfg->wordclass);
+	zvt_term_set_wordclass  (term, (guchar *)cfg->wordclass);
 	zvt_term_set_bell  (term, !cfg->bell);
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
@@ -2041,7 +2083,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 				  GTK_SIGNAL_FUNC (set_hints), term);
 
 #ifdef ZVT_TERM_MATCH_SUPPORT
-	zvt_term_match_add (ZVT_TERM (term), "(ftp|http)://[^ ]*[^\\.]", VTATTR_UNDERLINE, "url");
+	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp)://)|(www|ftp))[-A-Za-z0-9\\.]+(:[0-9]*)?", VTATTR_UNDERLINE, "host only url");
+	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp)://)|(www|ftp))[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#]*[^]'\\.}>\\) ,\\\"]", VTATTR_UNDERLINE, "full url");
 #endif
 
 	if (!cfg->menubar_hidden)
@@ -2105,7 +2148,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	set_color_scheme (term, cfg);
 
 	XSync(GDK_DISPLAY(), False);
-
 
 	errno = 0;
 	switch (zvt_term_forkpty (term, cfg->update_records)){
@@ -2183,10 +2225,18 @@ load_session ()
 		g_free (class_path);
 
 		cfg = load_config (class);
-		
+
 		/* do this now, since it is only done in a session */
 		cfg->invoke_as_login_shell = gnome_config_get_bool("invoke_as_login_shell");
-		cfg->termname = gnome_config_get_string("termname");
+		{
+			char *ctmp;
+			ctmp = gnome_config_get_string("termname=xterm");
+			if(ctmp && *ctmp)
+				cfg->termname = g_strconcat("TERM=", ctmp, NULL);
+			else
+				cfg->termname = g_strdup("TERM=xterm");
+			g_free(ctmp);
+		}
 		cfg->window_title = gnome_config_get_string("window_title");
 		if (gnome_config_get_bool ("do_utmp=true"))
 			cfg->update_records |= ZVT_TERM_DO_UTMP_LOG;
@@ -2200,7 +2250,13 @@ load_session ()
 
 		g_free(cfg);
 		g_free (geom);
-		g_strfreev (argv);
+		if (i==0) {
+			/* need to save the initial argv, because of the weird
+			   way it is used elsewhere, with the initial term */
+			initial_command = argv;
+		} else {
+			g_strfreev (argv);
+		}
 	}
 	return TRUE;
 }
@@ -2226,6 +2282,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		ZvtTerm *term;
 		GtkWidget *top;
 		char *prefix;
+		char *ctmp;
 	  
 		top = gtk_widget_get_toplevel (GTK_WIDGET (list->data));
 		prefix = g_strdup_printf ("%s%d/", file, i);
@@ -2244,7 +2301,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		 * we can't use gnome_geometry_string because we need
 		 * to calculate the terminal, not window size
 		 */
-		gdk_window_get_root_origin (top->window, &x, &y);
+		gdk_window_get_origin (top->window, &x, &y);
 
 		width = 
 		  (GTK_WIDGET (term)->allocation.width - 
@@ -2274,8 +2331,17 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		
 		/* do this now, since it is only done in a session */
 		gnome_config_set_bool("invoke_as_login_shell", cfg->invoke_as_login_shell);
-		gnome_config_set_string("termname", cfg->termname);
-		gnome_config_set_string("window_title", cfg->window_title);
+
+		ctmp = NULL;
+		if(cfg->termname) {
+			ctmp = strchr(cfg->termname, '=');
+			if(ctmp) ctmp++;
+		}
+		if(!ctmp)
+			ctmp = "xterm";
+		gnome_config_set_string("termname", ctmp);
+
+		gnome_config_set_string("window_title", cfg->window_title?cfg->window_title:"Terminal");
 		gnome_config_set_bool("do_utmp", (cfg->update_records & ZVT_TERM_DO_UTMP_LOG) != 0);
 		gnome_config_set_bool("do_wtmp", (cfg->update_records & ZVT_TERM_DO_WTMP_LOG) != 0);
 
@@ -2286,6 +2352,8 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	}
 	gnome_config_push_prefix (file);
 	gnome_config_set_int ("dummy/num_terms", i);
+	gnome_config_pop_prefix ();
+
 #if 0
 	/* What was the cfg variable ? */
 	args[0] = gnome_master_client()->restart_command[0];
@@ -2331,7 +2399,7 @@ enum {
 };
 
 static struct poptOption cb_options [] = {
-	{ NULL, '\0', POPT_ARG_CALLBACK, parse_an_arg, 0},
+	{ NULL, '\0', POPT_ARG_CALLBACK, (gpointer)parse_an_arg, 0},
 
 	{ "tclass", '\0', POPT_ARG_STRING, NULL, CLASS_KEY,
 	  N_("Terminal class name"), N_("TCLASS")},
@@ -2408,7 +2476,7 @@ parse_an_arg (poptContext state,
 		cmdline_login = TRUE;
 	        break;
 	case GEOMETRY_KEY:
-		geometry = (char *)arg;
+		initial_global_geometry = (char *)arg;
 		break;
 	case COMMAND_KEY:
 		  {
@@ -2453,6 +2521,8 @@ parse_an_arg (poptContext state,
                 break;
 	case TERM_KEY:
 		cfg->termname = g_strdup_printf("TERM=%s", arg);
+		break;
+	default:
 		break;
 	}
 }
@@ -2574,6 +2644,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->color_set = COLORS_CUSTOM;
 	}
 
+
 	/* if the default is different from the commandline, use the commandline */
 	default_config->invoke_as_login_shell =
 		cmdline_login ? cmdline_config->invoke_as_login_shell : 
@@ -2586,7 +2657,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	terminal_config_free (cmdline_config);
 	
 	if (!load_session ())
-		new_terminal_cmd (initial_command, default_config, geometry);
+		new_terminal_cmd (initial_command, default_config, initial_global_geometry);
 
 	terminal_config_free (default_config);
 
@@ -2594,8 +2665,10 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	return 0;
 }
 
+extern char **environ;
+
 int
-main (int argc, char *argv [], char **environ)
+main (int argc, char *argv [])
 {
 	return main_terminal_program (argc, argv, environ);
 }
