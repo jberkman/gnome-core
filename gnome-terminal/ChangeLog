@@ -1,3 +1,8 @@
+2001-09-12  jacob berkman  <jacob@ximian.com>
+
+	* gnome-terminal.c: fixup window icon stuff - leave out until it
+	gets re-added
+
 2001-09-05  jacob berkman  <jacob@ximian.com>
 
 	* gnome-terminal.xml: 

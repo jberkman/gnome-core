@@ -58,7 +58,7 @@
 #ifdef HAVE_GNOME_FONT_PICKER
 #include <libgnomeui/gnome-font-picker.h>
 #endif
-#include <libgnomeui/gnome-window.h>
+/* #include <libgnomeui/gnome-window-icon.h> */
 
 #include <libzvt/libzvt.h>
 
@@ -1648,11 +1648,6 @@ help_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 
 static void new_terminal (BonoboUIComponent *uic, ZvtTerm *term, const char *cname);
 
-#if 0
-	BONOBO_UI_UNSAFE_VERB ("ToggleMenuBar", toggle_menubar_cmd),
-	BONOBO_UI_UNSAFE_VERB ("SecureKeyboard", toggle_secure_keyboard_cmd),
-#endif
-
 static BonoboUIVerb terminal_verbs[] = {
 	BONOBO_UI_UNSAFE_VERB ("NewTerminal", new_terminal),
 	BONOBO_UI_UNSAFE_VERB ("CloseTerminal", close_terminal_cmd),
@@ -2191,11 +2186,13 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
+#if 0
 	/* override the icon if it was in the config */
-#ifdef HAVE_WINDOW_ICON
 	if (cfg->window_icon) {
-	  gnome_window_set_icon_from_file (GTK_WINDOW(app), cfg->window_icon, TRUE);
- 	}
+	  gnome_window_icon_set_from_file (GTK_WINDOW(app), cfg->window_icon);
+ 	} else {
+	  gnome_window_icon_set_from_default (GTK_WINDOW (app));
+	}	
 #endif
 	g_snprintf (winclass, sizeof (winclass), "Terminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), winclass, "Terminal");
@@ -3027,9 +3024,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 
 	env = environ;
 	
-#if 0
-	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-terminal.png");
-#endif
+	/* gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-terminal.png");*/
 
 	/* since -x gets stripped out of the commands, this
 	   will make it override --use-factory */
