@@ -1180,7 +1180,8 @@ static GnomeUIInfo gnome_terminal_terminal_menu [] = {
 	GNOMEUIINFO_SEPARATOR,
 	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, hide_menu_cmd),
 	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd),    
+	GNOMEUIINFO_ITEM_STOCK (N_("_Close terminal"), NULL, close_terminal_cmd,
+													GNOME_STOCK_MENU_EXIT),
 	GNOMEUIINFO_END
 };
 
