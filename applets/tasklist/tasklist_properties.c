@@ -25,7 +25,7 @@ cb_apply (GtkWidget *widget, gint page, gpointer data)
 	change_size ();
 }
 
-/* Callbacks for spin buttons */
+/* Callback for spin buttons */
 static gboolean
 cb_spin_button (GtkAdjustment *adj, int *data)
 {
@@ -34,6 +34,15 @@ cb_spin_button (GtkAdjustment *adj, int *data)
 	*data = (gint) (adj->value);
 }
 
+/* Callback for check butotns */
+static gboolean
+cb_check_button (GtkWidget *widget, gboolean *data)
+{
+	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop));
+
+	*data = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+}
+ 
 /* Create a spin button */
 GtkWidget *
 create_spin_button (gchar *name,
@@ -63,6 +72,18 @@ create_spin_button (gchar *name,
 	gtk_box_pack_start_defaults (GTK_BOX (hbox), spin);
 
 	return hbox;
+}
+
+GtkWidget *
+create_check_button (gchar *name, gboolean *change_value)
+{
+	GtkWidget *checkbutton;
+
+	checkbutton = gtk_check_button_new_with_label (name);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (checkbutton), *change_value);
+	gtk_signal_connect (GTK_OBJECT (checkbutton), "toggled",
+			    GTK_SIGNAL_FUNC (cb_check_button), change_value);
+	return checkbutton;
 }
 
 /* Create the geometry page */
@@ -115,6 +136,26 @@ create_geometry_page (void)
 					gtk_label_new (_("Geometry")));
 }
 
+void
+create_behavior_page (void)
+{
+	GtkWidget *vbox, *frame;
+
+	frame = gtk_frame_new (_("General behavior"));
+	gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
+
+	vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+	gtk_container_add (GTK_CONTAINER (frame), vbox);
+
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_check_button (_("Confirm before killing windows"), &PropsConfig.confirm_before_kill),
+			    FALSE, TRUE, 0);
+	
+	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), frame,
+					gtk_label_new (_("Behavior")));
+
+}
+
 /* Display property dialog */
 void
 display_properties (void)
@@ -126,8 +167,15 @@ display_properties (void)
 	prop = gnome_property_box_new ();
 	gtk_signal_connect (GTK_OBJECT (prop), "apply",
 			    GTK_SIGNAL_FUNC (cb_apply), NULL);
+
+	create_behavior_page ();
 	create_geometry_page ();
 
 	gtk_widget_show_all (prop);
 }
+
+
+
+
+
 

@@ -1,3 +1,8 @@
+1999-09-11  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	*   tasklist_config.c
+	    tasklist_properties.c: Even more config stuff
+
 1999-09-11  Anders carlsson  <anders.carlsson@tordata.se>
 
 	* Makefile.am
