@@ -784,6 +784,8 @@ task_event_monitor (GdkXEvent *gdk_xevent,
       break;
     case PropertyNotify:
       imask = gwmh_property_atom2info (xevent->xproperty.atom, TRUE);
+      if (xevent->xproperty.atom == XA_WM_HINTS)
+	      ichanges |= GWMH_TASK_INFO_WM_HINTS;
       break;
     case ReparentNotify:
       /* refetch frame and root window */
@@ -840,6 +842,7 @@ gwmh_property_atom2info (Atom     atom,
 			 gboolean per_task)
 {
   static const Atom gwmh_XA_WM_NAME = XA_WM_NAME;
+  static const Atom gwmh_XA_WM_HINTS = XA_WM_HINTS;
   static const struct {
     const Atom *atom_p;
     guint       iflag;
@@ -861,15 +864,18 @@ gwmh_property_atom2info (Atom     atom,
     { &GWMHA_WIN_AREA,			GWMH_TASK_INFO_AREA, },
     { &GWMHA_WIN_WORKSPACE,		GWMH_TASK_INFO_DESKTOP, },
     { &XA_WM_STATE,			GWMH_TASK_INFO_ICONIFIED, },
+    { &gwmh_XA_WM_HINTS,                GWMH_TASK_INFO_WM_HINTS, },
     { &gwmh_XA_WM_NAME,			GWMH_TASK_INFO_MISC, },
   };
   guint i;
-
+  static int j = 0;
+  
   if (per_task)
     {
-      for (i = 0; i < sizeof (task_atom_masks) / sizeof (task_atom_masks[0]); i++)
-	if (*task_atom_masks[i].atom_p == atom)
+      for (i = 0; i < sizeof (task_atom_masks) / sizeof (task_atom_masks[0]); i++) 
+	if (*task_atom_masks[i].atom_p == atom) {
 	  return task_atom_masks[i].iflag;
+	}
     }
   else
     {

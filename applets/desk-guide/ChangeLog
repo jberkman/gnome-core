@@ -1,3 +1,10 @@
+2000-05-09  Jacob Berkman  <jacob@helixcode.com>
+
+	* gwmh.c (task_event_monitor): check for WM_HINT changing
+	(gwmh_property_atom2info): add WM_HINT stuff
+
+	* gwmh.h (GwmhTaskInfoMask): add the WM_HINTS flag
+
 2000-05-04  Jacob Berkman  <jacob@helixcode.com>
 
 	* gwmdesktop.c (gwm_desktop_draw): revert something I
