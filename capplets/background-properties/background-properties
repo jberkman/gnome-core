@@ -1,0 +1,8 @@
+#!/bin/sh
+if [ "$1" = "--init" ]
+then
+	screensaver-properties-init
+	background-properties-init
+else
+	gdialog --title WARNING --msgbox "background-properties is obsolete; please use gnomecc instead" 400 200;
+fi
