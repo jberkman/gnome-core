@@ -216,7 +216,13 @@ create_appearance_page (void)
 			    create_radio_button (_("Show normal tasks only"),
 						 &taskgroup, TASKS_SHOW_NORMAL, &PropsConfig.tasks_to_show),
 			    FALSE, TRUE, 0);
-	
+	gtk_box_pack_start (GTK_BOX (taskbox),
+			    create_check_button (_("Normal tasks appear on all desktops"), &PropsConfig.all_desks_normal),
+			    FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (taskbox),
+			    create_check_button (_("Minimized tasks appear on all desktops"), &PropsConfig.all_desks_minimized),
+			    FALSE, TRUE, 0);
+
 	frame = gtk_frame_new (_("Miscellaneous"));
 	gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
 	gtk_box_pack_start_defaults (GTK_BOX (vbox), frame);
