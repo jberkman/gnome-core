@@ -527,9 +527,6 @@ helpWindowNew(gchar *name,
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "anchor_track",
 					     GTK_SIGNAL_FUNC(anchorTrack), w);
 
-	/* size should be auto-determined, or read from gnomeconfig() */
-	gtk_widget_set_usize(GTK_WIDGET(w->helpWidget), 800, 600);
-
 	gtk_box_pack_start(GTK_BOX(vbox), w->helpWidget, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), w->statusBar, FALSE, FALSE, 0);
 	gnome_app_set_contents(GNOME_APP(w->app), vbox);
@@ -540,6 +537,9 @@ helpWindowNew(gchar *name,
 				   (XmImageProc)load_image,
 				   NULL,NULL,NULL);
 
+	/* size should be auto-determined, or read from gnomeconfig() */
+	gtk_widget_set_usize(GTK_WIDGET(w->app), 400, 300); 
+	gtk_window_set_policy(GTK_WINDOW(w->app), TRUE, TRUE, FALSE);
 	gtk_widget_show(w->app);
 	gtk_widget_grab_focus (GTK_WIDGET (w->entryBox));
 	
@@ -608,6 +608,16 @@ helpWindowShowURL(HelpWindow win, gchar *ref)
 
 	/* XXX This should work, but it doesn't */
 	/* printf("TITLE: %s\n", XmHTMLGetTitle(win->helpWidget)); */
+
+}
+
+GtkWidget 
+*helpWindowGetAppWindow(HelpWindow w)
+{
+
+	g_return_val_if_fail( w != NULL, NULL );
+
+	return w->app;
 }
 
 /**********************************************************************/
@@ -624,7 +634,6 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	gint fd;
 
 	win = gtk_object_get_data(GTK_OBJECT(html_widget), "HelpWindow");
-
 	obj = docObjNew(ref);
 	docObjResolveURL(obj, helpWindowCurrentRef(win));
 	if (strstr(docObjGetAbsoluteRef(obj), "file:")) {
@@ -648,6 +657,5 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	docObjFree(obj);
 	return XmHTMLImageDefaultProc(html_widget, IMAGE_TEMPFILE,
 				      NULL, 0);
-		
 	return NULL;
 }

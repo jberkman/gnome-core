@@ -39,4 +39,6 @@ void helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
 void helpWindowJumpToAnchor(HelpWindow w, gchar *s);
 void helpWindowJumpToLine(HelpWindow w, gint n);
 
+GtkWidget *helpWindowGetAppWindow(HelpWindow w);
+
 #endif

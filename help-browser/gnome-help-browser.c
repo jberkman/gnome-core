@@ -30,6 +30,7 @@
 #define NAME "GnomeHelp"
 #define HELP_VERSION "0.4"
 
+
 static void aboutCallback(HelpWindow win);
 static void newWindowCallback(HelpWindow win);
 static void closeWindowCallback(HelpWindow win);
@@ -46,7 +47,9 @@ void setErrorHandlers(void);
 static HelpWindow makeHelpWindow(void);
 static void initConfig(void);
 static void saveConfig(void);
+static GnomeClient *newGnomeClient(void);
 static error_t parseAnArg (int key, char *arg, struct argp_state *state);
+
 
 /* MANPATH should probably come from somewhere */
 #define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
@@ -83,6 +86,7 @@ static gint historyLength;
 static gchar *historyFile;
 static gchar *cacheFile;
 static gchar *bookmarkFile;
+static GnomeClient *smClient;
 
 /* A few globals */
 static Toc tocWindow;
@@ -96,7 +100,7 @@ GList *windowList = NULL;
 static char *helpURL = NULL;
 
 int
-main(int argc, char *argv[])
+main(gint argc, gchar *argv[])
 {
     HelpWindow window;
 
@@ -106,6 +110,8 @@ main(int argc, char *argv[])
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
+    smClient = newGnomeClient();
+
     gnome_init(NAME, &parser, argc, argv, 0, NULL);
 
     initConfig();
@@ -113,6 +119,7 @@ main(int argc, char *argv[])
     setErrorHandlers();
 	
     historyWindow = newHistory(historyLength, historyCallback, historyFile);
+
     cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free,
 			 cacheFile);
     tocWindow = newToc(manPath, infoPath, ghelpPath, tocCallback);
@@ -259,6 +266,106 @@ void setErrorHandlers(void)
     g_set_warning_handler((GErrorFunc) warningHandler);
     g_set_message_handler((GErrorFunc) messageHandler);
     g_set_print_handler((GErrorFunc) printf);
+}
+
+
+static int
+save_state (GnomeClient        *client,
+            gint                phase,
+            GnomeRestartStyle   save_style,
+            gint                shutdown,
+            GnomeInteractStyle  interact_style,
+            gint                fast,
+            gpointer            client_data)
+{
+        gchar *argv[20];
+	gchar *s;
+        gint i = 0, j;
+	HelpWindow win;
+	GtkWidget  *appwin;
+        gint xpos, ypos;
+	gint xsize, ysize;
+
+
+	/* for now we worry about first window in window list */
+	/* but we want to save state for all window browsers  */
+	/* in the future                                      */
+	if (!windowList)
+		return FALSE;
+	win = windowList->data;
+	if (!win)
+		return FALSE;
+	appwin = helpWindowGetAppWindow(win);
+	if (!appwin)
+		return FALSE;
+
+	g_message("Saving myself");
+        gdk_window_get_origin(appwin->window, &xpos, &ypos);
+	gdk_window_get_size(appwin->window, &xsize, &ysize);
+
+	/* blow off any path info in the name of the program */
+	s = strrchr(client_data, '/');
+	if (!s)
+		s = client_data;
+        argv[i++] = (char *) s;
+        argv[i++] = (char *) "-x";
+	s = alloca(20);
+	snprintf(s, 20, "%d", xpos);
+        argv[i++] = s;
+        argv[i++] = (char *) "-y";
+	s = alloca(20);
+	snprintf(s, 20, "%d", ypos);
+        argv[i++] = s;
+        argv[i++] = (char *) "-w";
+	s = alloca(20);
+	snprintf(s, 20, "%d", xsize);
+        argv[i++] = s;
+        argv[i++] = (char *) "-h";
+	s = alloca(20);
+	snprintf(s, 20, "%d", ysize);
+        argv[i++] = s;
+
+	s = alloca(80);
+	snprintf(s, 80, "restart command is");
+	for (j=0; j<i; j++) {
+		strcat(s, " ");
+		strcat(s, argv[j]);
+	}
+	g_message("%s", s);
+	
+        gnome_client_set_restart_command (client, i, argv);
+        /* i.e. clone_command = restart_command - '--sm-client-id' */
+        gnome_client_set_clone_command (client, 0, NULL);
+
+        return TRUE;
+}
+
+
+/**********************************************************************/
+
+/* Session Management stuff */
+static GnomeClient
+*newGnomeClient()
+{
+	GnomeClient *client;
+
+	return NULL; /* cant figure out why below is causing seg faults */
+
+#if 0
+        client = gnome_client_new_default();
+
+	g_message("SM client ID is %s", client->client_id);
+
+	if (!client)
+		return NULL;
+
+        gtk_object_ref(GTK_OBJECT(client));
+        gtk_object_sink(GTK_OBJECT(client));
+
+        gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
+                            GTK_SIGNAL_FUNC (save_state), NULL);
+        return client;
+#endif
 }
 
 /**********************************************************************/

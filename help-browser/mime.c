@@ -132,19 +132,27 @@ convertMan( docObj obj )
 {
         guchar *raw;
 	gint len;
-	char *argv[2];
+	gchar *argv[6];
 	guchar *outbuf;
+	gchar s[256], *p;
 	gint outbuflen;
+	gint i;
 
 	/* if converted data exists lets use it */
 	docObjGetConvData(obj, &outbuf, &len);
 	if (outbuf)
 	    return;
-	
-	argv[0] = "gnome-man2html";
-	argv[1] = NULL;
+	i=0;
+	argv[i++] = "gnome-man2html";
+	argv[i++] = "-n";
+	strncpy(s,docObjGetHumanRef(obj),255);
+	p = strrchr(s, '#');
+	if (p)
+		*p = '\0';
+	argv[i++] = s;
+	argv[i++] = NULL;
 	    
-	g_message("filter: %s", argv[0]);
+	g_message("filter: %s %s %s", argv[0], argv[1], argv[2]);
 
 	docObjGetRawData(obj, &raw, &len);
 	getOutputFrom(argv, raw, len, &outbuf, &outbuflen);
