@@ -64,7 +64,6 @@ struct _TasklistConfig {
 struct _TasklistIcon {
 	GdkPixbuf *normal;
 	GdkPixbuf *minimized;
-	GdkBitmap *mask;
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);
@@ -75,4 +74,6 @@ gboolean write_config (gpointer data,
 		       const gchar *globcfgpath);
 void change_size (gboolean layout);
 void layout_tasklist (void);
-
+GdkPixbuf *tasklist_icon_create_minimized_icon (GdkPixbuf *pixbuf);
+void tasklist_icon_set (TasklistTask *task);
+void tasklist_icon_destroy (TasklistTask *task);

@@ -23,7 +23,6 @@ gboolean cb_expose_event (GtkWidget *widget, GdkEventExpose *event);
 void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
-GdkPixbuf *create_minimized_icon (GdkPixbuf *pixbuf);
 gint get_horz_rows(void);
 
 GNOME_Panel_OrientType tasklist_orient; /* Tasklist orient */
@@ -52,53 +51,6 @@ get_horz_rows(void)
 		return panel_size/ROW_HEIGHT;
 	else
 		return Config.horz_rows;
-}
-
-/* Create a minimized version of a mini icon.
-   This code is stolen from gnome-pixmap2.
- */
-GdkPixbuf *
-create_minimized_icon (GdkPixbuf *pixbuf)
-{
-	GdkPixbuf *minimized;
-	GdkColor color;
-	gint w, h, x, y;
-	gint32 red, green, blue;
-
-	/* Get colors */
-	color = area->style->bg[0];
-	red = color.red / 255;
-	blue = color.blue / 255;
-	green = color.green / 255;
-
-	w = gdk_pixbuf_get_width (pixbuf);
-	h = gdk_pixbuf_get_height (pixbuf);
-
-	minimized = gdk_pixbuf_new (gdk_pixbuf_get_colorspace (pixbuf),
-				    gdk_pixbuf_get_has_alpha (pixbuf),
-				    gdk_pixbuf_get_bits_per_sample (pixbuf),
-				    w, h);
-
-	/* Fade each pixel */
-	for (y = 0; y < h; y++) {
-		for (x = 0; x < w; x++) {
-			guchar *src_pixel;
-			guchar *dest_pixel;
-			
-			src_pixel = gdk_pixbuf_get_pixels (pixbuf) +
-				y * gdk_pixbuf_get_rowstride (pixbuf) +
-				x * (gdk_pixbuf_get_has_alpha (pixbuf) ? 4 : 3);
-
-			dest_pixel = gdk_pixbuf_get_pixels (minimized) +
-				y * gdk_pixbuf_get_rowstride (minimized) +
-				x * (gdk_pixbuf_get_has_alpha (minimized) ? 4 : 3);
-			dest_pixel [0] = ((src_pixel [0] - red) >> 2) + red;
-			dest_pixel [1] = ((src_pixel [1] - green) >> 2) + green;
-			dest_pixel [2] = ((src_pixel [2] - blue) >> 2) + blue;
-		}
-	}
-
-	return minimized;
 }
 
 /* Shorten a label that is too long */
@@ -303,46 +255,23 @@ draw_task (TasklistTask *task)
 		else
 			pixbuf = icon->normal;
 
-		gdk_gc_set_clip_mask (area->style->black_gc, icon->mask);
+/*		gdk_gc_set_clip_mask (area->style->black_gc, icon->mask);
 		gdk_gc_set_clip_origin (area->style->black_gc,
 					task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
-					task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2);
+					task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2);*/
 
-		gdk_pixbuf_render_to_drawable (pixbuf,
-					       area->window,
-					       area->style->black_gc,
-					       0, 0,
-					       task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
-					       task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2,
-					       gdk_pixbuf_get_width (pixbuf),
-					       gdk_pixbuf_get_height (pixbuf),
-					       GDK_RGB_DITHER_NORMAL,
-					       0, 0);
-		/*
-		if (pixbuf->art_pixbuf->has_alpha) {
-			gdk_draw_rgb_32_image (area->window,
-					       area->style->black_gc,
-					       task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2, 
-					       task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2,
-					       gdk_pixbuf_get_width (pixbuf),
-					       gdk_pixbuf_get_height (pixbuf),
-					       GDK_RGB_DITHER_NORMAL,
-					       pixbuf->art_pixbuf->pixels,
-					       pixbuf->art_pixbuf->rowstride);
-		}
-		else {
-			gdk_draw_rgb_image (area->window,
-					    area->style->black_gc,
-					    task->x + 3 + (16 - pixbuf->art_pixbuf->width) / 2, 
-					    task->y + (task->height - pixbuf->art_pixbuf->height) / 2,
-					    pixbuf->art_pixbuf->width,
-					    pixbuf->art_pixbuf->height,
-					    GDK_RGB_DITHER_NORMAL,
-					    pixbuf->art_pixbuf->pixels,
-					    pixbuf->art_pixbuf->rowstride);
-		}
-		*/
-		gdk_gc_set_clip_mask (area->style->black_gc, NULL);
+		gdk_pixbuf_render_to_drawable_alpha (pixbuf,
+						     area->window,
+						     0, 0,
+						     task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
+						     task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2,
+						     gdk_pixbuf_get_width (pixbuf),
+						     gdk_pixbuf_get_height (pixbuf),
+						     GDK_PIXBUF_ALPHA_BILEVEL,
+						     127,
+						     GDK_RGB_DITHER_NORMAL,
+						     gdk_pixbuf_get_width (pixbuf),
+						     gdk_pixbuf_get_height (pixbuf));
 
 	}
 }
@@ -559,8 +488,6 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	       GwmhTaskInfoMask imask)
 {
 	TasklistTask *task;
-	GdkPixmap *pixmap = NULL;
-	GdkBitmap *mask = NULL;
 	
 	switch (ntype)
 	{
@@ -585,37 +512,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	case GWMH_NOTIFY_NEW:
 		task = g_malloc0 (sizeof (TasklistTask));
 		task->gwmh_task = gwmh_task;
-		task->icon = g_new (TasklistIcon, 1);
-		gwmh_task_get_mini_icon (task->gwmh_task, 
-					 &pixmap, &mask);
-		if (pixmap) {
-			gint width, height, x, y, depth;
-			gdk_window_get_geometry (pixmap,
-						 &x, &y,
-						 &width, &height,
-						 &depth);
-			task->icon->mask = mask;
-			task->icon->normal = gdk_pixbuf_get_from_drawable (NULL,
-									   pixmap,
-									   gtk_widget_get_colormap (area),
-									   0, 0,
-									   0, 0,
-									   width, height);
-									   
-			task->icon->minimized = create_minimized_icon (task->icon->normal);
-			gdk_pixmap_unref(pixmap);
-		}
-		else {
-			task->icon->mask = unknown_icon->mask;
-			task->icon->normal = unknown_icon->normal;
-			task->icon->minimized = unknown_icon->minimized;
-
-			/* ref them so that unref won't kill them when the
-			 * task is destroyed */
-			gdk_bitmap_ref(unknown_icon->mask);
-			gdk_pixbuf_ref(unknown_icon->normal);
-			gdk_pixbuf_ref(unknown_icon->minimized);
-		}
+		tasklist_icon_set (task);
 		tasks = g_list_append (tasks, task);
 	        layout_tasklist ();
 		break;
@@ -623,12 +520,9 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 		task = find_gwmh_task (gwmh_task);
 		if(task) {
 			tasks = g_list_remove (tasks, task);
-			gdk_bitmap_unref(task->icon->mask);
-			gdk_pixbuf_unref(task->icon->normal);
-			gdk_pixbuf_unref(task->icon->minimized);
+			tasklist_icon_destroy (task);
 			if(task->menu)
 				gtk_widget_destroy(task->menu);
-			g_free (task->icon);
 			g_free (task);
 			layout_tasklist ();
 		}
@@ -934,13 +828,7 @@ main (gint argc, gchar *argv[])
 	/* XXX: why do we need to cast unknown_xpm here,
 	   I don't get it -George*/
 	unknown_icon->normal = gdk_pixbuf_new_from_xpm_data ((const gchar **)unknown_xpm);
-	unknown_icon->mask = gdk_pixmap_new (NULL, 16, 16, 1);
-
-	gdk_pixbuf_render_threshold_alpha (unknown_icon->normal,
-					   unknown_icon->mask,
-					   0, 0, 0, 0, 16, 16, 128);
-
-	unknown_icon->minimized = create_minimized_icon (unknown_icon->normal);
+	unknown_icon->minimized = tasklist_icon_create_minimized_icon (unknown_icon->normal);
 
 	applet_widget_gtk_main ();
 
