@@ -31,7 +31,7 @@
    <title>Usage</title>
 
 
-   <para><application>Desk Guide Applet</application> helps you
+   <para><application>Desk Guide</application> applet helps you
     navigate all of the virtual desktops available on your system. The
     <application>X Window</application> system, working in
     hand with a piece of software called a "window manager", allows
@@ -40,31 +40,31 @@
     desktop. Each desktop can then also be subdivided by the window
     manager into rows and columns of working space, called
     "desk areas". <application>Desk
-    Guide Applet</application> is a navigational tool to get around
+    Guide</application> applet is a navigational tool to get around
     the various desktops and desk areas, providing a miniature road
     map in the GNOME panel showing all your virtual desktops (also
     known as workspaces) and desk areas, and allowing you to switch
     easily between them.</para>
 
-    <para><application>Desk Guide Applet</application> works
+    <para><application>Desk Guide</application> applet works
     hand-in-hand with the window manager, the piece of software such
     as Sawfish, formerly known as Sawmill, or Enlightenment that
     handles the look and feel of your windows - laying down borders,
     resizing the windows, placing them, moving them and so on. The
     window manager is in charge of the various
-    desktops. <application>Desk Guide Applet</application> handles the
+    desktops. <application>Desk Guide</application> applet handles the
     navigation.</para>
  
-    <para><application>Desk Guide Applet</application> displays
+    <para><application>Desk Guide</application> applet displays
     miniature versions of all your available desktops, including
     outlined boxes representing the applications running in each
     desktop window. The desktop currently in use is
     highlighted. Mouse-click on a representation of a desktop in
-    <application>Desk Guide Applet</application> to switch to display
+    <application>Desk Guide</application> applet to switch to display
     a different virtual desktop on your monitor.</para>
 
     <para>Click and hold with your middle mouse button on any window
-    image in <application>Desk Guide Applet</application> to drag the
+    image in <application>Desk Guide</application> applet to drag the
     window around your virtual desktops.</para>
 
     <note>
@@ -99,10 +99,7 @@
     computer. Left-clicking on any of the applications listed in the
     <interface>Task List</interface> window shifts focus to that
     application, i.e. this window rises to the foreground and all your
-    keyboard input will be sent to the
-    application running in this window. To make the <interface>Task
-    List</interface> window disappear again, click a second time on
-    the arrow in the <application>Desk Guide</application> applet.</para>
+    keyboard input will be sent to the application running in this window.</para>
 
   </sect2>
 
@@ -166,18 +163,6 @@
 	  &mdash; switches the side of the applet on which the
 	  arrow used to launch the tasklist window is displayed.</para>
 	</listitem>
-	<listitem>
-	  <para><guilabel>Show properties '?' button</guilabel>
-	  &mdash; forces display of a question mark button on
-	  the applet allowing you to click to launch the
-	  <interface>Properties</interface> dialog.</para>
-	</listitem>
-
-	<listitem>
-	  <para><guilabel>Show desktop pager</guilabel> &mdash; turn
-	  on or off the applet's map showing your deskops and what's
-	  currently running on them.</para>
-	</listitem>
 
 	<listitem>
 	  <para><guilabel>Only show current desktop in
@@ -199,7 +184,7 @@
         <listitem>
 	  <para><guilabel>Show Desk-Guide tooltips</guilabel> &mdash;
 	  Display tooltips related to various
-	  <application>Deskguide</application> components. The arrow
+	  <application>Desk Guide</application> applet components. The arrow
 	  is the only widget that displays a tooltip.</para> 
 	</listitem>
 
@@ -329,7 +314,7 @@
 
       <para>The options for <interface>Vertical Layout</interface> are
       mirror those for horizontal layout above, but effect the width
-      instead of height of the applet, and the number of colums it
+      instead of height of the applet, and the number of columns it
       occupies instead of the number of rows.</para>
     </sect3>
 
@@ -387,7 +372,12 @@
 	 <para><guilabel>Window manager expects pager to modify
 	 area+desktop</guilabel> &mdash; Currently has no effect.</para>
 	</listitem>
-    
+    <listitem>
+	 <para><guilabel>Popdown task view automatically</guilabel> &mdash;
+	 Automatically pops down the task view window after you click on an
+	 application in the task view list. If unchecked, you must click a
+	 second time on the task view arrow to get the window to pop down.</para>
+	</listitem>
   </itemizedlist>
     </sect3>
 
@@ -489,7 +479,7 @@
          The <guimenuitem>About...</guimenuitem> menu item brings up a 
          dialogue box containing various information about the applet,
          typically including the applet's  name, version, author,
-         copyright, license and desciption. 
+         copyright, license and description. 
         </para>
        </listitem>
       </varlistentry>

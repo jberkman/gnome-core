@@ -1,3 +1,9 @@
+2000-05-02 John Fleck <jfleck@inkstain.net>
+
+	* updated desk-guide.sgml, deskguide-properties.png and 
+	deskguid-properties-advanced.png to update docs to reflect
+	timj's changes
+
 Mon May  1 03:42:04 2000  Tim Janik  <timj@gtk.org>
 
 	* gwmh.c (task_event_monitor_frame_wrapper): provide a wrapper
