@@ -3,6 +3,7 @@ Name=GNOME Control Center
 Name[pt]=Centro de Controlo GNOME
 Comment=The GNOME configuration tool.
 Comment[pt]=A ferramenta de configuração GNOME.
+Icon=control-center.png
 Exec=gnomecc
 Terminal=0
 Type=Application
