@@ -2,9 +2,12 @@ INCLUDES = 			\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
 	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 	-I$(includedir) $(X_CFLAGS) $(GNOME_INCLUDEDIR)
+#
+# drmike - you should use control center for mouse/keyboard/bg props now
+#bin_PROGRAMS = mouse-properties keyboard-properties background-properties \
+#	bell-properties ui-properties
 
-bin_PROGRAMS = mouse-properties keyboard-properties background-properties \
-	bell-properties ui-properties
+bin_PROGRAMS = bell-properties ui-properties
 
 mouse_properties_SOURCES =	\
 	main.c			\
