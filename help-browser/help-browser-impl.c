@@ -149,11 +149,14 @@ destroy_server(HelpWindow win)
     
   CORBA_exception_init(&ev);
   servant = g_hash_table_lookup(win_servant_hash, win);
-  g_hash_table_remove(win_servant_hash, win);
-  fprintf(stderr,"getting servant data %p from window %p\n", servant, win);
+  if (servant) 
+    {
+      g_hash_table_remove(win_servant_hash, win);
+      fprintf(stderr,"getting servant data %p from window %p\n", servant, win);
   
-  oid     = PortableServer_POA_servant_to_id(servant->poa, servant, &ev);
+      oid     = PortableServer_POA_servant_to_id(servant->poa, servant, &ev);
     
-  PortableServer_POA_deactivate_object(servant->poa, oid, &ev);
-  impl_help_browser_simple_browser__destroy(servant, &ev);
+      PortableServer_POA_deactivate_object(servant->poa, oid, &ev);
+      impl_help_browser_simple_browser__destroy(servant, &ev);
+    }
 }

@@ -1,3 +1,9 @@
+1999-04-10  Jacob Berkman  <jberk+@cmu.edu>
+
+	* help-browser-impl.c (destroy_server): fixes gnome bug #116,
+	crashing when file->new then file->close by checking for NULL
+	pointer returned from hash lookup
+
 1999-04-05  Michael Fulbright  <msf@avatar.labs.redhat.com>
 
 	* gnome-help-browser.c: fixed it so we save state but do not die,
