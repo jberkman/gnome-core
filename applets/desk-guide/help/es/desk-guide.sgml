@@ -1,22 +1,22 @@
-  <!-- ###############   applet Desk Guide ############### -->
-  <sect1 id="deskguide-applet">
-   <title>El applet Desk Guide</title> 
+  <!-- ###############   aplique Desk Guide ############### -->
+  <sect1 id="deskguide-aplique">
+   <title>El aplique Desk Guide</title> 
 
    <para> 
-    El applet <application>Desk Guide</application>, que puede ver en 
-    <xref linkend="deskguide-applet-fig">, es un applet que permite navegar 
-    visualmente por sus escritorios virtuales. Para añadir este applet a un  
+    El aplique <application>Desk Guide</application>, que puede ver en 
+    <xref linkend="deskguide-aplique-fig">, es un aplique que permite navegar 
+    visualmente por sus escritorios virtuales. Para añadir este aplique a un  
     <interface>Panel</interface>, pulse el botón derecho de su ratón sobre el 
     panel y escoja
          <menuchoice>
-               <guimenu>applets</guimenu>
+               <guimenu>apliques</guimenu>
                <guisubmenu>Utilerias</guisubmenu>
                <guimenuitem>Desk Guide</guimenuitem>
         </menuchoice>. 
    </para>
   
  
-   <figure id="deskguide-applet-fig">
+   <figure id="deskguide-aplique-fig">
    <title>Desk Guide</title>
    <screenshot>
     <screeninfo>Desk Guide</screeninfo>
@@ -24,7 +24,7 @@
     </graphic>
    </screenshot>
    </figure>
-<sect2 id="deskguide-applet-usage">
+<sect2 id="deskguide-aplique-usage">
    <title>Uso</title>
 
 
@@ -36,7 +36,7 @@
     aplicaciones en cada uno de ellos. El Gestor de ventanas puede volver a
     dividir cada escritorio en filas y columnas de espacios de
     trabajo, llamados "áreas de escritorio" ("Desk áreas"). <application>El
-    applet Desk Guide </application>  es una herramienta navegacional para
+    aplique Desk Guide </application>  es una herramienta navegacional para
     desplazarse por los diversos escritorios y "áreas", mostrando un mapa en
     miniatura de todos sus escritorios virtuales y áreas en el panel de GNOME 
     que permite trasladarse entre ellos facilmente.
@@ -52,7 +52,7 @@
     escritorios. <application>Desk Guide </application> se ocupa
     de la navegación.</para>
  
-    <para><application> El applet Desk Guide </application> muestra
+    <para><application> El aplique Desk Guide </application> muestra
      versiones en miniatura de todos los escritorios disponibles, con rectangulos
      representando el espacio que ocupa cada aplicacion. El escritorio
      activo se destaca sobre el resto. Para cambiar de escritorio pulse con el 
@@ -72,20 +72,20 @@
         ("screens").  <application>Sawfish</application> antes conocido como
         <application>Sawmill</application>, la divide en espacios 
         de trabajo ("workspaces") que se subdividen en filas y columnas. El 
-        applet <application>Desk Guide</application> denomina a los espacios de
+        aplique <application>Desk Guide</application> denomina a los espacios de
         trabajo escritorios ("desktops") y a las áreas interiores "viewports". 
         Si desea más información sobre la creación y gestión de espacios de 
         trabajo virtuales dirijase a la documentación de su gestor de ventanas.
       </para>
     </note>
 
-    <para>Pulsando el ratón sobre la flecha a la izquierda del applet 
+    <para>Pulsando el ratón sobre la flecha a la izquierda del aplique 
      <application>Desk Guide</application> se muestra la ventana 
      <interface>Lista de Tareas ("Task List")</interface>, que puede ver en
      <xref
- linkend="deskguide-tasklist-applet-fig">.</para>
+ linkend="deskguide-tasklist-aplique-fig">.</para>
 
- <figure id="deskguide-tasklist-applet-fig">
+ <figure id="deskguide-tasklist-aplique-fig">
    <title>Desk Guide Task List</title>
    <screenshot>
     <screeninfo>Lista de Tareas de Desk Guide</screeninfo>
@@ -102,7 +102,7 @@ cualquiera
      le dará el foco, es decir su ventana se situara en primer plano y 
      toda entrada de teclado se dirigirá a la aplicación que corre en esa 
      ventana. Para volver a ocultar la ventana de la <interface>Lista de Tareas
-     </interface> pulse otra vez sobre la flecha del applet <application>Desk Guide</application>.
+     </interface> pulse otra vez sobre la flecha del aplique <application>Desk Guide</application>.
     </para>
 
   </sect2>
@@ -119,7 +119,7 @@ cualquiera
         <guimenuitem>Propiedades...</guimenuitem> &mdash; Esta opción abre el 
         dialogo de <interface>Propiedades</interface> (vea
  <xref linkend="deskguide-properties">) 
-        que le permite modificar la apariencia y comportamiento del applet.
+        que le permite modificar la apariencia y comportamiento del aplique.
        </para>
       </listitem>
     
@@ -131,7 +131,7 @@ cualquiera
    <sect2 id="deskguide-properties">
     <title>Propiedades</title>
     <para>
-     Puede configurar el applet <application>Desk Guide</application> pulsando
+     Puede configurar el aplique <application>Desk Guide</application> pulsando
      el botón derecho y escogiendo la opción <guimenuitem>Propiedades...</guimenuitem> 
      dentro del menú. Así se abrirá el dialogo de <interface>Propiedades</interface>, 
      con cuatro paginas diferentes que le dan acceso a varias opciones de 
@@ -147,7 +147,7 @@ cualquiera
       <title>Propiedades - Pantalla</title>
       <para>La primera ventana de <interface>Propiedades </interface>, que se 
        muestra en <xref linkend="deskguide-properties-fig">, le permite 
-       controlar la pantalla del applet <application>Desk Guide</application>.
+       controlar la pantalla del aplique <application>Desk Guide</application>.
       </para>
  
     <figure id="deskguide-properties-fig">
@@ -169,7 +169,7 @@ cualquiera
         </listitem>
         <listitem>
           <para><guilabel>Mostrar el botón '?' de propiedades</guilabel>
-           &mdash; hace que se muestre un botón con un interrogante en el applet 
+           &mdash; hace que se muestre un botón con un interrogante en el aplique 
            que lanzara el dialogo de <interface>Propiedades</interface> al ser 
            pulsado.
           </para>
@@ -177,13 +177,13 @@ cualquiera
 
         <listitem>
           <para><guilabel>Ver paginador del escritorio</guilabel> &mdash; Quita 
-            o pone en el applet el mapa que muestra sus escritorios y las 
+            o pone en el aplique el mapa que muestra sus escritorios y las 
             aplicaciones que corren sobre ellos. </para>
         </listitem>
 
         <listitem>
           <para><guilabel>Ver solo el escritorio actual en el paginador</guilabel> 
-            &mdash; el applet solo mostrará el escritorio en el que se esta 
+            &mdash; el aplique solo mostrará el escritorio en el que se esta 
            trabajando y sus viewports activos. </para>
         </listitem>
 
@@ -310,7 +310,7 @@ ejecutando con "marcas" que
 
         <listitem>
          <para><guilabel>Dividir la altura por la cantidad de áreas verticales
-         </guilabel> &mdash; divide la altura total del applet por el 
+         </guilabel> &mdash; divide la altura total del aplique por el 
          numero de filas de áreas de escritorio visibles.</para>
         </listitem>
      
@@ -342,7 +342,7 @@ ejecutando con "marcas" que
 
       <para>Las opciones de <interface>Disposición Vertical</interface> son
       idénticas a las de disposición horizontal descritas anteriormente, afectando
-      a la anchura del applet en vez de a la altura, y al numero de columnas en
+      a la anchura del aplique en vez de a la altura, y al numero de columnas en
       vez del de filas.</para>
     </sect3>
 
@@ -462,7 +462,7 @@ En una maquina lenta, la imagen de la
  <sect3 id="deskguide-standard-right-click-items"> 
     <title>Opciones estándar del menú emergente.</title>
     <para>
-     Todos los applets han de disponer de las siguientes opciones en su
+     Todos los apliques han de disponer de las siguientes opciones en su
      <guimenu>menu emergente</guimenu> con el botón derecho:
      <variablelist>
       <varlistentry>
@@ -470,7 +470,7 @@ En una maquina lenta, la imagen de la
        <listitem>
         <para>
          La opción <guimenuitem>Quitar del panel</guimenuitem> quita
-         el applet del <interface>Panel</interface>. 
+         el aplique del <interface>Panel</interface>. 
         </para>
        </listitem>
       </varlistentry>
@@ -481,10 +481,10 @@ En una maquina lenta, la imagen de la
         <para>
          Después de seleccionar <guimenuitem>Mover</guimenuitem>, cambiará 
          la apariencia del puntero del ratón (normalmente será una cruz con una 
-         punta de flecha en cada dirección). El applet seguirá el movimiento que 
+         punta de flecha en cada dirección). El aplique seguirá el movimiento que 
          realice con el ratón.  Cuando lo lleve a su posición definitiva pulse 
-         cualquier botón del ratón  y el applet anclara en esa posición. Tenga 
-         en cuenta que este método tambien sirve para mover applets entre 
+         cualquier botón del ratón  y el aplique anclara en esa posición. Tenga 
+         en cuenta que este método tambien sirve para mover apliques entre 
          diferentes <interface>Paneles</interface>.
         </para>
        </listitem>
@@ -495,7 +495,7 @@ En una maquina lenta, la imagen de la
        <listitem>
         <para>
          El submenu <guisubmenu>Panel</guisubmenu>contiene varias opciones y
-         submenus para añadir y mover <interface>Paneles</interface> y applets
+         submenus para añadir y mover <interface>Paneles</interface> y apliques
          así como para cambiar la configuración.
         </para>
        </listitem>
@@ -507,9 +507,9 @@ En una maquina lenta, la imagen de la
         <para>
          La opción <guimenuitem>Acerca de ...</guimenuitem> abre una caja de
          dialogo
- con diversa información  acerca del applet, normalmente incluye 
+ con diversa información  acerca del aplique, normalmente incluye 
          el nombre del
- applet, la versión, el autor, Copyright, licencia, y 
+ aplique, la versión, el autor, Copyright, licencia, y 
          descripción.
         </para>
        </listitem>
@@ -520,7 +520,7 @@ En una maquina lenta, la imagen de la
        <listitem>
         <para>
          La opción <guimenuitem>Ayuda</guimenuitem> nos lleva al manual de ayuda 
-         del applet. 
+         del aplique. 
         </para>
        </listitem>
       </varlistentry>
@@ -532,7 +532,7 @@ En una maquina lenta, la imagen de la
 
    </sect2>
   
-   <sect2 id="deskguide-applet-bugs">
+   <sect2 id="deskguide-aplique-bugs">
     <title> Errores y Limitaciones conocidos</title>
     <para>La opción <guilabel>El Gestor de ventanas espera que el paginador 
      modifique
@@ -543,33 +543,10 @@ no hace nada de momento.
 </para>
    </sect2>
 
-    <!-- ==================== Authors =========================== -->
+&authors; 
+&license; 
+&license-es;
 
-   <sect2 id="deskguide-applet-authors">
-    <title>Autores</title>
-    <para>
-     Este applet fue escrito por Tim Janik
-     <email>timj@gtk.org</email>.  La documentacin que esta leyendo 
-     la escribió John Fleck <email>jfleck@inkstain.net</email></para>
-                
-    <para>
-      Por favor env&iacute;e todos sus comentarios, sugerencias, y informes de errores
-      a la   <ulink url="http://bugs.gnome.org" type="http"> base de datos de 
-      seguimiento de errores de Gnome</ulink>. Podr&aacute; encontrar 
-      instrucciones para enviar informes de errores directamente accesibles en
-      <ulink url="http://bugs.gnome.org/Reporting.html" type="http">
-      http://bugs.gnome.org/Reporting.html</ulink>. Si esta usando
-      Gnome 1.1 o posterior, podr&aacute; usar tambi&eacute;n el comando
-      <command>bug-buddy</command> para enviar informes de errores. Esta disponible
-      en el submenu <guisubmenu>Utilidades</guisubmenu> de <guimenu>Menú principal</guimenu>.
-    </para>
-
-    <para>
-    
-    Este documento fue traducido por Javier Terradas Royo. Comentarios y/o
-    correcciones a <email> terry@ati.es </email>. Versión beta.
-    </para>
-   </sect2>
 
   </sect1>
 
