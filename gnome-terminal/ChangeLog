@@ -1,3 +1,12 @@
+1999-03-19  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
+
+	* gnome-terminal.c: Added reset terminal options to popup_menu,
+	and settings menu.
+	(reset_terminal_soft_cmd): New function - perform a soft reset of
+	the terminal (only character set/modes are reset).
+	(reset_terminal_hard_cmd): New function - perform hard reset and
+	clear the (current) screen.  Resets alternate screen/etc too.
+
 1999-03-16  Erik Troan  <ewt@redhat.com>
  
  	* gnome-terminal.c: If the menubar is hidden on startup, don't
