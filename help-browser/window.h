@@ -12,7 +12,8 @@ typedef struct _helpWindow *HelpWindow;
 
 HelpWindow helpWindowNew(GtkSignalFunc about_callback,
 			 GtkSignalFunc new_window_callback,
-			 GtkSignalFunc close_window_callback);
+			 GtkSignalFunc close_window_callback,
+			 GHashFunc set_current_callback);
 void helpWindowClose(HelpWindow win);
 void helpWindowShowURL(HelpWindow win, gchar *ref);
 void helpWindowSetHistory(HelpWindow win, History history);

@@ -38,9 +38,7 @@ resolveMagicURL( docObj obj )
 		gchar buf2[1024];
 		gchar *convanchor=NULL;
 
-		gchar *s;
 		GList *indirect=NULL, *listptr;
-	
 		
 		u = decomposeUrl( ref );
 
@@ -52,7 +50,7 @@ resolveMagicURL( docObj obj )
 		d = opendir("/usr/info");
 		c = NULL;
 		if (d) {
-			while (dirp = readdir(d)) {
+		        while ((dirp = readdir(d))) {
 				if (!strncmp(dirp->d_name, pp, strlen(pp)) ||
 				!strcmp(dirp->d_name, p)) {
 					if (!c || (strlen(dirp->d_name) < strlen(c))) {

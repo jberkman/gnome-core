@@ -53,6 +53,7 @@ struct _helpWindow {
     GtkSignalFunc about_cb;
     GtkSignalFunc new_window_cb;
     GHashFunc close_window_cb;
+    GHashFunc set_current_cb;
     History history;
     GtkWidget *toc;
     DataCache cache;
@@ -75,6 +76,7 @@ static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowToc (GtkWidget *w, HelpWindow win);
 static void entryChanged(GtkWidget *w, HelpWindow win);
+static void setCurrent(HelpWindow w);
 
 static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
@@ -192,7 +194,9 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
         g_message("TAG CLICKED: %s", cbs->href);
 
 	visitURL(win, cbs->href);
+
 	update_toolbar(win);
+	setCurrent(win);
 }
 
 static void help_forward(GtkWidget *w, HelpWindow win) {
@@ -209,6 +213,7 @@ static void help_forward(GtkWidget *w, HelpWindow win) {
 	gnome_helpwin_jump_to_line(GNOME_HELPWIN(win->helpWidget), pos);
 
 	update_toolbar(win);
+	setCurrent(win);
 }
 
 static void help_backward(GtkWidget *w, HelpWindow win) {
@@ -225,6 +230,7 @@ static void help_backward(GtkWidget *w, HelpWindow win) {
 	gnome_helpwin_jump_to_line(GNOME_HELPWIN(win->helpWidget), pos);
 
 	update_toolbar(win);
+	setCurrent(win);
 }
 
 static void help_contents(GtkWidget *w, HelpWindow win) {
@@ -242,7 +248,8 @@ static void help_onhelp(GtkWidget *w, HelpWindow win) {
 	strcat(q, p);
 	g_free(p);
 	helpWindowShowURL(win, q);
-	return;
+
+	setCurrent(win);
 }
 
 static void
@@ -250,6 +257,8 @@ entryChanged(GtkWidget *w, HelpWindow win)
 {
     g_message("ENTRY BOX: %s", gtk_entry_get_text(GTK_ENTRY(w)));
     helpWindowShowURL(win, gtk_entry_get_text(GTK_ENTRY(w)));
+
+    setCurrent(win);
 }
 
 /**********************************************************************/
@@ -259,6 +268,14 @@ entryChanged(GtkWidget *w, HelpWindow win)
 /**********************************************************************/
 
 /* Misc static routines */
+
+static void
+setCurrent(HelpWindow w)
+{
+    if (w->set_current_cb) {
+	(w->set_current_cb)(w);
+    }
+}
 
 static void
 init_toolbar(HelpWindow w)
@@ -373,15 +390,19 @@ void helpWindowJumpToLine(HelpWindow w, gint n)
 
 void helpWindowClose(HelpWindow win)
 {
-    /* XXX this is bogus! */
-    gtk_widget_hide(win->app);
+    gtk_widget_destroy(win->app);
+
+    if (win->currentRef)
+	g_free(win->currentRef);
+    queue_free(win->queue);
     g_free(win);
 }
 
 HelpWindow
 helpWindowNew(GtkSignalFunc about_callback,
 	      GtkSignalFunc new_window_callback,
-	      GtkSignalFunc close_window_callback)
+	      GtkSignalFunc close_window_callback,
+	      GHashFunc set_current_callback)
 {
         HelpWindow w;
 	GtkWidget *entryArea;
@@ -393,6 +414,7 @@ helpWindowNew(GtkSignalFunc about_callback,
 	w->about_cb = about_callback;
 	w->new_window_cb = new_window_callback;
 	w->close_window_cb = (GHashFunc)close_window_callback;
+	w->set_current_cb = set_current_callback;
 	w->history = NULL;
 	w->cache = NULL;
 	w->currentRef = NULL;
@@ -490,6 +512,7 @@ helpWindowShowURL(HelpWindow win, gchar *ref)
 		return;
 	}
 	update_toolbar(win);
+	setCurrent(win);
 }
 
 /**********************************************************************/

@@ -138,7 +138,6 @@ convertINFO( docObj obj )
 	argv[1] = "-a";
 	a = docObjGetDecomposedUrl(obj)->anchor;
 	if (a && *a) {
-		gchar *p;
 		a = alloca(strlen(a)+5);
 		strcpy(a,"\"");
 		strcat(a, docObjGetDecomposedUrl(obj)->anchor);

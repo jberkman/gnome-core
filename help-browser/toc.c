@@ -22,7 +22,10 @@ struct _toc_config toc_config[] = {
     { "/usr/local/man",        TOC_MAN_TYPE   },
     { "/usr/X11R6/man",        TOC_MAN_TYPE   },
     { "/usr/info",             TOC_INFO_TYPE  },
-    { "/usr/share/gnome/help", TOC_GHELP_TYPE },
+    { "/opt/gnome/share/gnome/help",       TOC_GHELP_TYPE },
+    { "/usr/local/share/gnome/help",       TOC_GHELP_TYPE },
+    { "/usr/local/gnome/share/gnome/help", TOC_GHELP_TYPE },
+    { "/usr/share/gnome/help",             TOC_GHELP_TYPE },
     { NULL, 0 }
 };
 

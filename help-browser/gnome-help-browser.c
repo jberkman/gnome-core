@@ -27,21 +27,17 @@
 
 #define VERSION "0.4"
 
-static void about_cb(void);
-static void new_window_callback(void);
-static void close_window_callback(HelpWindow win);
+static void aboutCallback(void);
+static void newWindowCallback(void);
+static void closeWindowCallback(HelpWindow win);
+static void setCurrentCallback(HelpWindow win);
 static void historyCallback(gchar *ref);
 static void tocCallback(gchar *ref);
 void messageHandler(gchar *s);
 void warningHandler(gchar *s);
 void errorHandler(gchar *s);
 void setErrorHandlers(void);
-static HelpWindow makeHelpWindow(GtkSignalFunc about_cb,
-				 GtkSignalFunc new_window_cb,
-				 GtkSignalFunc close_window_cb,
-				 History historyWindow,
-				 DataCache cache,
-				 GtkWidget *tocWindow);
+static HelpWindow makeHelpWindow(void);
 
 static GtkWidget *tocWindow;
 static History historyWindow;
@@ -54,8 +50,6 @@ main(int argc, char *argv[])
 {
     HelpWindow window;
     
-    /* Global application history should be here as well          */
-    
     gnome_init("gnome_help_browser", &argc, &argv);
 
     setErrorHandlers();
@@ -64,10 +58,7 @@ main(int argc, char *argv[])
     cache = newDataCache(10000000, 0, (GCacheDestroyFunc)g_free);
     tocWindow = createToc((GtkSignalFunc)tocCallback);
 
-    window = makeHelpWindow(about_cb, new_window_callback,
-			    (GtkSignalFunc)close_window_callback,
-			    historyWindow, cache, tocWindow);
-    windowList = g_list_append(windowList, window);
+    window = makeHelpWindow();
 
     if (argc > 1)
 	helpWindowShowURL(window, argv[1]);
@@ -78,20 +69,18 @@ main(int argc, char *argv[])
 }
 
 static HelpWindow
-makeHelpWindow(GtkSignalFunc about_cb,
-	       GtkSignalFunc new_window_cb,
-	       GtkSignalFunc close_window_cb,
-	       History historyWindow,
-	       DataCache cache,
-	       GtkWidget *tocWindow)
+makeHelpWindow()
 {
     HelpWindow window;
     
-    window = helpWindowNew(about_cb, new_window_cb, close_window_cb);
+    window = helpWindowNew(aboutCallback, newWindowCallback,
+			   closeWindowCallback, setCurrentCallback);
     helpWindowSetHistory(window, historyWindow);
     helpWindowSetCache(window, cache);
     helpWindowSetToc(window, tocWindow);
 
+    windowList = g_list_append(windowList, window);
+    
     return window;
 }
 
@@ -100,7 +89,14 @@ makeHelpWindow(GtkSignalFunc about_cb,
 /* Callbacks */
 
 static void
-close_window_callback(HelpWindow win)
+setCurrentCallback(HelpWindow win)
+{
+    windowList = g_list_remove(windowList, win);
+    windowList = g_list_append(windowList, win);
+}
+
+static void
+closeWindowCallback(HelpWindow win)
 {
     helpWindowClose(win);
 
@@ -112,14 +108,11 @@ close_window_callback(HelpWindow win)
 }
 
 static void
-new_window_callback(void)
+newWindowCallback(void)
 {
     HelpWindow window;
     
-    window = makeHelpWindow(about_cb, new_window_callback,
-			    (GtkSignalFunc)close_window_callback,
-			    historyWindow, cache, tocWindow);
-    windowList = g_list_append(windowList, window);
+    window = makeHelpWindow();
 }
 
 static void
@@ -137,7 +130,7 @@ tocCallback(gchar *ref)
 }
 
 static void
-about_cb (void)
+aboutCallback (void)
 {
 	GtkWidget *about;
 	gchar *authors[] = {

@@ -75,7 +75,7 @@ void expandManPagesIndex(GtkWidget *item, struct _man_sections *ext)
 
 	d = opendir(dirname);
 	if (d) {
-	    while (dirp = readdir(d)) {
+	    while ((dirp = readdir(d))) {
 	        if (! (strcmp("..", dirp->d_name)
 		       && strcmp(".", dirp->d_name))) {
 		    continue;

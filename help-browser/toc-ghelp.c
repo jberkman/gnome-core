@@ -38,7 +38,7 @@ void expandGHelpRoot(GtkWidget *item)
 
 	d = opendir(toc->path);
 	if (d) {
-	    while (dirp = readdir(d)) {
+	    while ((dirp = readdir(d))) {
 	        if (! (strcmp("..", dirp->d_name) &&
 		       strcmp(".", dirp->d_name))) {
 		    continue;
