@@ -1,3 +1,10 @@
+Wed Nov 29 13:01:34 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmdesktop.c (gwm_desktop_button_press): take deco window movement
+	setting into account for double clicks.
+
+	* deskguide_applet.c: sawfish doesn't move decoration window anymore.
+
 2000-11-28 John Fleck <jfleck@inkstain.net>
 
 	* update help/C/desk-guide.sgml based on user feedback

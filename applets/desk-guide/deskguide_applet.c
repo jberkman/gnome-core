@@ -136,7 +136,7 @@ static ConfigItem gp_config_items[] = {
   CONFIG_SECTION (sect_workarounds,			N_ ("Window Manager Workarounds")),
   CONFIG_BOOL (skip_movement_offset,		TRUE,
 	       N_ ("Window manager moves decoration window instead\n"
-		   "(AfterStep, Enlightenment, FVWM, IceWM, Sawfish)")),
+		   "(AfterStep, Enlightenment, FVWM, IceWM)")),
   CONFIG_BOOL (unified_areas,			TRUE,
 	       N_ ("Window manager changes active area on all desktops\n"
 		   "(FVWM, Sawfish)")),

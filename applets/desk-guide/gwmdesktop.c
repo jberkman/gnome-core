@@ -614,9 +614,14 @@ gwm_desktop_button_press (GtkWidget      *widget,
 		  desktop->grab_task = NULL;
 		  x = (task->win_x - (task->win_x < 0) * w + task->win_width / 2) / w;
 		  y = (task->win_y - (task->win_y < 0) * h + task->win_height / 2) / h;
-		  gdk_window_move (task->gdkwindow,
-				   x * w + (task->win_x - task->frame_x),
-				   y * h + (task->win_y - task->frame_y));
+		  if (gwm_desktop_class->move_to_frame_offset)
+		    gdk_window_move (task->gdkwindow,
+				     x * w + (task->win_x - task->frame_x),
+				     y * h + (task->win_y - task->frame_y));
+		  else
+		    gdk_window_move (task->gdkwindow,
+				     x * w,
+				     y * h);
 		  gdk_flush ();
 		}
             }
