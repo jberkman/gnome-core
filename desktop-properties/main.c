@@ -107,7 +107,13 @@ property_main (char *app_id, int argc, char *argv [])
         GnomeClient *client = NULL;
 	int token = 0;
 	char *new_argv[4];
-
+#if 0
+	{
+		volatile int i = 1;
+		printf ("Esperando %d\n", getpid ());
+		while (i);
+	}
+#endif
 	argp_program_version = VERSION;
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);

@@ -142,11 +142,15 @@ fill_monitor (gpointer gp)
 	gint pc = (gint) gp;
 	GdkCursor *cursor;
 
-	/* Set the cursor to a nice watch */
+	/* Set the cursor to a nice watch.  The main_window may not exist if we are called from the
+	 * session manager, though
+	 */
 
-	cursor = gdk_cursor_new (GDK_WATCH);
-	gdk_window_set_cursor (main_window->window, cursor);
-	gdk_cursor_destroy (cursor);
+	if (main_window) {
+		cursor = gdk_cursor_new (GDK_WATCH);
+		gdk_window_set_cursor (main_window->window, cursor);
+		gdk_cursor_destroy (cursor);
+	}
 
 	/* printf ("fill monitor %d\n", pc); */
 
@@ -159,7 +163,7 @@ fill_monitor (gpointer gp)
 			Imlib_render (imlib_data, bi, bi->rgb_width, bi->rgb_height);
 		else {
 			bgType = BACKGROUND_SIMPLE;
-			gtk_option_menu_set_history (wpOMenu, 0);
+			gtk_option_menu_set_history (GTK_OPTION_MENU (wpOMenu), 0);
 		}
 	}
 
@@ -169,7 +173,6 @@ fill_monitor (gpointer gp)
 		xgc = ((GdkGCPrivate *) gc)->xgc;
 
 		if ((!grad || (bi && !bi->shape_mask)) && wpType == WALLPAPER_TILED) {
-
 			gdk_color_alloc (gdk_window_get_colormap (rootWindow),
 					 &bgColor1);
 			 
@@ -222,7 +225,8 @@ fill_monitor (gpointer gp)
 
 			/* Reset the cursor to normal */
 
-			gdk_window_set_cursor (main_window->window, NULL);
+			if (main_window)
+				gdk_window_set_cursor (main_window->window, NULL);
 
 			return FALSE;
 		}
@@ -246,14 +250,17 @@ fill_monitor (gpointer gp)
 
 	pdata = g_new (unsigned char, cw*ch*3);
 
-	gnome_color_selector_get_color_int(cs1, &r, &g, &b, 0xffff);
-	bgColor1.red = r;
-	bgColor1.green = g;
-	bgColor1.blue = b;
-	gnome_color_selector_get_color_int(cs2, &r, &g, &b, 0xffff);
-	bgColor2.red = r;
-	bgColor2.green = g;
-	bgColor2.blue = b;
+	if (main_window) {
+		gnome_color_selector_get_color_int(cs1, &r, &g, &b, 0xffff);
+		bgColor1.red = r;
+		bgColor1.green = g;
+		bgColor1.blue = b;
+
+		gnome_color_selector_get_color_int(cs2, &r, &g, &b, 0xffff);
+		bgColor2.red = r;
+		bgColor2.green = g;
+		bgColor2.blue = b;
+	}
 	
 	fill_gradient (pdata, cw, ch,
 		       &bgColor1, (grad) ? &bgColor2 : &bgColor1, vertical);
@@ -400,7 +407,8 @@ fill_monitor (gpointer gp)
 
 	/* Reset the cursor to normal */
 
-	gdk_window_set_cursor (main_window->window, NULL);
+	if (main_window)
+		gdk_window_set_cursor (main_window->window, NULL);
 
 	return FALSE;
 }

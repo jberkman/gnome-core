@@ -1,3 +1,11 @@
+1998-05-01  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* property-background.c (fill_monitor): Only set the clock cursor
+	if main_window exists.  It will not exist if we are are called
+	with --init from the session manager.  Also, only get the colors
+	from the gnome_color_selector if main_window exists.  Session
+	management for background-properties now works!  Wheee!
+
 1998-04-30  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* property-screensaver.cc (screensaver_write): 
