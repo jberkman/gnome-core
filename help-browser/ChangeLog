@@ -1,3 +1,9 @@
+1999-03-23  Sung-Hyun Nam  <namsh@lgic.co.kr>
+
+	* gnome-man2html/Makefile.am: do not link to gnome lib.
+	* help/Makefile.am: added 'ko' subdir.
+	* help/ko/*: korean help files
+
 1999-01-22  Richard Hult <rhult@hem2.passagen.se>
 
 	* window.c (makeEntryArea): Use "Location:" instead of URL:
