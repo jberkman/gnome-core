@@ -17,6 +17,7 @@ gnomecc_SOURCES =	\
 
 BUILT_SOURCES = $(CORBA_SRCLIST)
 
+
 CORBA_SRCLIST = control-center-skels.c control-center-stubs.c control-center-common.c control-center.h
 
 gnomecc_LDADD = \
@@ -33,7 +34,7 @@ sys_DATA = gnomecc.desktop
 libcapplet_la_SOURCES=capplet-widget.c capplet-widget-libs.c $(CORBA_SRCLIST)
 libcapplet_la_LDFLAGS = -version-info 0:0:0 -rpath $(libdir)
 libcapplet_la_LIBADD = $(ORB_LIBS) -lm $(DL_LIB)
-
+include_HEADERS = capplet-widget.h 
 
 lib_LTLIBRARIES = libcapplet.la
 

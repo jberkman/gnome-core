@@ -47,7 +47,7 @@ find_node_by_id (gint id)
 void
 launch_capplet (node_data *data)
 {
-        gchar *argv[3];
+        gchar *argv[4];
         gchar *temp;
         GtkWidget *vbox;
         GtkWidget *separator;
@@ -122,6 +122,7 @@ launch_capplet (node_data *data)
                 sprintf (temp + 6, "%s",  ior);
                 argv[2] = temp;
                 
+                /*argv[3] = "--gtk-module=gle";*/
                 gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
                 capplet_list = g_list_prepend (capplet_list, data);
         }

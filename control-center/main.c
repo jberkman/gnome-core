@@ -126,7 +126,7 @@ create_window ()
         GdkPixmap *temp_splash;
 
         /* create the app */
-        retval = gnome_app_new ("desktop-manager", "Desktop Manager");
+        retval = gnome_app_new ("control-center", "Control Center");
 	gtk_signal_connect (GTK_OBJECT (retval), "delete_event",
                             GTK_SIGNAL_FUNC (exit_callback), retval);
 	gnome_app_create_menus (GNOME_APP (retval), parentMenu);
@@ -142,7 +142,7 @@ create_window ()
         gtk_frame_set_shadow_type (GTK_FRAME (container), GTK_SHADOW_NONE);;
         splash_screen = gtk_drawing_area_new ();
         /*gdk_imlib_load_file_to_pixmap ("splash.png", &temp_splash, NULL);*/
-        gtk_widget_set_usize (container, 500, 375);
+        gtk_widget_set_usize (splash_screen, 500, 375);
         status_bar = gtk_statusbar_new();
 
         /* we put it all together... */
