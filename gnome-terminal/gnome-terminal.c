@@ -380,7 +380,7 @@ struct terminal_config * terminal_config_dup(struct terminal_config * cfg) {
 	struct terminal_config * n;
 
 	n = g_malloc(sizeof(*n));
-	*n = *cfg;
+	memcpy(n, cfg, sizeof(*n));
 	n->class = g_strdup(cfg->class);
 	n->font = g_strdup(cfg->font);
 
@@ -442,10 +442,10 @@ apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term) {
 
 	if (strcmp(cfg->class, newcfg->class)) {
 		switch_terminal_class(term, newcfg);
+	} else {
+		apply_changes(term, newcfg);
+		terminal_config_free(newcfg);
 	}
-
-	apply_changes(term, newcfg);
-	terminal_config_free(newcfg);
 }
 
 static void
