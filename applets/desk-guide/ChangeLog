@@ -1,3 +1,23 @@
+Thu Oct  7 14:04:01 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: added bug-fixing option to configure unified_area
+	support for different window managers (FVWM2 and SawMill need this).
+
+	* gwmh.[hc]: added support for wms with unified areas, i.e. where
+	the current area always changes on all desktops. we should evaluate
+	a _WIN_UNIFIED_AREA property at some point to figure this, but
+	until then i simply added gwmh_desk_set_hack_values() to hard configure
+	certain bug workarounds.
+	John Harper <john@dcs.warwick.ac.uk> provided significant code
+	portions for the unified_area support.
+
+	* gwmdesktop.c (gwm_desktop_desk_notifier): always update our idea
+	of the current area if GWMH_DESK_INFO_CURRENT_AREA changed, no
+	matter whether we are the current desktop.
+
+	* gwmh.c (hack_a_client_list): grab the server while doing excessive
+	tree queries.
+
 Thu Oct  7 02:46:20 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_create_desk_widgets): feature stacking of

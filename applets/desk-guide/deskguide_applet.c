@@ -113,6 +113,9 @@ static ConfigItem gp_config_items[] = {
   CONFIG_BOOL (skip_movement_offset,		FALSE,
 	       N_ ("Window Manager Moves Decoration Window Instead\n"
 		   "(AfterStep, Enlightenment, FVWM, IceWM)")),
+  CONFIG_BOOL (unified_areas,			FALSE,
+	       N_ ("Window Manager Changes Active Area On All Desktops\n"
+		   "(FVWM, SawMill)")),
 };
 static guint  gp_n_config_items = (sizeof (gp_config_items) /
 				   sizeof (gp_config_items[0]));
@@ -432,6 +435,9 @@ gp_create_desk_widgets (void)
 
   if (N_DESKTOPS > MAX_DESKTOPS)
     g_error ("MAX_DESKTOPS limit reached, adjust source code");
+
+  /* some gwmh configuration hacks ;( */
+  gwmh_desk_set_hack_values (BOOL_CONFIG (unified_areas));
 
   if (!gp_desk_box)
     return;

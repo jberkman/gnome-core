@@ -469,12 +469,18 @@ gwm_desktop_desk_notifier (gpointer         func_data,
                               desk->desktop_names[desktop->index],
                               NULL);
       
-      if ((change_mask & GWMH_DESK_INFO_CURRENT_AREA) &&
-          desk->current_desktop == desktop->index)
+      if (change_mask & GWMH_DESK_INFO_CURRENT_AREA)
         {
-          desktop->harea = desk->current_harea;
-          desktop->varea = desk->current_varea;
-          gtk_widget_queue_draw (widget);
+	  guint harea = 0, varea = 0;
+
+	  gwmh_desk_guess_desktop_area (desktop->index, &harea, &varea);
+	  if (harea != desktop->harea ||
+	      varea != desktop->varea)
+	    {
+	      desktop->harea = harea;
+	      desktop->varea = varea;
+	      gtk_widget_queue_draw (widget);
+	    }
         }
     }
 

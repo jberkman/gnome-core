@@ -173,6 +173,7 @@ struct _GwmhDesk
   GList  *client_list;
 
   guint   detected_gnome_wm : 1;
+  guint   unified_area : 1;
 };
 struct _GwmhTask
 {
@@ -286,6 +287,7 @@ void		gwmh_desk_set_desktop_name	(guint		 desktop,
 void		gwmh_desk_guess_desktop_area	(guint		 desktop,
 						 guint		*harea,
 						 guint		*varea);
+void		gwmh_desk_set_hack_values	(gboolean	 unified_areas);
 
 
 /* --- GwmhTask --- */

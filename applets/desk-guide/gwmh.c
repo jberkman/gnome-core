@@ -49,6 +49,7 @@ gulong GWMHA_WIN_WORKSPACE_NAMES = 0;
 gulong GWMHA_WIN_CLIENT_LIST = 0;
 gulong GWMHA_WIN_AREA = 0;
 gulong GWMHA_WIN_AREA_COUNT = 0;
+gulong GWMHA_WIN_UNIFIED_AREA = 0;
 static gulong XA_WM_STATE = 0;
 static gulong XA_WM_PROTOCOLS = 0;
 static gulong XA_WM_DELETE_WINDOW = 0;
@@ -69,7 +70,8 @@ static const struct {
   { &GWMHA_WIN_CLIENT_LIST,		"_WIN_CLIENT_LIST", },
   { &GWMHA_WIN_AREA,			"_WIN_AREA", },
   { &GWMHA_WIN_AREA_COUNT,		"_WIN_AREA_COUNT", },
-#define N_GWMHA_IGNORE_ATOMS (9)
+  { &GWMHA_WIN_UNIFIED_AREA,		"_WIN_UNIFIED_AREA", },
+#define N_GWMHA_IGNORE_ATOMS (10)
   { &GWMHA_WIN_LAYER,			"_WIN_LAYER", },
   { &GWMHA_WIN_APP_STATE,		"_WIN_APP_STATE", },
   { &GWMHA_WIN_STATE,			"_WIN_STATE", },
@@ -150,7 +152,9 @@ static GwmhDesk         gwmh_desk = {
   0	/* current_varea */,
   NULL	/* client_list */,
   FALSE /* detected_gnome_wm */,
+  FALSE /* unified_area */,
 };
+static gboolean		gwmh_hack_think_unified_area = FALSE;
 
 
 /* --- functions --- */
@@ -242,6 +246,7 @@ gwmh_init (void)
   gwmh_desk.current_harea = 0;
   gwmh_desk.current_varea = 0;
   gwmh_desk.detected_gnome_wm = FALSE;
+  gwmh_desk.unified_area = FALSE;
 
   /* setup preinitialized atoms */
   for (i = 0; i < sizeof (gwmh_atoms) / sizeof (gwmh_atoms[0]); i++)
@@ -753,6 +758,7 @@ gwmh_property_atom2info (Atom     atom,
     { &GWMHA_WIN_WORKSPACE,		GWMH_DESK_INFO_CURRENT_DESKTOP, },
     { &GWMHA_WIN_WORKSPACE_NAMES,	GWMH_DESK_INFO_DESKTOP_NAMES, },
     { &GWMHA_WIN_WORKSPACE_COUNT,	GWMH_DESK_INFO_N_DESKTOPS, },
+    { &GWMHA_WIN_UNIFIED_AREA,		GWMH_DESK_INFO_N_AREAS, },
   }, task_atom_masks[] = {
     /* GwmhTaskInfoMask */
     { &GWMHA_WIN_APP_STATE,		GWMH_TASK_INFO_APP_STATE, },
@@ -840,7 +846,14 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
       gint size = 0;
       guint32 *size_data;
       guint n_hareas, n_vareas;
-      
+
+      /* FIXME: this should be a property check for UNIFIED_AREA */
+      if (gwmh_hack_think_unified_area != gwmh_desk.unified_area)
+	{
+	  ichanges |= GWMH_DESK_INFO_CURRENT_AREA | GWMH_DESK_INFO_N_AREAS;
+	  gwmh_desk.unified_area = gwmh_hack_think_unified_area;
+	}
+
       size_data = get_typed_property_data (xdisplay, xwindow,
 					   GWMHA_WIN_AREA_COUNT,
 					   XA_CARDINAL,
@@ -935,7 +948,7 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
     {
       gint size = 0;
       guint32 *indx_data;
-      guint harea, varea;
+      guint i, harea, varea;
       
       indx_data = get_typed_property_data (xdisplay, xwindow,
 					   GWMHA_WIN_AREA,
@@ -958,6 +971,12 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
 	  gwmh_varea_cache[gwmh_desk.current_desktop] = gwmh_desk.current_varea;
           ichanges |= GWMH_DESK_INFO_CURRENT_AREA;
 	}
+      if (gwmh_desk.unified_area && (ichanges & GWMH_DESK_INFO_CURRENT_AREA))
+	for (i = 0; i < gwmh_desk.n_desktops; i++)
+	  {
+	    gwmh_harea_cache[i] = gwmh_desk.current_harea;
+	    gwmh_varea_cache[i] = gwmh_desk.current_varea;
+	  }
     }
   
   if (imask & GWMH_DESK_INFO_CLIENT_LIST)
@@ -2166,6 +2185,14 @@ gwmh_desk_set_current_desktop (guint desktop)
 }
 
 void
+gwmh_desk_set_hack_values (gboolean unified_area)
+{
+  gwmh_hack_think_unified_area = unified_area != FALSE;
+
+  gwmh_desk_update (GWMH_DESK_INFO_N_AREAS);
+}
+
+void
 gwmh_desk_set_current_area (guint desktop,
 			    guint harea,
 			    guint varea)
@@ -2373,8 +2400,13 @@ hack_a_client_list (Display *display,
   
   gdk_error_trap_push ();
 
+  XGrabServer (display);
+
   if (!XQueryTree (display, xroot, &xwindow, &dummy, &children, &n_children) || !children)
-    return NULL;
+    {
+      XUngrabServer (display);
+      return NULL;
+    }
   
   for (i = 0; i < n_children; i++)
     {
@@ -2388,6 +2420,8 @@ hack_a_client_list (Display *display,
 	  clients[n_clients - 1] = xwindow;
 	}
     }
+
+  XUngrabServer (display);
   
   XFree (children);
   
