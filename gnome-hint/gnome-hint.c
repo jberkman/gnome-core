@@ -16,6 +16,7 @@ static GList *curhint = NULL;
 static char *curfortune = NULL;
 
 static GtkWidget *canvas;
+static GtkWidget *sw;
 static GnomeCanvasItem *hint_item;
 static GnomeCanvasItem *blue_background;
 static GnomeCanvasItem *white_background;
@@ -232,6 +233,7 @@ static void
 grow_text_if_necessary(void)
 {
 	double w,h;
+	int ww,hh;
 	int changed = FALSE;
 	
 	gtk_object_get(GTK_OBJECT(hint_item),
@@ -241,6 +243,10 @@ grow_text_if_necessary(void)
 	/*add border, and 10 pixels around*/
 	w+=75+10;
 	h+=50+10;
+	/*some sanity limits*/
+	/*if(w>800) w = 800;
+	if(h>600) h = 600;*/
+
 	if(w>width) {
 		width = w;
 		changed = TRUE;
@@ -253,8 +259,22 @@ grow_text_if_necessary(void)
 	if(!changed)
 		return;
 	
+	/*limits on size*/
+	ww = width; hh = height;
+	if(ww>720) ww = 720;
+	if(hh>450) hh = 450;
+
+	if(ww != width || hh != height)
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
+					       GTK_POLICY_AUTOMATIC,
+					       GTK_POLICY_AUTOMATIC);
+	else
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
+					       GTK_POLICY_NEVER,
+					       GTK_POLICY_NEVER);
+
 	/*here we grow the canvas*/
-	gtk_widget_set_usize(canvas,width,height);
+	gtk_widget_set_usize(canvas,ww,hh);
 	gnome_canvas_set_scroll_region(GNOME_CANVAS(canvas),
 				       0.0,0.0,width,height);
 	
@@ -275,7 +295,7 @@ grow_text_if_necessary(void)
 }
 
 static void
-draw_on_canvas(GtkWidget *canvas, int is_fortune, char *hint)
+draw_on_canvas(GtkWidget *canvas, int is_fortune, int is_motd, char *hint)
 {
 	GnomeCanvasItem *item;
 	
@@ -299,7 +319,7 @@ draw_on_canvas(GtkWidget *canvas, int is_fortune, char *hint)
 		"fill_color","white",
 		NULL);
 	
-	if(is_fortune) {
+	if(is_fortune || is_motd) {
 		hint_item = gnome_canvas_item_new(
 			gnome_canvas_root(GNOME_CANVAS(canvas)),
 			gnome_canvas_text_get_type(),
@@ -334,7 +354,7 @@ draw_on_canvas(GtkWidget *canvas, int is_fortune, char *hint)
 		"y",(double)25.0,
 		"fill_color","white",
 		"font","-*-helvetica-bold-r-normal-*-*-180-*-*-p-*-*-*",
-		"text",is_fortune?"Fortune":"Gnome Hints",
+		"text",is_fortune?"Fortune":is_motd?"Message of The Day":"Gnome Hints",
 		NULL);
 
 	grow_text_if_necessary();
@@ -384,6 +404,35 @@ hints_clicked(GtkWidget *w, int button, gpointer data)
 	}
 }
 
+static char *
+get_motd(void)
+{
+	char *motd;
+	FILE *fp;
+
+	motd = gnome_config_get_string("/Gnome/Login/MotdFile=");
+	if(!motd || !*motd)
+		motd = g_strdup("/etc/motd");
+	
+	fp = fopen(motd,"r");
+	g_free(motd);
+	if(fp) {
+		char buf[256];
+		char *ret;
+		GString *gs = g_string_new("");
+		while(fgets(buf,256,fp)) {
+			char *p = expand_str(buf);
+			g_string_append(gs,p);
+			if(p!=buf) g_free(p);
+		}
+		fclose(fp);
+		ret = gs->str;
+		g_string_free(gs,FALSE);
+		return ret;
+	}
+	return g_strdup(_("No message of the day found!"));
+}
+
 static void
 window_realize(GtkWidget *win)
 {
@@ -399,6 +448,7 @@ main(int argc, char *argv[])
         GnomeClientFlags flags;
 	int token;
 	gboolean is_fortune;
+	gboolean is_motd;
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
@@ -438,7 +488,18 @@ main(int argc, char *argv[])
 	is_fortune =
 		gnome_config_get_bool("/Gnome/Login/HintsAreFortune=false");
 
-	if(is_fortune) {
+	/* actually give a MOTD, not a fortune nor a hint */
+	is_motd =
+		gnome_config_get_bool("/Gnome/Login/HintsAreMotd=false");
+
+	if(is_motd) {
+		win = gnome_dialog_new(_("Message of The Day"),
+				       GNOME_STOCK_BUTTON_CLOSE,
+				       NULL);
+		gtk_signal_connect(GTK_OBJECT(win),"clicked",
+				   GTK_SIGNAL_FUNC(gtk_main_quit),
+				   NULL);
+	} else if(is_fortune) {
 		win = gnome_dialog_new(_("Fortune"),
 				       GNOME_STOCK_BUTTON_NEXT,
 				       GNOME_STOCK_BUTTON_CLOSE,
@@ -463,13 +524,21 @@ main(int argc, char *argv[])
 	gtk_signal_connect_after(GTK_OBJECT(win),"realize",
 				 GTK_SIGNAL_FUNC(window_realize), NULL);
 
+	sw = gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
+				       GTK_POLICY_NEVER,
+				       GTK_POLICY_NEVER);
+	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),sw,TRUE,TRUE,0);
+
 	canvas = gnome_canvas_new();
+	gtk_container_add(GTK_CONTAINER(sw),canvas);
 	gnome_canvas_set_scroll_region(GNOME_CANVAS(canvas),
 				       0.0,0.0,width,height);
 	gtk_widget_set_usize(canvas,width,height);
-	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),canvas,TRUE,TRUE,0);
 	
-	if(is_fortune) {
+	if(is_motd) {
+		hint = get_motd();
+	} else if(is_fortune) {
 		curfortune = hint = get_a_fortune();
 	} else {
 		read_in_hints();
@@ -484,7 +553,7 @@ main(int argc, char *argv[])
 		gnome_config_sync();
 	}
 
-	draw_on_canvas(canvas, is_fortune, hint);
+	draw_on_canvas(canvas, is_fortune, is_motd, hint);
 	
 	gtk_widget_show_all(win);
 

@@ -1,3 +1,10 @@
+Mon Oct 04 01:47:39 1999  George Lebl  <jirka@5z.com>
+
+	* gnome-hint.c, gnome-hint-properties.c: support message of the
+	  day mode in addition to fortune and hint mode, also made the
+	  widgets properly enable disable on the properties page and
+	  added scrollbars if the window gets way too large
+
 Sun Oct 03 21:43:54 1999  George Lebl  <jirka@5z.com>
 
 	* gnome-hint-properties.c,Makefile.am,gnome-hint-properties.desktop:
