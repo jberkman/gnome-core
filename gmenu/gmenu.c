@@ -48,7 +48,7 @@ GnomeUIInfo file_menu[] = {
 	{ GNOME_APP_UI_ITEM, N_("_Delete..."), NULL, delete_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CUT, 'D',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, N_("_Quit"), NULL, destroy_cb, NULL, NULL,
+	{ GNOME_APP_UI_ITEM, N_("E_xit"), NULL, destroy_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT, 'Q',
 	  GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
