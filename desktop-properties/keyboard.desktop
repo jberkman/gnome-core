@@ -2,9 +2,11 @@
 Name=Keyboard Properties
 Name[es]=Propiedades del teclado
 Name[de]=Tastatur Einstellungen
+Name[ko]=Å°º¸µå ¼³Á¤
 Comment=Keyboard Properties
 Comment[es]=Propiedades del teclado
 Comment[de]=Einstellungen für die Tastatur
+Comment[ko]=Å°º¸µå ¼³Á¤
 Exec=keyboard-properties
 Icon=
 Terminal=0
