@@ -161,7 +161,7 @@ GtkWidget
 	gtk_widget_show (menu);
 
 	add_menu_item (GWMH_TASK_ICONIFIED (task->gwmh_task)
-		       ? _("Restore") : _("Minimize"), 
+		       ? _("Restore") : _("Iconify"), 
 		       menu, MENU_ACTION_SHOW_HIDE);
 
 	add_menu_item (GWMH_TASK_SHADED (task->gwmh_task)

@@ -1,3 +1,9 @@
+1999-09-17  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* tasklist_menu.c
+	  tasklist_properties.c Replaced "Minimized" with "Iconified"
+	  
+
 Fri Sep 17 13:44:22 1999  Tim Janik  <timj@gtk.org>
 
 	* tasklist_menu.c (cb_menu): use the GWMH_STATE_* flags instead

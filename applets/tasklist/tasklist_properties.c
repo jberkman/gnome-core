@@ -238,14 +238,14 @@ create_appearance_page (void)
 			    create_check_button (_("Show normal tasks"), &PropsConfig.show_normal),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (taskbox),
-			    create_check_button (_("Show minimized tasks"), &PropsConfig.show_minimized),
+			    create_check_button (_("Show iconified tasks"), &PropsConfig.show_minimized),
 			    FALSE, TRUE, 0);
 			    
 	gtk_box_pack_start (GTK_BOX (taskbox),
 			    create_check_button (_("Normal tasks appear on all desktops"), &PropsConfig.all_desks_normal),
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (taskbox),
-			    create_check_button (_("Minimized tasks appear on all desktops"), &PropsConfig.all_desks_minimized),
+			    create_check_button (_("Iconified tasks appear on all desktops"), &PropsConfig.all_desks_minimized),
 			    FALSE, TRUE, 0);
 
 	frame = gtk_frame_new (_("Miscellaneous"));
