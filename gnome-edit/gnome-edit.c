@@ -33,19 +33,44 @@ main( gint argc, gchar *argv[])
   gint i, j;
   gboolean recognizes_lineno;
   gboolean needs_term;
+  gboolean def;
 
   gnomelib_init( "gnome-edit", "0.1.0" );
   
   gnome_config_push_prefix( "/editor/Editor/" );
   type = gnome_config_get_string( "EDITOR_TYPE=executable" );
-  executable = gnome_config_get_string( "EDITOR=emacs" );
+  executable = gnome_config_get_string_with_default( "EDITOR=emacs", &def );
   recognizes_lineno = gnome_config_get_bool( "ACCEPTS_LINE_NO=TRUE" );
   needs_term = gnome_config_get_bool( "NEEDS_TERM=FALSE" );
   gnome_config_pop_prefix();
   gnome_config_sync();
 
-  new_argv = g_new( char *, argc + 1 );
-  for ( i = 0, j = 0; i < argc; i++ )
+  if ( def )
+    {
+      gchar *editor = getenv( "EDITOR" );
+      if ( editor )
+	{
+	  executable = editor;
+	  needs_term = TRUE;
+	}
+    }
+
+  if ( needs_term )
+    {
+      j = 3;
+      new_argv = g_new( char *, argc + 3 );
+      new_argv[0] = "xterm";
+      new_argv[1] = "-e";
+      new_argv[2] = executable;
+    }
+  else
+    {
+      j = 1;
+      new_argv = g_new( char *, argc + 1 );
+      new_argv[0] = executable;
+    }
+
+  for ( i = 1; i < argc; i++ )
     {
       if ( ! strncmp( argv[i], "--", 2 ) )
 	{
@@ -94,9 +119,16 @@ main( gint argc, gchar *argv[])
 
   if ( ! strcmp ( type, "executable" ) )
     {
-      *argv = executable;
-      if ( execvp( executable, new_argv ) )
-	g_error( "Error during execution of chosen editor.  The editor you have chosen is probably either not available, or is not on your current path." );
+      if ( needs_term )
+	{
+	  if ( execvp( "xterm", new_argv ) )
+	    g_error( "Error during execution of chosen editor.  The editor you have chosen is probably either not available, or is not on your current path." );
+	}
+      else
+	{
+	  if ( execvp( executable, new_argv ) )
+	    g_error( "Error during execution of chosen editor.  The editor you have chosen is probably either not available, or is not on your current path." );
+	}
     }
   else
     {
