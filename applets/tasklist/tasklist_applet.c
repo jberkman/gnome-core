@@ -281,7 +281,7 @@ layout_tasklist (void)
 	case ORIENT_RIGHT:
 		
 		curheight = ROW_HEIGHT;
-		curwidth = Config.horz_width;
+		curwidth = Config.horz_width - 4;
 		
 		num_cols = 1;
 		num_rows = num;
@@ -298,7 +298,7 @@ layout_tasklist (void)
 			task->height = curheight;
 			
 			curx += curwidth;
-			if (curx >= 44) {
+			if (curx >= Config.horz_width - 4) {
 				cury += curheight;
 				curx = 2;
 			}
