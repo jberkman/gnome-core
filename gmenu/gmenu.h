@@ -101,8 +101,10 @@ Desktop_Data * get_desktop_file_info (gchar *file);
 
 /* dialogs.c ------------- */
 
+void save_dialog_dentry(void);
 void create_folder_pressed(GtkWidget *w, gpointer data);
 void delete_pressed_cb(GtkWidget *w, gpointer data);
 void save_pressed_cb(GtkWidget *w, gpointer data);
+gint create_folder(gchar *full_path);
 
 

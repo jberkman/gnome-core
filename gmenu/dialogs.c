@@ -11,6 +11,7 @@ static gint create_folder_cb(GtkWidget *w, gpointer data);
 static void delete_dialog_cb( gint button, gpointer data);
 static void save_dialog_cb( gint button, gpointer data);
 
+
 static gint close_folder_dialog_cb(GtkWidget *b, gpointer data)
 {
 	GtkWidget *w = data;
@@ -18,19 +19,10 @@ static gint close_folder_dialog_cb(GtkWidget *b, gpointer data)
 	return TRUE;
 }
 
-static gint create_folder_cb(GtkWidget *w, gpointer data)
+gint
+create_folder(gchar *full_path)
 {
-	Misc_Dialog *dlg = data;
-	gchar *new_folder;
-	gchar *full_path;
 	gint write_file = TRUE;
-
-	new_folder = gtk_entry_get_text(GTK_ENTRY(dlg->entry));
-
-	if (current_path)
-		full_path = g_strconcat(current_path, "/", new_folder, NULL);
-	else
-		full_path = g_strconcat(USER_APPS, "/", new_folder, NULL);
 
 /*	g_print("creating folder: %s\n",full_path);*/
 
@@ -107,7 +99,26 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 			}
 		}
 
-	g_free(full_path);	
+	g_free(full_path);
+
+	return TRUE;
+}
+
+static gint create_folder_cb(GtkWidget *w, gpointer data)
+{
+	Misc_Dialog *dlg = data;
+	gchar *new_folder;
+	gchar *full_path;
+
+	new_folder = gtk_entry_get_text(GTK_ENTRY(dlg->entry));
+
+	if (current_path)
+		full_path = g_strconcat(current_path, "/", new_folder, NULL);
+	else
+		full_path = g_strconcat(USER_APPS, "/", new_folder, NULL);
+
+	create_folder(full_path);
+
 	gnome_dialog_close(GNOME_DIALOG(dlg->dialog));
 	return TRUE;
 }
@@ -248,7 +259,8 @@ void delete_pressed_cb(GtkWidget *w, gpointer data)
 }
 
 
-static void save_dialog_cb( gint button, gpointer data)
+static void 
+save_dialog_cb( gint button, gpointer data)
 {
 	if (!button)
 		{
@@ -260,6 +272,8 @@ static void save_dialog_cb( gint button, gpointer data)
 		GnomeDesktopEntry *dentry = NULL;
 
 
+		dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
+
 		if (edit_area_orig_data && edit_area_orig_data->isfolder)
 			{
 			path = g_strdup(edit_area_get_filename());
@@ -267,12 +281,27 @@ static void save_dialog_cb( gint button, gpointer data)
 			}
 		else
 			{
-			path = g_strconcat(current_path, "/",
-				edit_area_get_filename(), NULL);
+			  gchar * filename;
+
+			  /*
+			   * If they haven't bothered to change
+			   * the file name, set one for them.
+			   */
+			  if (! strcmp(edit_area_get_filename(),
+				       "untitled.desktop"))
+			    filename = g_strconcat(dentry->name, ".desktop",
+						   NULL);
+			  else
+			    filename = g_strdup(edit_area_get_filename());
+
+			  path = g_strconcat(current_path, "/", filename,
+					     NULL);
+
+			  g_free(filename);
+
 			overwrite = isfile(path);
 			}
 
-		dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
 		dentry->location = g_strdup(path);
 		gnome_desktop_entry_save (dentry);
 		gnome_desktop_entry_destroy (dentry);
@@ -360,14 +389,28 @@ static void save_dialog_cb( gint button, gpointer data)
 		update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
 		current_node = node;
 		g_free(path);
+
+		/*
+		 * We may have changed the file name, so update
+		 * the dialog.
+		 */
+		update_edit_area(d);
+
 		}
 } 
 
-void save_pressed_cb(GtkWidget *w, gpointer data)
+void
+save_pressed_cb(GtkWidget *w, gpointer data)
+{
+  save_dialog_dentry();
+}
+
+void
+save_dialog_dentry(void)
 {
 	char *path;
 	GnomeDesktopEntry *dentry;
-
+	
 	path = g_strconcat(current_path, "/", edit_area_get_filename(), NULL);
 
 	dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
@@ -409,8 +452,12 @@ void save_pressed_cb(GtkWidget *w, gpointer data)
 		return;
 		}
 
+	save_dialog_cb(0, NULL);
+
+#if 0
 	gnome_question_dialog (_("Save file?"),
 		(GnomeReplyCallback) save_dialog_cb, NULL);
+#endif
 	g_free(path);
 }
 

@@ -1,5 +1,37 @@
 1999-01-21  Nat Friedman  <nat@nat.org>
 
+	* gmenu.c (menu_drag_data_received): Renamed
+ 	folder_drag_data_received to this.  Now you can drop onto
+ 	non-folders and have it move the items around.  Check that src !=
+ 	dest, which was causing badness.
+
+	(toolbar): Added a "New Item" button.
+	(new_item_cb): Callback for the "New Item" toolbar button.
+
+	* edit.c (new_edit_area): The default new item name is "New Item"
+	(create_edit_area): Ifdef out the 'New' button.  It's useless now,
+ 	and its placement was always confusing.
+
+	* dialogs.c (create_folder): New function to abstract the folder
+ 	creation routines away from the callback.
+
+	(save_dialog_cb): Do not leave the .desktop name as
+ 	"untitled.desktop".  Set a name if the user did not set one.
+  	Update the edit area to reflect the new filename.
+	(save_dialog_dentry): Don't prompt the user about saving.  That's
+ 	just obnoxious.
+
+	(save_dialog_dentry): New function to abstract the dentry saving
+ 	away from the callback, a little bit.
+	
+	* gmenu.c: Commented out the Properties toolbar item, since it is
+ 	useless now.
+
+	(drag_data_received): Renamed folder_drag_data_received.  Now you
+ 	can move items around by dragging and dropping.
+
+1999-01-21  Nat Friedman  <nat@nat.org>
+	
 	* gmenu.c (main): Initialize support for dropping menu items onto
  	the ctree.
 	(possible_drag_item_pressed): Save the GtkCTreeNode being dragged

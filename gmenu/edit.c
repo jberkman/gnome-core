@@ -119,12 +119,14 @@ void revert_edit_area(void)
 	button_revert_enable(FALSE);
 }
 
+
 void new_edit_area(void)
 {
 	GnomeDesktopEntry *dentry;
 	gnome_dentry_edit_clear(GNOME_DENTRY_EDIT(edit_area));
 
 	dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
+	dentry->name = g_strdup("New Item");
 	g_free(dentry->type);
 	dentry->type = strdup("Application");
 	gnome_dentry_edit_set_dentry(GNOME_DENTRY_EDIT(edit_area), dentry);
@@ -196,7 +198,7 @@ GtkWidget * create_edit_area(void)
 	gtk_box_pack_start(GTK_BOX(hbox),pixmap,FALSE,FALSE,0);
 	gtk_widget_show(pixmap);
 
-	label = gtk_label_new(_("Save"));
+	label = gtk_label_new(_("Apply"));
 	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
 	gtk_widget_show(label);
 
@@ -217,6 +219,7 @@ GtkWidget * create_edit_area(void)
 	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
 	gtk_widget_show(label);
 
+#if 0
 	button = gtk_button_new();
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(new_edit_area), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
@@ -233,6 +236,7 @@ GtkWidget * create_edit_area(void)
 	label = gtk_label_new(_("New"));
 	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
 	gtk_widget_show(label);
+#endif
 
 	frame = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_IN);

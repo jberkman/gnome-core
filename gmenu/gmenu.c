@@ -30,7 +30,7 @@ static GtkCTreeNode *drop_data = NULL;
 static void drag_data_get_cb (GtkWidget *widget, GdkDragContext *context,
 			GtkSelectionData *selection_data, guint info,
 			guint time, gpointer data);
-static void folder_drag_data_received (GtkWidget *widget,
+static void menu_drag_data_received (GtkWidget *widget,
 	    GdkDragContext *context, gint x, gint y, GtkSelectionData *data,
 	    guint info, guint time, gpointer user_data);
 static void possible_drag_item_pressed (GtkCTree *ctree, GdkEventButton *event, gpointer data);
@@ -45,6 +45,9 @@ static gchar *check_for_dir(char *d);
 
 static void about_cb(GtkWidget *w, gpointer data);
 static void destroy_cb(GtkWidget *w, gpointer data);
+
+static void new_item_cb(GtkWidget *w, gpointer data);
+
 int main (int argc, char *argv[]);
 
 /*
@@ -122,6 +125,11 @@ GnomeUIInfo main_menu[] = {
 GnomeUIInfo toolbar[] = {
 	{ GNOME_APP_UI_ITEM, N_("New Folder"), N_("Create a new folder"), create_folder_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_NEW, 0, 0, NULL },
+
+	{ GNOME_APP_UI_ITEM, N_("New Item"), N_("Create a new item"),
+	  new_item_cb, NULL, NULL, GNOME_APP_PIXMAP_STOCK,
+	  GNOME_STOCK_PIXMAP_NEW, 0, 0, NULL },
+
 	{ GNOME_APP_UI_ITEM, N_("Delete"), N_("Delete selected menu item"), delete_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_CUT, 0, 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
@@ -130,9 +138,13 @@ GnomeUIInfo toolbar[] = {
 	{ GNOME_APP_UI_ITEM, N_("Move down"), N_("Move selected menu down"), move_down_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_DOWN, 0, 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
+
+#if 0
 	{ GNOME_APP_UI_ITEM, N_("Properties"), N_("Edit selected menu item properties"), edit_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_PROPERTIES, 0, 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
+#endif
+
 	{ GNOME_APP_UI_ITEM, N_("Sort Folder"), N_("Sort selected folder"), sort_single_pressed, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_SPELLCHECK, 0, 0, NULL },
 	GNOMEUIINFO_END
@@ -143,54 +155,90 @@ GnomeUIInfo toolbar[] = {
  * on a folder.
  */
 static void
-folder_drag_data_received (GtkWidget          *widget,
-			   GdkDragContext     *context,
-			   gint                x,
-			   gint                y,
-			   GtkSelectionData   *data,
-			   guint               info,
-			   guint               time,
-			   gpointer            user_data)
+menu_drag_data_received (GtkWidget          *widget,
+		    GdkDragContext     *context,
+		    gint                x,
+		    gint                y,
+		    GtkSelectionData   *data,
+		    guint               info,
+		    guint               time,
+		    gpointer            user_data)
 {
-	GtkCTree *ctree = GTK_CTREE(widget);
-	GtkCTreeNode *src, *dest;
-	Desktop_Data *src_desktop, *dest_desktop;
+  GtkCTree *ctree = GTK_CTREE(widget);
+  GtkCTreeNode *src, *dest;
+  Desktop_Data *src_desktop, *dest_desktop;
 
-	gint row, col;
+  gint row, col;
 
-	if (data->length <= 0)
-		return;
+  if (data->length <= 0)
+    return;
 
+  /*
+   * Figure out which node is the drop destination.
+   */
+  gtk_clist_get_selection_info (GTK_CLIST (ctree), x, y, &row, &col);
+  dest = GTK_CTREE_NODE( g_list_nth(GTK_CLIST (ctree)->row_list, row));
+  if (dest == NULL || dest == topnode)
+    return;
+
+  /*
+   * Figure out which node is the node being dropped.
+   */
+  src = *(GtkCTreeNode **) data->data;
+  if (src == NULL)
+    return;
+
+  if (src == dest)
+    return;
+
+  dest_desktop = gtk_ctree_node_get_row_data( GTK_CTREE(ctree), dest);
+  src_desktop = gtk_ctree_node_get_row_data( GTK_CTREE(ctree), src);
+
+  if (! (dest_desktop->editable && src_desktop->editable))
+    return;
+
+  /* FIXME context_>suggested-action */
+  
+  switch (info) {
+  case DROP_TARGET_MENU_ITEM:
+    printf("Menu item dropped on folder!\n");
+    printf ("Item: %s\t Folder: %s\n", src_desktop->name,
+	    dest_desktop->name);
+    if (dest_desktop->isfolder)
+      {
 	/*
-	 * Figure out which node is the drop destination.
+	 * Drop the menu item into the folder.
 	 */
-	gtk_clist_get_selection_info (GTK_CLIST (ctree), x, y, &row, &col);
-	dest = GTK_CTREE_NODE( g_list_nth(GTK_CLIST (ctree)->row_list, row));
-	if (dest == NULL || dest == topnode)
-		return;
+	tree_moved(ctree, src, dest, NULL,
+		   (gpointer) 1);
+	gtk_ctree_move(ctree, src, dest, NULL);
+      }
+    else
+      {
 	/*
-	 * Figure out which node is the node being dropped.
+	 * Move the menu item next to the drop
+	 * site.
 	 */
-	src = *(GtkCTreeNode **) data->data;
-	if (src == NULL)
-		return;
+	if (GTK_CTREE_ROW(src)->sibling == dest)
+	  {
+	    tree_moved(ctree, dest,
+		       GTK_CTREE_ROW(src)->parent, src,
+		       (gpointer) 1);
+	    gtk_ctree_move(ctree, dest,
+			   GTK_CTREE_ROW(src)->parent,
+			   src);
+	  }
+	else
+	  {
+	    tree_moved(ctree, src,
+		       GTK_CTREE_ROW(dest)->parent, dest,
+		       (gpointer) 1);
+	    gtk_ctree_move(ctree, src,
+			   GTK_CTREE_ROW(dest)->parent,
+			   dest);
+	  }
 
-	dest_desktop = gtk_ctree_node_get_row_data( GTK_CTREE(ctree), dest);
-	src_desktop = gtk_ctree_node_get_row_data( GTK_CTREE(ctree), src);
-
-	if (! (dest_desktop->isfolder && dest_desktop->editable
-	       && src_desktop->editable) )
-		return;
-
-	/* FIXME context_>suggested-action */
-
-	switch (info) {
-	case DROP_TARGET_MENU_ITEM:
-		printf("Menu item dropped on folder!\n");
-		printf ("Item: %s\t Folder: %s\n", src_desktop->name,
-			dest_desktop->name);
-		tree_moved(ctree, src, dest, NULL, (gpointer) 1);
-		gtk_ctree_move(ctree, src, dest, NULL);
+			}
 		break;
 	default:
 		printf("unknown drop type\n");
@@ -386,6 +434,14 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename)
 	return correct_path;
 }
 
+static void
+new_item_cb(GtkWidget *w, gpointer data)
+{
+  new_edit_area();
+  save_dialog_dentry();
+}
+
+
 static void about_cb(GtkWidget *w, gpointer data)
 {
 	GtkWidget *about;
@@ -496,15 +552,13 @@ int main (int argc, char *argv[])
 	/* Dropping ... */
 	gtk_signal_connect (GTK_OBJECT (menu_tree_ctree),
 			    "drag_data_received",
-			    GTK_SIGNAL_FUNC (folder_drag_data_received),
-			    NULL);
+			    GTK_SIGNAL_FUNC (menu_drag_data_received), NULL);
 
 	gtk_drag_dest_set (GTK_WIDGET (menu_tree_ctree),
 			   GTK_DEST_DEFAULT_ALL,
 			   drop_target_table,
 			   drop_target_table_length,
-			   (GDK_ACTION_COPY |
-			    GDK_ACTION_MOVE));
+			   GDK_ACTION_MOVE | GDK_ACTION_COPY);
 
 	gtk_container_add (GTK_CONTAINER (scrolled), menu_tree_ctree);
 	gtk_widget_show(menu_tree_ctree);
