@@ -1,4 +1,11 @@
+1998-11-23  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (new_terminal_cmd): --login/--nologin control
+	the shell spawning options.  --utmp/--noutmp control the recording
+	of user log in/out in utmp/wtmp files.
+
 1998-11-22  Jay Painter <jpaint@serv.net>
+	
 	* gnome-terminal.c: slight changes to widget packing so the
 	terminal looks better.
 

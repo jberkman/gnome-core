@@ -30,6 +30,8 @@ static char *discard_section = NULL;
 /* Initial geometry */
 char *geometry = 0;
 
+/* By default record utmp logins */
+gboolean update_utmp = TRUE;
 
 /* The color set */
 enum color_set_enum {
@@ -1533,7 +1535,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	gdk_window_set_hints (((GtkWidget *)app)->window,
 			      0, 0, 50, 50, 0, 0, GDK_HINT_MIN_SIZE);
 
-	switch (zvt_term_forkpty (term, cfg->invoke_as_login_shell)){
+	switch (zvt_term_forkpty (term, update_utmp)){
 	case -1:
 		perror ("Error: unable to fork");
 		return;
@@ -1723,7 +1725,9 @@ enum {
 	FORE_KEY     = -6,
 	BACK_KEY     = -7,
 	DISCARD_KEY  = -8,
-	CLASS_KEY    = -9
+	CLASS_KEY    = -9,
+	DOUTMP_KEY   = -10,
+	DONOUTMP_KEY = -11
 };
 
 static struct poptOption cb_options [] = {
@@ -1756,6 +1760,12 @@ static struct poptOption cb_options [] = {
 	{ "discard", '\0', POPT_ARG_STRING, NULL, DISCARD_KEY,
 	  NULL, N_("ID")},
 
+	{ "utmp", '\0', POPT_ARG_NONE, NULL, DOUTMP_KEY,
+	  N_("Update utmp/wtmp entries"), N_("UTMP") },
+
+	{ "noutmp", '\0', POPT_ARG_NONE, NULL, DONOUTMP_KEY,
+	  N_("Do not update utmp/wtmp entries"), N_("NOUTMP") },
+	
 	{ NULL, '\0', 0, NULL, 0}
 };
 
@@ -1800,6 +1810,12 @@ parse_an_arg (poptContext state,
 	case DISCARD_KEY:
 		gnome_client_disable_master_connection ();
 		discard_section = (char *)arg;
+		break;
+	case DOUTMP_KEY:
+		update_utmp = TRUE;
+		break;
+	case DONOUTMP_KEY:
+		update_utmp = FALSE;
 		break;
 	default:
 	}
