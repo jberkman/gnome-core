@@ -152,7 +152,8 @@ struct _Tasklist {
 	GSList *vtasks;
 
 	/* idle timeout for re-laying out */
-	guint layout_timeout;
+	guint layout_idle;
+
 #define MOTION_TIMEOUT 500 /* Show task motion_task if cursor over task for ... msec */
 
 	/* Show task motion_task after MOTION_TIMEOUT in drag_motion */
@@ -204,7 +205,9 @@ gboolean   tasklist_write_config        (GtkWidget *w,
 					 const gchar *globcfgpath,
 					 gpointer data);
 gchar     *tasklist_task_get_label      (TasklistTask *, int, gboolean add_groupcount);
-void       tasklist_change_size         (Tasklist *, gboolean layout, int fullwidth);
+void       tasklist_change_size         (Tasklist *,
+					 gboolean layout,
+					 int fullwidth);
 void       tasklist_redo_vtasks         (Tasklist *);
 void       tasklist_layout_tasklist     (Tasklist *tasklist);
 GdkPixbuf *tasklist_icon_create_minimized_icon (Tasklist *, GdkPixbuf *pixbuf);

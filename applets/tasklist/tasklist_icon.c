@@ -365,13 +365,18 @@ tasklist_icon_destroy (TasklistTask *task)
 	if (task == NULL)
 		return;
 	
-	if (task->icon->normal != task->tasklist->unknown_icon->normal)
+	if (task->icon->normal != task->tasklist->unknown_icon->normal) {
 		gdk_pixbuf_unref (task->icon->normal);
+		task->icon->normal = NULL;
+	}
 	
-	if (task->icon->minimized != task->tasklist->unknown_icon->minimized)
+	if (task->icon->minimized != task->tasklist->unknown_icon->minimized) {
 		gdk_pixbuf_unref (task->icon->minimized);
+		task->icon->minimized = NULL;
+	}
 
 	g_free (task->icon);
+	task->icon = NULL;
 }
 
 /* Stolen from gnome-pixmap.c */

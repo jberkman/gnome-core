@@ -1,3 +1,13 @@
+Mon Mar 12 01:27:24 2001  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch], tasklist_properties.c, tasklist_icon.c:
+	  Don't crash on remove from panel, don't redraw tasks when just
+	  geometry changed, redraw only when needed, change size when it has
+	  actually changed, not depending on random stack data, fix some
+	  leaks when removing tasklist but it still leaks quite horribly.
+	  Null things when freed to avoid crashes.  Notice icon changes
+	  again.  Add sarcastic #warning.
+
 2001-03-09  Jaka Mocnik  <jaka@gnu.org>
 
 	* tasklist/tasklist_applet.c (tasklist_task_get_label): return

@@ -285,16 +285,19 @@ print_task (TasklistTask *task)
 	}
 }
 
-static void
+/* returns TRUE if the group entry should be redrawn */
+static gboolean
 fixup_group (TasklistTask *group)
 {
+	TasklistTask *focused_task;
+	gboolean iconified;
 	TasklistTask *task;
 	GSList *item;
 	
-	g_return_if_fail (group != NULL);
+	g_return_val_if_fail (group != NULL, FALSE);
 	
-	group->focused_task = NULL;
-	group->gwmh_task->iconified = TRUE;
+	focused_task = NULL;
+	iconified = TRUE;
 	
 	g_slist_free (group->vtasks);
 	group->vtasks = NULL;
@@ -304,32 +307,45 @@ fixup_group (TasklistTask *group)
 		if (is_task_visible (task)) {
 			group->vtasks = g_slist_prepend (group->vtasks, task);
 			if (!task->gwmh_task->iconified)
-				group->gwmh_task->iconified = FALSE;
+				iconified = FALSE;
 			if (task->gwmh_task->focused)
-				group->focused_task = task;
+				focused_task = task;
 		}
+	}
+
+	if (group->focused_task != focused_task ||
+	    group->gwmh_task->iconified != iconified) {
+		group->focused_task = focused_task;
+		group->gwmh_task->iconified = iconified;
+
+		return TRUE;
+	} else {
+		return FALSE;
 	}
 }
 
-static gboolean fixup_vtask (TasklistTask *task);
+static gboolean fixup_vtask (TasklistTask *task, gboolean *redraw);
 
 static void
 fixup_vtask_iterator (gpointer data, gpointer user_data)
 {
 	TasklistTask *task = data;
-	fixup_vtask (task);
+	fixup_vtask (task, NULL);
 }
 
 static gboolean
-fixup_vtask (TasklistTask *task)
+fixup_vtask (TasklistTask *task, gboolean *redraw)
 {
 	gboolean visible;
 
 	/* why not layout if we are confused */
 	g_return_val_if_fail (task, TRUE);
 
-	if (task->task_group)
-		fixup_group (task);
+	if (task->task_group) {
+		gboolean do_redraw = fixup_group (task);
+		if (redraw != NULL)
+			*redraw = do_redraw;
+	}
 
 	visible = is_task_really_visible (task);
 
@@ -349,7 +365,7 @@ fixup_vtask (TasklistTask *task)
 		if (task->task_group) {
 			g_slist_foreach (task->tasks, fixup_vtask_iterator, NULL);
 		} else if (task->group) {
-			fixup_vtask (task->group);
+			fixup_vtask (task->group, NULL);
 		}
 	}
 
@@ -584,21 +600,19 @@ max_width (GSList *tasks)
 }
 
 /* Layout the tasklist */
-static int
-real_layout_tasklist (Tasklist *tasklist, gboolean call_change_size)
+static gboolean
+real_layout_tasklist (gpointer data)
 {
+	Tasklist *tasklist = data;
 	gint j = 0, k = 0, num = 0, p = 0;
 	TasklistTask *task;
 	GSList *temp = NULL;
-	/* gint extra_space; */
 	gint num_rows = 0, num_cols = 0;
 	gint curx = 0, cury = 0, curwidth = 0, curheight = 0;
 
-	tasklist->layout_timeout = 0;
+	tasklist->layout_idle = 0;
 	d(g_message ("Layout!"));
 
-	/*gdk_beep ();*/
-	
 	if (!tasklist->vtasks) {
 		d(g_message ("no tasks :(\n"));
 		gtk_widget_draw (tasklist->area, NULL);
@@ -615,9 +629,8 @@ real_layout_tasklist (Tasklist *tasklist, gboolean call_change_size)
 				tasklist->horz_width = tasklist->config.horz_width;
 			else
 				tasklist->horz_width = 4;
-			
-			if (call_change_size)
-				tasklist_change_size (tasklist, FALSE, -1);
+
+			tasklist_change_size (tasklist, FALSE, -1);
 			
 			gtk_widget_draw (tasklist->area, NULL);
 			return FALSE;
@@ -704,8 +717,7 @@ real_layout_tasklist (Tasklist *tasklist, gboolean call_change_size)
 		else
 			tasklist->horz_width = num_cols * curwidth + 4;
 
-		if (call_change_size)
-			tasklist_change_size (tasklist, FALSE, -1);
+		tasklist_change_size (tasklist, FALSE, -1);
 
 		break;
 
@@ -717,9 +729,8 @@ real_layout_tasklist (Tasklist *tasklist, gboolean call_change_size)
 				tasklist->vert_height = tasklist->config.vert_height;
 			else
 				tasklist->vert_height = 4;
-			
-			if (call_change_size)
-				tasklist_change_size (tasklist, FALSE, -1);
+
+			tasklist_change_size (tasklist, FALSE, -1);
 			
 			gtk_widget_draw (tasklist->area, NULL);
 			return FALSE;
@@ -748,10 +759,9 @@ real_layout_tasklist (Tasklist *tasklist, gboolean call_change_size)
 				clamp_size (tasklist, &tasklist->vert_height);
 			tasklist->vert_height -= DRAG_HANDLE_SIZE;
 		}
-		
-		if (call_change_size)
-			tasklist_change_size (tasklist, FALSE, curwidth);
 
+		tasklist_change_size (tasklist, FALSE, curwidth);
+		
 		for (temp = tasklist->vtasks; temp != NULL; temp = temp->next) {
 			task = (TasklistTask *) temp->data;
 			
@@ -785,13 +795,13 @@ tasklist_layout_tasklist (Tasklist *tasklist)
 	g_return_if_fail (tasklist);
 
 	/* don't queue another timeout */
-	if (tasklist->layout_timeout) {
+	if (tasklist->layout_idle) {
 		d(g_message ("Skipped layout!"));
 		return;
 	}
 	
 	d(g_message ("Adding layout callback..."));
-	tasklist->layout_timeout = g_idle_add ((GSourceFunc)real_layout_tasklist, tasklist);
+	tasklist->layout_idle = gtk_idle_add (real_layout_tasklist, tasklist);
 }
 
 #if 0
@@ -892,7 +902,7 @@ tasklist_task_destroy (GwmhTask *gtask, Tasklist *tasklist)
 		if (!ttask->group->tasks)
 			tasklist_group_destroy (ttask->group);
 		else
-			fixup_vtask (ttask->group);
+			fixup_vtask (ttask->group, NULL);
 	}
 
 	tasklist->vtasks = g_slist_remove (tasklist->vtasks, ttask);
@@ -973,7 +983,7 @@ tasklist_task_new (GwmhTask *gtask, Tasklist *tasklist)
 	else {
 		ttask->group->tasks = g_slist_prepend (ttask->group->tasks, ttask);
 		g_free (class);
-		fixup_vtask (ttask->group);
+		fixup_vtask (ttask->group, NULL);
 	}
 }
 
@@ -995,69 +1005,73 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 {
 	Tasklist *tasklist = (Tasklist *) func_data;
 	TasklistTask *task;
-	gboolean resize = FALSE;
+	gboolean redraw = FALSE;
+	gboolean relayout = FALSE;
 
 	switch (ntype)
 	{
 	case GWMH_NOTIFY_INFO_CHANGED:
+		/* if this is just an allocation change, then no we don't want
+		 * to do anything */
+		if ( ! (imask & ~GWMH_TASK_INFO_ALLOCATION))
+			break;
+
 		task = g_hash_table_lookup (tasklist->tasks, gwmh_task);
 		if (!task) {
 			g_warning ("Getting info about task we don't know about: %p", gwmh_task);
 			break;
 		}
 
-		if (imask & GWMH_TASK_INFO_FOCUSED && task->gwmh_task->focused && task->group)
+		if ((imask & GWMH_TASK_INFO_FOCUSED) &&
+		    task->gwmh_task->focused && task->group)
 			task->group->focused_task = task;
 
-		/* we only need to re-layout if the task has changed
-		 * visibility status.  If it has, its group will also get fixed up
-		 */
 
-		/* this probably should be optimized and only done when the title changes */
-		resize = (tasklist->config.vert_width_full && 
-			  (tasklist->orient == ORIENT_LEFT || tasklist->orient == ORIENT_RIGHT));
-		task->fullwidth = -1;
-
-		if (fixup_vtask (task)) {
-			if (resize)
-				tasklist_change_size (tasklist, TRUE, -1);
-			else
-				tasklist_layout_tasklist (tasklist);
-		} else {
-			if (resize)
-				tasklist_change_size (tasklist, TRUE, -1);
-			else
-				tasklist_draw_task (task->group && is_task_really_visible (task->group)
-						    ? task->group : task, NULL);
+		if (imask & GWMH_TASK_INFO_MISC) {
+			if (tasklist->config.vert_width_full && 
+			    (tasklist->orient == ORIENT_LEFT ||
+			     tasklist->orient == ORIENT_RIGHT))
+				relayout = TRUE;
+			task->fullwidth = -1;
 		}
 
-#if 0
+		/* we only need to re-layout if the task has changed
+		 * visibility status.  If it has, its group will also get
+		 * fixed up
+		 */
+		if (fixup_vtask (task, &redraw)) {
+			relayout = TRUE;
+		}
+
+
 		if (imask & GWMH_TASK_INFO_WM_HINTS) {
-			if (tasklist_icon_get_pixmap (task) != task->wmhints_icon) {
-				tasklist_icon_destroy (tasklist, task);
-				tasklist_icon_set (tasklist, task);
-				tasklist_draw_task (tasklist, task, NULL);
+			if (tasklist_icon_get_pixmap (task) !=
+			    task->wmhints_icon) {
+				tasklist_icon_destroy (task);
+				tasklist_icon_set (task);
+				redraw = TRUE;
 			}
 		}
 		if (imask & GWMH_TASK_INFO_GSTATE)
-			tasklist_layout_tasklist (tasklist);
+			relayout = TRUE;
 		if (imask & GWMH_TASK_INFO_ICONIFIED)
-			tasklist_layout_tasklist (tasklist);
+			relayout = TRUE;
 
 		if (imask & GWMH_TASK_INFO_FOCUSED)
-			tasklist_draw_task (tasklist, task, NULL);
+			redraw = TRUE;
 		if (imask & GWMH_TASK_INFO_MISC)
-			tasklist_draw_task (tasklist, task, NULL);
-		if (imask & GWMH_TASK_INFO_DESKTOP) {
-			if (tasklist->config.all_desks_minimized && 
-			    tasklist->config.all_desks_normal)
-				break;
+			redraw = TRUE;
+		if (imask & GWMH_TASK_INFO_DESKTOP)
+			relayout = TRUE;
 
-		if (que_layout)
-			/* Redraw entire tasklist */
+		/* BTW, change_size is always called from the layout_tasklist
+		 * since we pass TRUE */
+		if (relayout)
 			tasklist_layout_tasklist (tasklist);
-		}
-#endif
+		else if (redraw)
+			tasklist_draw_task (task->group && is_task_really_visible (task->group)
+					    ? task->group : task, NULL);
+
 		break;
 	case GWMH_NOTIFY_NEW:
 		tasklist_task_new (gwmh_task, tasklist);
@@ -1372,11 +1386,55 @@ tasklist_destroy (GtkObject *applet_widget, Tasklist *tasklist)
 	tasklist->task_notifier_id = -1;
 	tasklist->desk_notifier_id = -1;
 
+	if (tasklist->layout_idle != 0) {
+		gtk_idle_remove (tasklist->layout_idle);
+		tasklist->layout_idle = 0;
+	}
+
+	if (tasklist->motion_timeout) {
+		gtk_timeout_remove (tasklist->motion_timeout);
+		tasklist->motion_timeout = 0;
+		tasklist->motion_task = NULL;
+	}
+
 	if (tasklist->prop)
 		gtk_widget_destroy (tasklist->prop);
+	tasklist->prop = NULL;
 
 	if (tasklist->about_dialog)
 		gtk_widget_destroy (tasklist->about_dialog);
+	tasklist->about_dialog = NULL;
+
+	if (tasklist->unknown_icon != NULL) {
+		if (tasklist->unknown_icon->normal != NULL) {
+			gdk_pixbuf_unref (tasklist->unknown_icon->normal);
+			tasklist->unknown_icon->normal = NULL;
+		}
+		if (tasklist->unknown_icon->minimized != NULL) {
+			gdk_pixbuf_unref (tasklist->unknown_icon->minimized);
+			tasklist->unknown_icon->minimized = NULL;
+		}
+		g_free (tasklist->unknown_icon);
+		tasklist->unknown_icon = NULL;
+	}
+
+	g_slist_free (tasklist->vtasks);
+	tasklist->vtasks = NULL;
+
+#warning Here we save peoples memory by making this a shlib applet and leaking whatever we possibly can!
+
+	if (tasklist->groups != NULL) {
+		/* FIXME: we leak EVERYTHING here */
+		g_hash_table_destroy (tasklist->groups);
+		tasklist->groups = NULL;
+	}
+	if (tasklist->tasks != NULL) {
+		/* FIXME: we leak EVERYTHING here */
+		g_hash_table_destroy (tasklist->tasks);
+		tasklist->tasks = NULL;
+	}
+
+	g_free (tasklist);
 }
 
 /* Create the applet */
@@ -1398,9 +1456,6 @@ tasklist_new (void)
 		return NULL;
 	}
 
-#warning should we be doing this?
-	/* gtk_widget_ref (tasklist->applet); */
-	
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox);
 	
@@ -1533,7 +1588,7 @@ main (gint argc, gchar *argv[])
 	
 	tasklist = create_applet ();
 
-	tasklist_change_size (tasklist, TRUE);
+	tasklist_change_size (tasklist, TRUE, -1);
 
 	gtk_widget_show (applet);
 
