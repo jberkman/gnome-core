@@ -27,6 +27,8 @@
 #include "toc2.h"
 #include "cache.h"
 
+extern char *program_invocation_name;
+
 #define NAME "GnomeHelp"
 #define HELP_VERSION "0.4"
 
@@ -65,10 +67,19 @@ static error_t parseAnArg (int key, char *arg, struct argp_state *state);
 #define DEFAULT_CACHEFILE ".gnome-help-browser/cache"
 #define DEFAULT_BOOKMARKFILE ".gnome-help-browser/bookmarks"
 
-/* Session saving.  */
+/* Argument parsing.  */
+static struct argp_option options[] =
+{
+	{ NULL, 'x', N_("X"), 0, "X position of window", 1 },
+	{ NULL, 'y', N_("Y"), 0, "Y position of window", 1 },
+	{ NULL, 'w', N_("WIDTH"), 0, "Width of window", 1 },
+	{ NULL, 'h', N_("HEIGHT"), 0, "Height of window", 1 },
+	{ NULL, 0, NULL, 0, NULL, 0 }
+};
+
 static struct argp parser =
 {
-    NULL,
+    options,
     parseAnArg,
     N_("[URL]"),
     NULL,
@@ -159,6 +170,9 @@ makeHelpWindow()
 static error_t
 parseAnArg (int key, char *arg, struct argp_state *state)
 {
+  /* FIXME: should actually handle these arguments.  */
+  if (key == 'x' || key == 'y' || key == 'w' || key == 'h')
+    return 0;
   if (key != ARGP_KEY_ARG)
     return ARGP_ERR_UNKNOWN;
   if (helpURL)
@@ -303,11 +317,7 @@ save_state (GnomeClient        *client,
         gdk_window_get_origin(appwin->window, &xpos, &ypos);
 	gdk_window_get_size(appwin->window, &xsize, &ysize);
 
-	/* blow off any path info in the name of the program */
-	s = strrchr(client_data, '/');
-	if (!s)
-		s = client_data;
-        argv[i++] = (char *) s;
+        argv[i++] = program_invocation_name;
         argv[i++] = (char *) "-x";
 	s = alloca(20);
 	snprintf(s, 20, "%d", xpos);
@@ -343,6 +353,12 @@ save_state (GnomeClient        *client,
 
 /**********************************************************************/
 
+static void
+session_die (gpointer client_data)
+{
+	gtk_main_quit ();
+}
+
 /* Session Management stuff */
 static GnomeClient
 *newGnomeClient()
@@ -351,7 +367,8 @@ static GnomeClient
 
         client = gnome_client_new_default();
 
-	g_message("SM client ID is %s", client->client_id);
+	g_message("SM client ID is %s",
+		  client->client_id ? client->client_id : "NULL");
 
 	if (!client)
 		return NULL;
@@ -361,6 +378,8 @@ static GnomeClient
 
         gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
                             GTK_SIGNAL_FUNC (save_state), NULL);
+        gtk_signal_connect (GTK_OBJECT (client), "die",
+                            GTK_SIGNAL_FUNC (session_die), NULL);
         return client;
 }
 

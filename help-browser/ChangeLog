@@ -1,5 +1,15 @@
 Tue Mar 10 22:39:15 1998  Tom Tromey  <tromey@cygnus.com>
 
+	* gnome-help-browser.c (program_invocation_name): Declare.
+	(save_state): Use program_invocation_name as argv[0] for restart
+	command.  Don't strip path information.
+	(newGnomeClient): Don't try to print NULL value.
+	(options): New structure.
+	(parser): Refer to options.
+	(parseAnArg): Recognize -x, -y, -w, -h.
+	(session_die): New function.
+	(newGnomeClient): Wire "session_die" to "die" signal.
+
 	* gnome-help-browser.c (newGnomeClient): Enable session support.
 
 Tue Mar 10 16:21:33 1998  Miguel de Icaza  <miguel@nuclecu.unam.mx>
