@@ -1125,8 +1125,10 @@ DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_show_menubar, N_("_Show menub
 static GnomeUIInfo gnome_terminal_about_menu [] = {
 	GNOMEUIINFO_ITEM_STOCK (N_("_About..."), NULL,
 			       about_terminal_cmd, GNOME_STOCK_MENU_ABOUT),
+#if 0
 	GNOMEUIINFO_SEPARATOR, 
 	GNOMEUIINFO_HELP ("_Terminal"),
+#endif
 	GNOMEUIINFO_END
 };
 
