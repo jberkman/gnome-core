@@ -381,15 +381,19 @@ typedef struct {
 } lambda_t;
 
 static void
+set_active_data(GtkWidget * omenu, int idx, GtkWidget * sens1, GtkWidget * sens2)
+{
+	gtk_object_set_user_data (GTK_OBJECT (omenu), (void *) idx);
+
+	if (sens1) gtk_widget_set_sensitive (GTK_WIDGET (sens1), idx == COLORS_CUSTOM);
+	if (sens2) gtk_widget_set_sensitive (GTK_WIDGET (sens2), idx == COLORS_CUSTOM);
+}
+
+
+static void
 set_active (GtkWidget *widget, lambda_t *t)
 {
-	gtk_object_set_user_data (GTK_OBJECT (t->menu), (void *) t->idx);
-	gnome_property_box_changed (t->box);
-
-	if (t->data1){
-		gtk_widget_set_sensitive (GTK_WIDGET (t->data1), t->idx == COLORS_CUSTOM);
-		gtk_widget_set_sensitive (GTK_WIDGET (t->data2), t->idx == COLORS_CUSTOM);
-	}
+	set_active_data(t->menu, t->idx, t->data1, t->data2);
 }
 
 static void
@@ -429,6 +433,7 @@ create_option_menu_data (GnomePropertyBox *box, char **menu_list, int item, GtkS
 	gtk_option_menu_set_menu (GTK_OPTION_MENU (omenu), menu);
 	gtk_option_menu_set_history (GTK_OPTION_MENU (omenu), item);
 	gtk_widget_show (omenu);
+
 	return omenu;
 }
 
@@ -585,14 +590,10 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win),
 							fore_back_table, color_set, GTK_SIGNAL_FUNC (set_active),
 							b1, b2);
+	set_active_data(prefs->def_fore_back, color_set, b2, b2);
 	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
 			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
-	if (color_set != COLORS_CUSTOM){
-		gtk_widget_set_sensitive (b1, 0);
-		gtk_widget_set_sensitive (b2, 0);
-	}
-	
 	/* connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
 			    GTK_SIGNAL_FUNC (apply_changes), term);
