@@ -104,6 +104,8 @@ typedef struct {
 	GtkWidget *wordclass_entry;
 	GtkWidget *pixmap_checkbox;
 	GtkWidget *pixmap_file_entry;
+	GtkWidget *pixmap_label;
+	GtkWidget *pixmap_entry;
 	GtkWidget *transparent_checkbox;
 	GtkWidget *shaded_checkbox;
 	GtkWidget *menubar_checkbox;
@@ -413,7 +415,7 @@ gather_changes (ZvtTerm *term)
 	newcfg->transparent = GTK_TOGGLE_BUTTON (prefs->transparent_checkbox)->active;
 	newcfg->shaded = GTK_TOGGLE_BUTTON (prefs->shaded_checkbox)->active;
 	newcfg->background_pixmap = GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox)->active;
-	newcfg->pixmap_file  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->pixmap_file_entry)));
+	newcfg->pixmap_file  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->pixmap_entry)));
 	newcfg->wordclass = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->wordclass_entry)));
 	(int) newcfg->scrollbar_position = gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 
@@ -614,16 +616,27 @@ window_destroy (GtkWidget *w, gpointer data)
 	preferences_t *prefs;
 
 	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
-	gtk_signal_disconnect_by_data (GTK_OBJECT (prefs->pixmap_file_entry), prefs);
+	gtk_signal_disconnect_by_data (GTK_OBJECT (prefs->pixmap_entry), prefs);
 	g_free (prefs);
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", NULL);
 }
 
-static int
-window_delete_event (GtkWidget *w, GdkEvent *event, gpointer data)
+/* 
+ * Set the sensitivity of the Image tab of the property  
+ * dialog based on the values of the checkbuttons
+ */
+
+static void
+check_image_options_sensitivity (preferences_t *prefs)
 {
-	gtk_widget_destroy (w);
-	return TRUE;
+	gboolean has_background = GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox)->active;
+	gboolean has_transparency = GTK_TOGGLE_BUTTON (prefs->transparent_checkbox)->active;
+
+	gtk_widget_set_sensitive (prefs->pixmap_label, has_background);
+	gtk_widget_set_sensitive (prefs->pixmap_file_entry, has_background);
+	gtk_widget_set_sensitive (prefs->transparent_checkbox, has_background);
+	gtk_widget_set_sensitive (prefs->shaded_checkbox,
+				  has_background && has_transparency);
 }
 
 /*
@@ -635,6 +648,8 @@ prop_changed (GtkWidget *w, preferences_t *prefs)
 	if (w != GTK_WIDGET (GTK_COMBO (prefs->class_box)->entry)) 
 		prefs->changed = 1;
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prefs->prop_win));
+
+	check_image_options_sensitivity (prefs);
 }
 
 static void
@@ -858,7 +873,7 @@ static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	static GnomeHelpMenuEntry help_entry = { NULL, "properties" };
-	GtkWidget *l, *table, *picker, *label, *b1, *b2, *e;
+	GtkWidget *l, *table, *picker, *label, *b1, *b2;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
 	GList *class_list = NULL;
@@ -1013,18 +1028,18 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			  2, 3, PIXMAP_ROW, PIXMAP_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Background pixmap filename */
-	l = aligned_label (_("Pixmap file:"));
-	gtk_table_attach (GTK_TABLE (table), l,
+	prefs->pixmap_label = aligned_label (_("Pixmap file:"));
+	gtk_table_attach (GTK_TABLE (table), prefs->pixmap_label,
 			  1, 2, PIXMAP_FILE_ROW, PIXMAP_FILE_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	e = gnome_file_entry_new ("pixmap",_("Browse"));
-	prefs->pixmap_file_entry =
-		gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(e));
-	gtk_entry_set_text (GTK_ENTRY (prefs->pixmap_file_entry),
+	prefs->pixmap_file_entry = gnome_file_entry_new ("pixmap",_("Browse"));
+	prefs->pixmap_entry =
+		gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(prefs->pixmap_file_entry));
+	gtk_entry_set_text (GTK_ENTRY (prefs->pixmap_entry),
 			    cfg->pixmap_file?cfg->pixmap_file:"");
-	gtk_entry_set_position (GTK_ENTRY (prefs->pixmap_file_entry), 0);
-	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_file_entry), "changed",
+	gtk_entry_set_position (GTK_ENTRY (prefs->pixmap_entry), 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_entry), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
-	gtk_table_attach (GTK_TABLE (table), e,
+	gtk_table_attach (GTK_TABLE (table), prefs->pixmap_file_entry,
 			  2, 5, PIXMAP_FILE_ROW, PIXMAP_FILE_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Transparency */
@@ -1044,6 +1059,8 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->shaded_checkbox,
 			  2, 3, SHADED_ROW, SHADED_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	check_image_options_sensitivity (prefs);
 
 
 	/* Color page */
@@ -1088,7 +1105,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 							fore_back_table, cfg->color_set, GTK_SIGNAL_FUNC (set_active),
 							b1, b2);
-	set_active_data (prefs->def_fore_back, cfg->color_set, b2, b2);
+	set_active_data (prefs->def_fore_back, cfg->color_set, b1, b2);
 	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
 			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
@@ -1141,8 +1158,6 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
 			    GTK_SIGNAL_FUNC (apply_changes_cmd), term);
-	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "delete_event",
-			    GTK_SIGNAL_FUNC (window_delete_event), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
 			    GTK_SIGNAL_FUNC (window_destroy), term);
 
@@ -1331,6 +1346,7 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 	case TARGET_COLOR:
 	{
 		guint16 *data = (guint16 *)selection_data->data;
+		preferences_t *prefs;
 
 		if (selection_data->length != 8)
 			return;
@@ -1365,6 +1381,21 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 		}
 		set_color_scheme (term, cfg);
 		save_preferences_cmd (widget, term);
+
+		prefs  = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+		if (prefs) {
+			gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->fore_cs),
+						     cfg->user_fore.red,
+						     cfg->user_fore.green,
+						     cfg->user_fore.blue, 0);
+			gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->back_cs),
+						     cfg->user_back.red,
+						     cfg->user_back.green,
+						     cfg->user_back.blue, 0);
+			gtk_option_menu_set_history (GTK_OPTION_MENU (prefs->def_fore_back),
+						     cfg->color_set);
+			set_active_data (prefs->def_fore_back, cfg->color_set, prefs->fore_cs, prefs->back_cs);
+		}
 	}
 	}
 }

@@ -1,3 +1,21 @@
+1999-03-01 Owen Taylor <otaylor@redhat.com>
+
+	* gnome-terminal.c (check_image_options_sensitivity): 
+	Added function to set sensitivity of options in image
+	preferences page appropriately. Added some widgets
+	to the prefs structure for this purpose.
+
+        * gnome-terminal.c (drag_data_received): If preferencess
+	dialog is open, update it to match color changes.
+	
+	* gnome-terminal.c (preferences_cmd): Removed completely
+	useless window_delete callback - it did exactly
+	the default behavior.
+
+	* gnome-terminal.c (preferences_cmd): Fixed typo -
+	make both color buttons insensitive when not in
+	custom-colors mode.
+
 1999-02-23 Mike Bond <mike.bond@template.com>
 
 	* gnome-terminal.c (gather_changes): Load the value for wordclass
