@@ -59,7 +59,7 @@ gboolean send_command_to_running(char *string, void (*callback)(char *))
       g_print("Set string %s to %d\n", tmpg->str, getpid());
       runcmd_callback = callback;
       act.sa_handler = do_cb;
-      act.sa_flags = SA_NOMASK;
+      act.sa_flags = SA_NODEFER;
       sigaction(SIGUSR2, &act, NULL);
     }
 

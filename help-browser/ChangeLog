@@ -1,3 +1,8 @@
+1998-05-15  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* check-running.c (send_command_to_running): Use SA_NODEFER
+	instead of SA_NOMASK.
+
 Fri May 15 11:59:00 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* mime.c: Just use <sys/wait.h>.
