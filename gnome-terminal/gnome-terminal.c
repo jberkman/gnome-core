@@ -1337,6 +1337,7 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 			cfg->user_fore.blue  = data [2];
 		}
 		set_color_scheme (term, cfg);
+		save_preferences_cmd (widget, term);
 	}
 	}
 }
