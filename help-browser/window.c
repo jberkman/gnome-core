@@ -541,7 +541,7 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
     else
 	w->Title = g_strdup(buf);
 
-    g_message("Title is ->%s<-\n",w->Title);
+    g_message("Title is ->%s<-",w->Title);
 }
 
 void
@@ -727,16 +727,12 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 	{
 	  const char *title = XmHTMLGetTitle(GTK_WIDGET(win->helpWidget));
 	  if (!title) title = "";
-	  printf("TITLE: %s\n", title);
 	}
-	
-
 }
 
 GtkWidget 
 *helpWindowGetAppWindow(HelpWindow w)
 {
-
 	g_return_val_if_fail( w != NULL, NULL );
 
 	return w->app;

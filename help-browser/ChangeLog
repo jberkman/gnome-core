@@ -1,3 +1,7 @@
+1998-04-06  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Added -d debug option, cleaned a printf
+
 1998-04-06  Michael Fulbright  <msf@redhat.com>
 
 	* intl'n of menu and toolbar strings

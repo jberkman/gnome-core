@@ -78,6 +78,7 @@ static struct argp_option options[] =
 	{ NULL, 'y', N_("Y"), 0, "Y position of window", 1 },
 	{ NULL, 'w', N_("WIDTH"), 0, "Width of window", 1 },
 	{ NULL, 'h', N_("HEIGHT"), 0, "Height of window", 1 },
+	{ "debug", 'd', NULL, 0, "Debug level", 0 },
 	{ NULL, 0, NULL, 0, NULL, 0 }
 };
 
@@ -108,6 +109,7 @@ static Toc toc;
 static History historyWindow;
 static DataCache cache;
 static Bookmarks bookmarkWindow;
+static gint debugLevel = 0;
 
 GList *windowList = NULL;
 
@@ -220,6 +222,11 @@ parseAnArg (int key, char *arg, struct argp_state *state)
 		return 0;
 	}
 
+	if (key == 'd') {
+	        debugLevel++;
+		return 0;
+	}
+
   if (key != ARGP_KEY_ARG)
     return ARGP_ERR_UNKNOWN;
   if (helpURL)
@@ -314,17 +321,23 @@ aboutCallback (HelpWindow win)
 
 void messageHandler(gchar *s)
 {
-    printf("M: %s\n", s);
+    if (debugLevel > 2) {
+	printf("M: %s\n", s);
+    }
 }
 
 void errorHandler(gchar *s)
 {
-    fprintf(stderr, "E: %s\n", s);
+    if (debugLevel > 0) {
+	fprintf(stderr, "E: %s\n", s);
+    }
 }
 
 void warningHandler(gchar *s)
 {
-    printf("W: %s\n", s);
+    if (debugLevel > 1) {
+	printf("W: %s\n", s);
+    }
 }
 
 void setErrorHandlers(void)
