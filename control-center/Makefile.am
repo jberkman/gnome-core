@@ -28,7 +28,10 @@ gnomecc_LDADD = \
 	$(INTLLIBS)					\
 	$(ORB_LIBS)
 
-EXTRA_DIST = gnomecc.desktop cappletConf.sh.in
+appicondir = $(datadir)/share/pixmaps
+appicon_DATA = control-center.png
+ 
+EXTRA_DIST = gnomecc.desktop cappletConf.sh.in $(appicon_DATA)
 
 sysdir = $(datadir)/apps/System
 sys_DATA = gnomecc.desktop
