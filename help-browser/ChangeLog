@@ -1,3 +1,11 @@
+1998-02-26  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* toc-man.c (expandManPagesIndex): Don't `closedir(NULL)'.
+	(expandManPagesRoot): Likewise.
+	* magic.c (resolveMagicURL): Likewise.
+	* toc-ghelp.c (expandGHelpRoot): Likewise.
+	* toc-info.c (expandInfoRoot): Likewise.
+	
 1998-02-26  Marc Ewing  <marc@redhat.com>
 
 	* multiple windows!

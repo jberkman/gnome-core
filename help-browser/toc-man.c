@@ -74,15 +74,18 @@ void expandManPagesIndex(GtkWidget *item, struct _man_sections *ext)
 	sprintf(dirname, "%s/man%c", toc->path, ext->ch);
 
 	d = opendir(dirname);
-	while (d && (dirp = readdir(d))) {
-	    if (! (strcmp("..", dirp->d_name) && strcmp(".", dirp->d_name))) {
-		continue;
+	if (d) {
+	    while (dirp = readdir(d)) {
+	        if (! (strcmp("..", dirp->d_name)
+		       && strcmp(".", dirp->d_name))) {
+		    continue;
+		}
+		sprintf(fullname, "%s/%s", dirname, dirp->d_name);
+		list = g_list_insert_sorted(list, g_strdup(fullname),
+					    (GCompareFunc)compareItems);
 	    }
-	    sprintf(fullname, "%s/%s", dirname, dirp->d_name);
-	    list = g_list_insert_sorted(list, g_strdup(fullname),
-					(GCompareFunc)compareItems);
+	    closedir(d);
 	}
-	closedir(d);
 
 	toc++;
     }
@@ -152,18 +155,20 @@ void expandManPagesRoot(GtkWidget *item)
 	while (p->ch) {
 	    sprintf(dirname, "%s/man%c", toc->path, p->ch);
 	    d = opendir(dirname);
-	    while (d && (dirp = readdir(d))) {
-		if (! (strcmp("..", dirp->d_name) &&
-		       strcmp(".", dirp->d_name))) {
-		    continue;
+	    if (d) {
+	        while (d && (dirp = readdir(d))) {
+		    if (! (strcmp("..", dirp->d_name) &&
+			   strcmp(".", dirp->d_name))) {
+		        continue;
+		    }
+		    break;
 		}
-		break;
+		if (d && dirp) {
+		    p->flag = 1;
+		}
+		closedir(d);
 	    }
-	    if (d && dirp) {
-		p->flag = 1;
-	    }
-	    closedir(d);
-
+	    
 	    p++;
 	}
 	toc++;

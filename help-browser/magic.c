@@ -51,25 +51,27 @@ resolveMagicURL( docObj obj )
 
 		d = opendir("/usr/info");
 		c = NULL;
-		while (d && (dirp = readdir(d))) {
-			if (!strncmp(dirp->d_name, pp, strlen(pp)) ||
-			    !strcmp(dirp->d_name, p)) {
-				if (!c || (strlen(dirp->d_name) < strlen(c))) {
-					if (c)
-						g_free(c);
-					c = g_strdup(dirp->d_name);
+		if (d) {
+			while (dirp = readdir(d)) {
+				if (!strncmp(dirp->d_name, pp, strlen(pp)) ||
+				!strcmp(dirp->d_name, p)) {
+					if (!c || (strlen(dirp->d_name) < strlen(c))) {
+						if (c)
+							g_free(c);
+						c = g_strdup(dirp->d_name);
+					}
 				}
 			}
+			closedir(d);
 		}
-
-		closedir(d);
+		
 		g_free(p);
 		g_free(pp);
 		if (!c) {
 			freeDecomposedUrl( u );
 			return; /* no info file exists */
 		} else {
-			snprintf(indexfile, sizeof(indexfile), 
+			g_snprintf(indexfile, sizeof(indexfile), 
 				 "/usr/info/%s",c);
 			g_free(c);
 		}
@@ -82,7 +84,7 @@ resolveMagicURL( docObj obj )
 		if (!(c=strstr(data,"\nIndirect:\n"))) {
 			gchar buf[1024];
 
-			snprintf(buf, sizeof(buf),
+			g_snprintf(buf, sizeof(buf),
 				 "file:%s#%s", indexfile,
 				 (*(u->anchor)) ? u->anchor : "Top");
 			docObjSetRef(obj, buf);
@@ -193,19 +195,19 @@ resolveMagicURL( docObj obj )
 		/* guess the filename, will need to clean where '/usr/info' */
 		/* comes from                                               */
 		*buf2 = '\0';
-		snprintf(buf, sizeof(buf), "/usr/info/%s",
+		g_snprintf(buf, sizeof(buf), "/usr/info/%s",
 			 ((Pair)listptr->data)->name);
 		if (access(buf, R_OK)) {
 			/* try a .gz on the end */
-			snprintf(buf, sizeof(buf), "/usr/info/%s.gz",
+			g_snprintf(buf, sizeof(buf), "/usr/info/%s.gz",
 				 ((Pair)listptr->data)->name);
 			if (!access(buf, R_OK)) {
-				snprintf(buf2, sizeof(buf2),
+				g_snprintf(buf2, sizeof(buf2),
 					 "file:%s#%s", buf,
 					 (*(u->anchor)) ? u->anchor : "Top");
 			}
 		} else {
-			snprintf(buf2, sizeof(buf2),
+			g_snprintf(buf2, sizeof(buf2),
 				 "file:%s#%s", buf,
 				 (*(u->anchor)) ? u->anchor : "Top");
 		}

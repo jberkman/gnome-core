@@ -37,36 +37,39 @@ void expandGHelpRoot(GtkWidget *item)
 	}
 
 	d = opendir(toc->path);
-	while (d && (dirp = readdir(d))) {
-	    if (! (strcmp("..", dirp->d_name) &&
-		   strcmp(".", dirp->d_name))) {
-		continue;
+	if (d) {
+	    while (dirp = readdir(d)) {
+	        if (! (strcmp("..", dirp->d_name) &&
+		       strcmp(".", dirp->d_name))) {
+		    continue;
+		}
+			
+		/* XXX should be sorted */
+		
+		newitem = gtk_tree_item_new_with_label(dirp->d_name);
+		gtk_tree_append(GTK_TREE(tree), newitem);
+		
+		lang = getenv("LANGUAGE");
+		if (!lang)
+		    lang = getenv("LANG");
+		if (!lang)
+		    lang = "C";
+		sprintf(fullname, "%s/%s/%s/index.html",
+			toc->path, dirp->d_name, lang);
+		
+		/* XXX need to traverse LANGUAGE to find right
+		   topic.dat. In fact, this LANG stuff doesn't really
+		   belong here at all */
+			
+		s = g_strdup(fullname);
+		gtk_object_set_data(GTK_OBJECT(newitem), "URL", s);
+		gtk_signal_connect_object(GTK_OBJECT(newitem), "destroy",
+					  (GtkSignalFunc)g_free, (gpointer)s);
+		gtk_widget_show(newitem);
 	    }
-
-	    /* XXX should be sorted */
-
-	    newitem = gtk_tree_item_new_with_label(dirp->d_name);
-	    gtk_tree_append(GTK_TREE(tree), newitem);
-
-	    lang = getenv("LANGUAGE");
-	    if (!lang)
-		lang = getenv("LANG");
-	    if (!lang)
-		lang = "C";
-	    sprintf(fullname, "%s/%s/%s/index.html",
-		    toc->path, dirp->d_name, lang);
-	    
-	    /* XXX need to traverse LANGUAGE to find right topic.dat      */
-	    /* In fact, this LANG stuff doesn't really belong here at all */
-
-	    s = g_strdup(fullname);
-	    gtk_object_set_data(GTK_OBJECT(newitem), "URL", s);
-	    gtk_signal_connect_object(GTK_OBJECT(newitem), "destroy",
-				      (GtkSignalFunc)g_free, (gpointer)s);
-	    gtk_widget_show(newitem);
+	    closedir(d);
 	}
-	closedir(d);
-
+	
 	toc++;
     }
 

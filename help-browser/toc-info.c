@@ -102,22 +102,25 @@ void expandInfoRoot(GtkWidget *item)
 	}
 
 	d = opendir(toc->path);
-	while (d && (dirp = readdir(d))) {
-	    if (! (strcmp("..", dirp->d_name) &&
-		   strcmp(".", dirp->d_name))) {
-		continue;
+	if (d) {
+	    while (dirp = readdir(d)) {
+	        if (! (strcmp("..", dirp->d_name) &&
+		       strcmp(".", dirp->d_name))) {
+		    continue;
+		}
+		
+		p = malloc(sizeof(*p));
+		sprintf(fullname, "%s/%s", toc->path, dirp->d_name);
+		p->filename = g_strdup(fullname);
+		p->len = strlen(fullname);
+		p->basename = makeBaseName(dirp->d_name);
+		
+		list = g_list_insert_sorted(list, p,
+					    (GCompareFunc)compareItems);
 	    }
-
-	    p = malloc(sizeof(*p));
-	    sprintf(fullname, "%s/%s", toc->path, dirp->d_name);
-	    p->filename = g_strdup(fullname);
-	    p->len = strlen(fullname);
-	    p->basename = makeBaseName(dirp->d_name);
-
-	    list = g_list_insert_sorted(list, p, (GCompareFunc)compareItems);
+	    closedir(d);
 	}
-	closedir(d);
-
+	
 	toc++;
     }
 
