@@ -1,3 +1,7 @@
+1999-04-25  Ettore Perazzoli  <ettore@comm2000.it>
+
+	* gnome-terminal.desktop: Added Italian translations.
+
 1999-04-24  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
 
 	* gnome-terminal.c (new_terminal_cmd): 80x24 initial size.
