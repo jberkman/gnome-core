@@ -189,7 +189,7 @@ static void removeBookmark(GtkWidget *w, Bookmarks b)
     list = GTK_CLIST (b->clist)->selection;
     while (list)
       {
-	row = (gint) list->data;
+	row = GPOINTER_TO_INT (list->data);
 	list = list->next;
 	
 	gtk_clist_remove (GTK_CLIST (b->clist), row);

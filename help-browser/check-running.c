@@ -8,7 +8,7 @@ static void (*runcmd_callback)(char *str);
 static GString *tmpg;
 
 static void
-do_cb(void)
+do_cb(int signum)
 {
   char *tmp;
 

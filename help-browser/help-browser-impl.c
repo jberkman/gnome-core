@@ -60,7 +60,7 @@ static POA_help_browser_simple_browser__vepv impl_help_browser_simple_browser_ve
 static guint
 idhash(gconstpointer key)
 {
-  return (guint)key;
+  return GPOINTER_TO_UINT (key);
 }
 
 static gint
