@@ -187,7 +187,7 @@ gnome_helpwin_get_line(GnomeHelpWin *w)
 void
 gtk_html_source (GtkHTML *html, char *url, char *source)
 {
-	GtkHTMLStreamHandle handle;
+	GtkHTMLStream *s;
 
 	/* we need to set writing to TRUE so that the url_requested
 	 * callback won't try to load it, since we already have the
@@ -195,8 +195,8 @@ gtk_html_source (GtkHTML *html, char *url, char *source)
 	 * handle ghelp: or toc: or the other funky "protocols".
 	 */
 	GNOME_HELPWIN (html)->writing = TRUE;
-	handle = gtk_html_begin (html, url);
-	gtk_html_write (html, handle, source, strlen (source));
+	s = gtk_html_begin (html);
+	gtk_html_write (html, s, source, strlen (source));
 
 	GNOME_HELPWIN (html)->writing = FALSE;
 	/*gtk_html_end (html, handle, GTK_HTML_STREAM_OK);*/

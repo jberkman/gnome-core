@@ -133,7 +133,7 @@ static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
 
 #ifdef HELP_USE_GTKHTML
-static void url_requested (GtkHTML *html, const char *url, GtkHTMLStreamHandle handle, HelpWindow win);
+static void url_requested (GtkHTML *html, const char *url, GtkHTMLStream *s, HelpWindow win);
 #else
 XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 #endif
@@ -1194,7 +1194,7 @@ parse_href (const gchar *s)
 }
 
 static void
-url_requested (GtkHTML *html, const char *url, GtkHTMLStreamHandle handle, HelpWindow win)
+url_requested (GtkHTML *html, const char *url, GtkHTMLStream *s, HelpWindow win)
 {
 	char *full_url = url;
 	GtkHTMLStreamStatus status;
@@ -1225,23 +1225,25 @@ url_requested (GtkHTML *html, const char *url, GtkHTMLStreamHandle handle, HelpW
 		do {
 			buflen = read(fd, buf2, 8192);
 			tmperrno = errno;
-			gtk_html_write(html, handle, buf2, buflen);
+			if (buflen > 0)
+				gtk_html_write(html, s, buf2, buflen);
 		} while (buflen || tmperrno == EAGAIN);
 		close(fd);
-		gtk_html_end(html, handle, GTK_HTML_STREAM_OK);
+		gtk_html_end(html, s, GTK_HTML_STREAM_OK);
 		docObjFree(obj);
 		return;
 	}
 
 	if (transport(obj, helpWindowGetCache(win))) {
 	    docObjFree(obj);
-	    gtk_html_end (html, handle, GTK_HTML_STREAM_ERROR);
+	    gtk_html_end (html, s, GTK_HTML_STREAM_ERROR);
 	    return;
 	}
 
 	docObjGetRawData(obj, &buf, &buflen);
-	gtk_html_write (html, handle, buf, buflen);
-	gtk_html_end (html, handle, GTK_HTML_STREAM_OK);
+	if (buflen > 0)
+		gtk_html_write (html, s, buf, buflen);
+	gtk_html_end (html, s, GTK_HTML_STREAM_OK);
 	docObjFree(obj);
 }
 #else

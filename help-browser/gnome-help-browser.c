@@ -186,6 +186,12 @@ main(int argc, char *argv[])
     orb = gnome_CORBA_init_with_popt_table(NAME, VERSION, &argc, argv,
 					   options, 0, &ctx, GNORBA_INIT_SERVER_FUNC, &ev);
 
+#ifdef HELP_USE_GTKHTML
+#ifdef GTKHTML_HAVE_GCONF
+    gconf_init (argc, argv, NULL);
+#endif /* GTKHTML_HAVE_GCONF */
+#endif /* HELP_USE_GTKHTML*/
+
     gdk_rgb_init ();
  
     gtk_widget_set_default_colormap (gdk_rgb_get_cmap ());
