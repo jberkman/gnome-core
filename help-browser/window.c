@@ -11,7 +11,7 @@
 #include <gnome.h>
 #include <libgnomeui/gnome-app.h>
 #include <libgnome/gnome-help.h>
-
+#include <gdk/gdkkeysyms.h>
 #include "gnome-helpwin.h"
 
 #include "parseUrl.h"
@@ -312,7 +312,6 @@ entryChanged(GtkWidget *w, HelpWindow win)
 {
     g_message("ENTRY BOX: %s", gtk_entry_get_text(GTK_ENTRY(w)));
     helpWindowShowURL(win, gtk_entry_get_text(GTK_ENTRY(w)));
-
     setCurrent(win);
 }
 
@@ -516,7 +515,7 @@ helpWindowNew(gchar *name,
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();
 	gtk_widget_show(w->helpWidget);
-
+					
 	/* add a status bar */
 	w->statusBar = gtk_statusbar_new();
 	gtk_widget_show(w->statusBar);
@@ -542,7 +541,8 @@ helpWindowNew(gchar *name,
 				   NULL,NULL,NULL);
 
 	gtk_widget_show(w->app);
-
+	gtk_widget_grab_focus (GTK_WIDGET (w->entryBox));
+	
 	return w;
 }
 

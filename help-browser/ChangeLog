@@ -1,3 +1,7 @@
+Tue Mar 10 16:21:33 1998  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	(helpWindowNew): Focus the entry at startup
+
 1998-03-10  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* Use "humanRef" when rewriting the entry box.
