@@ -64,6 +64,8 @@ struct terminal_config {
 	GdkColor user_fore, user_back; 		/* The custom colors */
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int have_user_colors;			/* Only used for command line parsing */
+	int transparent;
+	int shaded;
 } ;
 
 /* Initial command */
@@ -81,6 +83,8 @@ typedef struct {
 	GtkWidget *blink_checkbox;
 	GtkWidget *scroll_kbd_checkbox;
 	GtkWidget *scroll_out_checkbox;
+	GtkWidget *transparent_checkbox;
+	GtkWidget *shaded_checkbox;
 	GtkWidget *menubar_checkbox;
 	GtkWidget *font_entry;
 	GtkWidget *color_scheme;
@@ -342,6 +346,9 @@ load_config (char *class)
 	cfg->scroll_key = gnome_config_get_bool ("scrollonkey=true");
 	cfg->scroll_out = gnome_config_get_bool ("scrollonoutput=false");
 
+	cfg->transparent = gnome_config_get_bool ("transparent=false");
+	cfg->shaded = gnome_config_get_bool ("shaded=false");
+
 	if (strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
 		cfg->color_set = 0;
@@ -371,6 +378,9 @@ gather_changes (ZvtTerm *term)
 	newcfg->scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin));
 	newcfg->scroll_out = GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox)->active;
 	newcfg->scroll_key = GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox)->active;
+
+	newcfg->transparent = GTK_TOGGLE_BUTTON (prefs->transparent_checkbox)->active;
+	newcfg->shaded = GTK_TOGGLE_BUTTON (prefs->shaded_checkbox)->active;
 
 	(int) newcfg->scrollbar_position = gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 
@@ -439,6 +449,7 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	zvt_term_set_scrollback (term, cfg->scrollback);
+	zvt_term_set_transparent (term, cfg->transparent, cfg->shaded);
 	if (cfg->scrollbar_position == SCROLLBAR_HIDDEN)
 		gtk_widget_hide (scrollbar);
 	else {
@@ -696,6 +707,8 @@ enum {
 	FONT_ROW      = 2,
 	BLINK_ROW     = 3,
 	MENUBAR_ROW    = 4,
+	TRANSPARENT_ROW = 5,
+	SHADED_ROW    = 6,
 	SCROLL_ROW    = 1,
 	SCROLLBACK_ROW = 2,
 	KBDSCROLL_ROW = 3,
@@ -800,6 +813,25 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
 			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Transparency */
+	prefs->transparent_checkbox = gtk_check_button_new_with_label (_("Transparent"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->transparent_checkbox),
+				     term->transparent ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->transparent_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->transparent_checkbox,
+			  2, 3, TRANSPARENT_ROW, TRANSPARENT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Shaded */
+	prefs->shaded_checkbox = gtk_check_button_new_with_label (_("Transparent window should be shaded"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->shaded_checkbox),
+				     term->shaded ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->shaded_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->shaded_checkbox,
+			  2, 3, SHADED_ROW, SHADED_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
 
 	/* Color page */
 	table = gtk_table_new (4, 4, FALSE);
@@ -952,6 +984,8 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg)
 	gnome_config_set_bool   ("menubar", !cfg->menubar_hidden);
 	gnome_config_set_bool   ("scrollonkey", cfg->scroll_key);
 	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
+	gnome_config_set_bool   ("transparent", cfg->transparent);
+	gnome_config_set_bool   ("shaded", cfg->shaded);
 	gnome_config_sync ();
 
 	gnome_config_pop_prefix ();
@@ -1208,6 +1242,23 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 }
 
 static void
+term_change_pos(GtkWidget *widget)
+{
+	static int x=-999;
+	static int y=-999;
+	int nx,ny;
+	
+	if(!widget->window ||
+	   !ZVT_TERM(widget)->transparent)
+		return;
+	
+	gdk_window_get_position(widget->window,&nx,&ny);
+	
+	if(nx!=x || ny!=y)
+		gtk_widget_queue_draw(widget);
+}
+
+static void
 new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 {
 	GtkWidget *app, *hbox, *scrollbar;
@@ -1255,7 +1306,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 
 	app = gnome_app_new ("Terminal", "Terminal");
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
-
 	if (cmd != NULL)
 		initial_term = app;
 #ifdef ZVT_USES_MINIMAL_ALLOC
@@ -1269,6 +1319,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
 	gtk_widget_show (GTK_WIDGET (term));
+	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
+				  GTK_SIGNAL_FUNC(term_change_pos),
+				  GTK_OBJECT(term));
 #if ZVT_USES_MINIMAL_ALLOC
 	gtk_widget_set_usize (GTK_WIDGET (term),
 			      80 * term->charwidth,
