@@ -723,7 +723,7 @@ gwm_desktop_draw (GtkWidget    *widget,
   /* create gc for current area and draw its background */
   if (desk->n_hareas * desk->n_vareas > 1)
     {
-      GdkGC *gc = (current ? style->bg_gc : style->base_gc)[GTK_STATE_SELECTED];
+      GdkGC *gc = current ? style->bg_gc[GTK_STATE_SELECTED] : style->base_gc[GTK_STATE_NORMAL];
       
       gdk_gc_set_stipple (gc, desktop->bitmap);
       gdk_gc_set_clip_mask (gc, NULL);
