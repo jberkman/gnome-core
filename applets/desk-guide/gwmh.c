@@ -155,6 +155,7 @@ static GwmhDesk         gwmh_desk = {
   FALSE /* unified_area */,
 };
 static gboolean		gwmh_hack_think_unified_area = FALSE;
+static gboolean		gwmh_hack_violate_client_msg = TRUE;
 
 
 /* --- functions --- */
@@ -2081,7 +2082,10 @@ gwmh_task_set_area (GwmhTask *task,
   gwmh_sync ();
   gwmh_freeze_syncs ();
 
-  if (1) /* ugly hack for buggy window managers */
+  /* ugly hack for buggy window managers
+   * that violate the spec and expect us to modify properties directly
+   */
+  if (gwmh_hack_violate_client_msg)
     {
       long data[2];
       
@@ -2099,17 +2103,19 @@ gwmh_task_set_area (GwmhTask *task,
 
       gdk_error_trap_pop ();
     }
-
-  if (desktop != task->desktop)
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
-			    GWMHA_WIN_WORKSPACE,
-			    SubstructureNotifyMask,
-			    2, desktop, CurrentTime);
-  send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
-			  GWMHA_WIN_AREA,
-			  SubstructureNotifyMask,
-			  3, harea, varea, CurrentTime);
-
+  else
+    {
+      if (desktop != task->desktop)
+	send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+				GWMHA_WIN_WORKSPACE,
+				SubstructureNotifyMask,
+				2, desktop, CurrentTime);
+      send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+			      GWMHA_WIN_AREA,
+			      SubstructureNotifyMask,
+			      3, harea, varea, CurrentTime);
+    }
+  
   gwmh_thaw_syncs ();
 }
 
@@ -2124,7 +2130,10 @@ gwmh_task_set_desktop (GwmhTask *task,
   if (desktop >= gwmh_desk.n_desktops || task->desktop == desktop)
     return;
   
-  if (1) /* ugly hack for buggy window managers */
+  /* ugly hack for buggy window managers
+   * that violate the spec and expect us to modify properties directly
+   */
+  if (gwmh_hack_violate_client_msg)
     {
       long data[2];
       
@@ -2134,14 +2143,14 @@ gwmh_task_set_desktop (GwmhTask *task,
       if (desktop != task->desktop)
 	XChangeProperty (GDK_DISPLAY (), task->xwin, GWMHA_WIN_WORKSPACE,
 			 XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, 1);
-
+      
       gdk_error_trap_pop ();
     }
-
-  send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
-			  GWMHA_WIN_WORKSPACE,
-			  SubstructureNotifyMask,
-			  2, desktop, CurrentTime);
+  else
+    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+			    GWMHA_WIN_WORKSPACE,
+			    SubstructureNotifyMask,
+			    2, desktop, CurrentTime);
 }
 
 GwmhDesk*
@@ -2185,9 +2194,11 @@ gwmh_desk_set_current_desktop (guint desktop)
 }
 
 void
-gwmh_desk_set_hack_values (gboolean unified_area)
+gwmh_desk_set_hack_values (gboolean unified_area,
+			   gboolean violate_client_msg)
 {
   gwmh_hack_think_unified_area = unified_area != FALSE;
+  gwmh_hack_violate_client_msg = violate_client_msg != FALSE;
 
   gwmh_desk_update (GWMH_DESK_INFO_N_AREAS);
 }

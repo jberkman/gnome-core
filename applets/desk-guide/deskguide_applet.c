@@ -124,6 +124,9 @@ static ConfigItem gp_config_items[] = {
   CONFIG_BOOL (unified_areas,			TRUE,
 	       N_ ("Window manager changes active area on all desktops\n"
 		   "(FVWM, SawMill)")),
+  CONFIG_BOOL (violate_client_msg,			TRUE,
+	       N_ ("Window manager expects pager to modify area+desktop properties directly\n"
+		   "(Enlightenment, FVWM, SawMill)")),
 };
 static guint  gp_n_config_items = (sizeof (gp_config_items) /
 				   sizeof (gp_config_items[0]));
@@ -449,7 +452,8 @@ gp_create_desk_widgets (void)
     g_error ("MAX_DESKTOPS limit reached, adjust source code");
 
   /* some gwmh configuration hacks ;( */
-  gwmh_desk_set_hack_values (BOOL_CONFIG (unified_areas));
+  gwmh_desk_set_hack_values (BOOL_CONFIG (unified_areas),
+			     BOOL_CONFIG (violate_client_msg));
 
   if (!gp_desk_box)
     return;

@@ -1,3 +1,18 @@
+Sun Oct 24 21:55:06 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: exposed violate_client_msg in configuration
+	options.
+
+	* gwmh.c (gwmh_desk_set_hack_values): added violate_client_msg flag
+	to identify window managers that expect us to modify current desktop
+	and current task properties on the client windows directly, instead
+	of sending a client message (this is in violation with the GNOME WM
+	Spec).
+
+	*gwmh.c (gwmh_task_set_desktop): 
+	(gwmh_task_set_area): modify properties directly is
+	gwmh_hack_violate_client_msg is set.
+
 Sun Oct 24 10:32:28 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c: prefixed all config sections with `sect_',

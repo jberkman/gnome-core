@@ -287,7 +287,8 @@ void		gwmh_desk_set_desktop_name	(guint		 desktop,
 void		gwmh_desk_guess_desktop_area	(guint		 desktop,
 						 guint		*harea,
 						 guint		*varea);
-void		gwmh_desk_set_hack_values	(gboolean	 unified_areas);
+void		gwmh_desk_set_hack_values	(gboolean	 unified_areas,
+						 gboolean        violate_client_msg);
 
 
 /* --- GwmhTask --- */
