@@ -216,7 +216,7 @@ static int hideBookmarksInt(GtkWidget *window)
 static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
 				  GtkWidget **clist)
 {
-    GtkWidget *box, *button;
+    GtkWidget *box, *button, *sw;
     gchar *titles[2] = { N_("Bookmark"), N_("Page Title") };
     static int translated;
 
@@ -244,8 +244,10 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
     /* The clist */
     *clist = gtk_clist_new_with_titles(2, titles);
     gtk_clist_set_selection_mode(GTK_CLIST(*clist), GTK_SELECTION_SINGLE);
-    /*gtk_clist_set_policy(GTK_CLIST(*clist),
-      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);*/
+#ifndef GTK_HAVE_FEATURES_1_1_4
+    gtk_clist_set_policy(GTK_CLIST(*clist),
+			 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+#endif
     gtk_clist_column_titles_show(GTK_CLIST(*clist));
     gtk_clist_column_titles_passive(GTK_CLIST(*clist));
     gtk_clist_set_column_justification(GTK_CLIST(*clist), 0,
@@ -255,7 +257,16 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
 				       GTK_JUSTIFY_LEFT);
     gtk_clist_set_column_width(GTK_CLIST(*clist), 1, 280);
 
+#ifdef GTK_HAVE_FEATURES_1_1_4
+    sw = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw),
+				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_container_add(GTK_CONTAINER(sw), *clist);
+    gtk_box_pack_start(GTK_BOX(box), sw, TRUE, TRUE, 0);
+    gtk_widget_show(sw);
+#else
     gtk_box_pack_start(GTK_BOX(box), *clist, TRUE, TRUE, 0);
+#endif
     gtk_widget_show(*clist);
 
     /* Set callbacks */
