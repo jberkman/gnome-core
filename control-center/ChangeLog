@@ -1,3 +1,7 @@
+1998-08-21  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
+
+	* gnomecc.desktop: Added Portuguese translation.
+
 Fri Aug 21 13:15:17 1998  Jonathan Blandford <jrb@redhat.com>
 	* test.c: Hmm, thought i'd already deleted this file.
 	It's gone now...
