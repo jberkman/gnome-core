@@ -2,10 +2,12 @@
 #include <gtk/gtk.h>
 #include <gnome.h>
 #include "tasklist_applet.h"
+#include "pixmaps.h"
 
 GtkWidget *get_popup_menu (TasklistTask *task);
-void add_menu_item (gchar *name, GtkWidget *menu, MenuAction action);
+void add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar *xpm);
 gboolean cb_menu (GtkWidget *widget, gpointer data);
+gboolean cb_to_desktop (GtkWidget *widget, gpointer data);
 void cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data);
 
 extern TasklistConfig Config;
@@ -123,15 +125,28 @@ menu_popup (TasklistTask *task, guint button, guint32 activate_time)
 
 /* Add a menu item to the popup menu */
 void 
-add_menu_item (gchar *name, GtkWidget *menu, MenuAction action)
+add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar *xpm)
 {
 	GtkWidget *menuitem;
+	GdkPixmap *pixmap;
+	GtkWidget *label;
+	GdkBitmap *mask;
+	GtkWidget *gtkpixmap;
 
-	menuitem = gtk_menu_item_new_with_label (name);
+	menuitem = gtk_pixmap_menu_item_new ();
+	label = gtk_label_new (name);
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+	gtk_container_add (GTK_CONTAINER (menuitem), label);
+	if (xpm) {
+		pixmap = gdk_pixmap_create_from_xpm_d (area->window, &mask, NULL, xpm);
+		gtkpixmap = gtk_pixmap_new (pixmap, mask);
+		gtk_pixmap_menu_item_set_pixmap (GTK_PIXMAP_MENU_ITEM (menuitem), gtkpixmap);
+	}
+	
 	gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			    GTK_SIGNAL_FUNC (cb_menu), GINT_TO_POINTER (action));
 
-	gtk_widget_show (menuitem);
+	gtk_widget_show_all (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
 
 }
@@ -152,8 +167,11 @@ cb_to_desktop (GtkWidget *widget, gpointer data)
 GtkWidget 
 *get_popup_menu (TasklistTask *task)
 {
-	GtkWidget *menu, *menuitem, *desktop;
+	GtkWidget *menu, *menuitem, *desktop, *label, *gtkpixmap;
+	GdkPixmap *pixmap;
+	GdkBitmap *mask;
 	GwmhDesk *desk_info;
+
 	gchar *wsname;
 	int i, curworkspace;
 
@@ -162,24 +180,37 @@ GtkWidget
 
 	add_menu_item (GWMH_TASK_ICONIFIED (task->gwmh_task)
 		       ? _("Restore") : _("Iconify"), 
-		       menu, MENU_ACTION_SHOW_HIDE);
+		       menu, MENU_ACTION_SHOW_HIDE,
+		       GWMH_TASK_ICONIFIED (task->gwmh_task)
+		       ? tasklist_restore_xpm : tasklist_iconify_xpm);
 
 	add_menu_item (GWMH_TASK_SHADED (task->gwmh_task)
 		       ? _("Unshade") : _("Shade"), 
-		       menu, MENU_ACTION_SHADE_UNSHADE);
+		       menu, MENU_ACTION_SHADE_UNSHADE,
+		       GWMH_TASK_SHADED (task->gwmh_task)
+		       ? tasklist_unshade_xpm: tasklist_shade_xpm);
 
 	add_menu_item (GWMH_TASK_STICKY (task->gwmh_task)
 		       ? _("Unstick") : _("Stick"), 
-		       menu, MENU_ACTION_STICK_UNSTICK);
+		       menu, MENU_ACTION_STICK_UNSTICK,
+		       GWMH_TASK_STICKY (task->gwmh_task)
+		       ? tasklist_unstick_xpm : tasklist_stick_xpm);
 
-	add_menu_item (_("Close window"), menu, MENU_ACTION_CLOSE);
+	add_menu_item (_("Close window"), menu, MENU_ACTION_CLOSE,
+		       tasklist_close_xpm);
 
 	menuitem = gtk_menu_item_new ();
 	gtk_widget_show (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
 
-	menuitem = gtk_menu_item_new_with_label (_("To desktop"));
-	gtk_widget_show (menuitem);
+	menuitem = gtk_pixmap_menu_item_new ();
+	label = gtk_label_new (_("To desktop"));
+	gtk_container_add (GTK_CONTAINER (menuitem), label);
+	pixmap = gdk_pixmap_create_from_xpm_d (area->window, &mask, NULL,
+					       tasklist_send_to_desktop_xpm);
+	gtkpixmap = gtk_pixmap_new (pixmap, mask);
+	gtk_pixmap_menu_item_set_pixmap (GTK_PIXMAP_MENU_ITEM (menuitem), gtkpixmap);
+	gtk_widget_show_all (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
 
 	if (!GWMH_TASK_STICKY (task->gwmh_task)) {
@@ -210,7 +241,7 @@ GtkWidget
 	gtk_widget_show (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
 	
-	add_menu_item (_("Kill app"), menu, MENU_ACTION_KILL);
+	add_menu_item (_("Kill app"), menu, MENU_ACTION_KILL, NULL);
 	
 	return menu;
 }

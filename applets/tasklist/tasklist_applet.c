@@ -554,7 +554,7 @@ cb_about (void)
 				  VERSION,
 				  "Copyright (C) 1999 Anders Carlsson",
 				  authors,
-				  "A tasklist for the GNOME desktop environment",
+				  "A tasklist for the GNOME desktop environment.\nIcons by Tuomas Kuosmanen (tigert@gimp.org).",
 				  NULL);
 	gtk_widget_show (dialog);
 	gdk_window_raise (dialog->window);

@@ -20,6 +20,7 @@ tasklist_applet_LDADD = ../../panel/libpanel_applet.la \
 		     $(INTLLIBS)
 
 EXTRA_DIST = \
+	pixmaps.h \
 	tasklist_applet.h \
 	tasklist_applet.gnorba \
 	tasklist_applet.desktop \
