@@ -16,6 +16,7 @@ static GList *curhint = NULL;
 static char *curfortune = NULL;
 
 static GtkWidget *canvas;
+static GtkWidget *cb;
 static GtkWidget *sw;
 static GnomeCanvasItem *hint_item;
 static GnomeCanvasItem *blue_background;
@@ -363,6 +364,27 @@ draw_on_canvas(GtkWidget *canvas, int is_fortune, int is_motd, char *hint)
 }
 
 static void
+exit_clicked(void)
+{
+	GtkWidget *message_box;
+	
+	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb))) {
+		message_box = gnome_message_box_new (_("You've chosen to disable the startup hint.\n"
+						       "To re-enable it, choose \"Startup Hint\"\n"
+						       "in the GNOME Control Center"),
+						     GNOME_MESSAGE_BOX_INFO,
+						     GNOME_STOCK_BUTTON_OK,
+						     NULL);
+		gnome_dialog_run (GNOME_DIALOG (message_box));
+	}
+	
+	gnome_config_set_bool ("/Gnome/Login/RunHints", gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb)));
+	gnome_config_sync ();
+	
+	gtk_main_quit ();
+}
+
+static void
 fortune_clicked(GtkWidget *w, int button, gpointer data)
 {
 	switch(button) {
@@ -375,7 +397,7 @@ fortune_clicked(GtkWidget *w, int button, gpointer data)
 		grow_text_if_necessary();
 		break;
 	default:
-		gtk_main_quit();
+		exit_clicked ();
 	}
 }
 
@@ -402,7 +424,7 @@ hints_clicked(GtkWidget *w, int button, gpointer data)
 		grow_text_if_necessary();
 		break;
 	default:
-		gtk_main_quit();
+		exit_clicked ();
 	}
 }
 
@@ -481,7 +503,7 @@ main(int argc, char *argv[])
 				       GNOME_STOCK_BUTTON_CLOSE,
 				       NULL);
 		gtk_signal_connect(GTK_OBJECT(win),"clicked",
-				   GTK_SIGNAL_FUNC(gtk_main_quit),
+				   GTK_SIGNAL_FUNC(exit_clicked),
 				   NULL);
 	} else if(is_fortune) {
 		win = gnome_dialog_new(_("Fortune"),
@@ -502,7 +524,7 @@ main(int argc, char *argv[])
 				   NULL);
 	}
 	gtk_signal_connect(GTK_OBJECT(win),"delete_event",
-			   GTK_SIGNAL_FUNC(gtk_main_quit),
+			   GTK_SIGNAL_FUNC(exit_clicked),
 			   NULL);
 	gtk_window_set_position(GTK_WINDOW(win),GTK_WIN_POS_CENTER);
 	gtk_signal_connect_after(GTK_OBJECT(win),"realize",
@@ -513,6 +535,11 @@ main(int argc, char *argv[])
 				       GTK_POLICY_NEVER,
 				       GTK_POLICY_NEVER);
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),sw,TRUE,TRUE,0);
+
+	cb = gtk_check_button_new_with_label (_("Display this dialog next time"));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb),
+				      gnome_config_get_bool("/Gnome/Login/RunHints=true"));
+	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),cb,TRUE,TRUE,0);
 
 	canvas = gnome_canvas_new();
 	gtk_container_add(GTK_CONTAINER(sw),canvas);
