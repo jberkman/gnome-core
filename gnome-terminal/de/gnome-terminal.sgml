@@ -714,7 +714,7 @@
       Das &term; unterstützt verschiedene Konfigurationprofile, so daß
       es sich für verschiedene Zwecke einsetzen läßt (verschiedene
       Hintergrundfarben, Vorhandensein und Position von Rollbalken usw.).
-      Um diese einzurichten, starten Sie den &props-dlg; aus dem
+      Um diese einzurichten, starten Sie den &prefs-dlg; aus dem
       <guimenu>Einstellungen</guimenu>-Menü. Machen Sie dann alle
       gewünschten Änderungen (sie wirken sich auf Ihr gegenwärtiges
       Terminal aus, so daß Sie sehen können, wie es aussehen wird)
@@ -863,7 +863,7 @@
 	      -t <replaceable>TITLE</replaceable>
             </option></para>
 	  <para>
-	    Läßt &term <replaceable>TITLE</replaceable> als Fenstertitel
+	    Läßt &term; <replaceable>TITLE</replaceable> als Fenstertitel
 	    verwenden.
 	  </para>
 	</listitem>

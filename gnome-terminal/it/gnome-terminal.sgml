@@ -1,8 +1,8 @@
-<!DOCTYPE BOOK PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
+<!DOCTYPE BOOK PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
 <!ENTITY GNOME-APPS SYSTEM "gnome-terminal.sgml">] >
 
 
-<Book id="index" lang="it">
+<book id="index" lang="it">
   <title>Guida utente per l'emulatore di terminale di Gnome</title>
   <bookinfo>
     <authorgroup>

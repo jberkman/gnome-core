@@ -1,9 +1,9 @@
-<!DOCTYPE Article PUBLIC "-//GNOME//DTD DocBook PNG Variant V1.0//EN"[
-  <!entity deskguide.sgml SYSTEM "desk-guide.sgml">
-  <!entity this-applet "<application>Desktop-Überblick</application>-Applet">
-  <!entity panel "<interface>Panel</interface>">
-  <!entity x-system "<application>X-Window</application>-System">
-  <!entity props-dlg "<interface>Eigenschaften</interface>-Dialog">
+<!DOCTYPE Article PUBLIC "-//GNOME//DTD DocBook PNG Variant V1.1//EN"[
+  <!ENTITY deskguide.sgml SYSTEM "desk-guide.sgml">
+  <!ENTITY this-applet "<application>Desktop-Überblick</application>-Applet">
+  <!ENTITY panel "<interface>Panel</interface>">
+  <!ENTITY x-system "<application>X-Window</application>-System">
+  <!ENTITY props-dlg "<interface>Eigenschaften</interface>-Dialog">
 ]>
 
 <!-- Deutsche Übersetzung 3. April 2000 von Martin Baulig gegenüber
@@ -24,13 +24,26 @@
       <holder>John Fleck</holder>
     </copyright>
 
-    <legalnotice>
-      <para>Permission is granted to copy, distribute and/or modify
-	this document under the terms of the GNU Free Documentation License,
-	Version 1.1 or any later version published by the Free Software
-	Foundation. A copy of the license is found <ulink type="http" url="http://www.gnu.org/copyleft/fdl.html">here</ulink>.</para>
-      
+    <legalnotice id="legalnotice"> 
+    
+      <para>Permission is granted to copy, distribute and/or modify this
+      document under the terms of the <ulink type="help"
+      url="gnome-help:fdl"><citetitle>GNU Free Documentation
+      License</citetitle></ulink>, Version 1.1 or any later version
+      published by the Free Software Foundation with no Invariant
+      Sections, no Front-Cover Texts, and no Back-Cover Texts.  A copy
+      of the license can be found <ulink type="help"
+      url="gnome-help:fdl">here</ulink>.  </para>
+ 
+      <para>Many of the names used by companies to distinguish their
+      products and services are claimed as trademarks. Where those names
+      appear in any GNOME documentation, and those trademarks are made
+      aware to the members of the GNOME Documentation Project, the names
+      have been printed in caps or initial caps.
+      </para>
+
     </legalnotice>
+
     <releaseinfo> 
       This is version 1.0 of the Desk Guide Applet manual.
     </releaseinfo>

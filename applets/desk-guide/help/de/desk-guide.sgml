@@ -52,7 +52,7 @@
 	Das &this-applet; arbeitet eng mit dem Fenstermanager zusammen,
 	einem Programm wie etwa <application>Sawmill</application> oder
 	<application>Enlightenment</application>, daß das Aussehen und
-	Verhalten Ihrer Fenster bestimmt &mdash - Rahmen darumzeichnet,
+	Verhalten Ihrer Fenster bestimmt &mdash; - Rahmen darumzeichnet,
 	sie zu vergrößern und zu verkleinern ermöglicht, ihre Position
 	festlegt, Sie sie verschieben läst und so weiter. Der Fenstermanager
 	kontrolliert ebenfalls die verschiedenen virtuellen Desktops &mdash;
@@ -263,15 +263,19 @@
 	<para>Die Optionen beinhalten:</para>
 	<itemizedlist>
 	  <listitem>
-	    <para><guilabel>Verborgene Tasks anzeigen (HIDDEN)</guilabel>, 
-	      <guilabel>Eingerollte Tasks anzeigen (SHADED)</guilabel>,
-	      <guilabel>Tasks anzeigen, die sich vor der Fensterliste drücken (SKIP-WINLIST)</guilabel>, <guilabel>Tasks anzeigen, die sich vor der Taskliste drücken (SKIP-TASKBAR)</guilabel> &mdash; Diese vier Optionen erlauben dem
-	      &this-applet; Applikationen anzuzeigen, die Flags gesetzt haben,
-	      die sie normaler weise vor einer Applikation wie dieser
+	    <para><guilabel>Verborgene Tasks anzeigen
+	      (HIDDEN)</guilabel>, <guilabel>Eingerollte Tasks
+	      anzeigen (SHADED)</guilabel>, <guilabel>Tasks anzeigen,
+	      die sich vor der Fensterliste drücken
+	      (SKIP-WINLIST)</guilabel>, <guilabel>Tasks anzeigen, die
+	      sich vor der Taskliste drücken (SKIP-TASKBAR)</guilabel>
+	      &mdash; Diese vier Optionen erlauben dem &this-applet;
+	      Applikationen anzuzeigen, die Flags gesetzt haben, die
+	      sie normaler weise vor einer Applikation wie dieser
 	      verbergen würden. Zum Beispiel hat das
-	      <application>panel</application> die Flags
-	      HIDDEN, HIDE_FROM_WINLIST und HIDE_FROM_TASKBAR gesetzt.
-	      Wenn Sie diese Optionen anwählen, zeigt das &this-applet;
+	      <application>panel</application> die Flags HIDDEN,
+	      HIDE_FROM_WINLIST und HIDE_FROM_TASKBAR gesetzt.  Wenn
+	      Sie diese Optionen anwählen, zeigt das &this-applet;
 	      auch solche Applikationen an.
 	    </para>
 	  </listitem>

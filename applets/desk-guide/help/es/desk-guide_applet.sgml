@@ -1,5 +1,5 @@
-<!DOCTYPE Article PUBLIC "-//GNOME//DTD DocBook PNG Variant V1.0//EN"[
-  <!entity deskguide.sgml SYSTEM "deskguide.sgml">
+<!DOCTYPE Article PUBLIC "-//GNOME//DTD DocBook PNG Variant V1.1//EN"[
+  <!ENTITY deskguide.sgml SYSTEM "desk-guide.sgml">
 ]>
 
 <article id="index" lang="es">

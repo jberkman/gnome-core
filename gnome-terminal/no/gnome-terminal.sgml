@@ -2,7 +2,7 @@
 <!ENTITY GNOME-APPS SYSTEM "gnome-terminal.sgml">] >
 
 
-<Book id="index">
+<book id="index">
   <title>GNOME Terminal brukermanual.</title>
   <bookinfo>
     <authorgroup>
@@ -576,7 +576,7 @@
       
     </sect1>
     
-    <sect1 id="enviroment">
+    <sect1 id="environment">
       <title>Miljø</title>
       <para>
 	Følgende variabler settes av gnome-terminal: 
