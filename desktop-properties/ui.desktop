@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Look and Feel Properties
+Name[no]=Egenskaper for utseende
 Comment=Look and Feel Properties
+Comment[no]=Egenskaper for utseende
 Exec=ui-properties
 Icon=
 Terminal=0
