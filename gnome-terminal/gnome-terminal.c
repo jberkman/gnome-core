@@ -1375,7 +1375,7 @@ term_change_pos(GtkWidget *widget)
 }
 
 static void
-new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
+new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 {
 	GtkWidget *app, *hbox, *scrollbar;
 	ZvtTerm   *term;
@@ -1430,7 +1430,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 	gtk_window_set_policy  (GTK_WINDOW (app), 0, 1, 1);
 #endif
 	gtk_widget_realize (app);
-	terminals = g_list_prepend (terminals, app);
+	terminals = g_list_append (terminals, app);
 
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
@@ -1450,9 +1450,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
-	zvt_term_set_background (term,
-				 cfg->background_pixmap?cfg->pixmap_file:NULL,
-				 cfg->transparent, cfg->shaded);
+
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
 
@@ -1505,6 +1503,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 		geometry = NULL;
 	}
 	configure_term_dnd (term);
+	zvt_term_set_background (term,
+				 cfg->background_pixmap?cfg->pixmap_file:NULL,
+				 cfg->transparent, cfg->shaded);
 	gtk_widget_show (app);
 	set_color_scheme (term, cfg);
 
@@ -1539,7 +1540,7 @@ new_terminal (GtkWidget *widget, ZvtTerm *term)
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	new_terminal_cmd (NULL, cfg);
+	new_terminal_cmd (NULL, cfg, NULL);
 }
 
 static gboolean
@@ -1577,7 +1578,7 @@ load_session (GnomeClient *client)
 		strcat(prefix,buffer);
 		printf("loading configuration from %s\n",prefix);
 		cfg=load_config(class,prefix);
-		new_terminal_cmd (argv, cfg);
+		new_terminal_cmd (argv, cfg,geom);
 		g_free(cfg);
 		g_free(class);
 
@@ -1783,6 +1784,12 @@ parse_an_arg (poptContext state,
 	}
 }
 
+static void
+session_die (gpointer client_data)
+{
+        gtk_main_quit ();
+}
+
 static int
 main_terminal_program (int argc, char *argv [], char **environ)
 {
@@ -1840,7 +1847,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
 			    GTK_SIGNAL_FUNC (save_session), argv[0]);
 	gtk_signal_connect (GTK_OBJECT (client), "die",
-			    GTK_SIGNAL_FUNC (die), NULL);
+			    GTK_SIGNAL_FUNC (session_die), NULL);
 	
 	{
 		char *prefix = g_malloc (strlen (class) + 20);
@@ -1870,7 +1877,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	
 	clone = gnome_cloned_client ();
 	if (! clone || ! load_session (clone))
-		new_terminal_cmd (initial_command, default_config);
+		new_terminal_cmd (initial_command, default_config, geometry);
 
 	terminal_config_free (default_config);
 
