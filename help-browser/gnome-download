@@ -8,18 +8,22 @@
 # Copyright 1997,1999 Pavel Machek <pavel@ucw.cz>
 #
 
+sub lynx {
+    system( "lynx -source $_ || echo '<HTML><BODY><H1>Error</H1><P>Error occured when trying to download <TT>$_</TT>. Lynx failed to download selected file.</BODY></HTML>'" ); 
+}
+
 $_ = $ARGV[0];
 $| = 1;
 if (/^ftp:/) {
     print "Content-Type: text/html\n\n";
     $_ =~ s-foo/../--;
-    system( "lynx -source '$_'" );
+    lynx();
     exit $? >> 8;
 }
 
 # Don't use xterm - it is suid on my system and if I use it,
 # gnome-help-browser is blocked for the time it runs.
-$xterm = "rxvt";
+$xterm = "xterm";
 # gnome-terminal does not recognize -e correctly.
 #$xterm = "gnome-terminal";
 
@@ -33,7 +37,7 @@ if (/^mailto:/) {
 	$mailer = "elm";
 	$defaultmailer = 1;
     }
-    $cmd = "$xterm -e $mailer '$_'";
+    $cmd = "$xterm -e $mailer $_";
 
     print "<HTML><HEAD>\n";
     print "<TITLE>Sending mail to $_</TITLE>\n";
@@ -52,8 +56,7 @@ if (/^mailto:/) {
 if (/^news:/) {
     print "Content-Type: internal/lynx-news\n\n";
 
-    print "<BODY><TITLE>Heya - calling $_ real soon now</TITLE></BODY>\n";
-    system( "lynx -source '$_'" );
+    lynx();
     exit $? >> 8;
 }
 
@@ -106,7 +109,7 @@ if (/^about:/) {
     print "<P><TT>gnome-download</TT> allows retrieving documents by various transport methods pretty painlessly. It is perl script, which launches external commands (like lynx) frequently. It was designed for maximum flexibility, and you should feel free to modify it.\n";
 
     print "<H3>TODO</H3>\n";
-    print "<P>Look for alternative to lynx, as lynx is really slow at startup\n";
+    print "<P><TT>lynx</TT> is really slow if <tt>/etc/mailcap</tt> is used. Fix it, somehow. Find nice possibility to save files, enter tar archives etc.\n";
     
     print "<H3>Contributors</H3>\n";
     print "<UL>\n";
@@ -116,11 +119,12 @@ if (/^about:/) {
     exit 0;
 }
 
-if ((/^local/) || (/^file/)) {
+if (/^file/) {
     print "Content-Type: text/html\n\n";
 
     $_ =~ s-foo/../--;
-    system "lynx -source '$_'";
+#    $_ =~ s-^file:--;
+    lynx();
     exit 0;
 }
 
@@ -138,18 +142,32 @@ if (/^newspost/) {
     print "<TITLE>Posting news article to $GROUPS on $SERVER</TITLE>\n";
     print "</HEAD><BODY>\n";
     print "<H1>Posting news</H1>\n";
-    print "<P>External programs <TT>xterm</TT> and <TT>rtin</TT> were spawned for you. This is ugly hack and I hope it will work (correct scripts <TT>newspost</TT> if not ;-). \n";
+    print "<P>External programs <TT>xterm</TT> and <TT>bash</TT> were spawned for you. This means that you should fix newspost method. \n";
     print "Press <I>back</I> when you finish posting to newsgroups.</P>\n";
     print "</BODY></HTML>\n";
 
-#    system( "xterm -e $0newspost --post $GROUPS $SERVER &" );
-    system( "xterm -e bash &" );
+#    system( "$xterm -e $0newspost --post $GROUPS $SERVER &" );
+    system( "$xterm -e bash &" );
+    exit 0;
+}
+
+if (/^netscape:|^lynx:|^mozilla:|^w3m:/) {
+    print "Content-Type: text/html\n\n";
+
+    print "<HTML><HEAD>\n";
+    print "</HEAD><BODY>\n";
+    print "<H1>Launching other browser</H1>\n";
+    print "<P>Ok, you have requested browsing using other browser. It was spawned for you. Press <I>back</I> when you are done.\n";
+    $_ =~ s#([^:]*):##;
+    print "<P>(Am I right that you want $1?)\n"; 
+    print "</BODY></HTML>\n";
+    system( "$xterm -e bash -c '$1 $_' &" );
     exit 0;
 }
 
 print "Content-Type: text/html\n\n";
 
-system( "lynx -source $_" );
+lynx();
 exit $? >> 8;
 
 

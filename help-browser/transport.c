@@ -36,14 +36,19 @@ transport( docObj obj, DataCache cache )
     g_snprintf(key, sizeof key, "%s://%s%s", url->access, url->host, url->path);
 
     if (docObjUseCache(obj) && cache) {
-	p = lookupInDataCacheWithLen(cache, key, &len);
+        gchar *s;
+
+	p = lookupInDataCacheWithLen(cache, key, &s, &len);
 	if (p) {
 	    g_message("cache hit: %s", key);
 	    /* XXX potential problem here.  The cache can free up */
 	    /* space if it hits a limit, which would invalidate   */
 	    /* this pointer.  It's not right, but for now, the    */
 	    /* short lifespan of obj will probably save us.       */
-	    docObjSetRawData(obj, p, len, FALSE);
+
+	    docObjSetRawData(obj, p, len, FALSE);	
+	    g_warning("cache hit has content type: %s\n", s );
+	    docObjSetMimeType(obj, s);
 	    return 0;
 	}
     }
@@ -57,7 +62,7 @@ transport( docObj obj, DataCache cache )
 	docObjGetRawData(obj, &p, &len);
 	copy = g_malloc(len);
 	memcpy(copy, p, len);
-	addToDataCache(cache, key, copy, len, ! docObjUseCache(obj));
+	addToDataCache(cache, key, copy, len, docObjGetMimeType(obj), ! docObjUseCache(obj));
     }
     
     return 0;
@@ -175,7 +180,7 @@ loadSock( docObj obj, int sock )
 	}
 	*mimeTypeEnd = '\0';
 	docObjSetMimeType(obj, mimeType);
-    }
+    } else docObjSetMimeType(obj, "text/plain");
     
     copylen = outbuflen - (s - outbuf);
     copy = g_malloc(copylen);
@@ -199,9 +204,8 @@ transportUnknown( docObj obj )
     statusMsg("Calling external download...");
 
     url = docObjGetDecomposedUrl(obj);
-    g_snprintf(key, sizeof key, "gnome-download %s", docObjGetAbsoluteRef(obj));
+    g_snprintf(key, sizeof key, "gnome-download '%s'", docObjGetAbsoluteRef(obj));
 
-    docObjSetMimeType(obj, "text/plain");
     pipe = popen(key, "r");
     sock = fileno(pipe);
     res = loadSock(obj, sock);

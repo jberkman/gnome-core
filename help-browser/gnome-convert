@@ -7,15 +7,10 @@ sub basicescape {
 }
 
 sub tagify {
-# Put quoted text to italic
-    s#^&gt;(.*)#<I>&gt;$1</I>#g;
-# Transform url's to hrefs
+    s#(^&lt;.*)#<I>&lt;$1</I>#;
     s#([a-z]*://\S*)#<A HREF="$1">$1</A>#g;
-# Transform mail adresses to hrefs
     s#([-a-zA-Z._0-9]+\@[-a-zA-Z._0-9]+)#<A HREF="mailto:$1">$1</A>#g;
-# Transform <file.h> into hrefs
     s#&lt;(\S+\.h)&gt;#<A HREF="file:/usr/include/$1">&lt;$1&gt;</A>#g;
-# Transform /path/path/path into hrefs
     s# (/[a-z]+/[a-z.-/]+)# <A HREF="file:$1">$1</A>#g;
 }
 
@@ -25,13 +20,13 @@ sub plain {
 $_ = $ARGV[1];
 if (/^text.html/) {
 } else {
+    print "Can't convert to something else than text/html... yet.\n";
     exit(1);
 }    
 
-print "<HTML><BODY>\n";
-
 $_ = $ARGV[0];
 if (/^text.plain/) {
+    print "<HTML><BODY>\n";
     print "<PRE>";
     while( <STDIN> ) {
 	basicescape();
@@ -39,6 +34,7 @@ if (/^text.plain/) {
 	print "$_";
     }
     print "</PRE>";
+    goto done;
 } 
 
 if (/^internal.lynx-news/) {
@@ -79,6 +75,22 @@ if (/^internal.lynx-news/) {
 	s#&lt;/XMP&gt;#</PRE>#;
 	print "$_";
     }
+    goto done;
 }
 
+print "<h1>Unknown data type</h1>\n";
+$filename = $ARGV[2];
+$filename =~ s#.*/##;
+$tmpname = `mktemp /tmp/$filename.conv.XXXXXX`;
+print "<p>File with uknown type <TT>$_</TT> was encountered. If it can reasonably be converted to text/html, add conversion routine to <CODE>gnome-convert</CODE> script.\n";
+print "<p>File has been saved into <TT>$tmpname</TT>, delete it if you don't need it.\n";
+
+open( INPUT, "cat > $tmpname |" );
+while ( <INPUT> ) {
+    print $_;
+}
+$type = `file $tmpname`;
+print "<p>PS: file's type seems to be: <pre>$type</pre>\n";
+
+done:
 print "<HR><P ALIGN=right><I>[$ARGV[2]: $ARGV[0] -&gt; $ARGV[1]]</I></BODY></HTML>";

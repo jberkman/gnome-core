@@ -43,7 +43,7 @@ resolveMIME( docObj obj )
 	        docObjSetMimeType(obj, "application/x-info");
 	} else if (strstr(ref, "/man/")) {
 		docObjSetMimeType(obj, "application/x-troff-man");
-	} else if (strstr(ref, "html") || strstr(ref, "#")
+	} else if (strstr(ref, "htm") || strstr(ref, "#")
 		   || strstr(ref, "http")) {
 		docObjSetMimeType(obj, "text/html");
 	} else {

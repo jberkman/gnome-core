@@ -25,6 +25,7 @@ struct _docObj {
     gboolean  freeraw;
     gboolean  freeconv;
     gboolean  useCache;
+    gboolean  noMimeOverride;
 
     /* Transport info */
     TransportMethod   transportMethod;
@@ -50,6 +51,7 @@ docObjNew(gchar *ref, gboolean useCache)
 	p->freeraw  = FALSE;
 	p->freeconv = FALSE;
 	p->useCache = useCache;
+	p->noMimeOverride = FALSE;
 	
 	p->transportMethod = TRANS_UNRESOLVED;
 	p->transportFunc = transportUnknown;
@@ -83,6 +85,7 @@ void
 docObjResolveURL(docObj obj, gchar *currentRef)
 {
 	DecomposedUrl decomp = NULL;
+	gchar *ref;
 
 	g_return_if_fail( obj != NULL );
 	g_return_if_fail( obj->ref != NULL );
@@ -90,14 +93,29 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	if (obj->decomposedUrl)
 	    return;
 
-	if (isRelative(obj->ref)) {
-	    g_message("relative ref: %s", obj->ref);
-	    decomp = decomposeUrlRelative(obj->ref, currentRef,
+	ref = obj->ref;
+	if (*ref == '(') {
+	    gchar *type, *s;
+
+	    g_message( "user wants to manually override type\n" );
+	    type = ref+1;
+	    s = strchr(type, ')');
+	    if (s) {
+	        ref = s+1;
+		*s = 0;
+	    }
+	    docObjSetMimeType(obj, type);
+	    obj->noMimeOverride = TRUE;
+	}
+
+	if (isRelative(ref)) {
+	    g_message("relative ref: %s", ref);
+	    decomp = decomposeUrlRelative(ref, currentRef,
 					  &(obj->absoluteRef));
         } else {
-	    g_message("absolute ref: %s", obj->ref);
-	    decomp = decomposeUrl(obj->ref);
-	    obj->absoluteRef = strdup(obj->ref);
+	    g_message("absolute ref: %s", ref);
+	    decomp = decomposeUrl(ref);
+	    obj->absoluteRef = g_strdup(ref);
 	}
 
 	g_message("decomposed to: %s, %s, %s, %s", decomp->access, 
@@ -186,6 +204,8 @@ TransportFunc docObjGetTransportFunc(docObj obj)
     
 void docObjSetMimeType(docObj obj, gchar *s)
 {
+    if (obj->noMimeOverride)
+        return;
     if (obj->mimeType)
 	g_free(obj->mimeType);
 

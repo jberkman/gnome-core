@@ -25,6 +25,7 @@ struct _data_cache_entry {
     gchar *key;
     gpointer value;
     guint size;
+    gchar *aux;
 };
 
 static void freeEntry(struct _data_cache_entry *entry, DataCache cache);
@@ -95,10 +96,10 @@ void destroyDataCache(DataCache cache)
 
 gpointer lookupInDataCache(DataCache cache, gchar *key)
 {
-    return lookupInDataCacheWithLen(cache, key, NULL);
+    return lookupInDataCacheWithLen(cache, key, NULL, NULL);
 }
 
-gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len)
+gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gchar **aux, gint *len)
 {
     struct _data_cache_entry *hit;
     
@@ -114,11 +115,13 @@ gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len)
     if (len) {
 	*len = hit->size;
     }
+    if (aux)
+        *aux = hit->aux;
     return hit->value;
 }
 
 void addToDataCache(DataCache cache, gchar *key, gpointer value,
-		    guint size, gboolean overWrite)
+		    guint size, gchar *aux, gboolean overWrite)
 {
     struct _data_cache_entry *hit;
 
@@ -144,6 +147,7 @@ void addToDataCache(DataCache cache, gchar *key, gpointer value,
 	}
 	hit->value = value;
 	hit->size = size;
+	hit->aux = g_strdup(aux);
 
 	/* Let's move this element to the end of the list */
 	/* so it won't get tossed soon.                   */
@@ -158,6 +162,7 @@ void addToDataCache(DataCache cache, gchar *key, gpointer value,
     hit->key = g_strdup(key);
     hit->value = value;
     hit->size = size;
+    hit->aux = g_strdup(aux);
 
     cache->queue = g_list_append(cache->queue, hit);
     g_hash_table_insert(cache->hashTable, hit->key, hit);

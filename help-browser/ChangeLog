@@ -1,3 +1,12 @@
+1999-12-06  Pavel Machek  <pavel@ucw.cz>
+
+	* gnome-convert, gnome-download: better handling of unknown types
+
+	* fixed cache to include MIME types (that was design bug!)
+
+	* added possibilty to force mime type using
+	(text/html)http://localhost/ syntax
+
 1999-12-03  Pavel Machek <pavel@ucw.cz>
 
 	* Makefile.am (install-exec-local): add gnome-download

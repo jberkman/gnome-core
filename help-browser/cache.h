@@ -14,7 +14,7 @@ void reconfigDataCache(DataCache cache, guint maxMemSize, guint maxDiskSize,
 void destroyDataCache(DataCache cache);
 
 gpointer lookupInDataCache(DataCache cache, gchar *key);
-gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len);
+gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gchar **aux, gint *len);
 
 /* addToDataCache() will strdup() the key, so you should free */
 /* it if you need to.  The value is *not* copied, but it *is* */
@@ -22,7 +22,7 @@ gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len);
 /* If overWrite is TRUE, replace any existing entry.          */
 /* Otherwise, make no change.                                 */
 void addToDataCache(DataCache cache, gchar *key, gpointer value,
-		    guint size, gboolean overWrite);
+		    guint size, gchar *aux, gboolean overWrite);
 
 void saveCache(DataCache cache);
 
