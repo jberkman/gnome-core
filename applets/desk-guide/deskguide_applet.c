@@ -18,6 +18,7 @@
 #include <config.h>		/* PACKAGE, i18n */
 
 #include "deskguide_applet.h"
+#include <libgnomeui/gnome-window-icon.h>
 #include "gwmdesktop.h"
 #include "gwmtaskview.h"
 
@@ -168,6 +169,7 @@ main (gint   argc,
 		      argc, argv,
 		      NULL, 0, NULL);
   
+  gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-deskguide.png");
   DESK_GUIDE_NAME = _ ("GNOME Desktop Guide (Pager)");
   
   /* setup applet widget

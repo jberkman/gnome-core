@@ -20,7 +20,8 @@
  */
 
 #include <config.h>
-#include "capplet-widget.h"
+#include <capplet-widget.h>
+#include <libgnomeui/gnome-window-icon.h>
 
 static gboolean changing = FALSE;
 
@@ -226,7 +227,7 @@ main (int argc, char **argv)
 	if(gnome_capplet_init("gnome-hint-properties", VERSION, argc,
 			      argv, NULL, 0, NULL) < 0)
 		return 1;
-	
+	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-hint.png");
 	loadup_vals();
 
 	the_capplet = capplet_widget_new();

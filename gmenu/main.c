@@ -8,7 +8,7 @@
  */
 
 #include "gmenu.h"
-
+#include <libgnomeui/gnome-window-icon.h>
 /*
  *-----------------------------------------------------------------------------
  * global variables (public)
@@ -274,6 +274,7 @@ int main (int argc, char *argv[])
 	textdomain(PACKAGE);
 
 	gnome_init ("GNOME menu editor", VERSION, argc, argv);
+	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-gmenu.png");
 
 	system_apps_dir = gnome_datadir_file("gnome/apps");
 	system_applets_dir = gnome_datadir_file("applets");

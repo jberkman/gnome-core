@@ -27,6 +27,7 @@
 #include <zvt/zvtterm.h>
 #include <orb/orbit.h>
 #include <libgnorba/gnorba.h>
+#include <libgnomeui/gnome-window-icon.h>
 
 #include <X11/Xatom.h>
 
@@ -2048,7 +2049,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, i
 		        if ((strncmp (*p, "COLUMNS=", 8) == 0)
 				   || (strncmp (*p, "LINES=", 6) == 0)
 				   || (strncmp(*p, "WINDOWID=", 9) == 0)
-				   || (strncmp (*p, "TERM=", 5) == 0)) {
+			           || (strncmp (*p, "TERM=", 5) == 0)
+				   || (strncmp (*p, "GNOME_DESKTOP_ICON=", 19) == 0)) {
 				/* nothing: do not copy those */
 			} else
 				env_copy [i++] = *p;
@@ -2721,8 +2723,6 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	CORBA_ORB orb;
 	CORBA_Environment ev;
 
-	env = environ;
-	
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 
@@ -2735,22 +2735,23 @@ main_terminal_program (int argc, char *argv [], char **environ)
 
 	/* pre-scan for -x and --execute options */
 	for (i=1;i<argc;i++) {
-		if (!strcmp(argv[i], "-x") || !(strcmp(argv[i], "--execute"))) {
-			int last=i;
+		if (!strcmp (argv [i], "-x") || !(strcmp (argv [i], "--execute"))) {
+			int last = i;
 			i++;
-			if (i==argc) {
+			if (i == argc) {
 				/* no arg!? let popt whinge about usage */
 				break;
 			}
-			initial_command=malloc((argc-i+1)*sizeof(char *));
+			initial_command = malloc ((argc-i+1) * sizeof (char *));
 			j = 0;
-			while (i<argc) {
-				initial_command[j] = argv[i];
-				i++; j++;
+			while (i < argc) {
+				initial_command [j] = argv [i];
+				i++; 
+				j++;
 			}
-			initial_command[j]=NULL;
+			initial_command [j]=NULL;
 			/* 'fool' popt into thinking we have less args */
-			argc=last;
+			argc = last;
 			use_terminal_factory = FALSE;
 			break;
 		}
@@ -2761,10 +2762,14 @@ main_terminal_program (int argc, char *argv [], char **environ)
 						&argc, argv,
 						cb_options, 0, NULL,
 						0, &ev);
+	env = environ;
+
 	if (ev._major != CORBA_NO_EXCEPTION)
-	    exit (5);
+		exit (5);
 
 	CORBA_exception_free (&ev);
+
+	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-terminal.png");
 
 	/* since -x gets stripped out of the commands, this
 	   will make it override --use-factory */
@@ -2772,19 +2777,20 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		use_terminal_factory = FALSE;
 
 	if(cmdline_config->user_back_str)
-		gdk_color_parse(cmdline_config->user_back_str,
-				&cmdline_config->palette[17]);
+		gdk_color_parse (cmdline_config->user_back_str,
+				 &cmdline_config->palette[17]);
 	
 	if(cmdline_config->user_fore_str)
-		gdk_color_parse(cmdline_config->user_fore_str,
-				&cmdline_config->palette[16]);
+		gdk_color_parse (cmdline_config->user_fore_str,
+				 &cmdline_config->palette [16]);
 
 	if (cmdline_config->class){
 		class = g_strdup (cmdline_config->class);
 	}
 	else
 	{
-#if 0 /* program_invoation_short_name is broken on non-glibc machines at the moment */	
+#if 0 
+		/* program_invoation_short_name is broken on non-glibc machines at the moment */
 		program = program_invocation_short_name;
 #else
 		program_name = strrchr (argv[0], '/');

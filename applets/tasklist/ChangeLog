@@ -1,3 +1,9 @@
+2000-05-04  Jacob Berkman  <jacob@helixcode.com>
+
+	* tasklist_icon.c: 
+	* tasklist_applet.c: show icons as 20x20, and get rid of the extra
+	in shadow.  Also set the default window icon
+
 2000-04-24  Fatih Demir	<kabalak@gmx.net>
 	
 	* tasklist_applet.desktop : Added [tr] section

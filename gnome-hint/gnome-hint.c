@@ -1,5 +1,6 @@
 #include <config.h>
 #include <gnome.h>
+#include <libgnomeui/gnome-window-icon.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -498,7 +499,7 @@ main(int argc, char *argv[])
 	textdomain(PACKAGE);
 
 	gnome_init("gnome-hint", VERSION, argc, argv);
-	
+	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-hint.png");
 	client = gnome_master_client();
 	flags = gnome_client_get_flags(client);
 

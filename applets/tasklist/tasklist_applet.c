@@ -1,5 +1,6 @@
 #include <config.h>
 #include <gnome.h>
+#include <libgnomeui/gnome-window-icon.h>
 
 #include "gstc.h"
 #include "gwmh.h"
@@ -239,7 +240,7 @@ draw_task (TasklistTask *task)
 				 area->style->fg_gc[GTK_STATE_ACTIVE] :
 				 area->style->fg_gc[GTK_STATE_NORMAL],
 				 task->x +
-				 (Config.show_mini_icons ? 8 : 0) +
+				 (Config.show_mini_icons ? 10 : 0) +
 				 ((task->width - text_width) / 2),
 				 task->y + ((task->height - text_height) / 2) + text_height,
 				 tempstr);
@@ -323,22 +324,22 @@ layout_tasklist (void)
 		}
 		
 		if (Config.horz_fixed) {
-			curheight = (ROW_HEIGHT * get_horz_rows() - 4) / num_rows;
-			curwidth = (Config.horz_width - 4) / num_cols;
+			curheight = (ROW_HEIGHT * get_horz_rows() - 0) / num_rows;
+			curwidth = (Config.horz_width - 0) / num_cols;
 
 		} else {
-			curheight = (ROW_HEIGHT * get_horz_rows() - 4) / num_rows;
+			curheight = (ROW_HEIGHT * get_horz_rows() - 0) / num_rows;
 			curwidth = Config.horz_taskwidth;
 
 			/* If the total width is higher than allowed, 
 			   we use the "fixed" way instead */
 			if ((curwidth * num_cols) > Config.horz_width)
-				curwidth = (Config.horz_width - 4) / num_cols;
+				curwidth = (Config.horz_width - 0) / num_cols;
 		}
 
 
-		curx = 2;
-		cury = 2;
+		curx = 0;
+		cury = 0;
 
 
 		while (temp_tasks) {
@@ -355,7 +356,7 @@ layout_tasklist (void)
 				if (curx >= Config.horz_width ||
 				    curx + curwidth > Config.horz_width) {
 					cury += curheight;
-					curx = 2;
+					curx = 0;
 				}
 			} else {
 
@@ -363,7 +364,7 @@ layout_tasklist (void)
 
 				if (curx >= num_cols * curwidth) {
 					cury += curheight;
-					curx = 2;
+					curx = 0;
 				}
 			}
 			
@@ -400,15 +401,15 @@ layout_tasklist (void)
 
 		curheight = ROW_HEIGHT;
 		if (Config.follow_panel_size)
-			curwidth = panel_size - 4;
+			curwidth = panel_size - 0;
 		else
-			curwidth = Config.vert_width - 4;
+			curwidth = Config.vert_width - 0;
 		
 		num_cols = 1;
 		num_rows = num;
 		
-		curx = 2;
-		cury = 2;
+		curx = 0;
+		cury = 0;
 
 		if (Config.vert_fixed)
 			vert_height = Config.vert_height;
@@ -429,9 +430,9 @@ layout_tasklist (void)
 
 			if (curx >= (Config.follow_panel_size?
 				     panel_size:
-				     Config.vert_width) - 4) {
+				     Config.vert_width) - 0) {
 				cury += curheight;
-				curx = 2;
+				curx = 0;
 			}
 			
 			if (temp_tasks->next)
@@ -588,14 +589,14 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 	TasklistTask *task;
 
 	temp_tasks = get_visible_tasks ();
-
+#if 0
 	gtk_paint_box (area->style, area->window,
 		       GTK_STATE_NORMAL, GTK_SHADOW_IN,
 		       NULL, area, "button",
 		       0, 0,
 		       area->allocation.width,
 		       area->allocation.height);
-
+#endif
 	while (temp_tasks) {
 		task = (TasklistTask *)temp_tasks->data;
 		draw_task (task);
@@ -808,6 +809,8 @@ main (gint argc, gchar *argv[])
 			    NULL, 0, NULL);
 
 	gdk_rgb_init ();
+
+	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-tasklist.png");
 
 	gtk_widget_set_default_colormap (gdk_rgb_get_cmap ());
 	gtk_widget_set_default_visual (gdk_rgb_get_visual ());

@@ -270,7 +270,7 @@ tasklist_icon_check_x (TasklistTask *task)
 	}
 
 	scaled = gdk_pixbuf_scale_simple (pixbuf,
-					  16, 16, 
+					  20, 20,
 					  GDK_INTERP_BILINEAR);
 	gdk_pixbuf_unref (pixbuf);
 	gdk_pixmap_unref (pixmap);

@@ -1,3 +1,10 @@
+2000-05-04  Jacob Berkman  <jacob@helixcode.com>
+
+	* gwmdesktop.c (gwm_desktop_draw): revert something I
+	accidentally committed
+
+	* deskguide_applet.c (main): set the default icon
+
 2000-05-02 John Fleck <jfleck@inkstain.net>
 
 	* updated desk-guide.sgml, deskguide-properties.png and 
