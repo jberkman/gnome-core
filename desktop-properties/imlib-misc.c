@@ -54,7 +54,7 @@ get_monitor_preview_widget (void)
 	gtk_widget_push_visual (visual);
 	gtk_widget_push_colormap (cmap);
 
-	f = gnome_pixmap_file ("monitor.xpm");
+	f = gnome_pixmap_file ("monitor.png");
 	im = Imlib_load_image (imlib_data, f);
 	g_free (f);
 
