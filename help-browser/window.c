@@ -450,8 +450,22 @@ helpWindowGetCache(HelpWindow win)
 void
 helpWindowShowURL(HelpWindow win, gchar *ref)
 {
-    visitURL(win, ref);
-    update_toolbar(win);
+	gchar err[1024];
+
+	if (visitURL(win, ref)) {
+		GtkWidget *msg;
+
+		snprintf(err, sizeof(err), "Error loading document:\n\n%s",
+			 ref);
+		msg = gnome_messagebox_new(err, GNOME_MESSAGEBOX_ERROR,
+					   "Ok", NULL);
+		gnome_messagebox_set_modal (GNOME_MESSAGEBOX (msg));
+		gtk_widget_show(msg);
+
+		gtk_entry_set_text(GTK_ENTRY(win->entryBox), win->currentRef);
+		return;
+	}
+	update_toolbar(win);
 }
 
 /**********************************************************************/

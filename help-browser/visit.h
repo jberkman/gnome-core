@@ -5,7 +5,7 @@
 
 #include "window.h"
 
-void visitURL( HelpWindow win, gchar *ref );
-void visitURL_nohistory( HelpWindow win, gchar *ref );
+gint visitURL( HelpWindow win, gchar *ref );
+gint visitURL_nohistory( HelpWindow win, gchar *ref );
 
 #endif

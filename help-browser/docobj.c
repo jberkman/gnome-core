@@ -80,7 +80,6 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	if (obj->decomposedUrl)
 	    return;
 
-	/* HACKHACKHACK for info support */
 	if (isRelative(obj->ref)) {
 	    g_message("relative ref: %s", obj->ref);
 	    decomp = decomposeUrlRelative(obj->ref, currentRef,

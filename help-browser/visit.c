@@ -9,36 +9,38 @@
 #include "transport.h"
 #include "visit.h"
 
-static void visitDocument( HelpWindow win, docObj obj );
+static gint visitDocument( HelpWindow win, docObj obj );
 static void displayHTML( HelpWindow win, docObj obj );
-static void _visitURL( HelpWindow win, gchar *ref, gboolean save );
+static gint _visitURL( HelpWindow win, gchar *ref, gboolean save );
 
-void
+gint
 visitURL( HelpWindow win, gchar *ref )
 {
-	_visitURL(win, ref, TRUE);
+	return _visitURL(win, ref, TRUE);
 }
 
-void visitURL_nohistory(HelpWindow win, gchar *ref )
+gint visitURL_nohistory(HelpWindow win, gchar *ref )
 {
-	_visitURL(win, ref, FALSE);
+	return _visitURL(win, ref, FALSE);
 }
 
-static void
+static gint
 visitDocument(HelpWindow win, docObj obj )
 {
 	resolveMagicURL( obj );
 	docObjResolveURL(obj, helpWindowCurrentRef(win));
-	transport(obj, helpWindowGetCache(win));
+	if (transport(obj, helpWindowGetCache(win)))
+		return -1;
 	resolveMIME(obj);
 	convertMIME(obj);
 	displayHTML(win, obj);
+	return 0;
 }
 
 
 /* most people will call this - it allocates a docObj type and loads   */
 /* the page. Currently it frees the docObj afterwards, no history kept */
-static void
+static gint
 _visitURL( HelpWindow win, gchar *ref, gboolean save )
 {
 	docObj obj;
@@ -49,7 +51,10 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save )
 
 	helpWindowQueueMark(win);
 	
-	visitDocument(win, obj);
+	if (visitDocument(win, obj)) {
+		docObjFree(obj);
+		return -1;
+	}
 
 	/* obj was 'cleaned up' by visitDocuemnt()/resolveURL() */
 	if (save) {
@@ -60,6 +65,7 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save )
 	docObjFree(obj);
 
 	/* !!! This is the entire lifespan of all the docObjs */
+	return 0;
 }
 
 static void

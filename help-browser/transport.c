@@ -11,13 +11,14 @@
 #include "misc.h"
 #include "cache.h"
 
-void
+gint
 transport( docObj obj, DataCache cache )
 {
     DecomposedUrl url;
     gchar key[BUFSIZ];
     gchar *p;
-    
+    gint  rc;
+
     if (cache) {
 	url = docObjGetDecomposedUrl(obj);
 	sprintf(key, "%s://%s%s", url->access, url->host, url->path);
@@ -29,39 +30,49 @@ transport( docObj obj, DataCache cache )
 	    /* this pointer.  It's not right, but for now, the    */
 	    /* short lifespan of obj will probably save us.       */
 	    docObjSetRawData(obj, p, FALSE);
-	    return;
+	    return 0;
 	}
     }
     
-    (docObjGetTransportFunc(obj))(obj);
+    rc = (docObjGetTransportFunc(obj))(obj);
+    
+    if (rc)
+	    return rc;
 
     if (cache) {
 	p = docObjGetRawData(obj);
 	addToDataCache(cache, key, g_strdup(p), strlen(p));
     }
+    
+    return 0;
 }
 
-void
+gint
 transportUnknown( docObj obj )
 {
+#if 0
 	gchar    s[513];
-
 	g_snprintf(s, sizeof(s), "<BODY>Error: unable to resolve transport "
 		   "method for requested URL:<br><b>%s</b></BODY>",
 		   docObjGetRef(obj));
 	docObjSetRawData(obj, g_strdup(s), TRUE);
+#endif
+	return -1;
 }
 
-void
+gint
 transportFile( docObj obj )
 {
-    gchar *buf;
-
-    buf = loadFileToBuf(docObjGetDecomposedUrl(obj)->path);
-    docObjSetRawData(obj, buf, TRUE);
+	guchar *buf;
+	
+	if (loadFileToBuf(docObjGetDecomposedUrl(obj)->path, &buf)) 
+		return -1;
+	
+	docObjSetRawData(obj, buf, TRUE);
+	return 0;
 }
 
-void
+gint
 transportHTTP( docObj obj )
 {
 	char *argv[4];
@@ -72,5 +83,6 @@ transportHTTP( docObj obj )
 	argv[3] = NULL;
 
 	docObjSetRawData(obj, getOutputFrom(argv, NULL, 0), TRUE);
+	return 0;
 }
 

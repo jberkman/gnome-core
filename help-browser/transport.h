@@ -9,11 +9,11 @@ enum _TransportMethod {TRANS_FILE, TRANS_HTTP,
 
 typedef enum _TransportMethod TransportMethod;
 
-void transport(docObj obj, DataCache cache);
+gint transport(docObj obj, DataCache cache);
 
-void transportHTTP(docObj obj);
-void transportFile(docObj obj);
-void transportUnknown(docObj obj);
+gint transportHTTP(docObj obj);
+gint transportFile(docObj obj);
+gint transportUnknown(docObj obj);
 
 #endif
 

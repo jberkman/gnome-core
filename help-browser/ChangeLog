@@ -1,10 +1,16 @@
-1998-02-26  Marc Ewing  <marc@germ.labs.redhat.com>
+1998-02-26  Michael Fulbright  <msf@redhat.com>
+
+	* fixed info handling to work with the 'dir' file
+
+	* added some very simple error handling
+
+1998-02-26  Marc Ewing  <marc@redhat.com>
 
 	* add line position to queue info for forw/back
 
 	* changed history/toc window management a bit
 
-1998-02-25  Marc Ewing  <marc@tasmanian.redhat.com>
+1998-02-25  Marc Ewing  <marc@redhat.com>
 
 	* cleaned up some messages
 

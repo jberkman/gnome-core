@@ -74,8 +74,7 @@ resolveMagicURL( docObj obj )
 			g_free(c);
 		}
 
-		data = loadFileToBuf( indexfile );
-		if (!data) {
+		if (loadFileToBuf( indexfile, &data )) {
 			freeDecomposedUrl( u );
 			return; /* no info file exists */
 		}

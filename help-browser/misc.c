@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <zlib.h>
 #include <glib.h>
 
@@ -239,16 +240,24 @@ getOutputFromBin(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 }
 
 
-guchar
-*loadFileToBuf( gchar *file )
+gint
+loadFileToBuf( gchar *file, guchar **bufout )
 {
 	guchar buf[8193];
 	guchar *out=NULL;
 	gzFile *f;
 	gint bytes, len=0;
 
+	struct stat b;
+
+	if (stat(file, &b))
+		return -1;
+
+	if (!S_ISREG(b.st_mode))
+		return -1;
+
 	if ((f=gzopen(file, "r"))==NULL)
-		return NULL;
+		return -1;
 
 	bytes=gzread(f, buf, 8192);
 	while (bytes > 0) {
@@ -262,7 +271,8 @@ guchar
 		bytes=gzread(f, buf, 8192);
 	}
 	gzclose(f);
-	return out;
+	*bufout = out;
+	return bytes;
 }
 
 

@@ -4,8 +4,6 @@
     toolbar preferences
     history/cache sizes/filesnames
  - session management
- - preserve scrollbar positions when going "back"
-    (add scrollbar position to docobj? and store in queue?)
  - fix error handling (back, etc)
  - Make a better scheme to reference files/section than using a real filename?
  - work on DocBook output to generate topic.dat automatically (need to use
@@ -28,7 +26,4 @@
     rethink the url/docobj processing and callback entries to the
      docobj processing path
  - mutiple windows
- - add "magic" urls (eg "man:ls")
- - man2html remove contents and man2html tags
-   fix path (eg /usr/X11R6/man)
  - make man2html & info (and other filters) loadable modules

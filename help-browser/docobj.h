@@ -6,7 +6,7 @@
 #include "parseUrl.h"
 
 typedef struct _docObj *docObj;
-typedef void (*TransportFunc) (docObj obj);
+typedef gint(*TransportFunc) (docObj obj);
 
 docObj docObjNew(gchar *ref);
 void docObjFree(docObj obj);
