@@ -50,7 +50,7 @@ int invoke_as_login_shell = 0;
 int blink;
 
 /* Initial command */
-char **initial_command;
+char **initial_command = NULL;
 
 /* A list of all the open terminals */
 GList *terminals = 0;
