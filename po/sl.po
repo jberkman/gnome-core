@@ -404,12 +404,12 @@ msgstr "Nastavitve Vodnika po namizju"
 #: applets/fish/fish.c:429 applets/fish/fish.c:823
 #, no-c-format
 msgid "%s the Fish"
-msgstr "%s Riba"
+msgstr "Riba %s"
 
 #: applets/fish/fish.c:430
 #, c-format
 msgid "%s the GNOME Fish Says:"
-msgstr "%s GNOME riba pravi:"
+msgstr "GNOME riba %s pravi:"
 
 #: applets/fish/fish.c:506
 msgid ""
@@ -429,7 +429,7 @@ msgstr "Lastnosti GNOME ribe"
 
 #: applets/fish/fish.c:559
 msgid "Your GNOME Fish's Name:"
-msgstr "Ime Va¹e GNOME ribe:"
+msgstr "Ime va¹e GNOME ribe:"
 
 #: applets/fish/fish.c:573
 msgid "The Animation Filename:"
@@ -625,16 +625,16 @@ msgid ""
 "Remote-client-error occured. Remote-polling deactivated. Maybe you used a "
 "wrong server/username/password?"
 msgstr ""
-"Zgodila se je napaka na oddaljenem odjemalcu. Remote-polling deaktiviran "
+"Zgodila se je napaka na oddaljenem odjemalcu. Remote-polling deaktiviran. "
 "Morda ste uporabili napaèen stre¾nik/uporabni¹ko ime/geslo?"
 
 #: applets/gen_util/mailcheck.c:471
 msgid "You have new mail."
-msgstr "Ima¹ novo po¹to."
+msgstr "Imate novo po¹to."
 
 #: applets/gen_util/mailcheck.c:473
 msgid "You have mail."
-msgstr "Ima¹ po¹to."
+msgstr "Imate po¹to."
 
 #: applets/gen_util/mailcheck.c:477
 #, c-format
@@ -648,7 +648,7 @@ msgstr "%d sporoèil"
 
 #: applets/gen_util/mailcheck.c:483
 msgid "No mail."
-msgstr "Po¹te ni."
+msgstr "Ni po¹te."
 
 #: applets/gen_util/mailcheck.c:965
 msgid "Mailbox resides on:"
@@ -676,7 +676,7 @@ msgstr "Datoteka s èakajoèo po¹to:"
 
 #: applets/gen_util/mailcheck.c:1033
 msgid "Mail server:"
-msgstr "Stre¾nik po¹te:"
+msgstr "Po¹tni stre¾nik:"
 
 #: applets/gen_util/mailcheck.c:1050
 msgid "Username:"
@@ -2856,9 +2856,7 @@ msgid ""
 "perhaps it's not installed.\n"
 "It is in the gnome-pim package."
 msgstr ""
-"Ne morem pognati gnome koledarja,\n"
-"morda ni name¹èen.\n"
-"Najdete ga lahko v gnome-pim paketu."
+"Ne morem pognati koledarja gnome,\nmorda ni name9hen.\nNajdete ga lahko v paketu gnome-pim."
 
 #: panel/foobar-widget.c:257
 msgid "News (www)"
