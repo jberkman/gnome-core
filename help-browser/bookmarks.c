@@ -161,18 +161,17 @@ static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
 
 static void removeBookmark(GtkWidget *w, Bookmarks b)
 {
-    GList *l;
-    struct _GtkCListRow *row;
-    gint x;
+    gint row;
+    GList *list;
 
-    l = GTK_CLIST(b->clist)->selection;
-    if (!l) {
-	return;
-    }
-
-    row = (struct _GtkCListRow *) l->data;
-    x = gtk_clist_find_row_from_data(GTK_CLIST(b->clist), row->data);
-    gtk_clist_remove(GTK_CLIST(b->clist), x);
+    list = GTK_CLIST (b->clist)->selection;
+    while (list)
+      {
+	row = (gint) list->data;
+	list = list->next;
+	
+	gtk_clist_remove (GTK_CLIST (b->clist), row);
+      }
 }
 
 void showBookmarks(Bookmarks h)
