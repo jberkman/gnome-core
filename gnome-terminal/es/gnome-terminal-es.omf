@@ -2,14 +2,13 @@
 <omf>
   <resource>
     <title>
-      The GNOME Panel Manual
+      Guía de usuario del terminal de GNOME 
     </title>
     <subject>
       <category>Applications</category>
-      <category>Applications|X|Desktops|GNOME</category>
     </subject>
     <format mime="text/sgml"/>
-    <identifier url="panel.sgml"/>
-    <language code="C"/>
+    <identifier url="gnome-terminal.sgml"/>
+    <language code="es"/>
   </resource>
 </omf>

@@ -2,14 +2,13 @@
 <omf>
   <resource>
     <title>
-      The GNOME Panel Manual
+      GNU Lesser General Public License
     </title>
     <subject>
-      <category>Applications</category>
-      <category>Applications|X|Desktops|GNOME</category>
+        <category>Development|General</category>
     </subject>
     <format mime="text/sgml"/>
-    <identifier url="panel.sgml"/>
+    <identifier url="lgpl.sgml"/>
     <language code="C"/>
   </resource>
 </omf>

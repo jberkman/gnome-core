@@ -2,14 +2,13 @@
 <omf>
   <resource>
     <title>
-      The GNOME Panel Manual
+      GNU Free Documentation License
     </title>
     <subject>
-      <category>Applications</category>
-      <category>Applications|X|Desktops|GNOME</category>
+        <category>Development|General</category>
     </subject>
     <format mime="text/sgml"/>
-    <identifier url="panel.sgml"/>
+    <identifier url="fdl.sgml"/>
     <language code="C"/>
   </resource>
 </omf>

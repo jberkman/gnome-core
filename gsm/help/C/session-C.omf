@@ -2,14 +2,13 @@
 <omf>
   <resource>
     <title>
-      The GNOME Panel Manual
+      Session Properties Manual
     </title>
     <subject>
       <category>Applications</category>
-      <category>Applications|X|Desktops|GNOME</category>
     </subject>
     <format mime="text/sgml"/>
-    <identifier url="panel.sgml"/>
+    <identifier url="session.sgml"/>
     <language code="C"/>
   </resource>
 </omf>
