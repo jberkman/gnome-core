@@ -3,3 +3,11 @@ aclocal.m4
 config.h.in
 configure
 stamp-h.in
+config.log
+config.h
+libtool
+config.status
+stamp-h
+Makefile
+.deps
+gemvt
