@@ -1,3 +1,8 @@
+1998-04-06  Michael Fulbright  <msf@redhat.com>
+
+	* intl'n of menu and toolbar strings
+	* added button to toolbar to callup 'toc:' magic URL
+
 1998-04-02  Michael Fulbright  <msf@redhat.com>
 
 	* Tweaked 'Reload' a little, might work a little better now
