@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Help system
 Name[ca]=Sistema d'ajuda
+Name[cs]=Systém nápovìdy
 Name[de]=GNOME-Hilfe
 Name[es]=Sistema de ayuda
 Name[et]=Abimees
@@ -20,6 +21,7 @@ Name[ru]=óĞÒÁ×ÏŞÎÁÑ ÓÉÓÔÅÍÁ
 Name[wa]=Aidance di Gnome
 Comment=Integrated help system (Info, man, HTML)
 Comment[ca]=Sistema integrat d'ajuda (Info, man, HTML)
+Comment[cs]=Integorvanı systém nápovìdy Gnome (Info, man, HTML)
 Comment[de]=Integriertes Hilfesystem (Info, man, HTML)
 Comment[es]=Sistema integral de ayuda (Info, man, HTML)
 Comment[et]=Abi- ja dokumentatsiooniprogramm (info, man, html)
