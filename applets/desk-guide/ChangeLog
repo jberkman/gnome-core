@@ -1,3 +1,18 @@
+Thu Nov  4 01:08:46 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_init_gui): check the retrived pixel_size value,
+	the panel sometimes (initially) returns 0, and we don't accept values
+	smaller than 12.
+
+Thu Nov  4 00:45:40 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_create_desk_widgets): folded in patch from
+	george so we use the new applet_widget_get_panel_pixel_size()
+	function. fixed 4 pixel bloat offset when laying out desktops acording
+	to panel size (subtracted 2 * x/y-thickness).
+	removed orientation reentrancy workaround, as george claims it's no
+	longer needed.
+
 Wed Nov  3 13:33:10 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_init_gui): hide `?' properties button by default

@@ -144,15 +144,6 @@ static guint  gp_n_config_items = (sizeof (gp_config_items) /
 				   sizeof (gp_config_items[0]));
 
 
-/* --- FIXME: bug workarounds --- */
-GNOME_Panel_OrientType fixme_panel_orient = 0;
-/* #define applet_widget_get_panel_orient(x)	(fixme_panel_orient) */
-static void fixme_applet_widget_get_panel_orient (gpointer               dummy,
-						  GNOME_Panel_OrientType orient)
-{
-  fixme_panel_orient = orient;
-}
-
 /* --- main ---*/
 gint 
 main (gint   argc,
@@ -219,11 +210,10 @@ main (gint   argc,
   gwmh_desk_notifier_add (gp_desk_notifier, NULL);
   gwmh_task_notifier_add (gp_task_notifier, NULL);
   gtk_widget_set (gp_applet,
-		  "signal::change-orient", fixme_applet_widget_get_panel_orient, NULL,
 		  "signal::change-orient", gp_destroy_gui, NULL,
 		  "signal::change-orient", gp_init_gui, NULL,
-		  "signal::change-size", gp_destroy_gui, NULL,
-		  "signal::change-size", gp_init_gui, NULL,
+		  "signal::change-pixel-size", gp_destroy_gui, NULL,
+		  "signal::change-pixel-size", gp_init_gui, NULL,
 		  "object_signal::save-session", gp_save_session, NULL,
 		  "signal::destroy", gtk_main_quit, NULL,
 		  NULL);
@@ -473,11 +463,13 @@ gp_create_desk_widgets (void)
   if (!gp_desk_box)
     return;
 
+  gtk_widget_ensure_style (gp_desk_box);
+
   /* configure Desktop widget class for us */
   if (gp_orientation == GTK_ORIENTATION_HORIZONTAL)
     {
       if (BOOL_CONFIG (abandon_area_height))
-	area_size = gp_panel_size;
+	area_size = gp_panel_size - 2 * gp_desk_box->style->klass->ythickness;
       else
 	area_size = RANGE_CONFIG (area_height);
       if (BOOL_CONFIG (div_by_vareas))
@@ -488,7 +480,7 @@ gp_create_desk_widgets (void)
   else /* gp_orientation == GTK_ORIENTATION_VERTICAL */
     {
       if (BOOL_CONFIG (abandon_area_width))
-	area_size = gp_panel_size;
+	area_size = gp_panel_size - 2 * gp_desk_box->style->klass->xthickness;
       else
 	area_size = RANGE_CONFIG (area_width);
       if (BOOL_CONFIG (div_by_hareas))
@@ -601,13 +593,13 @@ gp_widget_ignore_button (GtkWidget *widget,
 static void 
 gp_init_gui (void)
 {
-  static guint panel_sizes[] = { 24, 48, 64, 80 };
   GtkWidget *button, *abox, *arrow;
   gboolean arrow_at_end = FALSE;
   GtkWidget *main_box;
   
   gtk_widget_set_usize (gp_container, 0, 0);
-  gp_panel_size = panel_sizes[applet_widget_get_panel_size (APPLET_WIDGET (gp_applet))];
+  gp_panel_size = applet_widget_get_panel_pixel_size (APPLET_WIDGET (gp_applet));
+  gp_panel_size = MAX (gp_panel_size, 12);
   switch (applet_widget_get_panel_orient (APPLET_WIDGET (gp_applet)))
     {
     case ORIENT_UP:
