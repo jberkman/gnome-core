@@ -1,3 +1,10 @@
+Wed Aug 12 06:10:04 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.[ch], tree.c (menu_item_selected): Reworked the tree selection
+	code, with tips from Lars Hamann. Now right clicking on an item will
+	copy it's contents to the edit area, double clicking was removed.
+	* gmenu.[ch], dialogs.c, edit.c, order.c, tree.c: Version now 0.3.0
+
 Tue Aug 11 07:43:52 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c: Added gnome style toolbar in favor of the old row of

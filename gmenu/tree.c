@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
+/*##                       gmenu (GNOME menu editor) 0.3.0         ##*/
 /*###################################################################*/
 
 #include <config.h>
@@ -64,7 +64,7 @@ void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, g
 {
 	Desktop_Data *d;
 
-        if (old) gtk_ctree_unselect(GTK_CTREE(w),old);
+	if (old) gtk_ctree_unselect(GTK_CTREE(w),old);
         if (new && select) gtk_ctree_select(GTK_CTREE(w),new);
 
 	d = gtk_ctree_get_row_data(GTK_CTREE(w), new);
@@ -173,30 +173,39 @@ void edit_pressed_cb()
 	update_edit_area(d);
 }
 
-void tree_item_selected (GtkWidget *widget, gint row, gint column, GdkEventButton *bevent)
+void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 {
+	gint row, col;
 	Desktop_Data *d;
-	GtkCTree *ctree = GTK_CTREE(widget);
 	GtkCTreeNode *node;
+
+	if (event->window != GTK_CLIST(ctree)->clist_window) return;
+	if (gtk_ctree_is_hot_spot(ctree, event->x, event->y)) return;
+	if (event->button != 1 && event->button != 3) return;
+
+	gtk_clist_get_selection_info (GTK_CLIST (ctree), event->x, event->y, &row, &col);
 
 	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (ctree)->row_list, row));
 
 	if (!node) return;
 
-	if (node == topnode) return;
+	if (node == topnode)
+		{
+		update_tree_highlight(menu_tree_ctree, node, current_node, TRUE);
+		return;
+		}
+
+	if (event->button == 3 && (node == systemnode || node == usernode)) return;
 
 	d = gtk_ctree_get_row_data(GTK_CTREE(ctree),node);
 
-	update_tree_highlight(menu_tree_ctree, current_node, node, FALSE);
+	update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
 
 	current_node = node;
 
 	if (node == systemnode || node == usernode) return;
 
-	if ( bevent->type == GDK_2BUTTON_PRESS || bevent->button == 2 )
-		{
-		update_edit_area(d);
-		}
+	if (event->button == 3)	update_edit_area(d);
 
 	if (d->isfolder)
 		{
@@ -207,6 +216,7 @@ void tree_item_selected (GtkWidget *widget, gint row, gint column, GdkEventButto
 			}
 		}
 
+	return;
 }
 
 /* if node is null it is appended, if it is a sibling, it is inserted */
@@ -363,7 +373,7 @@ void add_main_tree_node()
 	gint c;
 
 
-	dialog = gnome_dialog_new(_("One Moment"),NULL);
+	dialog = gnome_dialog_new(_("GNOME menu editor"),NULL);
 
 	hbox = gtk_hbox_new(FALSE, 5);
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 5);
@@ -373,7 +383,7 @@ void add_main_tree_node()
 	gtk_box_pack_start(GTK_BOX(hbox), wait_icon, TRUE, TRUE, 5);
 	gtk_widget_show(wait_icon);
 
-	label = gtk_label_new(_("Reading Menus..."));
+	label = gtk_label_new(_("One moment, reading menus..."));
 	gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 5);
 	gtk_widget_show(label);
 

@@ -1,19 +1,12 @@
 #########################################################
-####           GNOME menu editor 0.2.2                ###
+####           GNOME menu editor 0.3.0                ###
 #########################################################
 
 In the tree window:
-any button selects thr row.
-button double click or button 3 single click copied the
-rows data to the edit area (if it's not a folder).
+button 1 selects the row.
+right clicking copies the row's data to the edit area.
 
-root detection is now forced true until someone adds user
-menus to the panel.
-Folders must be emptied to delete them.
+Folders must be empty to delete them.
 
-You must be root to edit the system menu.
-root users do not have access to their personal icons, so
-that the system menus always have system icons.
-
-.order entries are now supported!
+You must have system menu write permissions to edit the system menu.
 

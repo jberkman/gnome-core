@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
+/*##                       gmenu (GNOME menu editor) 0.3.0         ##*/
 /*###################################################################*/
 
 #include <stdio.h>
@@ -14,8 +14,8 @@
 
 	/* definitions */
 #define GMENU_VERSION_MAJOR 0
-#define GMENU_VERSION_MINOR 2
-#define GMENU_VERSION_REV 5
+#define GMENU_VERSION_MINOR 3
+#define GMENU_VERSION_REV 0
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data
@@ -74,7 +74,7 @@ void move_down_cb(GtkWidget *w, gpointer data);
 void move_up_cb(GtkWidget *w, gpointer data);
 int is_node_editable(GtkCTreeNode *node);
 void edit_pressed_cb();
-void tree_item_selected (GtkWidget *widget, gint row, gint column, GdkEventButton *bevent);
+void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data);
 GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file);
 void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent);
 void add_main_tree_node();
