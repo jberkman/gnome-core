@@ -108,8 +108,8 @@ capplet_widget_class_init (CappletWidgetClass *klass)
 			       object_class->type,
 			       GTK_SIGNAL_OFFSET(CappletWidgetClass,
 			       			 new_multi_capplet),
-                               gtk_marshal_NONE__NONE,
-                               GTK_TYPE_NONE, 0);
+                               gtk_marshal_NONE__POINTER,
+                               GTK_TYPE_NONE, 1, GTK_TYPE_POINTER);
 
         gtk_object_class_add_signals (object_class, capplet_widget_signals, LAST_SIGNAL);
         klass->try = NULL;
@@ -132,6 +132,7 @@ capplet_widget_new ()
         CappletWidget * retval;
 
         retval = CAPPLET_WIDGET (gtk_type_new (capplet_widget_get_type()));
+        /* we should set this: */
         retval->capid = -1;
 
         retval->control_center_id = get_ccid (retval->capid);
@@ -146,10 +147,9 @@ capplet_widget_multi_new (gint capid)
 
         retval = CAPPLET_WIDGET (gtk_type_new (capplet_widget_get_type()));
         retval->capid = capid;
-
         retval->control_center_id = get_ccid (retval->capid);
         gtk_plug_construct (GTK_PLUG (retval), get_xid (retval->capid));
-
+        
         return GTK_WIDGET (retval);
 }
 void
@@ -211,7 +211,6 @@ void
 _capplet_widget_server_new_multi_capplet(gint id, gint capid)
 {
         GtkWidget *capplet = get_widget_by_id (id);
-        g_print ("emitting new_multi_capplet\n");
         gtk_signal_emit_by_name(GTK_OBJECT (capplet) ,"new_multi_capplet", capplet_widget_multi_new (capid));
 }
 static GtkWidget *

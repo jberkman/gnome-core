@@ -148,7 +148,6 @@ server_new_multi_capplet(GNOME_capplet _obj, CORBA_long id, CORBA_long newid, CO
 {
         GList *temp;
         keyval *nkv;
-        g_print ("in new multi_capplet\n");
         for (temp = id_list; temp; temp = temp->next)
                 if (((keyval *)temp->data)->capid == capid) {
                         ((keyval *)temp->data)->xid = xid;
@@ -157,11 +156,11 @@ server_new_multi_capplet(GNOME_capplet _obj, CORBA_long id, CORBA_long newid, CO
                         return;
                 };
         nkv = g_malloc (sizeof (nkv));
-        nkv->capid = capid;
+        nkv->capid = newcapid;
         nkv->id = newid;
-        nkv->xid = newcapid;
+        nkv->xid = newxid;
         id_list = g_list_prepend (id_list, nkv);
-        _capplet_widget_server_new_multi_capplet (id, capid);
+        _capplet_widget_server_new_multi_capplet (id, newcapid);
 }
 
 /* public methods... */
@@ -202,12 +201,13 @@ get_xid (gint cid)
 gint get_ccid (gint cid)
 {
         GList *temp;
-        if ((cid == -1) || (cid == capid))
+        if ((cid == -1) || (cid == capid)) {
                 return id;
-
+        }
         for (temp = id_list; temp; temp = temp->next)
-                if (((keyval *)temp->data)->capid == cid)
+                if (((keyval *)temp->data)->capid == cid) {
                         return ((keyval *)temp->data)->id;
+                }
         g_warning ("received an unknown cid: %d\n", cid);
         return id;
 }

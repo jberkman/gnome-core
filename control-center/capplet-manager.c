@@ -55,11 +55,8 @@ exec_capplet (node_data *data)
 
         /* is the silly thing a multi-capplet */
         for (i = 1;data->gde->exec[i];i++) { 
-                g_print ("temp|%s|\n", data->gde->exec[i]);
                 if (strstr (data->gde->exec[i], "--cap-id=")) {
-                        g_print ("it's a capid\n");
                         for (list = capplet_list; list; list = list->next) {
-                                g_print ("exec|%s|\n", ((node_data *)list->data)->gde->exec[0]);
                                 if (strcmp (((node_data *)list->data)->gde->exec[0], data->gde->exec[0]) == 0) {
                                 /* do multi-capplet stuff... */
                                         data->capplet = ((node_data *)list->data)->capplet;
