@@ -1,5 +1,6 @@
 INCLUDES = 			\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
+	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 	-I$(includedir) $(GNOME_INCLUDEDIR)
 
 bin_PROGRAMS = gnomecc

@@ -4,7 +4,7 @@ SUBDIRS = gnome-man2html gnome-info2html
 
 INCLUDES = 							\
 	-I$(includedir)						\
-	-I$(top_srcdir)/intl					\
+	-I$(top_srcdir)/intl -I$(top_builddir)/intl		\
 	$(GNOME_INCLUDEDIR)					\
 	-DGNOMEHELPPATH=\""$(datadir)/gnome/help\"" 	\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""
