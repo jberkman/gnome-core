@@ -1,3 +1,15 @@
+Mon May 21 01:49:01 2001  Malcolm Tredinnick <malcolm@commsecure.com.au>
+
+	* Applied patch from Martin Pool <mbp@samba.org> to correct some
+	  inconsistencies in the manual page (it now gives the same info
+	  as --help). (#53885)
+
+	* Applied patch from Dan McNichol <mcnichol@austin.ibm.com> so
+	  that it builds using IBM's compiler on AIX boxes. (#54782)
+
+	* Trying to start terminals with width or height of zero gives
+	  the default dimensions instead (fixes #53412)
+
 Mon Apr 23 19:51:06 2001  George Lebl <jirka@5z.com>
 
 	* gnome-terminal.desktop:  prepend NO_XALF to the exec field so that

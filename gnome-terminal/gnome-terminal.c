@@ -2158,7 +2158,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	ypos=-1;
 	if (geometry) {
 		gnome_parse_geometry (geometry, &xpos, &ypos, &width, &height);
-		if (width == -1 || height == -1) {
+		if (width < 1 || height < 1) {
 			width=80;
 			height=24;
 		}
@@ -2606,11 +2606,13 @@ enum {
         SHADED_KEY          = -21,
         NOSHADED_KEY        = -22,
         TRANSPARENT_KEY     = -23,
-        SOLID_KEY           = -24,
 
 #ifdef ZVT_BACKGROUND_SCROLL
+        SOLID_KEY           = -24,
         BGSCROLL_PIXMAP_KEY   = -25,
-        BGNOSCROLL_PIXMAP_KEY = -26,
+        BGNOSCROLL_PIXMAP_KEY = -26
+#else /* ZVT_BACKGRUOND_SCROLL */
+        SOLID_KEY           = -24   /* No comma for fussy IBM AIX compiler */
 #endif
 
 };
