@@ -1,3 +1,7 @@
+Wed Jan 10 20:24:48 2001  George Lebl <jirka@5z.com>
+
+	* main.c: Only make the merge path the merge path
+
 Wed Jan 10 12:28:34 2001  George Lebl <jirka@5z.com>
 
 	* main.c, order.c, treeutil.c, utils.c: cleanups and minor fixes

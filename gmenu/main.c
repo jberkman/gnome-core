@@ -262,6 +262,8 @@ delete_cb(GtkWidget *w, gpointer data)
 	return FALSE;
 }
 
+#define MERGE_PATH "/etc/X11/applnk"
+
 int main (int argc, char *argv[])
 {
 	GtkWidget *mainbox;
@@ -270,13 +272,6 @@ int main (int argc, char *argv[])
 	GtkWidget *frame;
 	GtkWidget *scrolled;
 	GtkTooltips *tooltips;
-	gchar *merge_path[] = {
-		"/etc/X11/applnk",
-		"/var/lib/gnome/Debian",
-		GNOME_DATADIR"/gnome/distribution-menus/SuSE",
-		NULL
-	};
-	int i;
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
@@ -295,16 +290,15 @@ int main (int argc, char *argv[])
 		}
 
 
-	for (i=0; merge_path[i]; i++) {
-		char *key;
-
-		if (!g_file_test (merge_path[i], G_FILE_TEST_ISDIR))
-			continue;
-
-		key = g_strdup_printf ("/panel/Merge/Directory=%s", merge_path[i]);
-		system_apps_merge_dir = gnome_config_get_string(key);
-		g_free (key);
-		break;
+	if (g_file_test (MERGE_PATH, G_FILE_TEST_ISDIR)) {
+		system_apps_merge_dir =
+			gnome_config_get_string("/panel/Merge/Directory="
+						MERGE_PATH);
+		if (system_apps_dir != NULL &&
+		     ! g_file_test (system_apps_merge_dir, G_FILE_TEST_ISDIR)) {
+			g_free (system_apps_merge_dir);
+			system_apps_merge_dir = NULL;
+		}
 	}
 
 	user_apps_dir = check_for_dir(gnome_util_home_file("apps"));
