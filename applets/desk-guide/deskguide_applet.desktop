@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Desk Guide
+Name[ja]=デスクガイド
 Name[no]=Skrivebord-guide
 Name[pl]=Desk Guide
 Comment=GNOME Desktop Guide (Pager)
+Comment[ja]=GNOMEデスクトップガイド(ページャー)
 Comment[no]=GNOME Skrivebord-guide (pager)
 Comment[pl]=Pager dla GNOME
 Exec=deskguide_applet --activate-goad-server=deskguide_applet
