@@ -1,3 +1,7 @@
+Wed Jul 15 01:39:26 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* bookmarks.c: Include <stdlib.h>.
+
 Tue Jul  7 00:17:49 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* parseUrl.c: Don't include <malloc.h>.
