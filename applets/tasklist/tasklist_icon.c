@@ -17,6 +17,28 @@ extern TasklistIcon *unknown_icon; /* The unknown icon */
 
 /* Shamelessly stolen from gwmh.c by Tim Janik */
 
+Pixmap
+tasklist_icon_get_pixmap (TasklistTask *task)
+{
+	XWMHints *wmhints;
+	Pixmap pixmap;
+	
+	wmhints = XGetWMHints (GDK_DISPLAY (), task->gwmh_task->xwin);
+
+	if (!wmhints)
+		return 0;
+	
+	if (!(wmhints->flags & IconPixmapHint)) {
+		XFree (wmhints);
+		return 0;
+	}
+
+	pixmap = wmhints->icon_pixmap;
+
+	XFree (wmhints);
+
+	return pixmap;
+}
 
 static gpointer
 get_typed_property_data (Display *xdisplay,
@@ -204,21 +226,25 @@ tasklist_icon_check_x (TasklistTask *task)
 	unsigned int border_width;
 	unsigned int depth;
 	guchar *data;
-
+	
 	wmhints = XGetWMHints (GDK_DISPLAY (), task->gwmh_task->xwin);
 
 	if (!wmhints)
 		return FALSE;
 	
-	if (!(wmhints->flags & IconPixmapHint))
+	if (!(wmhints->flags & IconPixmapHint)) {
+		XFree (wmhints);
 		return FALSE;
+	}
 	
 	XGetGeometry (GDK_DISPLAY (), wmhints->icon_pixmap, &root,
 		      &x, &y, &width, &height,
 		      &border_width, &depth);
-
-	if (width > 65535 || height > 65535)
+	
+	if (width > 65535 || height > 65535) {
+		XFree (wmhints);
 		return FALSE;
+	}
 	
 	pixmap = gdk_pixmap_new (area->window, width, height, -1);	
 	gc = gdk_gc_new (pixmap);
@@ -267,6 +293,7 @@ tasklist_icon_check_x (TasklistTask *task)
 		   }
 
 	       gdk_pixmap_unref (mask);
+	       gdk_image_destroy (image);
 	}
 
 	scaled = gdk_pixbuf_scale_simple (pixbuf,
@@ -276,6 +303,8 @@ tasklist_icon_check_x (TasklistTask *task)
 	gdk_pixmap_unref (pixmap);
 	
 	task->icon->normal = scaled;
+
+	XFree (wmhints);
 
 	return TRUE;
 
@@ -289,8 +318,9 @@ tasklist_icon_set (TasklistTask *task)
 	task->icon->normal = unknown_icon->normal;
 	task->icon->minimized = unknown_icon->minimized;
 
-	if (!tasklist_icon_check_mini (task))
-		tasklist_icon_check_x (task);
+	if (!tasklist_icon_check_x (task))
+		tasklist_icon_check_mini (task);
+		
 
 	tasklist_icon_set_minimized (task);
 }

@@ -1,4 +1,5 @@
 #include <X11/Xatom.h>
+#include <X11/Xlib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "applet-widget.h"
 #include "gwmh.h"
@@ -31,6 +32,7 @@ struct _TasklistTask {
 	gint x, y;
 	gint width, height;
 	TasklistIcon *icon;
+	Pixmap wmhints_icon;
 	GwmhTask *gwmh_task;
 	GtkWidget *menu;
 };
@@ -77,3 +79,4 @@ void layout_tasklist (void);
 GdkPixbuf *tasklist_icon_create_minimized_icon (GdkPixbuf *pixbuf);
 void tasklist_icon_set (TasklistTask *task);
 void tasklist_icon_destroy (TasklistTask *task);
+Pixmap tasklist_icon_get_pixmap (TasklistTask *task);

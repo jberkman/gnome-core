@@ -1,3 +1,14 @@
+2000-05-09  Jacob Berkman  <jacob@helixcode.com>
+
+	* tasklist_icon.c (tasklist_icon_get_pixmap): gets the WM_HINT
+	(tasklist_icon_check_x): don't leak memory
+	(tasklist_icon_set): check the WMHint icon before KDE
+
+	* tasklist_applet.h (TasklistTask): add a Pixmap field
+
+	* tasklist_applet.c (task_notifier): change the icon when it gets changed
+	(task_notifier): initialize the icon
+
 Sat May 06 00:14:01 2000  George Lebl <jirka@5z.com>
 
 	* unknown.xpm: add const so that we don't have to cast inside source

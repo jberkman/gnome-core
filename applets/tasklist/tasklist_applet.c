@@ -256,11 +256,6 @@ draw_task (TasklistTask *task, GdkRectangle *rect)
 		else
 			pixbuf = icon->normal;
 
-/*		gdk_gc_set_clip_mask (area->style->black_gc, icon->mask);
-		gdk_gc_set_clip_origin (area->style->black_gc,
-					task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
-					task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2);*/
-
 		gdk_pixbuf_render_to_drawable_alpha (pixbuf,
 						     area->window,
 						     0, 0,
@@ -493,6 +488,14 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	switch (ntype)
 	{
 	case GWMH_NOTIFY_INFO_CHANGED:
+		if (imask & GWMH_TASK_INFO_WM_HINTS) {
+			if (tasklist_icon_get_pixmap (find_gwmh_task (gwmh_task)) !=
+			    find_gwmh_task (gwmh_task)->wmhints_icon) {
+				tasklist_icon_destroy (find_gwmh_task (gwmh_task));
+				tasklist_icon_set (find_gwmh_task (gwmh_task));
+				draw_task (find_gwmh_task (gwmh_task), NULL);
+			}
+		}
 		if (imask & GWMH_TASK_INFO_GSTATE)
 			layout_tasklist ();
 		if (imask & GWMH_TASK_INFO_ICONIFIED)
@@ -513,6 +516,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	case GWMH_NOTIFY_NEW:
 		task = g_malloc0 (sizeof (TasklistTask));
 		task->gwmh_task = gwmh_task;
+		task->wmhints_icon = tasklist_icon_get_pixmap (task);
 		tasklist_icon_set (task);
 		tasks = g_list_append (tasks, task);
 	        layout_tasklist ();
