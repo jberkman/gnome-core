@@ -134,7 +134,7 @@ static ConfigItem gp_config_items[] = {
 
   CONFIG_PAGE (N_ ("Advanced")),
   CONFIG_SECTION (sect_workarounds,			N_ ("Window Manager Workarounds")),
-  CONFIG_BOOL (skip_movement_offset,		TRUE,
+  CONFIG_BOOL (skip_movement_offset,		FALSE,
 	       N_ ("Window manager moves decoration window instead\n"
 		   "(AfterStep, Enlightenment, FVWM, IceWM)")),
   CONFIG_BOOL (unified_areas,			TRUE,
