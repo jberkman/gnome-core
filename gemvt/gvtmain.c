@@ -224,7 +224,7 @@ gvt_signal_handler (int	sig_num)
 	     getpid (),
 	     g_strsignal (sig_num));
     fflush (stderr);
-    g_debug (prg_name);
+    g_on_error_query (prg_name);
   }
   in_call = FALSE;
 }

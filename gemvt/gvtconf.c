@@ -51,7 +51,7 @@ static struct option	long_options[] = {
   { "execute",		required_argument,	NULL,	ARG_EXEC	},
   { "status-bar",	optional_argument,	NULL,	ARG_STATUS_BAR	},
   { "version",		no_argument,		NULL,	ARG_VERSION	},
-  /* Gdk options */
+  /* Gdk/Gtk options */
   { "display",            required_argument,	NULL,	ARG_IGNORE	},
   { "sync",               no_argument,          NULL,   ARG_IGNORE	},
   { "show-events",        no_argument,          NULL,   ARG_IGNORE	},
@@ -64,6 +64,10 @@ static struct option	long_options[] = {
   { "gxid_port",	  required_argument,    NULL,   ARG_IGNORE	},
   { "xim-preedit",	  required_argument,    NULL,   ARG_IGNORE	},
   { "xim-status",	  required_argument,    NULL,   ARG_IGNORE	},
+  { "gdk-debug",	  required_argument,    NULL,   ARG_IGNORE	},
+  { "gtk-debug",	  required_argument,    NULL,   ARG_IGNORE	},
+  { "g-fatal-warnings",	  no_argument,		NULL,   ARG_IGNORE	},
+  { "gtk-module",	  required_argument,	NULL,   ARG_IGNORE	},
   { NULL, 0, NULL, 0 }
 };
 

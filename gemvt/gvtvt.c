@@ -83,14 +83,15 @@ gvt_vt_get_type (void)
       {
 	"GvtVt",
 	sizeof (GvtVt),
-	sizeof (GvtVt),
+	sizeof (GvtVtClass),
 	(GtkClassInitFunc) gvt_vt_class_init,
 	(GtkObjectInitFunc) gvt_vt_init,
-	(GtkArgSetFunc) NULL,
-	(GtkArgGetFunc) NULL,
+	/* reserved_1 */ NULL,
+	/* reserved_2 */ NULL,
+	(GtkClassInitFunc) NULL,
       };
 
-      vt_type = gtk_type_unique (gtk_object_get_type (), &vt_info);
+      vt_type = gtk_type_unique (GTK_TYPE_OBJECT, &vt_info);
     }
 
   return vt_type;

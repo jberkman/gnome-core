@@ -1,3 +1,12 @@
+Mon Aug 24 07:46:21 1998  Tim Janik  <timj@gtk.org>
+
+	* gvtvt.c (gvt_vt_get_type): adaptions to new GtkTypeInfo structure,
+	fixed a bug regarding sizeof (GvtVt[Class]).
+
+	* gvtconf.c: added new gtk/gdk options.
+
+	* gvtmain.c (gvt_signal_handler): s/g_debug/g_on_error_query/.
+
 Sun Mar 15 15:44:35 1998  Owen Taylor  <owt1@cornell.edu>
 
 	*  configure.in: Replaced checks for X and GTK with AM_PATH_GTK
