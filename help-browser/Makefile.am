@@ -75,5 +75,5 @@ EXTRA_DIST = toc.c toc-man.c toc-ghelp.c toc-info.c \
 gnorbadir = $(sysconfdir)/CORBA/servers
 gnorba_DATA = help-browser.gnorba
 
-sysdir = $(datadir)/apps
+sysdir = $(datadir)/gnome/apps
 sys_DATA = gnome-help.desktop

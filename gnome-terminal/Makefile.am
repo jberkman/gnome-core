@@ -30,5 +30,5 @@ gnome_terminal_LDADD = $(LDADD)
 
 CFLAGS += -Wall
 
-utildir = $(datadir)/apps/Utilities
+utildir = $(datadir)/gnome/apps/Utilities
 util_DATA = gnome-terminal.desktop

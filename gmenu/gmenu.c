@@ -137,7 +137,7 @@ int main (int argc, char *argv[])
 
 	gnome_init ("GNOME menu editor", VERSION, argc, argv);
 
-	SYSTEM_APPS = gnome_unconditional_datadir_file("apps");
+	SYSTEM_APPS = gnome_unconditional_datadir_file("gnome/apps");
 	SYSTEM_PIXMAPS = gnome_unconditional_datadir_file("pixmaps");
 	if (!g_file_exists(SYSTEM_APPS) || !g_file_exists(SYSTEM_PIXMAPS))
 		{
