@@ -260,30 +260,36 @@ fill_monitor (int prop_changed)
 	xgc = GDK_GC_XGC (gc);
 
 	if (grad) {
-		pdata = g_new (unsigned char, cw*ch*3);
+	   
+	   int render_type;
+	
+	   pdata = g_new (unsigned char, cw*ch*3);
 
-		fill_gradient (pdata, cw, ch, &bgColor1, &bgColor2, vertical);
-
-		pi = Imlib_create_image_from_data (imlib_data, pdata, NULL, cw, ch);
-
-		g_free (pdata);
-
-		Imlib_render (imlib_data, pi, cw, ch);
-		pix = Imlib_move_image (imlib_data, pi);
-
-		XCopyArea (GDK_DISPLAY (),
-			   pix, xscreen,
-			   xgc,
-			   0, 0,
-			   cw, ch,
-			   cx, cy);
-
-		Imlib_free_pixmap (imlib_data, pix);
-		Imlib_destroy_image (imlib_data, pi);
+	   fill_gradient (pdata, cw, ch, &bgColor1, &bgColor2, vertical);
+	   
+	   pi = Imlib_create_image_from_data (imlib_data, pdata, NULL, cw, ch);
+	   
+	   g_free (pdata);
+	   
+	   render_type=Imlib_get_render_type(imlib_data);
+	   Imlib_set_render_type(imlib_data,RT_DITHER_TRUECOL);
+	   Imlib_render (imlib_data, pi, cw, ch);
+	   Imlib_set_render_type(imlib_data,render_type);
+	   pix = Imlib_move_image (imlib_data, pi);
+	   
+	   XCopyArea (GDK_DISPLAY (),
+		      pix, xscreen,
+		      xgc,
+		      0, 0,
+		      cw, ch,
+		      cx, cy);
+	   
+	   Imlib_free_pixmap (imlib_data, pix);
+	   Imlib_destroy_image (imlib_data, pi);
 	} else {
-		gdk_color_alloc (gdk_window_get_colormap (rootWindow), &bgColor1);
-		gdk_gc_set_foreground (gc, &bgColor1);
-		XFillRectangle (GDK_DISPLAY (), xscreen, xgc, cx, cy, cw, ch);
+	   gdk_color_alloc (gdk_window_get_colormap (rootWindow), &bgColor1);
+	   gdk_gc_set_foreground (gc, &bgColor1);
+	   XFillRectangle (GDK_DISPLAY (), xscreen, xgc, cx, cy, cw, ch);
 	}
 
 	if (bgType == BACKGROUND_WALLPAPER) {
