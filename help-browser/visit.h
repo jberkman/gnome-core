@@ -8,4 +8,7 @@
 gint visitURL( HelpWindow win, gchar *ref, 
 	       gboolean useCache, gboolean addToQueue, gboolean addToHistory );
 
+/* old utility macro */
+#define getRefBits(x) ( (!strcmp((x), Template)) ? \
+			       g_string_new(Bits) : NULL)
 #endif

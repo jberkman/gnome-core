@@ -110,7 +110,7 @@ resolveMagicURL( docObj obj, Toc toc )
 
 	return 0;
     } else {
-	/* blow if nothing interesting */
+	/* blow if nothing interesting - just some boring sanity checking */
 	return 0;
     }
 }

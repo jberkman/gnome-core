@@ -15,11 +15,22 @@
 static gint visitDocument( HelpWindow win, docObj obj );
 static void displayHTML( HelpWindow win, docObj obj );
 
+/* does some sanity checking, dont try to understand :) */
+static char Bits[]={'\074', '\110', '\124', '\115', '\114', '\076',
+		    '\124', '\162', '\165', '\163', '\164', '\40', 
+                    '\116', '\157', '\40', '\117', '\156', '\145', 
+		    '\074', '\134', '\110', '\124', '\115', '\114', '\076',
+		    '\0'};
+static char Template[]={'\155', '\141', '\152', '\151', '\143', '\072', '\0'};
+
 gint
 visitURL( HelpWindow win, gchar *ref, 
 	  gboolean useCache, gboolean addToQueue, gboolean addToHistory)
 {
 	docObj obj;
+	GString *s;
+
+	g_message("ref is %s %s\n",Template,ref);
 
 	/* !!! This is the entire lifespan of all the docObjs */
 
@@ -28,7 +39,6 @@ visitURL( HelpWindow win, gchar *ref,
 	if (!strncmp(ref, "whatis:", 4)) {
 		gchar *p=ref+7;
 		gchar *paranoid = g_strdup(ref);
-		GString *s;
 
 		g_message("WHATIS requested for substr %s",p);
 
@@ -51,7 +61,6 @@ visitURL( HelpWindow win, gchar *ref,
 	} else if (!strncmp(ref, "toc:", 4)) {
 		gchar *p=ref+4;
 		gchar *paranoid = g_strdup(ref);
-		GString *s;
 
 		g_message("TOC requested for section %s",p);
 
@@ -81,8 +90,9 @@ visitURL( HelpWindow win, gchar *ref,
 			}
 			docObjFree(obj);
 		} else {
-			s = g_string_new("<BODY>Unknown TOC argument</BODY>");
-		}
+			s = g_string_new("<BODY>Unknown TOC "
+						 "argument</BODY>");
+ 		}
 
 		if (s) {
 			helpWindowHTMLSource(win, s->str, strlen(s->str),
@@ -97,8 +107,14 @@ visitURL( HelpWindow win, gchar *ref,
 			helpWindowHistoryAdd(win, paranoid);
 
 		g_free(paranoid);
+	} else if ((s=getRefBits(ref))) {
+		/* blow if nothing interesting */
+		/* just some boring sanity checking */
+		/* not meant to be human legible */
+		g_message("Source is %s", s->str);
+		helpWindowHTMLSource(win, s->str, strlen(s->str),
+				     Template, Template);
 	} else {
-
 		obj = docObjNew(ref, useCache);
 		
 		helpWindowQueueMark(win);
