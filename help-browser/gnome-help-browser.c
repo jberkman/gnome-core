@@ -35,7 +35,7 @@
 #include "bookmarks.h"
 #include "toc2.h"
 #include "cache.h"
-
+#include "help-browser.h"
 
 extern char *program_invocation_name;
 
@@ -63,6 +63,13 @@ static GnomeClient *newGnomeClient(void);
 
 static void configApply(GtkWidget *w, int page, GtkWidget *window);
 static int configCancel(GtkWidget *w, GtkWidget *window);
+
+void Exception( CORBA_Environment*);
+help_browser_simple_browser 
+  impl_help_browser_simple_browser__create(PortableServer_POA poa,
+					   HelpWindow window, 
+					   CORBA_Environment * ev);
+void destroy_server(HelpWindow win);
 
 /* MANPATH should probably come from somewhere */
 #define DEFAULT_MANPATH "/usr/man:/usr/local/man:/usr/X11R6/man"
@@ -154,7 +161,7 @@ main(int argc, char *argv[])
     CORBA_Environment           ev;
     PortableServer_POA          root_poa;
     PortableServer_POAManager   pm;
-    CORBA_Object                browser_object;
+    help_browser_simple_browser browser_object;
     CORBA_Object                name_service;
     gchar*                      objref;
     gchar **leftovers;
@@ -185,9 +192,9 @@ main(int argc, char *argv[])
 
     Exception(&ev);
     
-    root_poa = CORBA_ORB_resolve_initial_references(orb, "RootPOA", &ev);
+    root_poa = (PortableServer_POA) 
+      CORBA_ORB_resolve_initial_references(orb, "RootPOA", &ev);
     Exception(&ev);
-
     
 /* enable session management here */
     smClient = newGnomeClient();
@@ -217,7 +224,8 @@ main(int argc, char *argv[])
       helpURL = "toc:";
     helpWindowShowURL(window, helpURL, TRUE, TRUE);
 
-    browser_object =  impl_help_browser_simple_browser__create(root_poa, window, &ev);
+    browser_object =  impl_help_browser_simple_browser__create(root_poa, 
+							       window, &ev);
     Exception(&ev);
     
     objref = CORBA_ORB_object_to_string(orb, browser_object, &ev);
@@ -236,6 +244,7 @@ main(int argc, char *argv[])
 	gnome_register_corba_server(name_service, browser_object, "help-browser", "object", &ev);
         fprintf(stderr,"\n%s\n", objref);
       }
+
     output_fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
 		     | O_APPEND, 0666);
     setvbuf(stderr, 0, _IOLBF, 0);
@@ -243,7 +252,9 @@ main(int argc, char *argv[])
     dup2(output_fd, fileno(stdout));
     dup2(output_fd, fileno(stderr));
     close(output_fd);
-    
+
+    gtk_widget_show (helpWindowGetAppWindow (window));
+
     gtk_main();
 
     saveHistory(historyWindow);
@@ -252,6 +263,7 @@ main(int argc, char *argv[])
 
     if (!CORBA_Object_is_nil(name_service, &ev))
       gnome_unregister_corba_server(name_service, "help-browser", "object", &ev);
+
     Exception(&ev);
     
     return 0;
@@ -305,6 +317,7 @@ newWindowCallback(HelpWindow win)
     
     window = makeHelpWindow(0,0,0,0);
     helpWindowShowURL(window, "toc:", TRUE, TRUE);
+    gtk_widget_show (helpWindowGetAppWindow (window));
 }
 
 static void
@@ -327,7 +340,7 @@ static void
 aboutCallback (HelpWindow win)
 {
 	GtkWidget *about;
-	gchar *authors[] = {
+	const gchar *authors[] = {
 		"Mike Fulbright",
 		"Marc Ewing",
 		NULL

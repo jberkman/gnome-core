@@ -573,56 +573,64 @@ helpWindowClose(HelpWindow win)
     if (win->humanRef)
 	g_free(win->humanRef);
     queue_free(win->queue);
-    gtk_widget_destroy(win->accelWidget);
+    //gtk_widget_destroy(win->accelWidget);
     g_free(win);
 }
 
 static void init_accel(HelpWindow win)
 {
-#ifdef GTK_HAVE_FEATURES_1_1_0
-    GtkAccelGroup *accelGroup;
-#else
-    GtkAcceleratorTable *accelTable;
-#endif
-    /* What a hack this is.  I'm sure there is a better way */
-    win->accelWidget = gtk_button_new_with_label("accelWidget");
-    gtk_widget_realize(win->accelWidget);
-    gtk_widget_ref(win->accelWidget);
+    static page_up_signal = 0;
+    static page_down_signal = 0;
+    static grab_focus_signal = 0;
 
-    gtk_signal_connect(GTK_OBJECT(win->accelWidget), "pressed",
+    GtkAccelGroup *accel_group = gtk_accel_group_get_default();
+
+    if(!page_up_signal) {
+      page_up_signal = gtk_object_class_user_signal_new 
+	(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb)->klass,
+	 "page_up",
+	 GTK_RUN_FIRST,
+	 gtk_marshal_NONE__NONE,
+	 GTK_TYPE_NONE, 0);
+      page_down_signal = gtk_object_class_user_signal_new
+	(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb)->klass,
+	 "page_down",
+	 GTK_RUN_FIRST,
+	 gtk_marshal_NONE__NONE,
+	 GTK_TYPE_NONE, 0);
+      grab_focus_signal = gtk_object_class_user_signal_new
+	(GTK_OBJECT(win->entryBox)->klass,
+	 "grab_focus",
+	 GTK_RUN_FIRST,
+	 gtk_marshal_NONE__NONE,
+	 GTK_TYPE_NONE, 0);
+    }
+    gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
+		       "page_up", 
 		       GTK_SIGNAL_FUNC(pageUp), win);
-    gtk_signal_connect(GTK_OBJECT(win->accelWidget), "released",
+    gtk_signal_connect(GTK_OBJECT(GTK_XMHTML (win->helpWidget)->html.vsb), 
+		       "page_down", 
 		       GTK_SIGNAL_FUNC(pageDown), win);
-    gtk_signal_connect(GTK_OBJECT(win->accelWidget), "enter",
-		       GTK_SIGNAL_FUNC(focusEnter), win);
-#ifdef GTK_HAVE_FEATURES_1_1_0
-    accelGroup = gtk_object_get_data(GTK_OBJECT(win->app),
-				     "GtkAccelGroup");
-    gtk_widget_add_accelerator(win->accelWidget,
-		    "pressed",
-		    accelGroup,
-		    'b', 0, 0);
-    gtk_widget_add_accelerator(win->accelWidget,
-		    "released",
-		    accelGroup,
-		    ' ', 0, 0);
-    gtk_widget_add_accelerator(win->accelWidget,
-		    "enter",
-		    accelGroup,
-		    'g', 0, 0);
-#else
-    accelTable = gtk_object_get_data(GTK_OBJECT(win->app),
-                                     "GtkAcceleratorTable");
-    gtk_accelerator_table_install(accelTable,
-                                  GTK_OBJECT(win->accelWidget), "pressed",
-                                  'b', 0);
-    gtk_accelerator_table_install(accelTable,
-                                  GTK_OBJECT(win->accelWidget), "released",
-                                  ' ', 0);
-    gtk_accelerator_table_install(accelTable,
-                                  GTK_OBJECT(win->accelWidget), "enter",
-                                  'g', 0);
-#endif
+    gtk_signal_connect(GTK_OBJECT(win->entryBox), 
+		       "grab_focus",
+		       GTK_SIGNAL_FUNC(gtk_widget_grab_focus), NULL);
+
+    gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
+			       "page_up", accel_group, 
+			       'b', 0, 0);
+    gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
+			       "page_down", accel_group, 
+			       ' ', 0, 0);
+
+    gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
+			       "page_up", accel_group, 
+			       GDK_Page_Up, 0, 0);
+    gtk_widget_add_accelerator(GTK_XMHTML (win->helpWidget)->html.vsb, 
+			       "page_down", accel_group, 
+			       GDK_Page_Down, 0, 0);
+    gtk_widget_add_accelerator(win->entryBox, 
+			       "grab_focus", accel_group, 
+			       'g', 0, 0);
 }
 
 static void pageUp(GtkWidget *w, HelpWindow win)
@@ -639,11 +647,6 @@ static void pageDown(GtkWidget *w, HelpWindow win)
     
     adj = GTK_ADJUSTMENT(GTK_XMHTML(win->helpWidget)->vsba);
     gtk_adjustment_set_value(adj, adj->value + (adj->page_size));
-}
-
-static void focusEnter(GtkWidget *w, HelpWindow win)
-{
-    gtk_widget_grab_focus(GTK_WIDGET(win->entryBox));
 }
 
 static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
@@ -696,7 +699,6 @@ helpWindowNew(gchar *name,
 	w->app = gnome_app_new (name, _("Gnome Help Browser"));
 	gtk_window_set_wmclass (GTK_WINDOW (w->app), "GnomeHelpBrowser",
 				"GnomeHelpBrowser");
-	gtk_widget_realize (w->app);
 
 	gtk_signal_connect (GTK_OBJECT (w->app), "delete_event",
 			    GTK_SIGNAL_FUNC (delete_cb), w);
@@ -718,9 +720,6 @@ helpWindowNew(gchar *name,
 	w->helpWidget = gnome_helpwin_new();
 	gtk_widget_show(w->helpWidget);
 
-	/* Add accelerators */
-	init_accel(w);
-					
 	/* add a status bar */
 	w->statusBar = gtk_statusbar_new();
 	gtk_widget_show(w->statusBar);
@@ -755,9 +754,10 @@ helpWindowNew(gchar *name,
 		gtk_widget_set_uposition(GTK_WIDGET(w->app), x, y);
 
 	gtk_window_set_policy(GTK_WINDOW(w->app), TRUE, TRUE, FALSE);
-	gtk_widget_show(w->app);
 
-	gtk_widget_realize(w->helpWidget);
+	/* Add accelerators */
+	init_accel(w);
+					
 	gtk_signal_connect(GTK_OBJECT(GTK_XMHTML(w->helpWidget)->html.work_area),
 			   "drag_data_received",
 			   GTK_SIGNAL_FUNC(dndDrop), w);

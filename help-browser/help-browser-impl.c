@@ -3,6 +3,13 @@
 #include "window.h"
 #include <glib.h>
 
+HelpWindow makeHelpWindow(gint x, gint y, gint w, gint h);
+
+help_browser_simple_browser 
+impl_help_browser_simple_browser__create(PortableServer_POA poa,
+					 HelpWindow window, 
+					 CORBA_Environment * ev);
+void destroy_server(HelpWindow win);
 
 static GHashTable* win_servant_hash = 0;
 
@@ -53,10 +60,10 @@ static POA_help_browser_simple_browser__vepv impl_help_browser_simple_browser_ve
 static guint
 idhash(gconstpointer key)
 {
-  return key;
+  return (guint)key;
 }
 
-static guint
+static gint
 idcompare(gconstpointer a, gconstpointer b)
 {
   return a == b;
@@ -65,7 +72,7 @@ idcompare(gconstpointer a, gconstpointer b)
 /*** Stub implementations ***/
 help_browser_simple_browser 
 impl_help_browser_simple_browser__create(PortableServer_POA poa,
-					 HelpWindow* window, CORBA_Environment * ev)
+					 HelpWindow window, CORBA_Environment * ev)
 {
    help_browser_simple_browser retval;
    impl_POA_help_browser_simple_browser *newservant;
@@ -81,7 +88,7 @@ impl_help_browser_simple_browser__create(PortableServer_POA poa,
 	 {
 	   win_servant_hash = g_hash_table_new(idhash, idcompare);
 	 }
-       g_hash_table_insert(win_servant_hash, window, newservant);
+       g_hash_table_insert(win_servant_hash, (gpointer) window, newservant);
      }
    POA_help_browser_simple_browser__init((PortableServer_Servant) newservant, ev);
    objid = PortableServer_POA_activate_object(poa, newservant, ev);
@@ -112,9 +119,11 @@ impl_help_browser_simple_browser_fetch_url(impl_POA_help_browser_simple_browser 
 	{
 	  win_servant_hash = g_hash_table_new(idhash, idcompare);
 	}
-      g_hash_table_insert(win_servant_hash, servant->window, servant);
+      g_hash_table_insert(win_servant_hash, 
+			  (gpointer) servant->window, servant);
     }
   helpWindowShowURL(servant->window, URL, TRUE, TRUE);
+  gtk_widget_show (helpWindowGetAppWindow (servant->window));
 }
 
 help_browser_simple_browser
@@ -131,7 +140,7 @@ impl_help_browser_simple_browser_show_url(impl_POA_help_browser_simple_browser *
    return retval;
 }
 
-gint
+void
 destroy_server(HelpWindow win)
 {
   PortableServer_ObjectId*              oid;
