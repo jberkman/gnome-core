@@ -79,7 +79,7 @@ create_spin_button (gchar *name,
 				  page_value,
 				  page_value);
 
-	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+	hbox = gtk_hbox_new (TRUE, GNOME_PAD_SMALL);
 
 	spin = gtk_spin_button_new (GTK_ADJUSTMENT (adj), 1, 0);
 	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
@@ -90,8 +90,8 @@ create_spin_button (gchar *name,
 	label = gtk_label_new (name);
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 
-	gtk_box_pack_start_defaults (GTK_BOX (hbox), label);
-	gtk_box_pack_start_defaults (GTK_BOX (hbox), spin);
+	gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), spin, FALSE, TRUE, 0);
 
 	return hbox;
 }
@@ -138,7 +138,7 @@ create_geometry_page (void)
 	GtkWidget *hbox, *table, *frame, *vbox;
 	GSList *vertgroup = NULL, *horzgroup = NULL;
 	
-	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+	hbox = gtk_hbox_new (TRUE, GNOME_PAD_SMALL);
 	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD_SMALL);
 
 	frame = gtk_frame_new (_("Horizontal"));
