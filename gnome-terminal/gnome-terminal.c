@@ -90,6 +90,7 @@ struct terminal_config {
 	enum scrollbar_position_enum scrollbar_position;
 	int invoke_as_login_shell; 		/* How to invoke the shell */
 	int update_records;
+	int update_records_and, update_records_xor;
 	const char *user_back_str, *user_fore_str;
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int have_user_colors;			/* Only used for command line parsing */
@@ -2432,16 +2433,20 @@ parse_an_arg (poptContext state,
 		cfg->have_user_colors = 1;
 		break;
 	case DOUTMP_KEY:
-		cfg->update_records |= ZVT_TERM_DO_UTMP_LOG;
+		cfg->update_records_and &= ~ZVT_TERM_DO_UTMP_LOG;
+		cfg->update_records_xor |= ZVT_TERM_DO_UTMP_LOG;
 		break;
 	case DONOUTMP_KEY:
-		cfg->update_records &= ~ZVT_TERM_DO_UTMP_LOG;
+		cfg->update_records_and &= ~ZVT_TERM_DO_UTMP_LOG;
+		cfg->update_records_xor &= ~ZVT_TERM_DO_UTMP_LOG;
 		break;
 	case DOWTMP_KEY:
-		cfg->update_records |= ZVT_TERM_DO_WTMP_LOG;
+		cfg->update_records_and &= ~ZVT_TERM_DO_WTMP_LOG;
+		cfg->update_records_xor |= ZVT_TERM_DO_WTMP_LOG;
 		break;
 	case DONOWTMP_KEY:
-		cfg->update_records &= ~ZVT_TERM_DO_WTMP_LOG;
+		cfg->update_records_and &= ~ZVT_TERM_DO_WTMP_LOG;
+		cfg->update_records_xor &= ~ZVT_TERM_DO_WTMP_LOG;
 		break;
 	case TITLE_KEY:
 	        cfg->window_title = g_strdup(arg);
@@ -2476,6 +2481,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	cmdline_login = FALSE;
 
 	cmdline_config = g_new0 (struct terminal_config, 1);
+	cmdline_config->update_records_and = ~0;
 	
 	cb_options[0].descrip = (char *)cmdline_config;
 
@@ -2574,7 +2580,8 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->login_by_default;
 	default_config->termname = g_strdup(cmdline_config->termname);
 
-	default_config->update_records = cmdline_config->update_records;
+	default_config->update_records &= cmdline_config->update_records_and;
+	default_config->update_records ^= cmdline_config->update_records_xor;
 
 	terminal_config_free (cmdline_config);
 	
