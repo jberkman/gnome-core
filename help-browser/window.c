@@ -126,27 +126,27 @@ XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 
 GnomeUIInfo filemenu[] = {
 	{GNOME_APP_UI_ITEM, 
-	 N_("New window"), N_("Open new browser window"),
+	 N_("_New window"), N_("Open new browser window"),
          new_window_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW,
 	 0, 0, NULL},
 	{GNOME_APP_UI_ITEM, 
-	 N_("Add Bookmark"), N_("Add bookmark"),
+	 N_("_Add Bookmark"), N_("Add bookmark"),
          bookmark_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
 	 0, 0, NULL},
 	{GNOME_APP_UI_ITEM, 
-	 N_("Configure"), N_("Configure"),
+	 N_("Properties..."), N_("Properties"),
          config_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP,
 	 0, 0, NULL},
 	{GNOME_APP_UI_ITEM, 
-	 N_("Close"), N_("Close window"),
+	 N_("_Close"), N_("Close window"),
          close_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_NONE, NULL,
 	 0, 0, NULL},
 	{GNOME_APP_UI_ITEM, 
-	 N_("Exit"), N_("Exit all windows"),
+	 N_("E_xit"), N_("Exit all windows"),
          quit_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT,
 	 0, 0, NULL},
@@ -155,7 +155,7 @@ GnomeUIInfo filemenu[] = {
 
 GnomeUIInfo helpmenu[] = {
     {GNOME_APP_UI_ITEM, 
-     N_("About"), N_("Info about this program"),
+     N_("_About"), N_("Info about this program"),
      about_cb, NULL, NULL, 
      GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT,
      0, 0, NULL},
@@ -166,12 +166,12 @@ GnomeUIInfo helpmenu[] = {
  
 GnomeUIInfo windowmenu[] = {
 	{GNOME_APP_UI_ITEM, 
-	 N_("History"), N_("Show History Window"),
+	 N_("_History"), N_("Show History Window"),
          ghelpShowHistory, NULL, NULL, 
 	 GNOME_APP_PIXMAP_NONE, NULL,
 	 0, 0, NULL},
 	{GNOME_APP_UI_ITEM, 
-	 N_("Bookmarks"), N_("Show Bookmarks Window"),
+	 N_("_Bookmarks"), N_("Show Bookmarks Window"),
          ghelpShowBookmarks, NULL, NULL, 
 	 GNOME_APP_PIXMAP_NONE, NULL,
 	 0, 0, NULL},
@@ -179,9 +179,9 @@ GnomeUIInfo windowmenu[] = {
 };
 
 GnomeUIInfo mainmenu[] = {
-    GNOMEUIINFO_SUBTREE(N_("File"), filemenu),
-    GNOMEUIINFO_SUBTREE(N_("Window"), windowmenu),
-    GNOMEUIINFO_SUBTREE(N_("Help"), helpmenu),
+    GNOMEUIINFO_SUBTREE(N_("_File"), filemenu),
+    GNOMEUIINFO_SUBTREE(N_("_Window"), windowmenu),
+    GNOMEUIINFO_SUBTREE(N_("_Help"), helpmenu),
     GNOMEUIINFO_END
 };
 
