@@ -1,3 +1,7 @@
+1999-09-18  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* window.c: Changed some of the pixmaps on the tool bar to look better
+
 1999-08-05  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* window.c: Changed the GtkHandleBox in the Location bar to a
