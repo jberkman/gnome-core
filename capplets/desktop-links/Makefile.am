@@ -1,17 +1,26 @@
 ccenterdir = $(datadir)/control-center
 
 Rootdir         = $(ccenterdir)
-Peripheralsdir  = $(ccenterdir)/Peripherals
-Desktopdir   	= $(ccenterdir)/Desktop
+Inputdevsdir	= $(ccenterdir)/Inputdevs
+Appearancesdir	= $(ccenterdir)/Appearances
+Workspacedir	= $(ccenterdir)/Workspace
+WindowManagerdir= $(ccenterdir)/WindowManager
 
 
 Directory_files = \
-	Peripherals.directory
-	Desktop.directory
+	Input.directory\
+	Appearances.directory\
+	Workspace.directory\
+	WindowManager.directory
 
 install-data-local:
-	$(mkinstalldirs) $(Peripheralsdir)
-	$(mkinstalldirs) $(Desktopdir)
+	$(mkinstalldirs) $(Inputdevsdir)
+	$(mkinstalldirs) $(WindowManagerdir)
+	$(mkinstalldirs) $(Workspacedir)
+	$(mkinstalldirs) $(Appearancesdir)
 	$(INSTALL_DATA) $(srcdir)/Gnome.directory $(ccenterdir)/.directory
-	$(INSTALL_DATA) $(srcdir)/Peripherals.directory $(Peripheralsdir)/.directory
-	$(INSTALL_DATA) $(srcdir)/Desktop.directory $(Desktopdir)/.directory
+	$(INSTALL_DATA) $(srcdir)/Input.directory $(Inputdevsdir)/.directory
+	$(INSTALL_DATA) $(srcdir)/Appearances.directory $(Appearancesdir)/.directory
+	$(INSTALL_DATA) $(srcdir)/Workspace.directory $(Workspacedir)/.directory
+	$(INSTALL_DATA) $(srcdir)/WindowManager.directory $(WindowManagerdir)/.directory
+
