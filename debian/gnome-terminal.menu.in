@@ -1,0 +1,2 @@
+?package(gnome-terminal):needs=X11 section=Apps/Net\
+  title="Gnome Terminal" command="/@PREFIX@/bin/gnome-terminal"

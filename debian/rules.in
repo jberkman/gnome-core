@@ -1,0 +1,225 @@
+#!/usr/bin/make -f
+
+i=$(shell pwd)/debian/tmp
+b=$(shell pwd)/debian/build
+
+configure:
+	@echo "--- Making configure script and configuring"
+	./autogen.sh --prefix=/usr/X11R6 --with-gtk-prefix=/usr
+
+Makefile:
+	@echo "--- Configuring"
+	./configure --prefix=/usr/X11R6 --with-gtk-prefix=/usr
+
+build: configure Makefile build-debstamp
+build-debstamp:
+	@echo "--- Compiling"
+	dh_testdir
+	$(MAKE) all
+	touch build-debstamp
+
+clean:
+	@echo "--- Cleaning"
+	rm_testdir
+	-rm -f build-debstamp install-debstamp
+	-make distclean
+	-rm -f `find . -name "*~"`
+	-rm -rf `find . -name "\.deps"`
+	-rm -rf `find . -name "\.libs"`
+	-rm -rf debian/tmp `find debian/* -type d ! -name CVS ` debian/files* core
+	-rm -f debian/*substvars
+
+install: install-debstamp build
+install-debstamp:
+	@echo "--- Installing"
+	dh_testdir
+	dh_testroot
+	dh_clean
+	$(MAKE) install prefix=$(i)/@PREFIX@ exec_prefix=$(i)/@PREFIX@
+	touch install-debstamp
+
+install-save: install
+	rm -rf $(i).saved
+	cp -a $(i) $(i).saved
+
+install-saved:
+	rm -rf $(i)
+	cp -a $(i).saved $(i)
+	rm -rf $(b)
+	touch install-debstamp
+
+binary-indep: build install
+
+binary-arch: build install \
+		gnome-core@SUFFIX@ \
+		gnome-icons@SUFFIX@ \
+		gnome-panel@SUFFIX@ \
+		gnome-session@SUFFIX@ \
+		gnome-terminal@SUFFIX@ \
+		gnome-help@SUFFIX@ \
+		gnome-desktop@SUFFIX@
+
+#
+# gnome-core
+#
+
+gnome-core@SUFFIX@: install
+	@echo "--- Building: $@"
+	dh_installdocs       -p$@ -P$(b)/$@ \
+					README NEWS AUTHORS
+	dh_installchangelogs -p$@ -P$(b)/$@ \
+					ChangeLog
+	dh_movefiles         -p$@ -P$(b)/$@
+	dh_strip             -p$@ -P$(b)/$@ 
+	dh_compress          -p$@ -P$(b)/$@ 
+	dh_fixperms          -p$@ -P$(b)/$@ 
+	dh_installdeb        -p$@ -P$(b)/$@
+	dh_gencontrol        -p$@ -P$(b)/$@
+	dh_md5sums           -p$@ -P$(b)/$@
+	dh_builddeb          -p$@ -P$(b)/$@
+
+#
+# gnome-icons
+#
+
+gnome-icons@SUFFIX@: install
+	@echo "--- Building: $@"
+	dh_installdocs       -p$@ -P$(b)/$@ \
+					README NEWS AUTHORS
+	dh_installchangelogs -p$@ -P$(b)/$@ \
+					ChangeLog
+	dh_movefiles         -p$@ -P$(b)/$@
+	dh_strip             -p$@ -P$(b)/$@ 
+	dh_compress          -p$@ -P$(b)/$@ 
+	dh_fixperms          -p$@ -P$(b)/$@ 
+	dh_installdeb        -p$@ -P$(b)/$@
+	dh_shlibdeps         -p$@ -P$(b)/$@
+	dh_gencontrol        -p$@ -P$(b)/$@
+	dh_md5sums           -p$@ -P$(b)/$@
+	dh_builddeb          -p$@ -P$(b)/$@
+
+
+#
+# gnome-panel
+#
+
+gnome-panel@SUFFIX@: install
+	@echo "--- Building: $@"
+	dh_installdocs       -p$@ -P$(b)/$@ \
+					README NEWS AUTHORS
+	dh_installchangelogs -p$@ -P$(b)/$@ \
+					panel/ChangeLog
+	dh_movefiles         -p$@ -P$(b)/$@
+	dh_strip             -p$@ -P$(b)/$@ 
+	dh_compress          -p$@ -P$(b)/$@ 
+	dh_fixperms          -p$@ -P$(b)/$@ 
+	dh_installdeb        -p$@ -P$(b)/$@
+	dh_shlibdeps         -p$@ -P$(b)/$@
+	dh_gencontrol        -p$@ -P$(b)/$@
+	dh_makeshlibs        -p$@ -P$(b)/$@
+	dh_undocumented      -p$@ -P$(b)/$@ panel.1x \
+		`ls $(b)/$@/@PREFIX@/bin/*_applet | sed "s,^\.*/(.*\)$$,\1.1x,"`
+	dh_md5sums           -p$@ -P$(b)/$@
+	dh_builddeb          -p$@ -P$(b)/$@
+
+#
+# gnome-session
+#
+
+gnome-session@SUFFIX@: install
+	@echo "--- Building: $@"
+	dh_installdocs       -p$@ -P$(b)/$@ \
+						README NEWS AUTHORS \
+						gsm/TODO
+	dh_installchangelogs -p$@ -P$(b)/$@ \
+						gsm/ChangeLog
+	dh_movefiles         -p$@ -P$(b)/$@
+	dh_strip             -p$@ -P$(b)/$@ 
+	dh_compress          -p$@ -P$(b)/$@ 
+	dh_fixperms          -p$@ -P$(b)/$@ 
+	dh_installdeb        -p$@ -P$(b)/$@
+	dh_shlibdeps         -p$@ -P$(b)/$@
+	dh_gencontrol        -p$@ -P$(b)/$@
+	dh_undocumented      -p$@ -P$(b)/$@ \
+				save-session.1x
+	dh_md5sums           -p$@ -P$(b)/$@
+	dh_builddeb          -p$@ -P$(b)/$@
+
+#
+# gnome-terminal
+#
+
+gnome-terminal@SUFFIX@: install
+	@echo "--- Building: $@"
+	dh_installdocs       -p$@ -P$(b)/$@ \
+				README NEWS AUTHORS
+	dh_installchangelogs -p$@ -P$(b)/$@ \
+				gnome-terminal/ChangeLog
+	dh_movefiles         -p$@ -P$(b)/$@
+	dh_strip             -p$@ -P$(b)/$@ 
+	dh_compress          -p$@ -P$(b)/$@ 
+	dh_fixperms          -p$@ -P$(b)/$@ 
+	dh_installdeb        -p$@ -P$(b)/$@
+	dh_shlibdeps         -p$@ -P$(b)/$@
+	dh_gencontrol        -p$@ -P$(b)/$@
+	dh_undocumented      -p$@ -P$(b)/$@ \
+				gnome-terminal.1x
+	dh_md5sums           -p$@ -P$(b)/$@
+	dh_builddeb          -p$@ -P$(b)/$@
+
+#
+# gnome-help
+#
+
+gnome-help@SUFFIX@: install
+	@echo "--- Building: $@"
+	dh_installdocs       -p$@ -P$(b)/$@ \
+					help-browser/README NEWS AUTHORS \
+					help-browser/TODO
+	dh_installchangelogs -p$@ -P$(b)/$@ \
+					help-browser/ChangeLog
+	dh_movefiles         -p$@ -P$(b)/$@
+	dh_strip             -p$@ -P$(b)/$@ 
+	dh_compress          -p$@ -P$(b)/$@ 
+	dh_fixperms          -p$@ -P$(b)/$@ 
+	dh_installdeb        -p$@ -P$(b)/$@
+	dh_shlibdeps         -p$@ -P$(b)/$@
+	dh_gencontrol        -p$@ -P$(b)/$@
+	dh_undocumented      -p$@ -P$(b)/$@ \
+				gnome-help-browser.1x \
+				gnome-man2html.1x \
+				gnome-info2html.1x
+	dh_md5sums           -p$@ -P$(b)/$@
+	dh_builddeb          -p$@ -P$(b)/$@
+
+#
+# gnome-desktop
+#
+
+gnome-desktop@SUFFIX@: install
+	@echo "--- Building: $@"
+	dh_installdocs       -p$@ -P$(b)/$@ \
+					desktop-properties/TODO \
+					NEWS AUTHORS
+	dh_installchangelogs -p$@ -P$(b)/$@ \
+					desktop-properties/ChangeLog
+	dh_movefiles         -p$@ -P$(b)/$@
+	dh_strip             -p$@ -P$(b)/$@ 
+	dh_compress          -p$@ -P$(b)/$@ 
+	dh_fixperms          -p$@ -P$(b)/$@ 
+	dh_installdeb        -p$@ -P$(b)/$@
+	dh_shlibdeps         -p$@ -P$(b)/$@
+	dh_gencontrol        -p$@ -P$(b)/$@
+	dh_undocumented      -p$@ -P$(b)/$@ \
+				background-properties.1x \
+				keyboard-properties.1x \
+				mouse-properties.1x \
+				ui-properties.1x \
+				bell-properties.1x
+	dh_md5sums           -p$@ -P$(b)/$@
+	dh_builddeb          -p$@ -P$(b)/$@
+
+binary: binary-indep binary-arch
+
+.PHONY: binary clean binary-indep binary-arch build install install-save install-saved
+

@@ -1,0 +1,47 @@
+gnome-core for DEBIAN
+----------------------
+
+The gnome-core source package contains the code for the following
+programs:
+
+* desktop-properties - for customizing your X desktop, mouse and keyboard
+* gemvt - a terminal emulator
+* the gnome session manager - this will save the state of Gnome apps when
+  you log out, and restart them when you log back in.
+* panel - an application launcher / menu / dock
+* the help-browser
+
+BEWARE:  All of this code is pre-release, and under active development.
+         Some of it is alpha-quality, or worse.  It will change dramatically
+         from release to release - and compatibility (or runnability)
+         is not guaranteed.  Don't depend on any of these programs.
+
+To use the gnome-session manager (instead of a different session
+manager, such as xsm, the one in KDE, or perhaps one built into a
+window manager) , you need to edit your .xsession file (assuming you
+are using xdm to log into X).  If you use startx or xinit, you need
+to change your .xinitrc file instead.
+
+My .xsession file looks something like this:
+
+xsetroot -solid slategrey &
+xrdb -load $HOME/.Xdefaults
+fvwm2 &      
+exec /usr/X11R6/bin/gnome-session
+
+
+Note:  If you don't have gnome-session set up at the end of your
+       .xsession where it does the "exec" (perhaps your window manager
+       is there) - you won't be able to use the session manager to
+       handle the logging out process (where it will save the state
+       of all your apps).
+
+Cheers,
+
+ - Jim
+
+
+Jim Pick <jim@jimpick.com>, Mon, 16 Mar 1998 15:27:43 -0800
+
+
+

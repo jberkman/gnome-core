@@ -1,0 +1,6 @@
+?package(gnome-desktop):needs=X11 section=Apps/System\
+  title="Mouse Properties" command="/@PREFIX@/bin/mouse-properties"
+?package(gnome-desktop):needs=X11 section=Apps/System\
+  title="Keyboard Properties" command="/@PREFIX@/bin/keyboard-properties"
+?package(gnome-desktop):needs=X11 section=Apps/System\
+  title="Background Properties" command="/@PREFIX@/bin/background-properties"

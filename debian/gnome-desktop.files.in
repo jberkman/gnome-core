@@ -1,0 +1,5 @@
+@PREFIX@/bin/mouse-properties
+@PREFIX@/bin/keyboard-properties
+@PREFIX@/bin/background-properties
+@PREFIX@/bin/bell-properties
+@PREFIX@/bin/ui-properties

@@ -1,0 +1,2 @@
+?package(gnome-help):needs=X11 section=Apps/Viewers\
+  title="Gnome Help" command="/@PREFIX@/bin/gnome-help-browser"

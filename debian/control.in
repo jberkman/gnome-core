@@ -1,0 +1,96 @@
+Source: gnome-core@SUFFIX@
+Section: x11
+Priority: optional
+Maintainer: Jim Pick <jim@jimpick.com>
+Standards-Version: 2.4.0.0
+
+Package: gnome-panel@SUFFIX@
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Launch and/or dock Gnome applications
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package contains a toolbar (the "panel") that you can attach to the
+ edge of your X desktop.  You can install "applets" on it.  Several
+ applets are supplied: an application menu, a clock, a mail checker,
+ a network monitor, etc.  You can customize the location, and the
+ "autohide" animations.
+
+Package: gnome-icons@SUFFIX@
+Architecture: all
+Description: Icons for Gnome
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package includes icons for gnome. they are not included by
+ default because they use too many colors to be usable on a low-color system
+
+Package: gnome-core@SUFFIX@
+Architecture: all
+Description: Common files for Gnome core apps
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package includes some files that are shared between several
+ Gnome apps.
+
+Package: gnome-session@SUFFIX@
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: The Gnome Session Manager
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package contains a X11-compliant "session manager" (similar to xsm)
+ with Gnome extensions.  When you log out, the session manager will
+ save the state of all your Gnome apps.  When you log back in, the
+ session manager will restore your session.
+ .
+ Important!  You need to modify your .xsession or .xinitrc in order to
+ use this.  Don't worry - it's not difficult to do.
+
+Package: gnome-terminal@SUFFIX@
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: The Gnome terminal emulator application
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package contains the Gnome Gtk-based terminal application (based
+ on the zvt widget).
+
+Package: gnome-help@SUFFIX@
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: The Gnome help browser
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package contains the Gnome online help browser application.
+ Based on the gtk-xmhtml widget, it allows you to view documentation
+ in the form of HTML, man pages, or GNU info pages.
+
+Package: gnome-desktop@SUFFIX@
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: The Gnome desktop customization utilities
+ Gnome is the "GNU Network Object Model Environment"
+ .
+ It is a project to build a complete, user-friendly desktop based
+ entirely on free software.
+ .
+ This package contains utilites to configure your desktop background,
+ screen saver, keyboard and mouse properties.

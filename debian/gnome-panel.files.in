@@ -1,0 +1,6 @@
+@PREFIX@/bin/panel
+@PREFIX@/bin/*_applet
+@PREFIX@/lib/libpanel*
+@PREFIX@/share/panelrc
+@PREFIX@/share/applets*
+@PREFIX@/include/applet*

@@ -1,0 +1,15 @@
+gnome-core (0.20-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Jim Pick <jim@jimpick.com>  Mon,  8 Jun 1998 12:00:08 -0700
+
+gnome-core (0.13-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Jim Pick <jim@jimpick.com>  Mon, 16 Mar 1998 15:27:43 -0800
+
+Local variables:
+mode: debian-changelog
+End:
