@@ -1,0 +1,7 @@
+module help_browser {
+	interface simple_browser {
+		void fetch_url(in string URL);
+		void show_url(in string URL);
+	};
+};
+
