@@ -334,13 +334,20 @@ bookmarkCallback (gchar *ref)
 static void
 aboutCallback (HelpWindow win)
 {
-	GtkWidget *about;
+	static GtkWidget *about = NULL;
 	const gchar *authors[] = {
 		"Mike Fulbright",
 		"Marc Ewing",
 		NULL
 	};
 
+	if (about != NULL)
+	{
+		gdk_window_show(about->window);
+		gdk_window_raise(about->window);
+		return;
+	
+	}
 	about = gnome_about_new ( _("Gnome Help Browser"), HELP_VERSION,
 				  _("Copyright (c) 1998 Red Hat Software, Inc."),
 				  authors,
@@ -348,6 +355,8 @@ aboutCallback (HelpWindow win)
 				  "various forms of documentation on your "
 				  "system"),
 				  NULL);
+	gtk_signal_connect (GTK_OBJECT (about), "destroy",
+			    GTK_SIGNAL_FUNC(gtk_widget_destroyed), &about);
 	gtk_widget_show (about);
 	
 	return;
