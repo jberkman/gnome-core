@@ -1,3 +1,11 @@
+Tue Oct 27 14:21:32 1998  George Lebl  <jirka@5z.com>
+
+	* gnome-terminal.c: calls set_background instead of set_transparent,
+	  added background pixmap checkbox and a file entry
+
+	* gnome-terminal.c: fixed a warning with gtk_combo, and use
+	  GINT_TO_POINTER and GPOINTER_TO_INT instead of just a cast
+
 Tue Oct 27 01:13:20 1998  George Lebl  <jirka@5z.com>
 
 	* gnome-terminal.c: add support for transparency in zvt

@@ -66,6 +66,8 @@ struct terminal_config {
 	int have_user_colors;			/* Only used for command line parsing */
 	int transparent;
 	int shaded;
+	int background_pixmap;
+	char * pixmap_file;
 } ;
 
 /* Initial command */
@@ -83,6 +85,8 @@ typedef struct {
 	GtkWidget *blink_checkbox;
 	GtkWidget *scroll_kbd_checkbox;
 	GtkWidget *scroll_out_checkbox;
+	GtkWidget *pixmap_checkbox;
+	GtkWidget *pixmap_file_entry;
 	GtkWidget *transparent_checkbox;
 	GtkWidget *shaded_checkbox;
 	GtkWidget *menubar_checkbox;
@@ -348,6 +352,8 @@ load_config (char *class)
 
 	cfg->transparent = gnome_config_get_bool ("transparent=false");
 	cfg->shaded = gnome_config_get_bool ("shaded=false");
+	cfg->background_pixmap = gnome_config_get_bool ("background_pixmap=false");
+	cfg->pixmap_file = gnome_config_get_string ("pixmap_file");
 
 	if (strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
@@ -368,7 +374,7 @@ static struct terminal_config *
 gather_changes (ZvtTerm *term)
 {
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
-	int r, g, b;
+	gushort r, g, b;
 	struct terminal_config *newcfg = g_malloc (sizeof (*newcfg));
 
 	memset (newcfg, 0, sizeof (*newcfg));
@@ -381,6 +387,8 @@ gather_changes (ZvtTerm *term)
 
 	newcfg->transparent = GTK_TOGGLE_BUTTON (prefs->transparent_checkbox)->active;
 	newcfg->shaded = GTK_TOGGLE_BUTTON (prefs->shaded_checkbox)->active;
+	newcfg->background_pixmap = GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox)->active;
+	newcfg->pixmap_file  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->pixmap_file_entry)));
 
 	(int) newcfg->scrollbar_position = gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 
@@ -393,8 +401,8 @@ gather_changes (ZvtTerm *term)
 	else
 		newcfg->class = g_strconcat ("Class-", gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (prefs->class_box)->entry)), NULL);
 
-	newcfg->color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
-	newcfg->color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
+	newcfg->color_type = GPOINTER_TO_INT(gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme)));
+	newcfg->color_set  = GPOINTER_TO_INT(gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back)));
 
 	gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (prefs->fore_cs), &r, &g, &b, NULL);
 	newcfg->user_fore.red   = r;
@@ -449,7 +457,9 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	zvt_term_set_scrollback (term, cfg->scrollback);
-	zvt_term_set_transparent (term, cfg->transparent, cfg->shaded);
+	zvt_term_set_background (term,
+				 cfg->background_pixmap?cfg->pixmap_file:NULL,
+				 cfg->transparent, cfg->shaded);
 	if (cfg->scrollbar_position == SCROLLBAR_HIDDEN)
 		gtk_widget_hide (scrollbar);
 	else {
@@ -558,6 +568,8 @@ window_closed (GtkWidget *w, void *data)
 	preferences_t *prefs;
 
 	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+	gtk_signal_disconnect_by_data(GTK_OBJECT(prefs->pixmap_file_entry),
+				      prefs);
 	g_free (prefs);
 	
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", NULL);
@@ -611,7 +623,7 @@ typedef struct {
 static void
 set_active_data (GtkWidget *omenu, int idx, GtkWidget *sens1, GtkWidget *sens2)
 {
-	gtk_object_set_user_data (GTK_OBJECT (omenu), (void *) idx);
+	gtk_object_set_user_data (GTK_OBJECT (omenu), GINT_TO_POINTER(idx));
 
 	if (sens1) gtk_widget_set_sensitive (GTK_WIDGET (sens1), idx == COLORS_CUSTOM);
 	if (sens2) gtk_widget_set_sensitive (GTK_WIDGET (sens2), idx == COLORS_CUSTOM);
@@ -707,8 +719,10 @@ enum {
 	FONT_ROW      = 2,
 	BLINK_ROW     = 3,
 	MENUBAR_ROW    = 4,
-	TRANSPARENT_ROW = 5,
-	SHADED_ROW    = 6,
+	PIXMAP_ROW	= 5,
+	PIXMAP_FILE_ROW	= 6,
+	TRANSPARENT_ROW = 7,
+	SHADED_ROW    = 8,
 	SCROLL_ROW    = 1,
 	SCROLLBACK_ROW = 2,
 	KBDSCROLL_ROW = 3,
@@ -725,7 +739,7 @@ free_cs (GtkWidget *widget, GnomeColorSelector *cs)
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GtkWidget *l, *table, *o, *m, *b1, *b2;
+	GtkWidget *l, *table, *o, *m, *b1, *b2, *e;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
 	GList *class_list = NULL;
@@ -785,7 +799,8 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 		    class_list = g_list_append (class_list, some_class);
 		}
 	}
-	gtk_combo_set_popdown_strings (GTK_COMBO (prefs->class_box), class_list);
+	if(class_list)
+		gtk_combo_set_popdown_strings (GTK_COMBO (prefs->class_box), class_list);
 	if (!strcmp (cfg->class, "Config")) 
 		some_class = _("Default");
 	else
@@ -814,6 +829,30 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
 			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
+	/* Background Pixmap checkbox */
+	prefs->pixmap_checkbox = gtk_check_button_new_with_label (_("Background pixmap"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox),
+				     term->pixmap_filename ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->pixmap_checkbox,
+			  2, 3, PIXMAP_ROW, PIXMAP_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Background pixmap filename */
+	l = aligned_label (_("Pixmap file:"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	e = gnome_file_entry_new ("pixmap",_("Browse"));
+	prefs->pixmap_file_entry =
+		gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(e));
+	gtk_entry_set_text (GTK_ENTRY (prefs->pixmap_file_entry),
+			    cfg->pixmap_file?cfg->pixmap_file:"");
+	gtk_entry_set_position (GTK_ENTRY (prefs->pixmap_file_entry), 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_file_entry), "changed",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), e,
+			  2, 3, PIXMAP_FILE_ROW, PIXMAP_FILE_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
 	/* Transparency */
 	prefs->transparent_checkbox = gtk_check_button_new_with_label (_("Transparent"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->transparent_checkbox),
@@ -824,7 +863,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			  2, 3, TRANSPARENT_ROW, TRANSPARENT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Shaded */
-	prefs->shaded_checkbox = gtk_check_button_new_with_label (_("Transparent window should be shaded"));
+	prefs->shaded_checkbox = gtk_check_button_new_with_label (_("Background should be shaded (slow)"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->shaded_checkbox),
 				     term->shaded ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->shaded_checkbox), "toggled",
@@ -986,6 +1025,8 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg)
 	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
 	gnome_config_set_bool   ("transparent", cfg->transparent);
 	gnome_config_set_bool   ("shaded", cfg->shaded);
+	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
+	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
 	gnome_config_sync ();
 
 	gnome_config_pop_prefix ();
