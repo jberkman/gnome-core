@@ -1,0 +1,5 @@
+gnome-terminal
+Makefile.in
+Makefile
+*.o
+*~
