@@ -1,3 +1,12 @@
+1999-12-11  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* toc2-*.c (new*Table): don't go and sort if there aren't
+	any elements.  Insure complained about this.  There is a
+	0.000000001% chance that this fixes people's crashes.
+
+	* toc2.c (gen*TocHTML): don't make a table if there aren't
+	any elements.  This fixes a crash I had.
+
 1999-12-06  Pavel Machek  <pavel@ucw.cz>
 
 	* gnome-convert, gnome-download: better handling of unknown types

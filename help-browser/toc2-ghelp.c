@@ -101,6 +101,10 @@ GList *newGhelpTable(struct _toc_config *conf)
 	conf++;
     }
 
+    if (tmp_array_elems == 0) {
+	    g_free (tmp_array);
+	    return NULL;
+    }
     /* FIXME: If would be much cooler if glib had a function to sort
        lists.  */
     qsort(tmp_array, (size_t) tmp_array_elems, sizeof(*tmp_array),

@@ -121,6 +121,8 @@ GString
     last_ext = ' ';
     last_initial = ' ';
     l = toc->manTable;
+    if (!l)
+	    return res;
     g_string_append(res, "<ul>\n");
     while (l) {
 	ext = ((struct _big_table_entry *)l->data)->ext;
@@ -257,6 +259,8 @@ GString
     g_string_append(res, _("<br><br><h2>Info Pages</h2>\n"));
 
     l = toc->infoTable;
+    if (!l)
+	    return res;
     numrow = 0;
     numcol = 3;
     s = g_string_new(NULL);
@@ -319,6 +323,8 @@ GString
     g_string_append(res, _("<br><br><h2>GNOME Help</h2>\n"));
 
     l = toc->ghelpTable;
+    if (!l)
+	    return res;
     numrow = 0;
     numcol = 3;
     s = g_string_new(NULL);
