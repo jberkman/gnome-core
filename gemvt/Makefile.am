@@ -1,16 +1,13 @@
 bin_PROGRAMS = gemvt
 
-LINK     = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) $(X_LIBS) -o $@
 INCLUDE_always = -I$(includedir) $(X_CFLAGS)
 
 INCLUDES = $(INCLUDE_always)
 
 gemvt_SOURCES = $(gmevt_c_files) 
-gemvt_LDADD = $(GETOPT_OBJS) $(GEMVT_LD_EXTRA)
-
+gemvt_LDADD = $(GETOPT_OBJS) $(GEMVT_LD_EXTRA) $(X_LIBS)
 
 gemvt_DEPENDENCIES = $(GETOPT_OBJS)
-
 
 gmevt_h_files = \
 	gvtvt.h \

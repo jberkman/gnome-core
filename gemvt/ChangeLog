@@ -1,3 +1,10 @@
+1998-02-27  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* Makefile.am (gemvt_LDADD): Add $(X_LIBS).
+	(LINK): Remove.
+	* configure.in (GEMVT_LD_EXTRA): Move check for `libgtktty' here,
+	after the GNOME checks.
+
 1998-02-25  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* gvtvt.c (environ): Declare global var.

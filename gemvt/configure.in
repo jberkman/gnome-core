@@ -61,12 +61,6 @@ AC_DEFUN(AC_GEMVT_REQUIREMENTS,
 		[AC_MSG_ERROR(Can not link with gtk/gdk/glib)],
 		-lgdk -lglib $x_libs -lm)
 
-	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS"
-	AC_CHECK_LIB(gtktty, gtk_tty_get_type,
-		X_LIBS="$X_LIBS -lgtktty",
-		[AC_MSG_ERROR(Can not link with libgtktty)],
-		-lgtk -lgdk -lglib $x_libs -lm)
-
 	dnl Check for functions.
 	AC_CHECK_FUNC(putenv,,[AC_MSG_ERROR(Can not set environment variables)])
 
@@ -179,8 +173,16 @@ if test x$gnome_cv_use_gnome = xyes; then
   AM_ACLOCAL_INCLUDE(../macros)
   GNOME_INIT
   AC_CHECK_LIB(intl, bindtextdomain, GEMVT_LD_EXTRA="-lintl", ,)
+  LDFLAGS="$LDFLAGS $GNOME_LIBDIR"
   GEMVT_LD_EXTRA="$GNOMEUI_LIBS $GEMVT_LD_EXTRA"
 fi
+
+dnl It looks like libgtktty can come either from GNOME or standalone
+dnl So, do check here, after the GNOME checks
+AC_CHECK_LIB(gtktty, gtk_tty_get_type,
+  GEMVT_LD_EXTRA="$GEMVT_LD_EXTRA -lgtktty",
+  [AC_MSG_ERROR(Can not link with libgtktty)],
+  -lgtk -lgdk -lglib $x_libs -lm)
 
 dnl Automake @VARIABLE@ exports.
 AC_SUBST(x_libs)
