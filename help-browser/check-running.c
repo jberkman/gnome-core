@@ -13,10 +13,9 @@ do_cb(void)
   char *tmp;
 
   g_string_sprintf(tmpg, "%s/instance/runcmd", gnome_app_id);
-  gnome_config_sync();
   tmp = gnome_config_get_string(tmpg->str);
 
-  g_print("Doing callback %s\n", tmp);
+  g_message("Doing callback %s\n", tmp);
 
   if(tmp)
     runcmd_callback(tmp);
@@ -26,9 +25,8 @@ do_cb(void)
 
 gboolean send_command_to_running(char *string, void (*callback)(char *))
 {
-  int tmpi;
-  gboolean tmpd;
-  gboolean retval = FALSE;
+  int pid;
+  gboolean pidMissing;
   struct sigaction act;
 
   tmpg = g_string_new(NULL);
@@ -36,36 +34,33 @@ gboolean send_command_to_running(char *string, void (*callback)(char *))
   gnome_config_sync();
 
   g_string_sprintf(tmpg, "%s/instance/pid=0", gnome_app_id);
-  tmpi = gnome_config_get_int_with_default(tmpg->str, &tmpd);
+  pid = gnome_config_get_int_with_default(tmpg->str, &pidMissing);
 
-  if(string)
-    {
+  if (string) {
       g_string_sprintf(tmpg, "%s/instance/runcmd", gnome_app_id);
       gnome_config_set_string(tmpg->str, string);
-    }
+      /*g_message("Set string %s to %s", tmpg->str, string);*/
+      gnome_config_sync();
+  }
 
+  /*g_message("pidMissing = %d, pid = %d", pidMissing, pid);*/
+
+  if (!pidMissing && pid && !kill(pid, SIGUSR2)) {
+      /* We are done.  Someone else is handling this document now. */
+      return TRUE;
+  }
+
+  /* Set up to handle incoming signals */
+  
+  g_string_sprintf(tmpg, "%s/instance/pid", gnome_app_id);
+  gnome_config_set_int(tmpg->str, getpid());
   gnome_config_sync();
+  /*g_message("Set string %s to %d", tmpg->str, getpid());*/
+  
+  runcmd_callback = callback;
+  act.sa_handler = do_cb;
+  act.sa_flags = SA_NODEFER;
+  sigaction(SIGUSR2, &act, NULL);
 
-  g_print("tmpd = %d, tmpi = %d\n", tmpd, tmpi);
-
-  if(!tmpd && tmpi && !kill(tmpi, SIGUSR2))
-    {
-      retval = TRUE;
-    }
-  else
-    {
-      g_string_sprintf(tmpg, "%s/instance/pid", gnome_app_id);
-      gnome_config_set_int(tmpg->str, getpid());
-      g_print("Set string %s to %d\n", tmpg->str, getpid());
-      runcmd_callback = callback;
-      act.sa_handler = do_cb;
-      act.sa_flags = SA_NODEFER;
-      sigaction(SIGUSR2, &act, NULL);
-    }
-
-  gnome_config_sync();
-
-  g_print("return %d\n", retval);
-
-  return retval;
+  return FALSE;
 }

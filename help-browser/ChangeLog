@@ -1,5 +1,7 @@
 1998-05-25  Marc Ewing  <marc@germ.labs.redhat.com>
 
+	* check-running.c: fix up
+
 	* Made some changes to the config dir handling code.
 	Now the dir is fixed at .gnome-help-browser.
 

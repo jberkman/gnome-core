@@ -164,14 +164,13 @@ main(int argc, char *argv[])
     gnome_init(NAME, &parser, argc, argv, 0, NULL);
 
 #ifdef UGLY_LE_HACK
-    if(send_command_to_running(helpURL, show_requested_url))
-      {
+    if (send_command_to_running(helpURL, show_requested_url)) {
 	exit(0);
-      }
+    }
 #endif
 
     initConfig();
-    
+
     setErrorHandlers();
 	
     if (smClient && smClient->client_id)
