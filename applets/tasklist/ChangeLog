@@ -1,5 +1,9 @@
 1999-09-16  Anders Carlsson  <anders.carlsson@tordata.se>
 
+	* tasklist_menu.c: Added "Send to desktop" feature
+
+1999-09-16  Anders Carlsson  <anders.carlsson@tordata.se>
+
 	* tasklist_applet.h
 	  tasklist_applet.c
 	  tasklist_config.c

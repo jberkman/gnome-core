@@ -136,11 +136,26 @@ add_menu_item (gchar *name, GtkWidget *menu, MenuAction action)
 
 }
 
+/* Called when "Send to desktop" is used */
+gboolean
+cb_to_desktop (GtkWidget *widget, gpointer data)
+{
+	gwmh_task_set_desktop (current_task->gwmh_task, 
+			       GPOINTER_TO_INT (data));
+	gwmh_task_set_desktop (current_task->gwmh_task, 
+			       GPOINTER_TO_INT (data));
+	layout_tasklist (TRUE);
+
+}
+
 /* Create a popup menu */
 GtkWidget 
 *get_popup_menu (TasklistTask *task)
 {
-	GtkWidget *menu, *menuitem;
+	GtkWidget *menu, *menuitem, *desktop;
+	GwmhDesk *desk_info;
+	gchar *wsname;
+	int i, curworkspace;
 
 	menu = gtk_menu_new ();
 	gtk_widget_show (menu);
@@ -157,13 +172,45 @@ GtkWidget
 		       ? _("Unstick") : _("Stick"), 
 		       menu, MENU_ACTION_STICK_UNSTICK);
 
-	add_menu_item (_("Close"), menu, MENU_ACTION_CLOSE);
+	add_menu_item (_("Close window"), menu, MENU_ACTION_CLOSE);
 
 	menuitem = gtk_menu_item_new ();
 	gtk_widget_show (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
+
+	menuitem = gtk_menu_item_new_with_label (_("To desktop"));
+	gtk_widget_show (menuitem);
+	gtk_menu_append (GTK_MENU (menu), menuitem);
+
+	if (!GWMH_TASK_STICKY (task->gwmh_task)) {
+		desktop = gtk_menu_new ();
+		gtk_widget_show (desktop);
+		gtk_menu_item_set_submenu (GTK_MENU_ITEM (menuitem), desktop);
+		
+		desk_info = gwmh_desk_get_config ();
+		curworkspace = desk_info->current_desktop;
+
+		for (i=0; i<desk_info->n_desktops;i++) {
+			if (desk_info->desktop_names[i])
+				wsname = g_strdup_printf ("%s", desk_info->desktop_names[i]);
+			else
+				wsname = g_strdup_printf ("%d", i);
+			menuitem = gtk_menu_item_new_with_label (wsname);
+			gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
+					    GTK_SIGNAL_FUNC (cb_to_desktop), i);
+			if (i == curworkspace)
+				gtk_widget_set_sensitive (menuitem, FALSE);
+			gtk_widget_show (menuitem);
+			gtk_menu_append (GTK_MENU (desktop), menuitem);
+			g_free (wsname);
+		}
+	} else 
+		gtk_widget_set_sensitive (menuitem, FALSE);
+	menuitem = gtk_menu_item_new ();
+	gtk_widget_show (menuitem);
+	gtk_menu_append (GTK_MENU (menu), menuitem);
 	
-	add_menu_item (_("Kill"), menu, MENU_ACTION_KILL);
+	add_menu_item (_("Kill app"), menu, MENU_ACTION_KILL);
 	
 	return menu;
 }
