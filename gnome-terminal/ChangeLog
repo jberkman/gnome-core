@@ -1,3 +1,15 @@
+1999-02-09  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (hide_menu_cmd): Save show/hide setting here.
+	(show_menu_cmd): and here.
+	(new_terminal_cmd): Hide the menubar after the gtk_widget_show on
+	the GnomeApp, since the GnomeApp::show method will show the
+	menubar under us.
+
+	Rename update_utmp to update_records.
+
+	Handle utmp/wtmp as separate options, not a commont one.
+
 1999-02-09  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
 
 	* gnome-terminal.c (preferences_cmd): Added a "select by word

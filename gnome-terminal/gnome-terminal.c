@@ -31,7 +31,7 @@ char **env;
 char *geometry = 0;
 
 /* By default record utmp logins */
-gboolean update_utmp = TRUE;
+gboolean update_records = ZVT_TERM_DO_UTMP_LOG | ZVT_TERM_DO_WTMP_LOG;
 
 /* is there pixmap compiled into zvt */
 static gboolean zvt_pixmap_support = FALSE;
@@ -1182,6 +1182,7 @@ show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 	cfg->menubar_hidden = 0;
 	gtk_widget_show (app->menubar->parent);
+	save_preferences_cmd (widget, term);
 }
 
 static void
@@ -1194,6 +1195,7 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 	cfg->menubar_hidden = 1;
 	gtk_widget_hide (app->menubar->parent);
+	save_preferences_cmd (widget, term);
 }
 
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
@@ -1602,8 +1604,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 				  GTK_SIGNAL_FUNC (size_allocate), term);
 	
 	gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
-	if (cfg->menubar_hidden)
-		gtk_widget_hide (GNOME_APP (app)->menubar->parent);
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
@@ -1658,12 +1658,20 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		zvt_term_set_background (term, NULL, 0, 0);
 
 	gtk_widget_show (app);
+
+	/*
+	 * We need to hide this here, because the gnome_app_show
+	 * method will force a show on the menu
+	 */
+	if (cfg->menubar_hidden)
+		gtk_widget_hide (GNOME_APP (app)->menubar->parent);
+	
 	set_color_scheme (term, cfg);
 
 	gdk_window_set_hints (((GtkWidget *)app)->window,
 			      0, 0, 50, 50, 0, 0, GDK_HINT_MIN_SIZE);
 
-	switch (zvt_term_forkpty (term, update_utmp)){
+	switch (zvt_term_forkpty (term, update_records)){
 	case -1:
 		perror ("Error: unable to fork");
 		return;
@@ -1851,7 +1859,9 @@ enum {
 	CLASS_KEY    = -8,
 	DOUTMP_KEY   = -9,
 	DONOUTMP_KEY = -10,
-        TITLE_KEY    = -11
+	DOWTMP_KEY   = -11,
+	DONOWTMP_KEY = -12,
+        TITLE_KEY    = -13
 };
 
 static struct poptOption cb_options [] = {
@@ -1882,10 +1892,16 @@ static struct poptOption cb_options [] = {
 	  N_("Background color"), N_("COLOR")},
 
 	{ "utmp", '\0', POPT_ARG_NONE, NULL, DOUTMP_KEY,
-	  N_("Update utmp/wtmp entries"), N_("UTMP") },
+	  N_("Update utmp entry"), N_("UTMP") },
 
 	{ "noutmp", '\0', POPT_ARG_NONE, NULL, DONOUTMP_KEY,
-	  N_("Do not update utmp/wtmp entries"), N_("NOUTMP") },
+	  N_("Do not update utmp entry"), N_("NOUTMP") },
+
+	{ "wtmp", '\0', POPT_ARG_NONE, NULL, DOWTMP_KEY,
+	  N_("Update wtmp entry"), N_("WTMP") },
+
+	{ "nowtmp", '\0', POPT_ARG_NONE, NULL, DONOWTMP_KEY,
+	  N_("Do not update wtmp entry"), N_("NOWTMP") },
 	
 	{ "title", 't', POPT_ARG_STRING, NULL, TITLE_KEY,
           N_("Set the window title"), N_("TITLE") },
@@ -1936,19 +1952,25 @@ parse_an_arg (poptContext state,
 		  }
 	case FORE_KEY:
 	        cfg->user_fore_str = arg;
-		//		gdk_color_parse(cfg->user_fore_str, &cfg->user_fore);
+		/* gdk_color_parse(cfg->user_fore_str, &cfg->user_fore); */
 		cfg->have_user_colors = 1;
 		break;
 	case BACK_KEY:
 	        cfg->user_back_str = arg;
-		//gdk_color_parse(cfg->user_back_str, &cfg->user_back);
+		/* gdk_color_parse(cfg->user_back_str, &cfg->user_back); */
 		cfg->have_user_colors = 1;
 		break;
 	case DOUTMP_KEY:
-		update_utmp = TRUE;
+		update_records |= ZVT_TERM_DO_UTMP_LOG;
 		break;
 	case DONOUTMP_KEY:
-		update_utmp = FALSE;
+		update_records &= ~ZVT_TERM_DO_UTMP_LOG;
+		break;
+	case DOWTMP_KEY:
+		update_records |= ZVT_TERM_DO_WTMP_LOG;
+		break;
+	case DONOWTMP_KEY:
+		update_records &= ~ZVT_TERM_DO_WTMP_LOG;
 		break;
 	case TITLE_KEY:
 	        cfg->window_title = g_strdup(arg);
