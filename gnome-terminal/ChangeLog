@@ -1,3 +1,11 @@
+1998-11-12  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (terminal_config): Make the user_* strings be
+	const. 
+	have a per-user command line flag instead of a global one.
+	(main_terminal_program): If a color has been set, set the
+	color_set to COLORS_CUSTOM.
+
 1998-11-11  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c: Add support for setting the DEL/Backspace

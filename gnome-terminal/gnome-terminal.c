@@ -64,7 +64,7 @@ struct terminal_config {
 	enum scrollbar_position_enum scrollbar_position;
 	int invoke_as_login_shell; 		/* How to invoke the shell */
 	GdkColor user_fore, user_back; 		/* The custom colors */
-        char *user_back_str, *user_fore_str;
+        const char *user_back_str, *user_fore_str;
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int have_user_colors;			/* Only used for command line parsing */
 	int transparent;
@@ -1812,6 +1812,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->color_set = cmdline_config->color_set;
 		default_config->user_fore = cmdline_config->user_fore;
 		default_config->user_back = cmdline_config->user_back;
+		default_config->color_set = COLORS_CUSTOM;
 	}
 
 	default_config->invoke_as_login_shell =
