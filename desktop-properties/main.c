@@ -108,7 +108,7 @@ display_properties_setup (void)
 	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
 	gtk_frame_set_shadow_type (GTK_FRAME (bf), GTK_SHADOW_OUT);
 
-	// configurators_setup ();
+	/* configurators_setup (); */
 	gnome_property_configurator_setup (display_config);
 	gnome_property_configurator_request_foreach (display_config,
 						     GNOME_PROPERTY_SETUP);
