@@ -486,6 +486,10 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 		zvt_term_set_background (term,
 					 cfg->pixmap_file,
 					 cfg->transparent, cfg->shaded);
+	else if (zvt_pixmap_support && cfg->transparent)
+		zvt_term_set_background (term,
+					 NULL,
+					 cfg->transparent, cfg->shaded);
 	else
 		zvt_term_set_background (term, NULL, 0, 0);
 
@@ -1556,6 +1560,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	if (zvt_pixmap_support && cfg->background_pixmap)
 		zvt_term_set_background (term, cfg->pixmap_file,
+					 cfg->transparent, cfg->shaded);
+	else if (zvt_pixmap_support && cfg->transparent)
+		zvt_term_set_background (term, NULL,
 					 cfg->transparent, cfg->shaded);
 	else
 		zvt_term_set_background (term, NULL, 0, 0);
