@@ -473,7 +473,7 @@ change_orient(int id, int orient)
 	PanelOrientType o = (PanelOrientType)orient;
 }
 
-void
+int
 session_save(int id, const char *cfgpath, const char *globcfgpath)
 {
 	char *query;
@@ -484,6 +484,8 @@ session_save(int id, const char *cfgpath, const char *globcfgpath)
 
 	gnome_config_sync();
 	gnome_config_drop_all();
+
+	return TRUE;
 }
 
 static gint
