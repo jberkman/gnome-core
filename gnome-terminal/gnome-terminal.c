@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <signal.h>
 
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
@@ -2929,6 +2930,7 @@ extern char **environ;
 int
 main (int argc, char *argv [])
 {
+	signal (SIGHUP, SIG_IGN);
 	return main_terminal_program (argc, argv, environ);
 }
 
