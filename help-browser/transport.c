@@ -1,5 +1,6 @@
 /* transport functions */
 
+#include <math.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,7 +20,6 @@
 #include "misc.h"
 #include "cache.h"
 #include "gnome-helpwin.h"
-#include <math.h>
 
 static int getHostByName(const char *host, struct in_addr *address);
 

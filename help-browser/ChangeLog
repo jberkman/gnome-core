@@ -1,3 +1,8 @@
+2001-06-20  Kjartan Maraas  <kmaraas@gnome.org>
+
+	* transport.c: Fix compilation on AIX by moving #include <math.h>
+	above #include <glib.h>. From Dan McNichol <mcnichol@austin.ibm.com>.
+	
 Mon Jun 11 21:59:25 2001  George Lebl <jirka@5z.com>
 
 	* *.[ch]: fix uses of strncpy, set some buffer sizes correctly,
