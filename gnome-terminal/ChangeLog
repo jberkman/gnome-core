@@ -1,3 +1,9 @@
+1999-11-12  Tuomas Kuosmanen  <tigert@gimp.org>
+
+	* gnome-terminal.c (new_terminal_cmd): https:// is also a valid
+	protocol for the url matching regexp. (Gawds! I start to represent
+	a coder! eek! :)
+
 1999-10-22  Michael Zucchi  <mzucchi@denr.sa.gov.au>
 
 	* gnome-terminal.c: Merge from stable.  It is now identical, to
