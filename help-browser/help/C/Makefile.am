@@ -2,7 +2,7 @@
 
 EXTRA_DIST = gnome-help-browser-help.html \
 	     gnome-help-browser-topic.dat \
-	     default-page.html bg.png gnome-logo2.png 
+	     default-page.html gnome-logo-large.png sample-help.html sample-topic.dat
 
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
 install-data-local:
