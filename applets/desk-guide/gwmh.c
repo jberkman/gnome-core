@@ -47,6 +47,8 @@ static gulong XA_WM_PROTOCOLS = 0;
 static gulong XA_WM_DELETE_WINDOW = 0;
 static gulong XA_WM_TAKE_FOCUS = 0;
 static gulong XA_ENLIGHTENMENT_DESKTOP = 0;
+static gulong KWM_WIN_ICON = 0;
+
 static const struct {
   gulong      *atom;
   const gchar *atom_name;
@@ -70,6 +72,7 @@ static const struct {
   { &XA_WM_DELETE_WINDOW,		"WM_DELETE_WINDOW", },
   { &XA_WM_TAKE_FOCUS,			"WM_TAKE_FOCUS", },
   { &XA_ENLIGHTENMENT_DESKTOP,		"ENLIGHTENMENT_DESKTOP", },
+  { &KWM_WIN_ICON,                      "KWM_WIN_ICON", },
 };
 
 
@@ -1742,6 +1745,56 @@ gwmh_task_set_app_state (GwmhTask        *task,
 			    GWMHA_WIN_APP_STATE,
 			    SubstructureNotifyMask,
 			    2, app_state, CurrentTime);
+}
+
+void
+gwmh_task_get_mini_icon (GwmhTask  *task,
+			 GdkPixmap **pixmap,
+			 GdkBitmap **mask)
+{
+  GdkGC *gc;
+  GdkGCPrivate *gc_private;
+  GdkPixmapPrivate *private;
+  guint32 *atomdata;
+  Window xwindow = task->xwin;
+  Window root;
+  int x, y, b, width, height, depth;
+  gint size;
+  Display *xdisplay = GDK_WINDOW_XDISPLAY (task->gdkwindow);
+
+  atomdata = get_typed_property_data (xdisplay,
+				      xwindow,
+				      KWM_WIN_ICON,
+				      KWM_WIN_ICON,
+				      &size,
+				      32);
+
+  if (atomdata) {
+    
+    /* Get icon size and depth */
+    XGetGeometry (xdisplay, (Drawable)atomdata[0], &root, &x, &y, 
+		  &width, &height, &b, &depth);
+    
+    /* Create a new GdkPixmap and copy the mini icon pixmap to it */
+    (*pixmap) = gdk_pixmap_new (NULL, 16, 16, depth);
+    gc = gdk_gc_new ((*pixmap));
+    gc_private = (GdkGCPrivate *)gc;
+    private = (GdkPixmapPrivate *)(*pixmap);
+    XCopyArea (private->xdisplay, atomdata[0], private->xwindow, gc_private->xgc,
+	       0, 0, width, height, 0, 0);
+    gdk_gc_destroy (gc);
+
+    /* Create a new GdkBitmap and copy the mini icon mask to it */
+    (*mask) = gdk_pixmap_new (NULL, 16, 16, 1);
+    gc = gdk_gc_new ((*mask));
+    gc_private = (GdkGCPrivate *)gc;
+    private = (GdkPixmapPrivate *)(*mask);
+    XCopyArea (private->xdisplay, atomdata[1], private->xwindow, gc_private->xgc,
+	       0, 0, 16, 16, 0, 0);
+    gdk_gc_destroy (gc);
+    XFree (atomdata);
+  }
+  
 }
 
 void

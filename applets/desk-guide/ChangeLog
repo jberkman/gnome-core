@@ -1,3 +1,9 @@
+1999-08-04 Anders Carlsson <anders.carlsson@tordata.se>
+
+	* gwmh.c
+	  gwmh.h: Added gwmh_task_get_mini_icon
+	  
+
 Tue Jul  6 12:47:37 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmdesktop.c (gwm_desktop_button_press): don't change desktops

@@ -87,6 +87,8 @@ extern gulong GWMHA_WIN_AREA_COUNT;
 /* --- typedefs --- */
 typedef struct _GwmhTask	GwmhTask;
 typedef struct _GwmhDesk	GwmhDesk;
+typedef struct _GwmhMiniIcon    GwmhMiniIcon;
+
 typedef enum
 {
   GWMH_TASK_INFO_MISC        = 1 <<  0,
@@ -175,6 +177,11 @@ struct _GwmhTask
   GwmhTaskInfoMask imask_notify;
 };
 
+struct _GwmhMiniIcon
+{
+  GdkPixmap *pixmap;
+  GdkBitmap *mask;
+};
 
 /* --- notifications --- */
 typedef enum
@@ -276,7 +283,9 @@ void		gwmh_task_set_area		(GwmhTask	 *task,
 						 guint		  desktop,
 						 guint		  harea,
 						 guint            varea);
-
+void            gwmh_task_get_mini_icon         (GwmhTask        *task,
+						 GdkPixmap       **pixmap,
+						 GdkBitmap       **mask);
 
 /* task list functions, task list managing needs to be explicitely
  * enabled since it causes a lot of extra traffic that not all
@@ -303,3 +312,8 @@ GdkWindow*	gwmh_root_put_atom_window	(const gchar   *atom_name,
 #endif /* __cplusplus */
 
 #endif /* __GWMH_H__ */
+
+
+
+
+
