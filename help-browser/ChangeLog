@@ -1,3 +1,8 @@
+1999-11-05  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* help/Makefile.am: revert commit adding uk dir,
+	as it doesn't exist.
+
 1999-09-22  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* gnome-man2html/.cvsignore: 
