@@ -36,13 +36,13 @@ void errorHandler(gchar *s);
 void setErrorHandlers(void);
 
 static HelpWindow currentHelpWindow;
-static History historyWindow;
-static GtkWidget *tocWindow;
-static DataCache cache;
 
 int
 main(int argc, char *argv[])
 {
+    GtkWidget *tocWindow;
+    History historyWindow;
+    DataCache cache;
     HelpWindow window;
     
     /* Global application history should be here as well          */
@@ -62,7 +62,7 @@ main(int argc, char *argv[])
 
     /* make the toc browser */
     tocWindow = createToc((GtkSignalFunc)tocCallback);
-    gtk_widget_show(tocWindow);
+    helpWindowSetToc(window, tocWindow);
 
     if (argc > 1)
 	helpWindowShowURL(window, argv[1]);

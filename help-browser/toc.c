@@ -15,6 +15,7 @@
 static gint normalCursor(GtkWidget *widget);
 static void newSelection(GtkWidget *tree);
 static void initToc(GtkWidget *toc, GtkSignalFunc selectCallback);
+static int hideTocInt(GtkWidget *window);
 
 struct _toc_config toc_config[] = {
     { "/usr/man",              TOC_MAN_TYPE   },
@@ -95,6 +96,23 @@ static void newSelection(GtkWidget *tree)
     }
 }
 
+void showToc(GtkWidget *window)
+{
+    gtk_widget_show(GTK_WIDGET(window));
+}
+
+void hideToc(GtkWidget *window)
+{
+    gtk_widget_hide(GTK_WIDGET(window));
+}
+
+static int hideTocInt(GtkWidget *window)
+{
+    gtk_widget_hide(GTK_WIDGET(window));
+
+    return FALSE;
+}
+
 static void initToc(GtkWidget *toc, GtkSignalFunc selectCallback)
 {
     GtkWidget *tree, *item, *subtree;
@@ -155,10 +173,6 @@ GtkWidget *createToc(GtkSignalFunc selectCallback)
     gtk_window_set_title(GTK_WINDOW(window), "Gnome Help TOC");
     gtk_widget_set_usize (window, 300, 200);
     /*gtk_widget_set_uposition (window, 20, 20);*/
-    gtk_signal_connect (GTK_OBJECT (window), "destroy",
-			GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
-    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
-			       GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
 
     /* Vbox */
     box = gtk_vbox_new(FALSE, 5);
@@ -188,6 +202,12 @@ GtkWidget *createToc(GtkSignalFunc selectCallback)
     gtk_object_set_data(GTK_OBJECT(window), "TheTree", tree);
     gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
 			      (GtkSignalFunc)collapseBranch, (gpointer)tree);
+
+    gtk_signal_connect (GTK_OBJECT (window), "destroy",
+			GTK_SIGNAL_FUNC(hideTocInt), NULL);
+    gtk_signal_connect (GTK_OBJECT (window), "delete_event",
+			GTK_SIGNAL_FUNC(hideTocInt), NULL);
+
 
     initToc(window, selectCallback);
     

@@ -79,7 +79,7 @@ void addToHistory(History h, gchar *ref)
 	entry = g_new(struct _history_entry, 1);
 	entry->ref = g_strdup(ref);
 	entry->count = 1;
-	g_hash_table_insert(h->table, ref, entry);
+	g_hash_table_insert(h->table, entry->ref, entry);
     }
     entry->timestamp = time(NULL);
 

@@ -13,9 +13,11 @@ typedef struct _helpWindow *HelpWindow;
 HelpWindow helpWindowNew(GtkSignalFunc about_cb);
 void helpWindowShowURL(HelpWindow win, gchar *ref);
 void helpWindowSetHistory(HelpWindow win, History history);
+void helpWindowSetToc(HelpWindow win, GtkWidget *toc);
 void helpWindowSetCache(HelpWindow win, DataCache cache);
 DataCache helpWindowGetCache(HelpWindow win);
 
+void helpWindowQueueMark(HelpWindow w);
 void helpWindowQueueAdd(HelpWindow w, gchar *ref);
 void helpWindowHistoryAdd(HelpWindow w, gchar *ref);
 

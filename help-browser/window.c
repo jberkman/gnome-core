@@ -17,6 +17,7 @@
 #include "parseUrl.h"
 #include "window.h"
 #include "history.h"
+#include "toc.h"
 #include "docobj.h"
 #include "queue.h"
 #include "visit.h"
@@ -51,6 +52,7 @@ struct _helpWindow {
     /* Passed to us by the main program */
     GtkSignalFunc about_cb;
     History history;
+    GtkWidget *toc;
     DataCache cache;
 };
 
@@ -68,7 +70,7 @@ static void help_onhelp(GtkWidget *w, HelpWindow win);
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
-static void ghelpShowHistoryTB (GtkWidget *w, HelpWindow win);
+static void ghelpShowToc (GtkWidget *w, HelpWindow win);
 static void entryChanged(GtkWidget *w, HelpWindow win);
 
 static void init_toolbar(HelpWindow w);
@@ -100,14 +102,16 @@ GnomeUIInfo helpmenu[] = {
 };
  
 GnomeUIInfo windowmenu[] = {
-    GNOMEUIINFO_TOGGLEITEM("Show history", "Toggle History Window",
-			   ghelpShowHistory, NULL),
+    GNOMEUIINFO_ITEM("History", "Show History Window",
+		     ghelpShowHistory, NULL),
+    GNOMEUIINFO_ITEM("Table of Contents", "Show Table of Contents Window",
+		     ghelpShowToc, NULL),
     GNOMEUIINFO_END
 };
 
 GnomeUIInfo mainmenu[] = {
     GNOMEUIINFO_SUBTREE("File", filemenu),
-    GNOMEUIINFO_SUBTREE("Windows", windowmenu),
+    GNOMEUIINFO_SUBTREE("Window", windowmenu),
     GNOMEUIINFO_SUBTREE("Help", helpmenu),
     GNOMEUIINFO_END
 };
@@ -123,8 +127,10 @@ GnomeUIInfo toolbar[] = {
     GNOMEUIINFO_ITEM("Help", "Help on Help", help_onhelp, help_xpm),
     GNOMEUIINFO_ITEM("Close", "Close Help Window", close_cb, close_xpm),
     GNOMEUIINFO_SEPARATOR,
-    GNOMEUIINFO_TOGGLEITEM("History", "Toggle History Window",
-			   ghelpShowHistoryTB, contents_xpm),
+    GNOMEUIINFO_ITEM("History", "Show History Window",
+		     ghelpShowHistory, contents_xpm),
+    GNOMEUIINFO_ITEM("TOC", "Show Table of Contents Window",
+		     ghelpShowToc, contents_xpm),
     GNOMEUIINFO_END
 };
 
@@ -144,21 +150,13 @@ about_cb (GtkWidget *w, HelpWindow win)
 static void
 ghelpShowHistory (GtkWidget *w, HelpWindow win)
 {
-    if (GTK_CHECK_MENU_ITEM(w)->active == TRUE) {
-	showHistory(win->history);
-    } else {
-	hideHistory(win->history);
-    }
+    showHistory(win->history);
 }
 
 static void
-ghelpShowHistoryTB (GtkWidget *w, HelpWindow win)
+ghelpShowToc (GtkWidget *w, HelpWindow win)
 {
-    if (GTK_TOGGLE_BUTTON(w)->active == TRUE) {
-	showHistory(win->history);
-    } else {
-	hideHistory(win->history);
-    }
+    showToc(win->toc);
 }
 
 static void
@@ -180,29 +178,39 @@ static void
 xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
         g_message("TAG CLICKED: %s", cbs->href);
+
 	visitURL(win, cbs->href);
 	update_toolbar(win);
 }
 
 static void help_forward(GtkWidget *w, HelpWindow win) {
 	gchar *ref;
+	gint pos;
 
-	if (!(ref = queue_next(win->queue)))
+	if (!(ref = queue_next(win->queue, &pos)))
 		return;
-	else
-		visitURL_nohistory(win, ref);
 
+	visitURL_nohistory(win, ref);
+	queue_move_next(win->queue);
+	
+	g_message("jump to line: %d", pos);
+	gnome_helpwin_jump_to_line(GNOME_HELPWIN(win->helpWidget), pos);
 
 	update_toolbar(win);
 }
 
 static void help_backward(GtkWidget *w, HelpWindow win) {
 	gchar *ref;
+	gint pos;
 
-	if (!(ref = queue_prev(win->queue)))
+	if (!(ref = queue_prev(win->queue, &pos)))
 		return;
-	else
-		visitURL_nohistory(win, ref);
+
+	visitURL_nohistory(win, ref);
+	queue_move_prev(win->queue);
+	
+	g_message("jump to line: %d", pos);
+	gnome_helpwin_jump_to_line(GNOME_HELPWIN(win->helpWidget), pos);
 
 	update_toolbar(win);
 }
@@ -303,9 +311,19 @@ makeEntryArea(HelpWindow w)
 
 /* Public functions */
 
+void helpWindowQueueMark(HelpWindow w)
+{
+    gint pos;
+
+    pos = gnome_helpwin_get_line(GNOME_HELPWIN(w->helpWidget));
+    g_message("get_line = %d", pos);
+    
+    queue_mark_current(w->queue, pos ? pos : 1);
+}
+
 void helpWindowQueueAdd(HelpWindow w, gchar *ref)
 {
-    queue_add(w->queue, ref);
+    queue_add(w->queue, ref, 1);
 }
 
 gchar *helpWindowCurrentRef(HelpWindow w)
@@ -409,6 +427,12 @@ void
 helpWindowSetHistory(HelpWindow win, History history)
 {
     win->history = history;
+}
+
+void
+helpWindowSetToc(HelpWindow win, GtkWidget *toc)
+{
+    win->toc = toc;
 }
 
 void

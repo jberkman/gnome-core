@@ -1,3 +1,9 @@
+1998-02-26  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* add line position to queue info for forw/back
+
+	* changed history/toc window management a bit
+
 1998-02-25  Marc Ewing  <marc@tasmanian.redhat.com>
 
 	* cleaned up some messages

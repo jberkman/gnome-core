@@ -47,6 +47,8 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save )
 	
 	obj = docObjNew(ref);
 
+	helpWindowQueueMark(win);
+	
 	visitDocument(win, obj);
 
 	/* obj was 'cleaned up' by visitDocuemnt()/resolveURL() */
