@@ -67,6 +67,8 @@ main(int argc,
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
+    if(argc > 1
+       && !strcmp(argv[1], "--init")) {
 #ifdef TESTING
     gnome_init ("sound-properties", VERSION, argc, argv);
 #else
@@ -127,7 +129,7 @@ sound_properties_create(void)
                        gtk_check_button_new_with_label(_("Enable GNOME sound support"))));
 
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(retval->enable_esd_startup),
-                                gnome_config_get_bool("/sound/system/settings/start_esd"));
+                                gnome_config_get_bool("/sound/system/settings/start_esd=true"));
 
     gtk_container_add(GTK_CONTAINER(wtmp),
                       (retval->enable_sound_events =
@@ -144,7 +146,7 @@ sound_properties_create(void)
                        retval);
 
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(retval->enable_sound_events),
-                                gnome_config_get_bool("/sound/system/settings/event_sounds"));
+                                gnome_config_get_bool("/sound/system/settings/event_sounds=true"));
 
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), wtmp,
                              gtk_label_new(_("General")));
@@ -444,10 +446,10 @@ static void
 ui_do_revert(GtkWidget *w, SoundProps *props)
 {
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(props->enable_esd_startup),
-                                gnome_config_get_bool("/sound/system/settings/start_esd"));
+                                gnome_config_get_bool("/sound/system/settings/start_esd=true"));
 
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(props->enable_sound_events),
-                                gnome_config_get_bool("/sound/system/settings/event_sounds"));
+                                gnome_config_get_bool("/sound/system/settings/event_sounds=true"));
 
     sound_properties_regenerate_ctree(props);
 }
