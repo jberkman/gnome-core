@@ -1,3 +1,7 @@
+1998-07-01  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
+
+	* gnome-terminal.desktop: Added Portuguese translation.
+
 1998-06-21 Manish Vachharajani <mvachhar@vger.rutgers.edu>
 
 	* gnome-terminal.c:  Set table sizes to make gtk 1.1 happy

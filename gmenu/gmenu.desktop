@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Menu editor
 Name[fr]=Editeur de menus
+Name[pt]=Editor de Menus
 Comment=the GNOME menu editor
 Comment[fr]=Editeur de menus GNOME
+Comment[pt]=O editor de menus GNOME
 Exec=gmenu
 Icon=gnome-gmenu.png
 Terminal=0
