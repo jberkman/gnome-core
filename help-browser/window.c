@@ -17,7 +17,7 @@
 #include "parseUrl.h"
 #include "window.h"
 #include "history.h"
-#include "toc.h"
+#include "toc2.h"
 #include "docobj.h"
 #include "queue.h"
 #include "visit.h"
@@ -58,7 +58,7 @@ struct _helpWindow {
     GHashFunc close_window_cb;
     GHashFunc set_current_cb;
     History history;
-    GtkWidget *toc;
+    Toc toc;
     DataCache cache;
 };
 
@@ -516,9 +516,15 @@ helpWindowSetHistory(HelpWindow win, History history)
 }
 
 void
-helpWindowSetToc(HelpWindow win, GtkWidget *toc)
+helpWindowSetToc(HelpWindow win, Toc toc)
 {
     win->toc = toc;
+}
+
+Toc
+helpWindowGetToc(HelpWindow win)
+{
+    return win->toc;
 }
 
 void

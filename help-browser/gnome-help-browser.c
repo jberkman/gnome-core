@@ -22,7 +22,7 @@
 
 #include "window.h"
 #include "history.h"
-#include "toc.h"
+#include "toc2.h"
 #include "cache.h"
 
 #define VERSION "0.4"
@@ -39,7 +39,7 @@ void errorHandler(gchar *s);
 void setErrorHandlers(void);
 static HelpWindow makeHelpWindow(void);
 
-static GtkWidget *tocWindow;
+static Toc tocWindow;
 static History historyWindow;
 static DataCache cache;
 
@@ -56,7 +56,7 @@ main(int argc, char *argv[])
 	
     historyWindow = newHistory(0, (GSearchFunc)historyCallback, NULL); 
     cache = newDataCache(10000000, 0, (GCacheDestroyFunc)g_free);
-    tocWindow = createToc((GtkSignalFunc)tocCallback);
+    tocWindow = newToc((GtkSignalFunc)tocCallback);
 
     window = makeHelpWindow();
 

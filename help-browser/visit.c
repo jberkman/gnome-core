@@ -27,7 +27,8 @@ gint visitURL_nohistory(HelpWindow win, gchar *ref )
 static gint
 visitDocument(HelpWindow win, docObj obj )
 {
-	resolveMagicURL( obj );
+        if (resolveMagicURL( obj, helpWindowGetToc(win) ))
+	        return -1;
 	docObjResolveURL(obj, helpWindowCurrentRef(win));
 	if (transport(obj, helpWindowGetCache(win)))
 		return -1;

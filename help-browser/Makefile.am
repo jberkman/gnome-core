@@ -18,8 +18,8 @@ noinst_PROGRAMS = sample
 
 gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 			     gnome-help-browser.c \
-			     toc.c toc-man.c toc-ghelp.c toc-info.c \
-			     toc.h toc-man.h toc-ghelp.h toc-info.h \
+			     toc2.c toc2-man.c toc2-ghelp.c toc2-info.c \
+			     toc2.h toc2-man.h toc2-ghelp.h toc2-info.h \
 	  		     docobj.c docobj.h mime.c mime.h \
 			     transport.c transport.h \
 			     HTParse.c HTParse.h cache.c cache.h \

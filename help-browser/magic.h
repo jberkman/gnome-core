@@ -1,8 +1,11 @@
 #ifndef _GNOME_HELP_MAGIC_H_
 #define _GNOME_HELP_MAGIC_H_
 
-#include "docobj.h"
+#include <glib.h>
 
-void resolveMagicURL( docObj obj );
+#include "docobj.h"
+#include "toc2.h"
+
+gint resolveMagicURL( docObj obj, Toc toc );
 
 #endif

@@ -7,6 +7,7 @@
 #include "queue.h"
 #include "history.h"
 #include "cache.h"
+#include "toc2.h"
 
 typedef struct _helpWindow *HelpWindow;
 
@@ -17,7 +18,8 @@ HelpWindow helpWindowNew(GtkSignalFunc about_callback,
 void helpWindowClose(HelpWindow win);
 void helpWindowShowURL(HelpWindow win, gchar *ref);
 void helpWindowSetHistory(HelpWindow win, History history);
-void helpWindowSetToc(HelpWindow win, GtkWidget *toc);
+void helpWindowSetToc(HelpWindow win, Toc toc);
+Toc helpWindowGetToc(HelpWindow win);
 void helpWindowSetCache(HelpWindow win, DataCache cache);
 DataCache helpWindowGetCache(HelpWindow win);
 

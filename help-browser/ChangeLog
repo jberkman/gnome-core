@@ -1,3 +1,9 @@
+1998-03-03  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* new toc code.  uses html widget
+	
+	* moved info magic stuff to toc
+
 1998-03-02  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* fixed delete event handling
