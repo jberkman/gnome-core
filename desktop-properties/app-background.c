@@ -10,6 +10,12 @@ application_title (void)
   return _("Background Properties");
 }
 
+char *
+application_property (void)
+{
+  return "GNOME_BACKGROUND_PROPERTY";
+}
+
 void
 application_help (void)
 {

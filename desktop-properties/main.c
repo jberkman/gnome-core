@@ -12,6 +12,9 @@ GnomePropertyConfigurator *display_config;
 /* The Apply button.  */
 static GtkWidget *apply_button;
 
+/* This is true if we've ever changed the state with this program.  */
+static int state_changed = 0;
+
 GtkWidget *
 get_monitor_preview_widget (GtkWidget *window)
 {
@@ -62,6 +65,7 @@ display_properties_action (GtkWidget *w, gint close)
   gnome_property_configurator_request_foreach (display_config,
 					       GNOME_PROPERTY_APPLY);
 
+  state_changed = 1;
   gtk_widget_set_sensitive (apply_button, FALSE);
 
   if (close)
@@ -138,8 +142,8 @@ int
 property_main (int argc, char *argv [])
 {
         GnomeClient *client = NULL;
-	int init = 0;
-	int i;
+	int init = 0, token = 0;
+	int i, new_argc;
 	char *previous_id = NULL;
 	char *new_argv[4];
 
@@ -150,34 +154,49 @@ property_main (int argc, char *argv [])
 
 	display_config = gnome_property_configurator_new ();
 	application_register (display_config);
-	
-	/* FIXME: look for session management token.  */
-	for (i=1; i<argc; i++)
+
+	for (i=1; i<argc; i++) {
 		if (!strcmp (argv [i], "-init"))
 			init = 1;
+	}
 
-	/* FIXME: actually save state.
-	   FIXME: does it make sense to contact the session manager in
-	   -init mode?  */
-	client = gnome_client_new (argc, argv);
-	
-	/* Tell session manager to run us in init mode next time the
-	   session starts up.  */
-	new_argv[0] = argv[0];
-	new_argv[1] = "-init";
-	/* gnome_client_set_initialization_command (client, 2, new_argv); */
+	client = gnome_client_new (new_argc, new_argv);
 
-	/* FIXME: set session's notion of pwd.  */
+	/* If this startup is the result of a previous session, we try
+	   to acquire the token that would let us set the current
+	   state.  */
+	if (gnome_client_get_previous_id (client))
+	        token = gnome_startup_acquire_token (application_property (),
+						     gnome_client_get_id (client));
+
+	/* If our only purpose is to set the properties and then exit,
+	   and we didn't acquire the lock, then we are done.  */
+	if (init && ! token)
+	        return 0;
 
 	gnome_property_configurator_request_foreach (display_config,
 						     GNOME_PROPERTY_READ);
 
-	if (!init) {
-		display_properties_setup ();
-		gtk_main ();
-	} else {
+	if (token) {
+		/* We have the token, so we set up the state.  */
 		gnome_property_configurator_request_foreach (display_config,
 							     GNOME_PROPERTY_APPLY);
+	}
+
+	if (! init) {
+		/* Show the user interface.  */
+		display_properties_setup ();
+		gtk_main ();
+	}
+
+	if (init || state_changed) {
+		/* Arrange to be run again next time the session
+		   starts.  */
+		new_argv[0] = argv[0];
+		new_argv[1] = "-init";
+		gnome_client_set_restart_command (client, 2, new_argv);
+		gnome_client_set_clone_command (client, 2, new_argv);
+		gnome_client_set_restart_style (client, GNOME_RESTART_ANYWAY);
 	}
 
 	gnome_property_configurator_destroy (display_config);

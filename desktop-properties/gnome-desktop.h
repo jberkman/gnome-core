@@ -38,6 +38,10 @@ void application_help (void);
 /* This is called to get the title of the main window.  */
 char *application_title (void);
 
+/* This is called to get the name of the property that is used as a
+   mutex.  */
+char *application_property (void);
+
 END_GNOME_DECLS
 
 #endif

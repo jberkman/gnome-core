@@ -10,6 +10,12 @@ application_title (void)
   return _("Keyboard Properties");
 }
 
+char *
+application_property (void)
+{
+  return "GNOME_KEYBOARD_PROPERTY";
+}
+
 void
 application_help (void)
 {

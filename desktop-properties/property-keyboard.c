@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <gtk/gtk.h>
-#include <gdkx.h>
+#include <gdk/gdkx.h>
 #include <X11/X.h>
 #include <config.h>
 

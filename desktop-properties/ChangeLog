@@ -1,3 +1,24 @@
+Sun Feb 15 23:04:00 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* property-background.c: Include <gdk/gdkx.h>.
+	* property-mouse.c: Include <gdk/gdkx.h>.
+	* property-keyboard.c: Include <gdk/gdkx.h>.
+
+	* app-keyboard.c (application_property): New function.
+	* app-background.c (application_property): New function.
+	* gnome-desktop.h (application_property): Declare.
+	* app-mouse.c (application_property): New function.
+
+	* Makefile.am (mouse_properties_SOURCES): Don't mention gdkx.h.
+	(keyboard_properties_SOURCES): Likewise.
+	(background_properties_SOURCES): Likewise.
+	(sys_DATA): New macro.
+	(install-data-local): Removed.
+	* gdkx.h: Removed.
+
+	* main.c (state_changed): New global.
+	(display_properties_action): Set it.
+
 Mon Feb 16 11:29:13 KST 1998  Changwoo Ryu  <cwryu@adam.kaist.ac.kr>
 
 	* main.c (property_main): Added bindtextddomain().

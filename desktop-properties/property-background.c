@@ -12,9 +12,10 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include <gdk/gdkx.h>
+
 #include "gnome.h"
 #include "gnome-desktop.h"
-#include "gdkx.h"
 
 static GnomePropertyConfigurator *config;
 

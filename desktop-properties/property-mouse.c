@@ -4,9 +4,10 @@
 #include <X11/Xlib.h>
 #include <assert.h>
 
+#include <gdk/gdkx.h>
+
 #include "gnome.h"
 #include "gnome-desktop.h"
-#include "gdkx.h"
 
 /* Maximum number of mouse buttons we handle.  */
 #define MAX_BUTTONS 10
