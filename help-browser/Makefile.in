@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.2d from Makefile.am
+# Makefile.in generated automatically by automake 1.2f from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -106,7 +106,7 @@ XPM_LIBS = @XPM_LIBS@
 l = @l@
 x_libs = @x_libs@
 
-SUBDIRS = gnome-man2html
+SUBDIRS = gnome-man2html gnome-info2html
 
 INCLUDES = 			\
 	-I$(includedir)		\
@@ -123,18 +123,27 @@ noinst_PROGRAMS = sample
 
 gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 			     gnome-help-browser.c \
-			     toc.c toc-man.c toc-ghelp.c toc-info.c \
-			     toc.h toc-man.h toc-ghelp.h toc-info.h \
-	  		     docobj.c docobj.h mime.c mime.h url.h \
+			     toc2.c toc2-man.c toc2-ghelp.c toc2-info.c \
+			     toc2.h toc2-man.h toc2-ghelp.h toc2-info.h \
+	  		     docobj.c docobj.h mime.c mime.h \
 			     transport.c transport.h \
 			     HTParse.c HTParse.h cache.c cache.h \
 			     parseUrl.c parseUrl.h \
-			     queue.c queue.h history.c history.h
+			     queue.c queue.h history.c history.h \
+                             misc.c misc.h window.c window.h \
+			     visit.c visit.h magic.c magic.h 
 
 gnome_help_browser_LDADD = $(LDADD) $(GTKXMHTML_LIBS)
 
 EXTRA_DIST = sample-help.html gnome-help-browser-help.html \
 	     sample-topic.dat gnome-help-browser-topic.dat
+
+#
+# shouldn't hard code locate here, how do I get it??
+#
+#sample_DATA = sample-help.html sample-topic.dat
+#gnome_help_browser_DATA = gnome-help-browser-help.html \
+#	    	         gnome-help-browser-topic.dat
 
 sample_helpdir = $(datadir)/gnome/help/sample-help/C
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
@@ -153,9 +162,10 @@ X_CFLAGS = @X_CFLAGS@
 X_LIBS = @X_LIBS@
 X_EXTRA_LIBS = @X_EXTRA_LIBS@
 X_PRE_LIBS = @X_PRE_LIBS@
-gnome_help_browser_OBJECTS =  gnome-helpwin.o gnome-help-browser.o toc.o \
-toc-man.o toc-ghelp.o toc-info.o docobj.o mime.o transport.o HTParse.o \
-cache.o parseUrl.o queue.o history.o
+gnome_help_browser_OBJECTS =  gnome-helpwin.o gnome-help-browser.o \
+toc2.o toc2-man.o toc2-ghelp.o toc2-info.o docobj.o mime.o transport.o \
+HTParse.o cache.o parseUrl.o queue.o history.o misc.o window.o visit.o \
+magic.o
 gnome_help_browser_DEPENDENCIES = 
 gnome_help_browser_LDFLAGS = 
 sample_SOURCES = sample.c
@@ -168,7 +178,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CF
 LINK = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DATA =  $(help_DATA)
 
-DIST_COMMON =  README ChangeLog Makefile.am Makefile.in
+DIST_COMMON =  README ChangeLog Makefile.am Makefile.in TODO
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -177,9 +187,9 @@ TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/HTParse.P .deps/cache.P .deps/docobj.P \
 .deps/gnome-help-browser.P .deps/gnome-helpwin.P .deps/history.P \
-.deps/mime.P .deps/parseUrl.P .deps/queue.P .deps/sample.P \
-.deps/toc-ghelp.P .deps/toc-info.P .deps/toc-man.P .deps/toc.P \
-.deps/transport.P
+.deps/magic.P .deps/mime.P .deps/misc.P .deps/parseUrl.P .deps/queue.P \
+.deps/sample.P .deps/toc2-ghelp.P .deps/toc2-info.P .deps/toc2-man.P \
+.deps/toc2.P .deps/transport.P .deps/visit.P .deps/window.P
 SOURCES = $(gnome_help_browser_SOURCES) sample.c
 OBJECTS = $(gnome_help_browser_OBJECTS) sample.o
 
@@ -215,7 +225,7 @@ install-binPROGRAMS: $(bin_PROGRAMS)
 	done
 
 uninstall-binPROGRAMS:
-	$(NORMAL_UNINSTALL)
+	@$(NORMAL_UNINSTALL)
 	list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  rm -f $(bindir)/`echo $$p|sed '$(transform)'`; \
 	done
@@ -229,9 +239,6 @@ distclean-noinstPROGRAMS:
 
 maintainer-clean-noinstPROGRAMS:
 
-.c.o:
-	$(COMPILE) -c $<
-
 .s.o:
 	$(COMPILE) -c $<
 
@@ -239,7 +246,7 @@ maintainer-clean-noinstPROGRAMS:
 	$(COMPILE) -c $<
 
 mostlyclean-compile:
-	-rm -f *.o core
+	-rm -f *.o core *.core
 
 clean-compile:
 
@@ -247,9 +254,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 maintainer-clean-compile:
-
-.c.lo:
-	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
 
 .s.lo:
 	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
@@ -289,7 +293,7 @@ install-helpDATA: $(help_DATA)
 	done
 
 uninstall-helpDATA:
-	$(NORMAL_UNINSTALL)
+	@$(NORMAL_UNINSTALL)
 	list='$(help_DATA)'; for p in $$list; do \
 	  rm -f $(helpdir)/$$p; \
 	done
@@ -343,8 +347,12 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
 	list='$(SUBDIRS)'; for subdir in $$list; do \
 	  test -f $$subdir/TAGS && tags="$$tags -i $$here/$$subdir/TAGS"; \
 	done; \
-	test -z "$(ETAGS_ARGS)$(SOURCES)$(HEADERS)$(LISP)$$tags" \
-	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $(SOURCES) $(HEADERS) $(LISP) -o $$here/TAGS)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
 
 mostlyclean-tags:
 
@@ -380,12 +388,7 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	done
 
-MKDEP = $(CC) -M $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
-
 DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
--include .deps/.P
-.deps/.P: $(BUILT_SOURCES)
-	echo > $@
 
 -include $(DEP_FILES)
 
@@ -398,13 +401,16 @@ distclean-depend:
 maintainer-clean-depend:
 	-rm -rf .deps
 
-.deps/%.P: %.c
-	@echo "Computing dependencies for $<..."
-	@o='o'; \
-	test -n "$o" && o='$$o'; \
-	$(MKDEP) $< >$@.tmp \
-	  && sed "s,^\(.*\)\.o:,\1.$$o \1.l$$o $@:," < $@.tmp > $@ \
-	  && rm -f $@.tmp
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).P -c $<
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).p -c $<
+	@-sed -e 's/^\([^:]*\)\.o:/\1.lo \1.o:/' \
+	  < .deps/$(*F).p > .deps/$(*F).P
+	@-rm -f .deps/$(*F).p
 info: info-recursive
 dvi: dvi-recursive
 check: all-am
@@ -504,13 +510,6 @@ maintainer-clean
 
 
 CFLAGS += -Wall
-
-#
-# shouldn't hard code locate here, how do I get it??
-#
-#sample_DATA = sample-help.html sample-topic.dat
-#gnome_help_browser_DATA = gnome-help-browser-help.html \
-	    	         gnome-help-browser-topic.dat
 install-data-local:
 	$(mkinstalldirs) $(sample_helpdir)
 	$(mkinstalldirs) $(help_browser_helpdir)
