@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=GNOME terminal emulation program
+Name[fr]=Emulateur de Terminal GNOME
 Name[es]=Terminal UNIX de GNOME
 Name[no]=Gnome terminalemuleringsprogram
 Comment=Terminal emulation program
+Comment[fr]=Emulateur de Terminal GNOME
 Comment[no]=Terinalemuleringsprogram for Gnome
 Exec=gnome-terminal
 Icon=gnome-term.png
