@@ -2,6 +2,7 @@ INCLUDES = 			\
 	-I../.. 		\
 	-I$(srcdir)/../.. 	\
 	-I$(includedir)		\
+	-I$(top_builddir)/intl  \
 	-I$(top_srcdir)/intl	\
 	$(X_CFLAGS)
 

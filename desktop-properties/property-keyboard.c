@@ -5,9 +5,7 @@
 #include <gdkx.h>
 #include <X11/X.h>
 #include <config.h>
-#ifdef HAVE_LIBINTL
-#include <libintl.h>
-#endif
+
 #ifdef HAVE_X11_EXTENSIONS_XF86MISC_H
 #include <X11/extensions/xf86misc.h>
 #endif
