@@ -1,3 +1,8 @@
+2000-05-12  Dan Winship  <danw@helixcode.com>
+
+	* Makefile.am (corba.o): Fix my previous commit. It's corba.o, not
+	corba.c that depends on Terminal.h.
+
 2000-05-11  Miguel de Icaza  <miguel@helixcode.com>
 
 	* gnome-terminal.c (load_session): Removed unused variable.
