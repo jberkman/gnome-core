@@ -383,9 +383,9 @@ tasklist_icon_create_minimized_icon (GdkPixbuf *pixbuf)
 				src_pixel = original_pixels + i*rowstride + j*(has_alpha?4:3);
 				dest_pixel = target_pixels + i*rowstride + j*(has_alpha?4:3);
 
-				dest_pixel[0] = ((src_pixel[0] - red) >> 2) + red;
-				dest_pixel[1] = ((src_pixel[1] - green) >> 2) + green;
-				dest_pixel[2] = ((src_pixel[2] - blue) >> 2) + blue;
+				dest_pixel[0] = ((src_pixel[0] - red) >> 1) + red;
+				dest_pixel[1] = ((src_pixel[1] - green) >> 1) + green;
+				dest_pixel[2] = ((src_pixel[2] - blue) >> 1) + blue;
 				
 				if (has_alpha)
 					dest_pixel[3] = src_pixel[3];

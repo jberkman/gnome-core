@@ -1,3 +1,8 @@
+2000-05-21  Jacob Berkman  <jacob@helixcode.com>
+
+	* tasklist_icon.c (tasklist_icon_create_minimized_icon): don't
+	make minimized icons so faint
+
 2000-05-09  Jacob Berkman  <jacob@helixcode.com>
 
 	* tasklist_icon.c (tasklist_icon_get_pixmap): gets the WM_HINT
