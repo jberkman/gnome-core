@@ -1,3 +1,6 @@
+2000-04-03  Alastair McKinstry <alastair@ilo.dec.com>
+
+        * help-browser.desktop:	Added Irish (gaelic) translation.
 2000-03-14  Pablo Saratxaga <pablo@mandrakesoft.com>
 
 	* help/Makefile.am, help/lt/*: added Lithuanian default page
