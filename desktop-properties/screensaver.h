@@ -1,6 +1,7 @@
 #ifndef __SCREENSAVER_H__
 #define __SCREENSAVER_H__
 
+#include <stddef.h>
 #include "ghash.h"
 #include <gtk/gtk.h>
 

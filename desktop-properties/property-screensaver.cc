@@ -109,7 +109,7 @@ void
 ConfigScreenSaver::nice_changed (GtkWidget *adj, ConfigScreenSaver *th)
 {
 	// printf ("nice changed %d\n", (gint)GTK_ADJUSTMENT (adj)->value);
-	th->nice = (gint)GTK_ADJUSTMENT (adj)->value;
+	th->niceV = (gint)GTK_ADJUSTMENT (adj)->value;
 	property_changed ();
 }
 
@@ -362,7 +362,7 @@ ConfigScreenSaver::apply ()
 		if(dpmsV) {
 		  cmdLine = g_malloc(40);
 		  system("xset +dpms");
-		  snprintf(39, cmdLine, "xset dpms 0 0 %s", waitV);
+		  g_snprintf(39, cmdLine, "xset dpms 0 0 %s", waitV);
 		  system(cmdLine);
 		  g_free(cmdLine);
 		} else {
@@ -474,10 +474,10 @@ screensaver_action (GnomePropertyRequest req)
 	return 1;
 }
 
-extern "C" {
-	void
-		screensaver_register (GnomePropertyConfigurator *c)
-		{
-			css = new ConfigScreenSaver (c);
-		}
+extern "C" void screensaver_register (GnomePropertyConfigurator *c);
+
+void
+screensaver_register (GnomePropertyConfigurator *c)
+{
+	css = new ConfigScreenSaver (c);
 }

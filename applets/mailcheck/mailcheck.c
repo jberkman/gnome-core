@@ -444,7 +444,7 @@ mailcheck_properties (void)
 	GtkDialog *d;
 	
 	property_window = gtk_dialog_new ();
-	gtk_window_set_title (property_window, _("Mail check properties"));
+	gtk_window_set_title (GTK_WINDOW (property_window), _("Mail check properties"));
 	d = GTK_DIALOG (property_window);
 	f = mailcheck_notification_frame ();
 	
