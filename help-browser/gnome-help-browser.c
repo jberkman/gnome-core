@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <orb/orbit.h>
 #include <libgnorba/gnorba.h>
+/*#include <libgnomeui/gnome-window-icon.h>*/
 #include <errno.h>
 
 #ifdef HAVE_ALLOCA_H
@@ -80,8 +81,8 @@ help_browser_simple_browser
 void destroy_server(HelpWindow win);
 
 /* MANPATH should probably come from somewhere */
-#define DEFAULT_MANPATH   GNOME_PREFIX "/man:/usr/man:/usr/local/man:/usr/X11R6/man"
-#define DEFAULT_INFOPATH  GNOME_PREFIX "/info:/usr/info:/usr/local/info"
+#define DEFAULT_MANPATH   GNOME_PREFIX "/man:/usr/man:/usr/share/man:/usr/local/man:/usr/X11R6/man"
+#define DEFAULT_INFOPATH  GNOME_PREFIX "/info:/usr/info:/usr/share/man:/usr/local/info"
 /* GHELPPATH probably needs some automatic additions inside toc */
 #define DEFAULT_GHELPPATH GNOME_PREFIX "/share/gnome/help:" \
                           "/opt/gnome/share/gnome/help:" \
@@ -189,6 +190,8 @@ main(int argc, char *argv[])
  
     gtk_widget_set_default_colormap (gdk_rgb_get_cmap ());
     gtk_widget_set_default_visual (gdk_rgb_get_visual ());
+
+    /*gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-help.png");*/
 
     leftovers = poptGetArgs(ctx);
     if(leftovers && leftovers[0]) {

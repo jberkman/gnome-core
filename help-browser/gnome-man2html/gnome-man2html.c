@@ -10,6 +10,9 @@
  * gnome-man2html
  * This version modified for GNOME - February 1998
  * Michael Fulbright <msf@redhat.com>
+ *
+ * Output made prettier - April 2000~~
+ * Iain Holmes  <ih@csd.abdn.ac.uk>
  */
 
 
@@ -1824,6 +1827,8 @@ static void
 add_to_index(int level, char *item)
 {
 	char *c=NULL;
+	int i=1;
+
 	label[3]++;
 
 	if (label[3]>'Z') {
@@ -1832,16 +1837,21 @@ add_to_index(int level, char *item)
 	}
 	if (level != subs) {
 		if (subs) {
-			strmaxcpy(manidx+mip, "</DL>\n", HUGE_STR_MAX - mip);
+			strmaxcpy(manidx+mip, "</OL>\n", HUGE_STR_MAX - mip);
 			mip+=6;
 		} else {
-			strmaxcpy(manidx+mip, "<DL>\n", HUGE_STR_MAX - mip);
+			strmaxcpy(manidx+mip, "<OL>\n", HUGE_STR_MAX - mip);
 			mip+=5;
 		}
 	}
 	subs=level;
 	scan_troff(item, 1, &c);
-	sprintf(manidx+mip, "<DT><A HREF=\"%s#%s\">%s</A><DD>\n", 
+	while (c[i]) {
+		c[i] = tolower(c[i]);
+		i++;
+	}
+
+	sprintf(manidx+mip, "<LI><A HREF=\"%s#%s\">%s</A>\n", 
 		((URLbasename) ? URLbasename : ""), label, c);
 	if (c)
 		free(c);
@@ -2533,11 +2543,10 @@ static char
 					output_possible=1;
 					out_html("<HTML><HEAD><TITLE>"
 						 "Manpage of ");
+                                       out_html("</TITLE>\n</HEAD><BODY BGCOLOR=\"#FFFFFF\">\n"
+                                                "Name: <B>");
 					out_html(wordlist[0]);
-					out_html("</TITLE>\n</HEAD><BODY>"
-						 "\n<H1>");
-					out_html(wordlist[0]);
-					out_html("</H1>\nSection: ");
+					out_html("</B><BR>\nSection: ");
 					if (words>4)
 						out_html(wordlist[4]);
 					else
@@ -2545,18 +2554,20 @@ static char
 							wordlist[1]));
 					out_html(" (");
 					out_html(wordlist[1]);
+#if 0
 					if (words>2) {
 						out_html(")<BR>Updated: ");
 						scan_troff(wordlist[2], 
 							   1, NULL);
-					} else out_html(")");
-
+					} else
+						out_html(")");
+#endif
 					out_html("\n");
+#if 0
 					printf("<BR><A HREF=\"");
 					if (URLbasename)
 					    printf(URLbasename);
                                         printf("#index\">Index</A>\n");
-#if 0					
 					out_html("<BR><A HREF=\"");
                                         out_html("#index\">Index</A>\n");
 #endif					
@@ -3645,7 +3656,7 @@ main(int argc, char **argv)
 		else
 			t++;
 		printf("<HTML><HEAD><TITLE>Bad manpage.</TITLE>\n"
-		       "</HEAD><BODY>\n<H1>Bad manpage.</H1>\n"
+		       "</HEAD><BODY BGCOLOR=\"#FFFFFF\">\n<H1>Bad manpage.</H1>\n"
 		       "Sorry, unable to convert the manpage.\n"
 		       "</BODY></HTML>\n");
 		exit(0);
@@ -3694,18 +3705,18 @@ main(int argc, char **argv)
 	out_html(NEWLINE);
 	if (output_possible) {
 		/* &nbsp; for mosaic users */
-		fputs("<HR>\n<A NAME=\"index\">&nbsp;</A><H2>Index</H2>\n<DL>\n",
+               fputs("<HR>\n<A NAME=\"index\">&nbsp;</A><H2>Table of Contents</H2>\n<OL>\n",
 		      stdout);
 		manidx[mip]=0;
 		fputs(manidx,stdout);
 		if (subs) 
-			fputs("</DL>\n", stdout);
-		fputs("</DL>\n", stdout);
+                       fputs("</OL>\n", stdout);
+		fputs("</OL>\n", stdout);
 /*		print_sig(); */
 		fputs("</BODY>\n</HTML>\n", stdout);
 	} else {
 		printf("<HTML><HEAD><TITLE>Invalid Manpage</TITLE></HEAD>\n"
-		       "<BODY><H1>Invalid Manpage</H1>\n"
+		       "<BODY BGCOLOR=\"#FFFFFF\"><H1>Invalid Manpage</H1>\n"
 		       "You tried to retrieve an incorrect manpage.\n"
 		       "The page does not contain a manpage header and will\n"
 		       "not produce any output.\n"

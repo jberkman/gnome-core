@@ -112,7 +112,7 @@ GString
     gchar ext, last_ext, last_initial;
     gint numcol, numrow;
 
-    res = g_string_new(_("<h1>Table of Contents</h1>\n"));
+    res = g_string_new(_("<BODY BGCOLOR=\"#FFFFFF\"><h1>Table of Contents</h1>\n"));
 
     /* Man Pages */
     
@@ -229,7 +229,7 @@ GString
              g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
  	g_string_append(res, "</tr>\n");
     }
-    g_string_append(res, "</table>\n");
+    g_string_append(res, "</table></body>\n");
     if (tablestart)
         g_string_free(tablestart, TRUE);
 /*#endif */
@@ -255,8 +255,8 @@ GString
     gchar *link;
     gint numrow, numcol;
 
-    res = g_string_new(_("<h1>Table of Contents</h1>\n"));
-    g_string_append(res, _("<br><br><h2>Info Pages</h2>\n"));
+    res = g_string_new(_("<body bgcolor=\"#FFFFFF\"><h1>Table of Contents</h1>\n"));
+    g_string_append(res, _("<h2>Info Pages</h2>\n"));
 
     l = toc->infoTable;
     if (!l)
@@ -297,7 +297,7 @@ GString
              g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
  	g_string_append(res, "</tr>\n");
     }
-    g_string_append(res, "</table>\n");
+    g_string_append(res, "</table></body>\n");
 #if 0
     if (1) {
 	    FILE *f;
@@ -319,8 +319,8 @@ GString
     gchar *link;
     gint numcol, numrow;
 
-    res = g_string_new(_("<h1>Table of Contents</h1>\n"));
-    g_string_append(res, _("<br><br><h2>GNOME Help</h2>\n"));
+    res = g_string_new(_("<body bgcolor=\"#FFFFFF\"><h1>Table of Contents</h1>\n"));
+    g_string_append(res, _("<h2>GNOME Help</h2>\n"));
 
     l = toc->ghelpTable;
     if (!l)
@@ -357,7 +357,7 @@ GString
              g_string_append(res, "\t<td width=33%%>&nbsp;</td>\n");
  	g_string_append(res, "</tr>\n");
     }
-    g_string_append(res, "</table>\n");
+    g_string_append(res, "</table></body>\n");
 
     return res;
 }
@@ -464,7 +464,7 @@ GString
     GList   *p;
     gboolean foundman, foundinfo, foundghelp;
 
-    out = g_string_new(_("<HTML>\n<BODY>\n<H2>Results of the substring search "
+    out = g_string_new(_("<HTML>\n<BODY BGCOLOR=\"#ffffff\">\n<H2>Results of the substring search "
 		       "for the string "));
     g_string_sprintfa(out, "&quot;%s&quot;</H2>\n", substr);
 
