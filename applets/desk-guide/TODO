@@ -1,4 +1,4 @@
 - monitor the GNOME WM property window and react to window manager
   changes with gwmh_init()
 - implement task editor
-  
+- gwmh_*_show needs to be seperated from focussing
