@@ -1,9 +1,19 @@
+Wed Sep 22 00:40:41 1999  Tim Janik  <timj@gtk.org>
+
+	* tasklist_menu.c (cb_menu): make it compile (s/task/current_task/).
+	* tasklist_applet.c (cb_button_press_event): 
+	eliminated bogus gwmh_task_show() call.
+
+	* tasklist_menu.c (cb_to_desktop): cure compiler (we don't
+	return a value).
+
 1999-09-21  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c
 	  tasklist_menu.c: Added patch from Tim Janik
 
 1999-09-21 Elliot Lee <sopwith@redhat.com>
+
 	* Makefile.am: Include gnome-tasklist.png in EXTRA_DIST
 
 1999-09-21  Anders Carlsson  <andersca@gnu.org>

@@ -7,7 +7,7 @@
 GtkWidget *get_popup_menu (TasklistTask *task);
 void add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar *xpm);
 gboolean cb_menu (GtkWidget *widget, gpointer data);
-gboolean cb_to_desktop (GtkWidget *widget, gpointer data);
+void cb_to_desktop (GtkWidget *widget, gpointer data);
 void cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data);
 
 extern TasklistConfig Config;
@@ -94,10 +94,9 @@ cb_menu (GtkWidget *widget, gpointer data)
 		break;
 	case MENU_ACTION_SHOW_HIDE:
 		if (GWMH_TASK_ICONIFIED (current_task->gwmh_task)) {
-			gwmh_desk_set_current_area (task->gwmh_task->desktop,
-						    task->gwmh_task->harea,
-						    task->gwmh_task->varea);
-			gwmh_task_show (current_task->gwmh_task);
+			gwmh_desk_set_current_area (current_task->gwmh_task->desktop,
+						    current_task->gwmh_task->harea,
+						    current_task->gwmh_task->varea);
 			gwmh_task_show (current_task->gwmh_task);
 		}
 		else
@@ -155,7 +154,7 @@ add_menu_item (gchar *name, GtkWidget *menu, MenuAction action, gchar *xpm)
 }
 
 /* Called when "Send to desktop" is used */
-gboolean
+void
 cb_to_desktop (GtkWidget *widget, gpointer data)
 {
 	gwmh_task_set_desktop (current_task->gwmh_task, 
@@ -163,7 +162,6 @@ cb_to_desktop (GtkWidget *widget, gpointer data)
 	gwmh_task_set_desktop (current_task->gwmh_task, 
 			       GPOINTER_TO_INT (data));
 	layout_tasklist (TRUE);
-
 }
 
 /* Create a popup menu */

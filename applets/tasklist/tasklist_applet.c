@@ -489,12 +489,10 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 		return FALSE;
 
 	if (event->button == 1) {
-		if (GWMH_TASK_ICONIFIED (task->gwmh_task)) {
+		if (GWMH_TASK_ICONIFIED (task->gwmh_task))
 			gwmh_desk_set_current_area (task->gwmh_task->desktop,
 						    task->gwmh_task->harea,
 						    task->gwmh_task->varea);
-			gwmh_task_show (task->gwmh_task);
-		}
 		gwmh_task_show (task->gwmh_task);
 	}
 
