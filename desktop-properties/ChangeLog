@@ -1,3 +1,9 @@
+Sun May 17 16:27:24 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (EXTRA_DIST): Added ui.desktop.
+	(sys_DATA): Likewise.
+	* ui.desktop: New file.
+
 Sun May 17 12:06:09 1998  Havoc Pennington  <hp@pobox.com>
 
 	* property-ui.c: Copyright notice, and use the new access

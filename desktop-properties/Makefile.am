@@ -2,7 +2,8 @@ INCLUDES = 			\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
 	-I$(includedir) $(X_CFLAGS) $(GNOME_INCLUDEDIR)
 
-bin_PROGRAMS = mouse-properties keyboard-properties background-properties bell-properties ui-properties
+bin_PROGRAMS = mouse-properties keyboard-properties background-properties \
+	bell-properties ui-properties
 
 mouse_properties_SOURCES =	\
 	main.c			\
@@ -76,8 +77,10 @@ ui_properties_LDADD = \
 	$(GNOMEUI_LIBS)					\
 	$(INTLLIBS)
 
-EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop bell.desktop
+EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop bell.desktop \
+	ui.desktop
 
 sysdir = $(datadir)/apps/System
-sys_DATA = background.desktop mouse.desktop keyboard.desktop bell.desktop
+sys_DATA = background.desktop mouse.desktop keyboard.desktop bell.desktop \
+	ui.desktop
 
