@@ -1,3 +1,21 @@
+Sun Oct 24 10:32:28 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: prefixed all config sections with `sect_',
+	so our settings don't get confused with those of other applets
+	(why the heck isn't `privcfgpath' passed as application-*specific*
+	prefix???). either the panel or the config system screw here majorly ;(
+
+	* deskguide_applet.c (gp_config_add_range): shrink spin buttons.
+
+	* deskguide_applet.c (gp_config_items): majorly reordered and reworded
+	configuration settings according to the GNOME UI Hit Squad page, at
+	least in the areas where the proposed changes actually made sense.
+
+	* deskguide_applet.c (gp_config_add_section): 
+	(gp_config_create_page): changed spacings/borders to what is recommended
+	by the GNOME UI Hit Squad:
+	http://www.jcinteractive.com/gnome-ui/hitsquad/deskguide_applet.html
+
 Wed Oct 13 02:02:26 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c: fixed configuration options. updates to reflect

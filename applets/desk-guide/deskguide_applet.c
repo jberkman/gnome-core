@@ -20,6 +20,13 @@
 #include "gwmdesktop.h"
 
 
+#define CONFIG_OBOX_BORDER 6
+#define CONFIG_OBOX_SPACING 8
+#define CONFIG_IBOX_BORDER 6
+#define CONFIG_IBOX_SPACING 4
+#define CONFIG_ITEM_BORDER 0
+#define CONFIG_ITEM_SPACING 4
+  
 
 /* --- prototypes --- */
 static void	gp_init_gui		(void);
@@ -58,63 +65,64 @@ static guint		 GP_ARROW_DIR = 0;
 static gchar		*DESK_GUIDE_NAME = NULL;
 
 static ConfigItem gp_config_items[] = {
-  CONFIG_SECTION (tooltip_settings,			 	N_ ("Tooltips")),
-  CONFIG_BOOL (desktips,	TRUE,
-	       N_ ("Enable Desktop Names")),
-  CONFIG_RANGE (desktips_delay,	10,	1,	5000,
-		N_ ("Desktop Name Popup Delay [ms]")),
-  CONFIG_BOOL (tooltips,	TRUE,
-	       N_ ("Enable Tooltips")),
-  CONFIG_RANGE (tooltips_delay,	500,	1,	5000,
-		N_ ("Tooltips Delay [ms]")),
-  CONFIG_SECTION (layout,				  	N_ ("Layout")),
+  CONFIG_PAGE (N_ ("Display")),
+  CONFIG_SECTION (sect_layout,				  	N_ ("Layout")),
   CONFIG_BOOL (switch_arrow,	FALSE,
-	       N_ ("Switch Arrow")),
-  CONFIG_BOOL (current_only,	FALSE,
-	       N_ ("Show only current Desktop")),
+	       N_ ("Switch tasklist arrow")),
   CONFIG_BOOL (show_pager,	TRUE,
-	       N_ ("Show Desktop Pager")),
+	       N_ ("Show desktop pager")),
+  CONFIG_BOOL (current_only,	FALSE,
+	       N_ ("Only show current desktop in pager")),
+  CONFIG_BOOL (raise_grid,		FALSE,
+	       N_ ("Raise area grid over tasks")),
+  CONFIG_SECTION (sect_tooltips,			 	N_ ("Tooltips")),
+  CONFIG_BOOL (tooltips,	TRUE,
+	       N_ ("Show Desk-Guide tooltips")),
+  CONFIG_RANGE (tooltips_delay,	500,	1,	5000,
+		N_ ("Desk-Guide tooltip delay [ms]")),
+  CONFIG_BOOL (desktips,	TRUE,
+	       N_ ("Show desktop name tooltips")),
+  CONFIG_RANGE (desktips_delay,	10,	1,	5000,
+		N_ ("Desktop name tooltip delay [ms]")),
   
   CONFIG_PAGE (N_ ("Tasks")),
-  CONFIG_SECTION (task_visibility,			  	N_ ("Visibility")),
+  CONFIG_SECTION (sect_task_visibility,			  	N_ ("Visibility")),
   CONFIG_BOOL (show_hidden_tasks,	TRUE,
-	       N_ ("Show `HIDDEN' Tasks")),
+	       N_ ("Show hidden tasks (HIDDEN)")),
   CONFIG_BOOL (show_shaded_tasks,	TRUE,
-	       N_ ("Show `SHADED' Tasks")),
+	       N_ ("Show shaded tasks (SHADED)")),
   CONFIG_BOOL (show_skip_winlist,	FALSE,
-	       N_ ("Show `SKIP-WINLIST' Tasks")),
+	       N_ ("Show tasks which hide from window list (SKIP-WINLIST)")),
   CONFIG_BOOL (show_skip_taskbar,	FALSE,
-	       N_ ("Show `SKIP-TASKBAR' Tasks")),
-  CONFIG_SECTION (cosmetics,				  	N_ ("Cosmetics")),
-  CONFIG_BOOL (raise_grid,		FALSE,
-	       N_ ("Raise Area Grid Above Tasks")),
-  /*  CONFIG_SECTION ("", NULL), */
+	       N_ ("Show tasks which hide from taskbar (SKIP-TASKBAR)")),
+  /*  CONFIG_SECTION (sect_null_1, NULL), */
   
   CONFIG_PAGE (N_ ("Geometry")),
-  CONFIG_SECTION (horizontal,                        	     	N_ ("Horizontal Layout")),
+  CONFIG_SECTION (sect_horizontal,                     	     	N_ ("Horizontal Layout")),
   CONFIG_RANGE (area_height,	44,	4,	1024,
 		N_ ("Desktop Height [pixels]")),
-  CONFIG_BOOL (div_by_vareas,		TRUE,
-	       N_ ("Divide Height By Number Of Vertical Areas")),
   CONFIG_RANGE (row_stackup,	1,	1,	64,
-		N_ ("Number of Rows to pack Desktops in")),
-  CONFIG_SECTION (vertical,                        	     	N_ ("Vertical Layout")),
+		N_ ("Rows of Desktops")),
+  CONFIG_BOOL (div_by_vareas,		TRUE,
+	       N_ ("Divide height by number of vertical areas")),
+  CONFIG_SECTION (sect_vertical,                       	     	N_ ("Vertical Layout")),
   CONFIG_RANGE (area_width,	44,	4,	1024,
-		N_ ("Desktop width [pixels]")),
-  CONFIG_BOOL (div_by_hareas,		TRUE,
-	       N_ ("Divide Width By Number Of Horizontal Areas")),
+		N_ ("Desktop Width [pixels]")),
   CONFIG_RANGE (col_stackup,	1,	1,	64,
-		N_ ("Number of Columns to pack Desktops in")),
+		N_ ("Columns of Desktops")),
+  CONFIG_BOOL (div_by_hareas,		TRUE,
+	       N_ ("Divide width by number of horizontal areas")),
 
-  CONFIG_PAGE (N_ ("Advanced Options")),
+  CONFIG_PAGE (N_ ("Advanced")),
+  CONFIG_SECTION (sect_drawing,                   	     	N_ ("Drawing")),
   CONFIG_BOOL (double_buffer,	TRUE,
-	       N_ ("Draw Desktops Double Buffered")),
-  CONFIG_SECTION (bug_fixes,                        	     	N_ ("Bug Fixes")),
+	       N_ ("Draw desktops double-buffered (recommended)")),
+  CONFIG_SECTION (sect_workarounds,         	     	N_ ("Window Manager Workarounds")),
   CONFIG_BOOL (skip_movement_offset,		TRUE,
-	       N_ ("Window Manager Moves Decoration Window Instead\n"
+	       N_ ("Window manager moves decoration window instead\n"
 		   "(AfterStep, Enlightenment, FVWM, IceWM, SawMill)")),
   CONFIG_BOOL (unified_areas,			TRUE,
-	       N_ ("Window Manager Changes Active Area On All Desktops\n"
+	       N_ ("Window manager changes active area on all desktops\n"
 		   "(FVWM, SawMill)")),
 };
 static guint  gp_n_config_items = (sizeof (gp_config_items) /
@@ -246,7 +254,7 @@ gp_load_config (const gchar *privcfgpath)
 {
   static guint loaded = FALSE;
   guint i;
-  gchar *section = "general";
+  gchar *section = "sect_general";
   
   if (loaded)
     return;
@@ -313,7 +321,7 @@ gp_save_session (gpointer     func_data,
 		 const gchar *globcfgpath)
 {
   guint i;
-  gchar *section = "general";
+  gchar *section = "sect_general";
   
   gnome_config_push_prefix (privcfgpath);
   
@@ -760,6 +768,7 @@ gp_config_add_boolean (GtkWidget  *vbox,
 			   "visible", TRUE,
 			   "label", _ (item->name),
 			   "active", GPOINTER_TO_INT (item->value),
+			   "border_width", CONFIG_ITEM_BORDER,
 			   "signal::toggled", gp_config_toggled, item,
 			   NULL);
   gtk_box_pack_start (GTK_BOX (vbox), widget, FALSE, TRUE, 0);
@@ -791,10 +800,10 @@ gp_config_add_range (GtkWidget  *vbox,
 				   1, 1,
 				   (item->max - item->min) / 10);
   hbox = gtk_widget_new (GTK_TYPE_HBOX,
-			 "homogeneous", TRUE,
+			 "homogeneous", FALSE,
 			 "visible", TRUE,
-			 "spacing", GNOME_PAD_SMALL,
-			 "border_width", GNOME_PAD_SMALL,
+			 "spacing", CONFIG_ITEM_SPACING,
+			 "border_width", CONFIG_ITEM_BORDER,
 			 NULL);
   label = gtk_widget_new (GTK_TYPE_LABEL,
 			  "visible", TRUE,
@@ -803,7 +812,10 @@ gp_config_add_range (GtkWidget  *vbox,
 			  "parent", hbox,
 			  NULL);
   spinner = gtk_spin_button_new (GTK_ADJUSTMENT (adjustment), 0, 0);
-  gtk_widget_show (spinner);
+  gtk_widget_set (spinner,
+		  "visible", TRUE,
+		  "width", 80,
+		  NULL);
   gtk_object_set_user_data (GTK_OBJECT (adjustment), spinner);
   gtk_box_pack_end (GTK_BOX (hbox), spinner, FALSE, TRUE, 0);
   gtk_signal_connect (adjustment,
@@ -831,17 +843,21 @@ gp_config_add_section (GtkBox      *parent,
       box = gtk_widget_new (GTK_TYPE_VBOX,
 			    "visible", TRUE,
 			    "parent", widget,
+			    "border_width", CONFIG_IBOX_BORDER,
+			    "spacing", CONFIG_IBOX_SPACING,
 			    NULL);
     }
   else
     {
       box = gtk_widget_new (GTK_TYPE_VBOX,
 			    "visible", TRUE,
+			    "border_width", 0,
+			    "spacing", CONFIG_OBOX_SPACING,
 			    NULL);
       widget = box;
     }
 
-  gtk_box_pack_start (parent, widget, TRUE, TRUE, 0);
+  gtk_box_pack_start (parent, widget, FALSE, TRUE, 0);
   
   return box;
 }
@@ -862,7 +878,6 @@ gp_config_create_page (GSList		*item_slist,
       GSList *node = item_slist;
       
       item_slist = node->next;
-      g_slist_free_1 (node);
       
       page_name = _ (item->name);
     }
@@ -871,19 +886,17 @@ gp_config_create_page (GSList		*item_slist,
   
   page = gtk_widget_new (GTK_TYPE_VBOX,
 			 "visible", TRUE,
-			 "border_width", GNOME_PAD_SMALL,
-			 "spacing", GNOME_PAD_SMALL,
+			 "border_width", CONFIG_OBOX_BORDER,
+			 "spacing", CONFIG_OBOX_SPACING,
 			 NULL);
   
   while (item_slist)
     {
-      GSList *node = item_slist;
-      ConfigItem *item = node->data;
+      ConfigItem *item = item_slist->data;
       
       if (!item->path)						/* page */
 	break;
-      item_slist = node->next;
-      g_slist_free_1 (node);
+      item_slist = item_slist->next;
       
       if (item->min == -2 && item->max == -2)			/* section */
 	vbox = gp_config_add_section (GTK_BOX (page), _ (item->name));
@@ -915,12 +928,13 @@ gp_config_popup (void)
   
   if (!dialog)
     {
-      GSList *slist = NULL;
+      GSList *fslist, *slist = NULL;
       guint i;
       
       for (i = 0; i < gp_n_config_items; i++)
 	slist = g_slist_prepend (slist, gp_config_items + i);
       slist = g_slist_reverse (slist);
+      fslist = slist;
       
       dialog = gnome_property_box_new ();
       gtk_widget_set (dialog,
@@ -929,14 +943,13 @@ gp_config_popup (void)
 		      "signal::apply", gp_config_apply_tmp_values, NULL,
 		      "signal::apply", gp_init_gui, NULL,
 		      "signal::destroy", gp_config_reset_tmp_values, NULL,
+		      "signal::destroy", gtk_widget_destroyed, &dialog,
 		      NULL);
       
       while (slist)
 	slist = gp_config_create_page (slist, GNOME_PROPERTY_BOX (dialog));
-      
-      gtk_widget_set (dialog,
-		      "signal::destroy", gtk_widget_destroyed, &dialog,
-		      NULL);
+      g_slist_free (fslist);
+
       gtk_quit_add_destroy (1, GTK_OBJECT (dialog));
     }
   
