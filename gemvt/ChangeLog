@@ -1,3 +1,8 @@
+Tue Mar 10 16:22:17 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* gvtmain.c (main): Don't pass pointers to argc,argv to
+	gnome_init.
+
 1998-02-27  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* Makefile.am (gemvt_LDADD): Add $(X_LIBS).

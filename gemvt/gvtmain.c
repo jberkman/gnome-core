@@ -114,7 +114,7 @@ main	(int	argc,
   /* Gtk+/GNOME/GLE initialization
    */
 #ifdef	HAVE_GNOME
-  gnome_init("gemvt", NULL, &argc, &argv, 0, NULL);
+  gnome_init("gemvt", NULL, argc, argv, 0, NULL);
 #else	/* !HAVE_GNOME */
   gtk_init (&argc, &argv);
 #endif	/* !HAVE_GNOME */
