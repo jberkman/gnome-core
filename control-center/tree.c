@@ -23,8 +23,8 @@ extern GtkWidget *status_bar;
 gint button_press (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 {
         if (event->button == 1 && event->type == GDK_2BUTTON_PRESS) {
-                //                g_print ("stoping the button press...\n");
-                //                gtk_signal_emit_stop_by_name (GTK_OBJECT (ctree), "button_press_event");
+                /* g_print ("stoping the button press...\n");
+                   gtk_signal_emit_stop_by_name (GTK_OBJECT (ctree), "button_press_event");*/
         }
  
 }
@@ -213,11 +213,13 @@ generate_tree ()
         gtk_signal_connect( GTK_OBJECT (retval),"tree_select_row", GTK_SIGNAL_FUNC (selected_row_callback), NULL);
 
         /*hard_coded for now... */
-        root_prefix = gnome_unconditional_datadir_file ("control_center");
+        root_prefix = gnome_unconditional_datadir_file ("control-center");
+        g_print ("root_prefix=%s\n",root_prefix);
         global_node = read_directory (root_prefix);
         user_prefix = gnome_util_home_file ("control_center");
+        g_print ("user_prefix=%s\n",user_prefix);
         user_node = read_directory (user_prefix);
-        merge_nodes (user_node, global_node);
+        merge_nodes (user_node,global_node);
 
         /* now we actually set up the tree... */
         /* we prolly want to use the gtree_insert_node function to do this, 

@@ -33,18 +33,18 @@ launch_caplet (node_data *data)
         GtkWidget *button;
         
         /* set up the notebook if needed */
-        if (notebook == NULL) {
-                notebook = gtk_notebook_new();
-                gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), TRUE);
-                gtk_notebook_set_scrollable (GTK_NOTEBOOK (notebook), TRUE);
-                gtk_container_remove (GTK_CONTAINER (container), splash_screen);
-                gtk_container_border_width (GTK_CONTAINER (container), 5);
-                gtk_container_add (GTK_CONTAINER (container), notebook);
-                gtk_widget_show (notebook);
-        }
-        
         /* This caplet has not been started yet.  We need to do that. */
-        if (data->id == -1) {
+        if ((data->id == -1) && (data->gde->exec_length)) {
+                if (notebook == NULL) {
+                        notebook = gtk_notebook_new();
+                        gtk_notebook_set_show_tabs (GTK_NOTEBOOK (notebook), TRUE);
+                        gtk_notebook_set_scrollable (GTK_NOTEBOOK (notebook), TRUE);
+                        gtk_container_remove (GTK_CONTAINER (container), splash_screen);
+                        gtk_container_border_width (GTK_CONTAINER (container), 5);
+                        gtk_container_add (GTK_CONTAINER (container), notebook);
+                        gtk_widget_show (notebook);
+                }
+        
                 vbox = gtk_vbox_new(FALSE, 5);
                 data->socket = gtk_socket_new ();
                 separator = gtk_hseparator_new ();
@@ -93,10 +93,9 @@ launch_caplet (node_data *data)
                 sprintf (temp, "--ior=");
                 sprintf (temp + 6, "%s",  ior);
                 argv[2] = temp;
-                //        gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
-                
+                gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
                 caplet_list = g_list_prepend (caplet_list, data);
         }
-        gtk_notebook_set_page (GTK_NOTEBOOK (notebook), data->notetab_id);
-
+        if (data->notetab_id != -1)
+                gtk_notebook_set_page (GTK_NOTEBOOK (notebook), data->notetab_id);
 }

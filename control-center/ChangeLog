@@ -1,3 +1,7 @@
+Fri Aug 21 19:42:11 1998  Jonathan Blandford <jrb@redhat.com>
+	* caplet-manager.c: now trys to start the caplet
+	* caplet-widget-*: cleaned up testing code. Now works mostly.
+
 1998-08-21  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* gnomecc.desktop: Added Portuguese translation.

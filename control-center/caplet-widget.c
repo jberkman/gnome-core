@@ -2,6 +2,7 @@
 #include <gnome.h>
 #include <orb/orbit.h>
 #include "caplet-widget.h"
+#include "caplet-widget-libs.h"
 #include "control-center.h"
 
 /* static variables */
@@ -10,7 +11,9 @@ static GtkPlugClass *parent_class;
 CORBA_ORB orb;
 CORBA_Environment ev;
 GNOME_caplet caplet;
-gchar* ior;
+gchar* ior = NULL;
+guint32 xid = 0;
+gint id = -1;
 
 /* prototypes */ 
 static void caplet_widget_class_init	(CapletWidgetClass *klass);
@@ -55,8 +58,8 @@ GtkWidget *
 caplet_widget_new ()
 {
         CapletWidget * retval;
-        /*        retval CAPLET_WIDGET (gtk_type_new 
-                  (caplet_widget_get_type()));*/
+        retval = CAPLET_WIDGET (gtk_type_new (caplet_widget_get_type()));
+        gtk_plug_construct (GTK_PLUG (retval), xid);
         return GTK_WIDGET (retval);
 }
 
@@ -64,42 +67,56 @@ caplet_widget_new ()
 void
 caplet_gtk_main (void)
 {
-        gtk_main();
+        control_center_corba_gtk_main("Something should go here???");
 }
 static error_t
 parse_an_arg (int key, char *arg, struct argp_state *state)
 {
-        if (key != ARGP_KEY_ARG)
+        switch (key) {
+        case 'd':
+                id = atoi (arg);
+                break;
+        case 'i':
+                ior = strdup (arg);
+                break;
+        case 'x':
+                xid = strtol(arg, NULL, 10);
+                break;
+        default:
                 return ARGP_ERR_UNKNOWN;
-
-        ior = strdup (arg);
+        }
         return 0;
 }
-static struct argp parser = {
-        NULL, parse_an_arg, N_("[IOR]"),  NULL,  NULL, NULL, NULL
+static struct argp_option options[] = {
+        { "id",    'd', N_("ID"),       0, N_("id of the caplet -- assigned by the control-center"),      1 },
+        { "ior",    'i', N_("IOR"),      0, N_("ior of the control-center"), 1 },
+        { "xid",    'x', N_("XID"),      0, N_("X id of the socket it's plugged into"), 1 },
+        { NULL,     0,  NULL,         0, NULL,                       0 }
 };
+static struct argp parser = {
+        options, parse_an_arg, NULL,  NULL,  NULL, NULL, NULL
+};
+
 error_t
-caplet_init (char *app_id, struct argp *app_parser,
+gnome_caplet_init (char *app_id, struct argp *app_parser,
                      int argc, char **argv, unsigned int flags,
                      int *arg_index)
 {
-        error_t retval;
-        gushort id;
-        guint32 xid;
-        GtkWidget *plug;
+        /* FIXME: er, we need to actually parse app_parser... (: */
 
+        error_t retval;
         retval = gnome_init(app_id,&parser,argc,argv,flags,arg_index);
-  
+
+        if ((xid == 0) || (id == -1) || (ior == NULL)) {
+                g_warning ("Insufficient arguments passed to the arg parser.\n");
+                exit (1);
+        }
         CORBA_exception_init(&ev);
         orb = CORBA_ORB_init(&argc, argv, "orbit-local-orb", &ev);
-
         caplet = CORBA_ORB_string_to_object(orb, ior, &ev);
         if (! caplet) {
-                g_warning ("Unable reach gnomecc\n");
-                return 1;
+                g_warning ("Unable reach the control-center.\nExiting...");
+                exit (1);
         }
-        GNOME_control_center_request_id(caplet,NULL, &xid, &id, &ev);
-        plug = gtk_plug_new (xid);
-        gtk_widget_show (plug);
         return retval;
 }

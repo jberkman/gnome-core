@@ -8,7 +8,7 @@ void control_center_object_corba_gtk_init(gint *argc, char **argv);
 static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond);
 
 
-void control_center_object_corba_gtk_main (char *str)
+void control_center_corba_gtk_main (char *str)
 {
         gtk_main();
 }

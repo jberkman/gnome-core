@@ -35,7 +35,7 @@ GtkWidget*      caplet_widget_new            	(void);
 
 
 void		caplet_gtk_main  		(void);
-error_t		caplet_init		(char *app_id,
+error_t		gnome_caplet_init	(char *app_id,
                                          struct argp *app_parser,
                                          int argc,
                                          char **argv,
