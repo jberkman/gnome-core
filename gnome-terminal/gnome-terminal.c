@@ -990,12 +990,12 @@ enum {
 	CLASS_ROW       = 1,
 	FONT_ROW        = 2,
 	BOLDTOGGLE_ROW  = 3,
-	BLINK_ROW       = 4,
-	MENUBAR_ROW     = 5,
-	BELL_ROW        = 6,
-	SWAPKEYS_ROW    = 7,
-	LOGIN_ROW       = 8,
-	WORDCLASS_ROW	= 9,
+	BLINK_ROW       = 3,
+	MENUBAR_ROW     = 4,
+	BELL_ROW        = 4,
+	SWAPKEYS_ROW    = 5,
+	LOGIN_ROW       = 5,
+	WORDCLASS_ROW	= 6,
 	BACKGROUND_ROW	= 1,
 	PIXMAP_FILE_ROW	= 2,
 	SHADED_ROW      = 4,
@@ -1118,6 +1118,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* general page */
 	table = gtk_table_new (3, 3, FALSE);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 4);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("General")));
 
@@ -1193,7 +1194,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->use_bold_checkbox), "toggled",
 	                    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE(table), prefs->use_bold_checkbox,
-	                  2, 3, BOLDTOGGLE_ROW, BOLDTOGGLE_ROW+1, GTK_FILL, 0,
+	                  1, 2, BOLDTOGGLE_ROW, BOLDTOGGLE_ROW+1, GTK_FILL, 0,
 	                  0, 0);
 
 	/* Blinking status */
@@ -1212,7 +1213,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->menubar_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
-			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, 0, 0);
+			  1, 2, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Toggle the bell */
 	prefs->bell_checkbox = gtk_check_button_new_with_label (_("Silence Terminal bell"));
@@ -1230,7 +1231,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->swapkeys_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->swapkeys_checkbox,
-			  2, 3, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, 0, 0);
+			  1, 2, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, 0, 0);
 	
 	/* --login by default */
 	prefs->login_by_default_checkbox = gtk_check_button_new_with_label (_("Use --login by default"));
@@ -1251,7 +1252,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->wordclass_entry), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->wordclass_entry,
-			  2, 3, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, 0, 0);
+			  2, 3, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, 0, 4);
 	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
 				      GTK_EDITABLE (prefs->wordclass_entry));
 
@@ -1262,6 +1263,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	   so the user can't change them */
 
 	table = gtk_table_new (4, 4, FALSE);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 4);
 	if(zvt_pixmap_support)
 		gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Image")));
 
@@ -1367,6 +1369,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Color page */
 	table = gtk_table_new (4, 4, FALSE);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 4);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Colors")));
 	
 	/* Color palette */
@@ -1401,6 +1404,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	prefs->palette_label = l;
 
 	paltable = gtk_table_new(8,2,FALSE);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 4);
 	gtk_table_attach (GTK_TABLE (table), paltable,
 			  2, 3, BACKCOLOR_ROW+1, BACKCOLOR_ROW+2, GTK_FILL, 0,
 			  0, 0);
@@ -1429,6 +1433,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Scrolling page */
 	table = gtk_table_new (4, 4, FALSE);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 4);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, 
 					gtk_label_new (_("Scrolling")));
 
@@ -2339,7 +2344,6 @@ load_session ()
 		int argc;
 		char *prefix = g_strdup_printf ("%s%d/", file, i);
 		int termid;
-		char termconf[16];
 
 		gnome_config_push_prefix (prefix);
 
