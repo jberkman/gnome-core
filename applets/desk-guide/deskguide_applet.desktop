@@ -23,7 +23,7 @@ Comment[pl]=Pager dla GNOME
 Comment[pt_BR]=GNOME Pager
 Comment[sv]=Skrivbordsguide fЖr GNOME
 Comment[uk]=Г╕д робочого столу (пейджер)
-Exec=deskguide_applet --activate-goad-server=deskguide_applet
+Exec=deskguide_applet
 Icon=gnome-deskguide.png
 Terminal=0
-Type=Application
+Type=PanelApplet
