@@ -279,7 +279,7 @@ int main (int argc, char *argv[])
 	USER_APPS = check_for_dir(gnome_util_home_file("apps"));
 	USER_PIXMAPS = check_for_dir(gnome_util_home_file("pixmaps"));
 
-	app = gnome_app_new ("gmenu","GNOME menu editor");
+	app = gnome_app_new ("gmenu",_("GNOME menu editor"));
 	gtk_widget_set_usize (app, 600,420);
 	gtk_signal_connect(GTK_OBJECT(app), "delete_event", GTK_SIGNAL_FUNC(destroy_cb), NULL);
 
