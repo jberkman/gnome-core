@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=GNOME terminal emulation program
+Name[es]=Terminal UNIX de GNOME
+Comment=Terminal emulation program
+Exec=gnome-terminal
+Icon=gnome-term.png
+Terminal=0
+Type=Application

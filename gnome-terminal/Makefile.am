@@ -15,10 +15,15 @@ LDADD = \
 
 bin_PROGRAMS = gnome-terminal
 
+EXTRA_DIST = gnome-terminal.desktop
+
 gnome_terminal_SOURCES = \
 	gnome-terminal.c
 
 gnome_terminal_LDADD = $(LDADD)
 
 CFLAGS += -Wall
+
+utildir = $(datadir)/apps/Utilities
+util_DATA = gnome-terminal.desktop
 
