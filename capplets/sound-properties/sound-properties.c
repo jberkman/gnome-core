@@ -282,7 +282,7 @@ sound_properties_read_path(SoundProps *props,
 
         arow[1] = NULL; arow[2] = NULL;
 
-        ctmp = gnome_config_get_string("__section_info__/description");
+        ctmp = gnome_config_get_translated_string("__section_info__/description");
         if(ctmp && *ctmp) {
             arow[0] = ctmp;
         } else {
@@ -315,7 +315,7 @@ sound_properties_read_path(SoundProps *props,
 
             arow[0] = NULL;
             g_string_sprintf(tmpstr, "%s/description", sample_name);
-            arow[1] = gnome_config_get_string(tmpstr->str);
+            arow[1] = gnome_config_get_translated_string(tmpstr->str);
             if(!arow[1] || !*arow[1]) {
                 g_free(arow[1]);
                 arow[1] = g_strdup(sample_name);
