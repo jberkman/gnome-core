@@ -1,3 +1,10 @@
+1998-05-25  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (drop_data_available): Add support for changing
+	the foreground with drag and drop.
+	(color_cmd): Add a color selector.  I am tired of starting up
+	background-properties to test DnD.
+
 Fri May 22 18:31:33 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* gnome-terminal.c (get_shell_name): Use gnome_util_user_shell.

@@ -570,6 +570,25 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_widget_show_all (prefs->prop_win);
 }
 
+static void
+color_ok (GtkWidget *w)
+{
+	gtk_widget_destroy (gtk_widget_get_toplevel (w));
+}
+
+static void
+color_cmd (void)
+{
+	GtkWidget *c;
+
+	c = gtk_color_selection_dialog_new (_("Color selector"));
+	gtk_signal_connect (GTK_OBJECT (GTK_COLOR_SELECTION_DIALOG (c)->ok_button),
+			    "clicked", GTK_SIGNAL_FUNC(color_ok), c);
+	gtk_widget_hide (GTK_COLOR_SELECTION_DIALOG (c)->cancel_button);
+	gtk_widget_hide (GTK_COLOR_SELECTION_DIALOG (c)->help_button);
+	gtk_widget_show (c);
+}
+
 static char *
 get_color_string (GdkColor c)
 {
@@ -602,8 +621,10 @@ static GnomeUIInfo gnome_terminal_terminal_menu [] = {
 	{ GNOME_APP_UI_ITEM, N_("New terminal"),    NULL, new_terminal },
 	{ GNOME_APP_UI_ITEM, N_("Save preferences"),NULL, save_preferences },
 	{ GNOME_APP_UI_ITEM, N_("Close terminal"),  NULL, close_terminal_cmd },
+	{ GNOME_APP_UI_SEPARATOR },
 	{ GNOME_APP_UI_ITEM, N_("Properties..."),   NULL, preferences_cmd, 0, 0,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP },
+	{ GNOME_APP_UI_ITEM, N_("Color selector..."),   NULL, color_cmd },
 	{ GNOME_APP_UI_SEPARATOR },
 	{ GNOME_APP_UI_ITEM, N_("Close all terminals"),  NULL, close_all_cmd },
 	GNOMEUIINFO_END
@@ -668,7 +689,7 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 	ZvtTerm *term = ZVT_TERM (widget);
 	char *p = event->data;
 	int count = event->data_numbytes;
-	int len, col, row;
+	int len, col, row, the_char;
 
 	if (strcmp (event->data_type, "text/plain") == 0 ||
 	    strcmp (event->data_type, "url:ALL") == 0){
@@ -689,11 +710,6 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 		gdouble *data = event->data;
 		int x, y;
 		
-		/* Accept the dropped colors */
-		user_back.red   = data [1] * 65535;
-		user_back.green = data [2] * 65535;
-		user_back.blue  = data [3] * 65535;
-
 		/* Get drop site, and make the coordinates local to our window */
 		gdk_window_get_origin (GTK_WIDGET (term)->window, &x, &y);
 		x = event->coords.x - x;
@@ -702,16 +718,31 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 		col = x / term->charwidth;
 		row = y / term->charheight;
 
-		/* Ok.  I got this far.  We need to figure out
-		 * how to know if [col,row] has a character, if so, then
-		 * we should set the foreground, otherwise, we shoulkd set
-		 * the background
-		 */
-		/* Switch to custom colors and copy the current foreground color */
-		color_type = COLORS_CUSTOM;
-		user_fore.red   = red [16];
-		user_fore.green = green [16];
-		user_fore.blue  = blue [16];
+		/* Switch to custom colors and */
+		color_set = COLORS_CUSTOM;
+		
+		the_char = vt_get_attr_at (term->vx, col, row) & 0xff;
+		if (the_char == ' ' || the_char == 0){
+			/* copy the current foreground color */
+			user_fore.red   = red [16];
+			user_fore.green = green [16];
+			user_fore.blue  = blue [16];
+
+			/* Accept the dropped colors */
+			user_back.red   = data [1] * 65535;
+			user_back.green = data [2] * 65535;
+			user_back.blue  = data [3] * 65535;
+		} else {
+			/* copy the current background color */
+			user_back.red   = red [17];
+			user_back.green = green [17];
+			user_back.blue  = blue [17];
+			
+			/* Accept the dropped colors */
+			user_fore.red   = data [1] * 65535;
+			user_fore.green = data [2] * 65535;
+			user_fore.blue  = data [3] * 65535;
+		}
 		set_color_scheme (term, color_type);
 	}
 }
