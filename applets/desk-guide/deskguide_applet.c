@@ -110,10 +110,10 @@ static ConfigItem gp_config_items[] = {
   CONFIG_BOOL (double_buffer,	TRUE,
 	       N_ ("Draw Desktops Double Buffered")),
   CONFIG_SECTION (bug_fixes,                        	     	N_ ("Bug Fixes")),
-  CONFIG_BOOL (skip_movement_offset,		FALSE,
+  CONFIG_BOOL (skip_movement_offset,		TRUE,
 	       N_ ("Window Manager Moves Decoration Window Instead\n"
-		   "(AfterStep, Enlightenment, FVWM, IceWM)")),
-  CONFIG_BOOL (unified_areas,			FALSE,
+		   "(AfterStep, Enlightenment, FVWM, IceWM, SawMill)")),
+  CONFIG_BOOL (unified_areas,			TRUE,
 	       N_ ("Window Manager Changes Active Area On All Desktops\n"
 		   "(FVWM, SawMill)")),
 };
