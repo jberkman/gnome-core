@@ -1336,7 +1336,7 @@ static GnomeUIInfo gnome_terminal_popup_menu_show [] = {
 #ifdef HAVE_ZVT_TERM_RESET
 	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
 	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
-#endi
+#endif
 	GNOMEUIINFO_END
 };
 
