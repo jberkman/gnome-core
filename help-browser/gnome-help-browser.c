@@ -30,6 +30,10 @@
 #include <libgnorba/gnorba.h>
 #include <errno.h>
 
+#ifdef HAVE_ALLOCA_H
+#include <alloca.h>
+#endif
+
 #include "window.h"
 #include "history.h"
 #include "bookmarks.h"

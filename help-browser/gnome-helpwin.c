@@ -29,6 +29,10 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
+#ifdef HAVE_ALLOCA_H
+#include <alloca.h>
+#endif
+
 #include <glib.h>
 #include <gnome.h>
 #include "gnome-helpwin.h"

@@ -14,6 +14,10 @@
 #include <errno.h>
 #include <string.h>
 
+#ifdef HAVE_ALLOCA_H
+#include <alloca.h>
+#endif
+
 #include <glib.h>
 
 #include "docobj.h"
