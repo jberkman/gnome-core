@@ -20,6 +20,7 @@
 
 #include <config.h>
 #include <gnome.h>
+#include <libgnome/gnome-help.h>
 
 #include "window.h"
 #include "history.h"
@@ -124,7 +125,8 @@ main(gint argc, gchar *argv[])
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
-    smClient = newGnomeClient();
+    /* smClient = newGnomeClient(); */
+    smClient = NULL;
 
     gnome_init(NAME, &parser, argc, argv, 0, NULL);
 
@@ -132,7 +134,7 @@ main(gint argc, gchar *argv[])
     
     setErrorHandlers();
 	
-    if (smClient->client_id)
+    if (smClient && smClient->client_id)
 	    g_message("SM client ID is %s", smClient->client_id );
     else
 	    g_message("Session Manager not detected");
@@ -146,7 +148,21 @@ main(gint argc, gchar *argv[])
     window = makeHelpWindow();
 
     if (helpURL)
-	helpWindowShowURL(window, argv[1]);
+	    helpWindowShowURL(window, argv[1]);
+    else {
+	    /* really broken, should be a ghelp: type URL */
+	    gchar *p, *q;
+
+	    p = gnome_help_file_path("help-browser", "default-page.html");
+	    if (p) {
+		    q = g_malloc(strlen(p)+10);
+		    strcpy(q, "file:");
+		    strcat(q, p);
+		    helpWindowShowURL(window, q);
+		    g_free(q);
+	    }
+    }
+	 
 	
     gtk_main();
 

@@ -558,7 +558,7 @@ helpWindowNew(gchar *name,
 				   NULL,NULL,NULL);
 
 	/* size should be auto-determined, or read from gnomeconfig() */
-	gtk_widget_set_usize(GTK_WIDGET(w->app), 400, 300); 
+	gtk_widget_set_usize(GTK_WIDGET(w->app), 600, 450); 
 	gtk_window_set_policy(GTK_WINDOW(w->app), TRUE, TRUE, FALSE);
 	gtk_widget_show(w->app);
 	gtk_widget_grab_focus (GTK_WIDGET (w->entryBox));
@@ -650,6 +650,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
         HelpWindow win;
 	docObj obj;
 	guchar *buf;
+	XmImageInfo *info;
 	gint buflen;
 	gint fd;
 
@@ -657,10 +658,11 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	obj = docObjNew(ref);
 	docObjResolveURL(obj, helpWindowCurrentRef(win));
 	if (strstr(docObjGetAbsoluteRef(obj), "file:")) {
-	    docObjFree(obj);
-	    return XmHTMLImageDefaultProc(html_widget,
+	    info = XmHTMLImageDefaultProc(html_widget,
 					  docObjGetAbsoluteRef(obj) + 5,
 					  NULL, 0);
+	    docObjFree(obj);
+	    return info;
 	}
 	if (transport(obj, helpWindowGetCache(win))) {
 	    docObjFree(obj);
@@ -677,5 +679,4 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	docObjFree(obj);
 	return XmHTMLImageDefaultProc(html_widget, IMAGE_TEMPFILE,
 				      NULL, 0);
-	return NULL;
 }
