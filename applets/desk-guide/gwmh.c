@@ -2081,31 +2081,38 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
 				      &size,
 				      32);
 
-  if (atomdata)
-    {
-      /* Get icon size and depth */
-      XGetGeometry (xdisplay, (Drawable)atomdata[0], &root, &x, &y, 
-		    &width, &height, &b, &depth);
-      
-      /* Create a new GdkPixmap and copy the mini icon pixmap to it */
-      *pixmap = gdk_pixmap_new (NULL, 16, 16, depth);
-      gc = gdk_gc_new (*pixmap);
-      gc_private = (GdkGCPrivate*) gc;
-      private = (GdkPixmapPrivate*) *pixmap;
-      XCopyArea (private->xdisplay, atomdata[0], private->xwindow, gc_private->xgc,
-		 0, 0, width, height, 0, 0);
-      gdk_gc_destroy (gc);
-      
-      /* Create a new GdkBitmap and copy the mini icon mask to it */
-      *mask = gdk_pixmap_new (NULL, 16, 16, 1);
-      gc = gdk_gc_new (*mask);
-      gc_private = (GdkGCPrivate*) gc;
-      private = (GdkPixmapPrivate*) (*mask);
-      XCopyArea (private->xdisplay, atomdata[1], private->xwindow, gc_private->xgc,
-		 0, 0, 16, 16, 0, 0);
-      gdk_gc_destroy (gc);
-      g_free (atomdata);
-    }
+  if (!atomdata) {
+    *pixmap = NULL;
+    return;
+  }
+
+  if (!atomdata[0]) {
+    *pixmap = NULL;
+    return;
+  }
+
+  /* Get icon size and depth */
+  XGetGeometry (xdisplay, (Drawable)atomdata[0], &root, &x, &y, 
+		&width, &height, &b, &depth);
+  
+  /* Create a new GdkPixmap and copy the mini icon pixmap to it */
+  *pixmap = gdk_pixmap_new (NULL, 16, 16, depth);
+  gc = gdk_gc_new (*pixmap);
+  gc_private = (GdkGCPrivate*) gc;
+  private = (GdkPixmapPrivate*) *pixmap;
+  XCopyArea (private->xdisplay, atomdata[0], private->xwindow, gc_private->xgc,
+	     0, 0, width, height, 0, 0);
+  gdk_gc_destroy (gc);
+  
+  /* Create a new GdkBitmap and copy the mini icon mask to it */
+  *mask = gdk_pixmap_new (NULL, 16, 16, 1);
+  gc = gdk_gc_new (*mask);
+  gc_private = (GdkGCPrivate*) gc;
+  private = (GdkPixmapPrivate*) (*mask);
+  XCopyArea (private->xdisplay, atomdata[1], private->xwindow, gc_private->xgc,
+	     0, 0, 16, 16, 0, 0);
+  gdk_gc_destroy (gc);
+  g_free (atomdata);
 }
 
 void
