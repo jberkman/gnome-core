@@ -708,27 +708,30 @@
 
   
   <sect1 id="classes">
-    <title>Terminal classes</title> 
+    <title>Terminalklassen</title> 
 
-    <para>The GNOME terminal allows you to have different
-      configuration profiles to suit different uses (different
-      background colours, presence, absence or position of scrollbars,
-      and so on).  To set these up, invoke the
-      <interface>Preferences</interface> dialogue from the
-      <guimenu>Settings</guimenu> menu of &term;. Select the options
-      you prefer (these changes will be made to your currently-open
-      terminal, so you can see what they look like), and before
-      closing the preferences box, make sure you have put a new name
-      in the <guilabel>Terminal Class</guilabel> field.
+    <para>
+      Das &term; unterstützt verschiedene Konfigurationprofile, so daß
+      es sich für verschiedene Zwecke einsetzen läßt (verschiedene
+      Hintergrundfarben, Vorhandensein und Position von Rollbalken usw.).
+      Um diese einzurichten, starten Sie den &props-dlg; aus dem
+      <guimenu>Einstellungen</guimenu>-Menü. Machen Sie dann alle
+      gewünschten Änderungen (sie wirken sich auf Ihr gegenwärtiges
+      Terminal aus, so daß Sie sehen können, wie es aussehen wird)
+      und geben einen neuen Namen in das Feld
+      <guilabel>Terminalklasse</guilabel> ein, bevor Sie das Dialogfeld
+      schließen.
     </para>
     
-    <para>To activate a specific class at program startup you can use
-      the <option>--tclass</option> command line option
+    <para>
+      Um beim Programmstart eine bestimmte Terminalklasse zu aktivieren,
+      können Sie den Kommandozeilenparameter <option>--tclass</option>
+      benutzen.
     </para>
   </sect1>
   
   <sect1 id="options">
-    <title>Command line options</title>
+    <title>Kommandozeilenparameter</title>
     <para>
       <itemizedlist>
 	<listitem>
@@ -736,10 +739,10 @@
 	    </option>
 	  </para>
 	  
-	  <para>Used to specify the 
-	    background colour for the terminal at startup.  The
-	    <replaceable>COLOUR</replaceable> can be
-	    any form accepted by your windowing system.
+	  <para>
+	    Bestimmt die Hintergrundfarbe des Terminals beim Programmstart.
+	    Dabei kann <replaceable>COLOUR</replaceable> jede von Ihrem
+	    Fenstersystem akzeptierte Farbe sein.
 	  </para>
 	</listitem>
 	
@@ -747,8 +750,7 @@
 	  <para><option>--tclass <replaceable>CLASSNAME</replaceable>
 	    </option></para>
 	  <para>
-	    Specifies the terminal class used to configure the
-	    terminal at startup.
+	    Bestimmt die beim Programmstart benutzte Terminalklasse.
 	  </para>
 	</listitem>
 	
@@ -757,7 +759,7 @@
 	      -e <replaceable>CMD</replaceable>
 	    </option></para>
 	  <para>
-	    Runs the <replaceable>CMD</replaceable> command at startup time.
+	    Führt den Befehl <replaceable>CMD</replaceable> aus.
 	  </para>
 	</listitem>
 
@@ -766,19 +768,19 @@
 	      -x <replaceable>CMD ARGS</replaceable>
 	    </option></para>
 	  <para>
-	    Executes the command <replaceable>CMD</replaceable> with
-	    its arguments <replaceable>ARGS</replaceable> on startup.
-	    No arguments beyond this one will be processed by the
-	    terminal.  This behaviour mimics the <command>xterm
-	      -e</command> behaviour.
+	    Führt den Befehl <replaceable>CMD</replaceable> mit den
+	    Argumenten  <replaceable>ARGS</replaceable> aus. Hinter
+	    diesem Argument werden keine weiteren Argumente vom Terminal
+	    interpretiert. Dies klont das Verhalten von
+	    <command>xterm -e</command>.
 	  </para>
 	</listitem>
 	
 	<listitem>
 	  <para><option>--font <replaceable>FONT</replaceable></option></para>
 	  <para>
-	    Sets the font of the terminal to
-	    <replaceable>FONT</replaceable> 
+	    Setzt die im Terminal verwendete Schriftart auf
+	    <replaceable>FONT</replaceable>.
 	  </para>
 	</listitem>
 	
@@ -786,8 +788,8 @@
 	  <para><option>--foreground <replaceable>COLOUR</replaceable>
 	    </option></para>
 	  <para>
-	    Sets the foreground of the terminal to
-	    <replaceable>COLOUR</replaceable> .
+	    Setzt die Vordergrundfarbe des Terminals auf
+	    <replaceable>COLOUR</replaceable>.
 	  </para>
 	</listitem>
 	
@@ -795,11 +797,11 @@
 	  <para><option>--geometry <replaceable>GEOMETRY</replaceable>
 	    </option></para>
 	  <para>
-	    Specifies the startup geometry for this terminal.  The
-	    geometry specifies the desired width and height in
-	    terminal characters.  For example:
-	    <option>--geometry=80x40</option> will create an
-	    eighty-column by forty-line terminal.</para>
+	    Bestimmt die Geometrie dieses Terminals. Die Geometrie bestimmt
+	    die gewünschte Breite und Höhe in Terminal-Zeichen. Zum Beispiel
+	    erzeugt <option>--geometry=80x40</option> ein Terminal mit
+	    80 Spalten und 40 Zeilen.
+	  </para>
 	  <!--
 	<para>FIXME: LInk to gnome-libs document on GEOMETRY
 	  specifications when it is written
@@ -809,8 +811,8 @@
 	<listitem>
 	  <para><option>--login</option></para>
 	  <para>
-	    Make &term; launch the shell in login mode (it will run
-	    all of your login initialization scripts in this mode). 
+	    Läßt &term; die Shell als Login-Shell starten (dies läßt alle
+	    beim Login üblichen Initialisierungsskripts ablaufen).
 	  </para>
 	</listitem>
 	
@@ -818,40 +820,41 @@
 	  <para><option>--nologin</option>
 	  </para>
 	  <para>
-	    Make &term; only launch a shell, without running any
-	    login initialization scripts.
+	    Läßt &term; lediglich eine Shell starten, ohne die beim Login
+	    üblichen Initialisationsskripte ablaufen zu lassen.
 	  </para>
 	</listitem>
 	
 	<listitem>
 	  <para><option>--noutmp</option></para>
 	  <para>
-	    Indicates that this and the associated shell should not be
-	    registered in the system database of users logged into the
-	    computer. 
+	    Bestimmt, das dieses Terminal und die zugehörige Shell sich
+	    nicht in der Systemdatenbank eintragen, in der alle zur Zeit
+	    eingeloggten Benutzer registriert sind.
 	  </para>
 	</listitem>
 	
 	<listitem>
 	  <para><option>--utmp</option></para>
 	  <para>
-	    Indicates that the user wants this terminal to be
-	    registered in the system database of users logged into
-	    the computer (the utmp database).  This is the default.
+	    Sort dafür, daß sie zum Terminal gehörende Shell sich in die
+	    Systemdatenbank einträgt, in der alle zur Zeit eingeloggten
+	    Benutzer registriert sind (die sogenannte utmp-Datenbank).
+	    Dies ist die Standardeinstellung.
 	  </para>
 	</listitem>
 
 	<listitem>
 	  <para><option>--lastlog</option></para>
 	  <para>
-	    Always create a lastlog entry for each terminal login.
+	    Immer einen lastlog-Eintrag für jedes Terminal-Login erzeugen.
 	  </para>
 	</listitem>
 	
 	<listitem>
-	  <para><option>--lastlog</option></para>
+	  <para><option>--nolastlog</option></para>
 	  <para>
-	    Do not create a lastlog entry for each terminal login.
+	    Keinen lastlog-Eintrag für jedes Terminal-Login erzeugen.
 	  </para>
 	</listitem>
 	
@@ -860,8 +863,8 @@
 	      -t <replaceable>TITLE</replaceable>
             </option></para>
 	  <para>
-	    Makes &term use <replaceable>TITLE</replaceable> for the
-	    window caption.
+	    Läßt &term <replaceable>TITLE</replaceable> als Fenstertitel
+	    verwenden.
 	  </para>
 	</listitem>
 
@@ -869,69 +872,71 @@
 	  <para><option>--termname <replaceable>TERMNAME</replaceable>
 	    </option></para>
 	  <para>
-	    Makes &term; use
-	    <replaceable>TERMNAME</replaceable> as the value of the
-	    <envar>TERM</envar> environment variable.
+	    Läßt &term; <replaceable>TERMNAME</replaceable> als Wert für
+	    die Umgebungsvariable <envar>TERM</envar> verwenden.
 	  </para>
 	</listitem>
 
 	<listitem>
 	  <para><option>--start-factory-server</option></para>
 	  <para>
-	    Try to start the TerminalFactory service for this
-	    terminal (see below). 
+	    Versucht, den TerminalFactory-Service für dieses Terminal
+	    zu starten (siehe unten).
 	  </para>
 	</listitem>
 
 	<listitem>
 	  <para><option>--use-factory</option></para>
 	  <para>
-	    If there is already a terminal process started with
-	    <option>--start-factory-server</option> option, then
-	    running the command <command>gnome-terminal
-	      --use-factory</command> will create a new terminal
-	    window owned by the existing teminal process. In other
-	    words, it will have the same effect as choosing
+	    Wenn bereits ein Terminal-Prozess läuft, der mit der
+	    <option>--start-factory-server</option>-Option gestartet
+	    wurde, startet der Befehl
+	    <command>gnome-terminal --use-factory</command> ein neues
+	    Terminal, das zu dem existierenden Terminal-Prozess gehört.
+	    Das heißt, es hat denselben Effekt als wenn Sie
 	    <link linkend="menu-file">
-              <menuchoice><guimenu>File</guimenu>
-		<guimenuitem>New
-		  terminal</guimenuitem></menuchoice></link> in the
-	    existing terminal. 
+              <menuchoice><guimenu>Datei</guimenu>
+		<guimenuitem>Neues Terminal</guimenuitem>
+	      </menuchoice>
+	    </link> im existierenden Terminal wählen würden.
 	  </para>
-	  <para> 
-	    If there is no TerminalFactory running, then this option has no
-	    effect. 
+	  <para>
+	    Wenn keine TerminalFactory aktiv ist, hat diese Option keine
+	    Auswirkungen.
 	  </para>
 	</listitem>
       </itemizedlist>		
     </para>
-    <para>You can use more than one option at once: for example, on
-      a machine with the text-based web browser
-      <application>Lynx</application> installed, <command>gnome-terminal
-	--title Web --command lynx</command> will open a &term; which
-      starts up <application>Lynx</application> and has a
-      titlebar which says "Web".
+    <para>
+      Sie können selbstverständig mehr als eine diese Optionen gleichzeitig
+      verwenden, wenn Sie zum Beispiel den textbasierten Web-Browser
+      <application>Lynx</application> installiert haben, starte
+      <command>gnome-terminal --title Web --command lynx</command> ein
+      &term;, in dem <application>Lynx</application> abläuft und dessen
+      Titel "Web" ist.
     </para>
 
   </sect1>
   
   <sect1 id="environment">
-    <title>Environment</title>
+    <title>Umgebung</title>
     <para>
-      The following variables are set by &term;: 
+      Folgende Variablen werden vom &term; gesetzt:
       <itemizedlist>
 	<listitem>
 	  <para><envar>TERM</envar></para>
 
 	  <para>
-	    This variable is set to "xterm" by default.  Some curses
-	    implementations and applications based on curses might want
-	    the value to be xterm-color, color-xterm or xterm-debian to
-	    support colour.  You might need to change this setting if
-	    your application does not display in colour to one of those
-	    values.  This can now be set via the
-	    <option>--termname </option> <link linkend="options">command
-	      line option</link>.
+	    Diese Variable wird standardmäßig auf "xterm" gesetzt.
+	    Einige curses-Implementationen und curses-basierende
+	    Applikationen benötigen eventuell "xterm-color" oder
+	    "xterm-debian", um Farben zu unterstützen. Sie müssen diese
+	    Variable daher unter Umständen ändern, falls Ihre Applikation
+	    sonst keine Farben darstellt.
+	    Dies kann mittlerweile über den
+	    <option>--termname </option>
+	    <link linkend="options">Kommandozeilenparameter</link>
+	    geschehen.
 	  </para>
 	</listitem>
 
@@ -939,10 +944,10 @@
 	  <para><envar>COLORTERM</envar></para>
 
 	  <para>
-	    This variable is set to "gnome-terminal".
-	    Various applications (especially the
-	    Slang-based applications) use this setting to determine 
-	    whether the terminal supports colour.
+	    Diese Variable wird auf "gnome-terminal" gesetzt. Zahlreiche
+	    Applikationen (insbesondere die Slang-basierten Applikationen)
+	    benutzen diesen Wert um festzustellen, ob das Terminal Farben
+	    unterstützt.
 	  </para>
 	</listitem>
 
@@ -950,9 +955,9 @@
 	  <para><envar>WINDOWID</envar></para>
 
 	  <para>
-	    This variable contains the X11 Window identifier.
-	    This is used sometimes by applications to modify the
-	    contents of this window or provide special effects.
+	    Diese Variable enthält die X11-Fenster-ID. Sie wird manchmal
+	    von Applikationen dazu benutzt, die Inhalt dieses Fenster zu
+	    änden oder spezielle Effekte zu bieten.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -960,42 +965,40 @@
   </sect1>
   
   <sect1 id="Authors">
-    <title>Authors</title>
+    <title>Autoren</title>
 
     <para>
-      A large number of people work together to bring you the
-	&term;:</para>
-
-    <para>
-      Michael Zucchi coded the Zvt widget engine; Miguel de Icaza
-      and Jay Painter improved it and did further debugging and
-      maintenance.   George Lebl added transparency and backing
-      pixmap support to the widget.  Michael Zucchi later
-      significantly improved the transparency and pixmap support,
-      adding smoother/faster display and an optional scrolling mode.
+      Eine große Anzahl von Personen hat mitgeholfen, Ihnen das &term;
+      zu schaffen.
     </para>
 
     <para>
-      Miguel did the main gnome terminal program, and Erik Troan
-      provided the terminal class support along with various other
-      features.  Jeff Garzik, Jay, Christopher Blizzard, Michael,
-      Jens Lautenbacher, Tom Tromey, Tristan Tarrant, Jonathan
-      Blandford and Michael Zucchi provided extra bug fixes and
-      minor enhancements.  Nat Friedman reviewed the user interface to
-      conform to the GNOME guidelines.  Felix Bellaby, Tom Tromey
-      and Manish Vachharajani implemented and improved the session
-      management code.
+      Michael Zucchi schrieb die Zvt-Widget-Engine; Miguel de Icaza und
+      Jay Painter haben sie weiterentwickelt, verbessert und verwaltet.
+      George Lebl fügte dem Widget die Unterstützung von Transparenz und
+      Pixmap-Hintergründen hinzu; dies wurde später von Michael Zucchi
+      signifikant weiterentwickelt, er implementierte ebenfalls eine
+      glattere/schellere Anzeige und einen optionalen Roll-Mode.
+    </para>
+
+    <para>
+      Miguel schrieb das Haupt-&term;-Programm, und Erik Troan fügte
+      Terminalklassen und zahlreiche andere Features hinzu.
+      Jeff Garzik, Jay, Christopher Blizzard, Michael, Jens Lautenbacher,
+      Tom Tromey, Tristan Tarrant, Jonathan Blandford und Michael Zucchi
+      haben zahlreiche Fehler verbessert und kleinere Verbesserungen
+      vorgenommen. Nat Friedman stelle sicher, daß das Benutzerinterface
+      mit den GNOME-Richtlinen übereinstimmt. Felix Bellaby, Tom Tromey
+      und Manish Vachharajani haben das Sitzungsmanagement implementiert
+      und weiterentwickelt.
     </para>
 
     <para> 
-      Please send all comments, suggestions, and bug reports to the
-      <ulink url="http://bugs.gnome.org" type="http">GNOME bug
-	tracking database</ulink>. Instructions for submitting bug reports
-      can be found on-line at <ulink
-	url="http://bugs.gnome.org/Reporting.html" type="http">
-	http://bugs.gnome.org/Reporting.html</ulink>. If you are using GNOME
-      1.1 or later, you can also use command
-      <command>bug-buddy</command> for submitting bug reports. 
+      Bitte senden Sie alle Kommentare, Anregungen und Fehlerberichte an
+      die <ulink url="http://bugs.gnome.org" type="http">GNOME-Problemdatenbank</ulink>. Eine Anleitung zum Berichten von Fehlern findet sich online unter
+      <ulink url="http://bugs.gnome.org/Reporting.html" type="http">http://bugs.gnome.org/Reporting.html</ulink>. Falls Sie GNOME 1.1 oder neuer verwenden,
+      können Sie auch den Befehl <command>bug-buddy</command> verwenden,
+      um Fehler zu berichten.
     </para>
   </sect1>
   
