@@ -31,7 +31,8 @@
 /* Toolbar pixmaps */
 #include "contents.xpm"
 
-#define IMAGE_TEMPFILE "/tmp/gnome-help-browser.tmpfile"
+#define DEFAULT_HEIGHT 500
+#define DEFAULT_WIDTH  600
 
 struct _helpWindow {
     /* Main app widget */
@@ -741,7 +742,8 @@ helpWindowNew(gchar *name,
 	if (width && height)
 		gtk_widget_set_usize(GTK_WIDGET(w->app), width, height); 
 	else
-		gtk_widget_set_usize(GTK_WIDGET(w->app), 600, 450); 
+		gtk_widget_set_usize(GTK_WIDGET(w->app), 
+				     DEFAULT_WIDTH, DEFAULT_HEIGHT); 
 
 	if (x != y)
 		gtk_widget_set_uposition(GTK_WIDGET(w->app), x, y);
