@@ -1469,7 +1469,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 	gtk_widget_show (app);
 	set_color_scheme (term, cfg);
 
-	switch (zvt_term_forkpty (term)){
+	switch (zvt_term_forkpty (term, cfg->invoke_as_login_shell)){
 	case -1:
 		perror ("Error: unable to fork");
 		return;
