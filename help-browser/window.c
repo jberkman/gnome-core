@@ -163,11 +163,17 @@ GnomeUIInfo helpmenu[] = {
 };
  
 GnomeUIInfo windowmenu[] = {
-    GNOMEUIINFO_ITEM(N_("History"), N_("Show History Window"),
-		     ghelpShowHistory, NULL),
-    GNOMEUIINFO_ITEM(N_("Bookmarks"), N_("Show Bookmarks Window"),
-		     ghelpShowBookmarks, NULL),
-    GNOMEUIINFO_END
+	{GNOME_APP_UI_ITEM, 
+	 N_("History"), N_("Show History Window"),
+         ghelpShowHistory, NULL, NULL, 
+	 GNOME_APP_PIXMAP_NONE, NULL,
+	 0, 0, NULL},
+	{GNOME_APP_UI_ITEM, 
+	 N_("Bookmarks"), N_("Show Bookmarks Window"),
+         ghelpShowBookmarks, NULL, NULL, 
+	 GNOME_APP_PIXMAP_NONE, NULL,
+	 0, 0, NULL},
+	 GNOMEUIINFO_END
 };
 
 GnomeUIInfo mainmenu[] = {
