@@ -14,6 +14,17 @@
         #include <bzlib.h>
 #endif
 
+#ifdef HAVE_LIBBZ2_1_0
+/* libbz2 1.0 compatibility macros */
+# define bzopen  BZ2_bzopen
+# define bzclose BZ2_bzclose
+# define bzdopen BZ2_bzdopen
+# define bzerror BZ2_bzerror
+# define bzflush BZ2_bzflush
+# define bzread  BZ2_bzread
+# define bzwrite BZ2_bzwrite
+#endif
+
 #include <glib.h>
 
 #include "misc.h"
