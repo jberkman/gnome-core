@@ -92,24 +92,23 @@ static void close_callback (GtkWidget *widget, void *data);
 static char *
 mail_animation_filename ()
 {
-	char *fname;
-
-	fname = g_strdup(animation_file);
-	if (fname && *fname){
-		if (g_file_exists (fname))
-			return fname;
-		else
-			g_free (fname);
-	} else if(fname && !*fname) {
-		g_free (fname);
+	if(!animation_file) {
+		animation_file =
+			gnome_unconditional_pixmap_file("mailcheck/email.xpm");
+		if (g_file_exists (animation_file))
+			return g_strdup(animation_file);
+		g_free (animation_file);
+		animation_file = NULL;
+		return NULL;
+	} else if (*animation_file){
+		if (g_file_exists (animation_file))
+			return g_strdup(animation_file);
+		g_free (animation_file);
+		animation_file = NULL;
+		return NULL;
+	} else
 		/*we are using text only, since the filename was ""!*/
 		return NULL;
-	}
-	fname = gnome_unconditional_pixmap_file ("mailcheck/email.xpm");
-	if (g_file_exists (fname))
-		return fname;
-	g_free (fname);
-	return NULL;
 }
 
 /*
@@ -502,7 +501,7 @@ shutdown_applet(int id)
 	gtk_idle_add(quit_applet,NULL);
 }
 
-static int
+static void
 properties_corba_callback(int id, gpointer data)
 {
 	mailcheck_properties();
