@@ -70,13 +70,14 @@ main(int argc,
     if(argc > 1
        && !strcmp(argv[1], "--init")) {
 #ifdef TESTING
-    gnome_init ("sound-properties", VERSION, argc, argv);
+        gnome_init ("sound-properties", VERSION, argc, argv);
 #else
-    gnome_capplet_init ("sound-properties", VERSION, argc, argv, NULL, 0, NULL);
+        gnome_capplet_init ("sound-properties", VERSION, argc, argv, NULL, 0, NULL);
 #endif
-
+    }
+    
     sound_properties = sound_properties_create();
-
+    
 #ifdef TESTING
     gtk_main();
 #else
