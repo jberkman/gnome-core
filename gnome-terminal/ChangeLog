@@ -1,8 +1,15 @@
 1998-05-06  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
+	(new_terminal): From Thomas Dickey: many emulation programs got
+	this wrong, so I am using TERM=xterm for now instead of
+	xterm-color which has by default a broken terminfo regarding the
+	reset capability in most distributions. 
+	
 	* gnome-terminal.c (gnome_term_set_font): Load both the regular
 	and bold fonts from the same name.  On the Indy, the different
 	fonts do not look terribly good. 
+	(set_color_scheme): Support the default background/foreground on
+	the code. 
 
 1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 

@@ -603,7 +603,7 @@ new_terminal (void)
 		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
 			if (strncmp (*p, "TERM", 4) == 0)
-				env_copy [i++] = "TERM=xterm-color";
+				env_copy [i++] = "TERM=xterm";
 			else if ((strncmp (*p, "COLUMNS", 7) == 0) || (strncmp (*p, "LINES", 5) == 0)){
 				/* nothing: do not copy those */
 			} else
