@@ -92,8 +92,11 @@ GList *newGhelpTable(struct _toc_config *conf)
     {
         int i;
 
-        for (i = tmp_array_elems - 1; i >= 0; i--)
-            list = g_list_prepend(list, tmp_array[i]);
+        for (i = tmp_array_elems - 1; i > 0; i--) {
+	    if (compareItems(&tmp_array[i],&tmp_array[i-1]) != 0) 
+                list = g_list_prepend(list, tmp_array[i]);
+	}
+	list = g_list_prepend(list, tmp_array[0]);
 
         g_free(tmp_array);
     }

@@ -53,12 +53,17 @@ GList *newManTable(struct _toc_config *conf)
     gchar filename[BUFSIZ];
     DIR *d;
     struct dirent *dirp;
+    char *lang;
+    GList *lang_list = NULL;
     GList *list = NULL;
+    GList *temp = NULL;
     struct _big_table_entry *entry;
     gchar *s;
     int tmp_array_size = 256, tmp_array_elems = 0;
     struct _big_table_entry **tmp_array = g_new(struct _big_table_entry *,
                                                 tmp_array_size);
+
+    lang_list = gnome_i18n_get_language_list ("LC_MESSAGE");
 
     while (conf->path) {
 	if (conf->type != TOC_MAN_TYPE) {
@@ -67,7 +72,18 @@ GList *newManTable(struct _toc_config *conf)
 	}
 	p = man_sections;
 	while (p->ch) {
-	    g_snprintf(dirname, sizeof(dirname), "%s/man%c", conf->path, p->ch);
+	  temp = lang_list;
+	  while (temp)
+	  {
+	    lang = (gchar*) temp->data;
+	    if (strcmp(lang,"C") == 0) {
+	    	g_snprintf(dirname, sizeof(dirname), "%s/man%c",
+				conf->path, p->ch);
+	    } else {
+		g_snprintf(dirname, sizeof(dirname), "%s/%s/man%c",
+				conf->path, lang, p->ch);
+	    }
+	    temp = temp->next;	
 	    d = opendir(dirname);
 	    if (d) {
 	        while (d && (dirp = readdir(d))) {
@@ -82,6 +98,16 @@ GList *newManTable(struct _toc_config *conf)
 		    entry->filename = g_strdup(filename);
 
 		    entry->name = g_strdup(dirp->d_name);
+		    /* first delete any possible compression extension */
+		    if ((s = strrchr(entry->name, '.'))) {
+			if ((strcmp(s,".gz") == 0) ||
+			    (strcmp(s,".Z") == 0) ||
+			    (strcmp(s,".bz2") == 0) ||
+			    (strcmp(s,".bz") == 0) ||
+			    (strcmp(s,".z") == 0))
+				*s = '\0';
+		    }
+		    /* and then the section or .man extension */
 		    if ((s = strrchr(entry->name, '.'))) {
 			*s = '\0';
 		    }
@@ -103,6 +129,7 @@ GList *newManTable(struct _toc_config *conf)
 		    p->flag = 1;
 		}
 		closedir(d);
+	      }
 	    }
 
 	    p++;
@@ -118,8 +145,11 @@ GList *newManTable(struct _toc_config *conf)
     {
         int i;
 
-        for (i = tmp_array_elems - 1; i >= 0; i--)
-            list = g_list_prepend(list, tmp_array[i]);
+        for (i = tmp_array_elems - 1; i > 0; i--) {
+            if (compareItems(&tmp_array[i],&tmp_array[i-1]) != 0)
+                list = g_list_prepend(list, tmp_array[i]);
+        }
+        list = g_list_prepend(list, tmp_array[0]);
 
         g_free(tmp_array);
     }
