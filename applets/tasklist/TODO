@@ -8,3 +8,6 @@
 	of rows to be visible, not pixels
 5.  vertical tasklists should be able to have a
 	scrollbar, since they don't auto-shrink
+6.  fix tasklist width being hardcoded to max
+	of 1024; some people have higher res,
+	and a short tasklist looks odd.
