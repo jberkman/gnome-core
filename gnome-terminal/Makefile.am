@@ -46,5 +46,5 @@ gnome_terminal_LDADD = $(LDADD)
 gnorbadir = $(sysconfdir)/CORBA/servers
 gnorba_DATA = gnome-terminal.gnorba
 
-utildir = $(datadir)/gnome/apps/Utilities
+utildir = $(datadir)/gnome/apps/System
 util_DATA = gnome-terminal.desktop
