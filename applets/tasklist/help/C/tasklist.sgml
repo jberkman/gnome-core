@@ -1,5 +1,4 @@
 
- 
 
   
 
@@ -39,9 +38,7 @@
     criteria you've set in the <link
     linkend="tasklist-applet-properties">properties window</link>. Clicking
     on an icon or application name gives focus to that application,
-    bringing it to the foreground so it accepts your keyboard input,
-    but only if it is located in the virtual desktop you are
-    currently using.</para>
+    bringing it to the foreground so it accepts your keyboard input.</para>
 
     <para>Right-clicking with the mouse on an application's icon or
     text in the applet brings up the following menu:</para>
@@ -173,6 +170,14 @@
 	  to <link linkend="tasklist-rightclick-fig">kill an
 	  application</link>.</para>
 	</listitem>
+	  <listitem>
+	    <para><guilabel>Move iconified tasks to current workspace
+	    when restoring</guilabel> &mdash; automatically switches
+	    the desktop work area on your screen to the one containing
+	    the application you click on in the
+	    <application>Tasklist</application> panel.</para>
+	  </listitem>
+
 
       </itemizedlist>
 
