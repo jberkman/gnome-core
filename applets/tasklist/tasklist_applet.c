@@ -552,7 +552,8 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 
 	if (event->button == 1) {
 		if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task)) {
-			if (!Config.move_to_current) {
+			
+			if (!(Config.move_to_current && GWMH_TASK_ICONIFIED (task->gwmh_task))) {
 				GwmhDesk *desk_info;
 				desk_info = gwmh_desk_get_config ();
 				
