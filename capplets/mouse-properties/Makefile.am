@@ -15,5 +15,5 @@ mouse_properties_LDADD = ../../control-center/libcapplet.la \
 EXTRA_DIST = \
 	mouse-properties.desktop
 
-sysdir = $(datadir)/control-center/Peripherals
+sysdir = $(datadir)/control-center/Inputdevs
 sys_DATA = mouse-properties.desktop
