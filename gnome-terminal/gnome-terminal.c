@@ -2112,7 +2112,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 		env_copy [i] = NULL;
 	}
 
-	app = gnome_app_new ("Terminal", "Terminal");
+	app = gnome_app_new ("Terminal", _("Terminal"));
 	/* override the title if it was in the config */
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);

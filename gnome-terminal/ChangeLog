@@ -1,3 +1,7 @@
+2001-02-14  Christophe Merlet  <redfox@eikonex.org>
+
+	* gnome-terminal.c: Marqued string for translation.
+
 2001-01-16  jacob berkman  <jacob@ximian.com>
 
 	* gnome-terminal.glade: cosmetic improvements
