@@ -945,7 +945,7 @@ gwmh_task_update (GwmhTask        *task,
   if (imask & GWMH_TASK_INFO_GSTATE)
     {
       guint32 *flags;
-      GnomeWinState gstate;
+      GwmhState gstate;
       gboolean was_sticky = GWMH_TASK_STICKY (task);
       
       flags = get_typed_property_data (xdisplay, xwindow,
@@ -1032,7 +1032,7 @@ gwmh_task_update (GwmhTask        *task,
   if (imask & GWMH_TASK_INFO_GHINTS)
     {
       guint32 *ghint_data;
-      GnomeWinHints ghints;
+      GwmhHints ghints;
       
       ghint_data = get_typed_property_data (xdisplay, xwindow,
 					    GWMHA_WIN_HINTS,
@@ -1726,8 +1726,8 @@ gwmh_task_show (GwmhTask *task)
 			    GWMHA_WIN_STATE,
 			    SubstructureNotifyMask,
 			    3,
-			    WIN_STATE_SHADED,
-			    0, CurrentTime);
+			    GWMH_STATE_SHADED, 0,
+			    CurrentTime);
   
   gwmh_sync ();
   
@@ -1748,8 +1748,8 @@ gwmh_task_raise (GwmhTask *task)
 }
 
 void
-gwmh_task_set_gstate_flags (GwmhTask     *task,
-			    GnomeWinState flags)
+gwmh_task_set_gstate_flags (GwmhTask *task,
+			    GwmhState flags)
 {
   g_return_if_fail (task != NULL);
 
@@ -1763,8 +1763,8 @@ gwmh_task_set_gstate_flags (GwmhTask     *task,
 }
 
 void
-gwmh_task_unset_gstate_flags (GwmhTask     *task,
-			     GnomeWinState flags)
+gwmh_task_unset_gstate_flags (GwmhTask *task,
+			      GwmhState flags)
 {
   g_return_if_fail (task != NULL);
 
@@ -1778,8 +1778,8 @@ gwmh_task_unset_gstate_flags (GwmhTask     *task,
 }
 
 void
-gwmh_task_set_ghint_flags (GwmhTask     *task,
-			   GnomeWinHints flags)
+gwmh_task_set_ghint_flags (GwmhTask *task,
+			   GwmhHints flags)
 {
   g_return_if_fail (task != NULL);
 
@@ -1793,8 +1793,8 @@ gwmh_task_set_ghint_flags (GwmhTask     *task,
 }
 
 void
-gwmh_task_unset_ghint_flags (GwmhTask     *task,
-			     GnomeWinHints flags)
+gwmh_task_unset_ghint_flags (GwmhTask *task,
+			     GwmhHints flags)
 {
   g_return_if_fail (task != NULL);
 
@@ -1878,8 +1878,8 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
 }
 
 void
-gwmh_task_set_layer (GwmhTask     *task,
-		     GnomeWinLayer layer)
+gwmh_task_set_layer (GwmhTask *task,
+		     GwmhLayer layer)
 {
   g_return_if_fail (task != NULL);
 

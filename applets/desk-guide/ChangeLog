@@ -1,3 +1,25 @@
+Fri Sep 17 13:55:27 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: show hidden tasks by default.
+
+	* gwmh.[hc]: added GwmhHints, GwmhState and GwmhLayer enums, adapted
+	code to not use the namespace polluting WIN_* cruft from gnome
+	anymore.
+
+Fri Sep 17 13:17:31 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: feature ->raised_grid in property dialog.
+
+	* gwmdesktop.[hc]: added ->raised_grid class field so people that want
+	it can have the grid drawn on top of the tasks.
+
+	* gwmdesktop.c (gwm_desktop_map): make sure we are queued for a redraw
+	if we draw double buffered, since our expose handler relies on ::draw
+	being already called.
+
+	* gwmdesktop.c (gwm_desktop_draw): always draw border on top of the
+	tasks.
+
 1999-09-15  Kjartan Maraas  <kmaraas@online.no>
 
 	* deskguide_applet.c: Replaced TRANSL with _() to get the
@@ -11,10 +33,10 @@
 Sat Sep 11 17:59:16 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmdesktop.c (gwm_desktop_button_press): supplement the x_comp and
-	y_comp values by the frame - win position distance.
+	y_comp values by the (frame - win) position distance.
 
-	* gwmdesktop.c (gwmh_desktop_motion): don't recalculate win.{x,y} -
-	frame.{x,y} upon every single move, simply rely on x_comp and y_comp.
+	* gwmdesktop.c (gwmh_desktop_motion): don't recalculate (win.{x,y} -
+	frame.{x,y}) upon every single move, simply rely on x_comp and y_comp.
 
 Sat Sep 11 17:27:35 1999  Tim Janik  <timj@gtk.org>
 

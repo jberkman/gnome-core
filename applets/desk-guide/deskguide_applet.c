@@ -76,7 +76,7 @@ static ConfigItem gp_config_items[] = {
   
   CONFIG_PAGE ("Tasks"),
   CONFIG_SECTION (task_visibility,			  "Visibility"),
-  CONFIG_BOOL (show_hidden_tasks,	FALSE,
+  CONFIG_BOOL (show_hidden_tasks,	TRUE,
 	       "Show `HIDDEN' Tasks"),
   CONFIG_BOOL (show_shaded_tasks,	TRUE,
 	       "Show `SHADED' Tasks"),
@@ -84,7 +84,10 @@ static ConfigItem gp_config_items[] = {
 	       "Show `SKIP-WINLIST' Tasks"),
   CONFIG_BOOL (show_skip_taskbar,	FALSE,
 	       "Show `SKIP-TASKBAR' Tasks"),
-  CONFIG_SECTION ("", NULL),
+  CONFIG_SECTION (cosmetics,				  "Cosmetics"),
+  CONFIG_BOOL (raise_grid,		FALSE,
+	       "Raise Area Grid Above Tasks"),
+  //  CONFIG_SECTION ("", NULL),
   
   CONFIG_PAGE ("Advanced Options"),
   CONFIG_BOOL (double_buffer,	TRUE,
@@ -505,6 +508,7 @@ gp_init_gui (void)
   
   class = gtk_type_class (GWM_TYPE_DESKTOP);
   class->double_buffer = BOOL_CONFIG (double_buffer);
+  class->raised_grid = BOOL_CONFIG (raise_grid);
   gtk_widget_set_usize (gp_container, 0, 0);
   switch (applet_widget_get_panel_orient (APPLET_WIDGET (gp_applet)))
     {
@@ -724,26 +728,33 @@ gp_config_add_range (GtkWidget  *vbox,
 }
 
 static inline GtkWidget*
-gp_config_add_section (GtkWidget   *parent,
+gp_config_add_section (GtkBox      *parent,
 		       const gchar *section)
 {
+  GtkWidget *widget;
   GtkWidget *box;
   
   if (section)
-    box = gtk_widget_new (GTK_TYPE_VBOX,
-			  "visible", TRUE,
-			  "parent",
-			  gtk_widget_new (GTK_TYPE_FRAME,
-					  "visible", TRUE,
-					  "label", section,
-					  "parent", parent,
-					  NULL),
-			  NULL);
+    {
+      widget = gtk_widget_new (GTK_TYPE_FRAME,
+			       "visible", TRUE,
+			       "label", section,
+			       NULL);
+      box = gtk_widget_new (GTK_TYPE_VBOX,
+			    "visible", TRUE,
+			    "parent", widget,
+			    NULL);
+    }
   else
-    box = gtk_widget_new (GTK_TYPE_VBOX,
-			  "visible", TRUE,
-			  "parent", parent,
-			  NULL);
+    {
+      box = gtk_widget_new (GTK_TYPE_VBOX,
+			    "visible", TRUE,
+			    NULL);
+      widget = box;
+    }
+
+  gtk_box_pack_start (parent, widget, TRUE, TRUE, 0);
+  
   return box;
 }
 
@@ -787,17 +798,17 @@ gp_config_create_page (GSList		*item_slist,
       g_slist_free_1 (node);
       
       if (item->min == -2 && item->max == -2)			/* section */
-	vbox = gp_config_add_section (page, _(item->name));
+	vbox = gp_config_add_section (GTK_BOX (page), _(item->name));
       else if (item->min == -1 && item->max == -1)		/* boolean */
 	{
 	  if (!vbox)
-	    vbox = gp_config_add_section (page, NULL);
+	    vbox = gp_config_add_section (GTK_BOX (page), NULL);
 	  gp_config_add_boolean (vbox, item);
 	}
       else							/* integer range */
 	{
 	  if (!vbox)
-	    vbox = gp_config_add_section (page, NULL);
+	    vbox = gp_config_add_section (GTK_BOX (page), NULL);
 	  gp_config_add_range (vbox, item);
 	}
     }

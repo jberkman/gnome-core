@@ -56,6 +56,40 @@ extern gulong GWMHA_WIN_AREA;
 extern gulong GWMHA_WIN_AREA_COUNT;
 
 
+/* --- enum values --- */
+typedef enum
+{
+  GWMH_LAYER_DESKTOP     = 0,
+  GWMH_LAYER_BELOW       = 2,
+  GWMH_LAYER_NORMAL      = 4,
+  GWMH_LAYER_ONTOP       = 6,
+  GWMH_LAYER_DOCK        = 8,
+  GWMH_LAYER_ABOVE_DOCK  = 10
+} GwmhLayer;
+typedef enum
+{
+  GWMH_STATE_STICKY          = (1<<0), /* window appears on all desktops+areas */
+  GWMH_STATE_MINIMIZED       = (1<<1), /* ??? */
+  GWMH_STATE_MAXIMIZED_VERT  = (1<<2), /* window vertically maximized */
+  GWMH_STATE_MAXIMIZED_HORIZ = (1<<3), /* window horizontally maximized */
+  GWMH_STATE_HIDDEN          = (1<<4), /* ??? */
+  GWMH_STATE_SHADED          = (1<<5), /* only show window's wm decorations */
+  GWMH_STATE_HID_WORKSPACE   = (1<<6), /* ??? */
+  GWMH_STATE_HID_TRANSIENT   = (1<<7), /* owner of transient is hidden */
+  GWMH_STATE_FIXED_POSITION  = (1<<8), /* don't scroll with area */
+  GWMH_STATE_ARRANGE_IGNORE  = (1<<9)  /* ignore for auto arranging */
+} GwmhState;
+typedef enum
+{
+  GWMH_HINTS_SKIP_FOCUS      = (1<<0), /* no ALT+Tab focussing */
+  GWMH_HINTS_SKIP_WINLIST    = (1<<1), /* not in win list */
+  GWMH_HINTS_SKIP_TASKBAR    = (1<<2), /* not on taskbar */
+  GWMH_HINTS_GROUP_TRANSIENT = (1<<3), /* ??? */
+  GWMH_HINTS_FOCUS_ON_CLICK  = (1<<4), /* app only accepts focus when clicked */
+  GWMH_HINTS_DO_NOT_COVER    = (1<<5)  /* attempt to not cover this window */
+} GwmhHints;
+
+
 /* --- GMainLoop priority for update handler --- */
 #define	GWMH_PRIORITY_UPDATE	  (GTK_PRIORITY_RESIZE - 1)
 
@@ -67,19 +101,19 @@ extern gulong GWMHA_WIN_AREA_COUNT;
 #define	GWMH_TASK_APP_STATE(t)	     (GWMH_TASK (t)->app_state /*GNOME*/)
 #define	GWMH_TASK_FOCUSED(t)	     (GWMH_TASK (t)->focused)
 #define	GWMH_TASK_ICONIFIED(t)	     (GWMH_TASK (t)->iconified)
-#define	GWMH_TASK_STICKY(t)	     ((GWMH_TASK_GSTATE (t) & WIN_STATE_STICKY) != 0)
-#define	GWMH_TASK_MINIMIZED(t)	     ((GWMH_TASK_GSTATE (t) & WIN_STATE_MINIMIZED) != 0)
-#define	GWMH_TASK_MAXIMIZED_VERT(t)  ((GWMH_TASK_GSTATE (t) & WIN_STATE_MAXIMIZED_VERT) != 0)
-#define	GWMH_TASK_MAXIMIZED_HORIZ(t) ((GWMH_TASK_GSTATE (t) & WIN_STATE_MAXIMIZED_HORIZ) != 0)
-#define	GWMH_TASK_HIDDEN(t)	     ((GWMH_TASK_GSTATE (t) & WIN_STATE_HIDDEN) != 0)
-#define	GWMH_TASK_SHADED(t)	     ((GWMH_TASK_GSTATE (t) & WIN_STATE_SHADED) != 0)
-#define	GWMH_TASK_HID_WORKSPACE(t)   ((GWMH_TASK_GSTATE (t) & WIN_STATE_HID_WORKSPACE) != 0)
-#define	GWMH_TASK_FIXED_POS(t)	     ((GWMH_TASK_GSTATE (t) & WIN_STATE_FIXED_POSITION) != 0)
-#define	GWMH_TASK_SKIP_FOCUS(t)      ((GWMH_TASK_GHINTS (t) & WIN_HINTS_SKIP_FOCUS) != 0)
-#define	GWMH_TASK_SKIP_WINLIST(t)    ((GWMH_TASK_GHINTS (t) & WIN_HINTS_SKIP_WINLIST) != 0)
-#define	GWMH_TASK_SKIP_TASKBAR(t)    ((GWMH_TASK_GHINTS (t) & WIN_HINTS_SKIP_TASKBAR) != 0)
-#define	GWMH_TASK_GROUP_TRANSIENT(t) ((GWMH_TASK_GHINTS (t) & WIN_HINTS_GROUP_TRANSIENT) != 0)
-#define	GWMH_TASK_FOCUS_ON_CLICK(t)  ((GWMH_TASK_GHINTS (t) & WIN_HINTS_FOCUS_ON_CLICK) != 0)
+#define	GWMH_TASK_STICKY(t)	     ((GWMH_TASK_GSTATE (t) & GWMH_STATE_STICKY) != 0)
+#define	GWMH_TASK_MINIMIZED(t)	     ((GWMH_TASK_GSTATE (t) & GWMH_STATE_MINIMIZED) != 0)
+#define	GWMH_TASK_MAXIMIZED_VERT(t)  ((GWMH_TASK_GSTATE (t) & GWMH_STATE_MAXIMIZED_VERT) != 0)
+#define	GWMH_TASK_MAXIMIZED_HORIZ(t) ((GWMH_TASK_GSTATE (t) & GWMH_STATE_MAXIMIZED_HORIZ) != 0)
+#define	GWMH_TASK_HIDDEN(t)	     ((GWMH_TASK_GSTATE (t) & GWMH_STATE_HIDDEN) != 0)
+#define	GWMH_TASK_SHADED(t)	     ((GWMH_TASK_GSTATE (t) & GWMH_STATE_SHADED) != 0)
+#define	GWMH_TASK_HID_WORKSPACE(t)   ((GWMH_TASK_GSTATE (t) & GWMH_STATE_HID_WORKSPACE) != 0)
+#define	GWMH_TASK_FIXED_POS(t)	     ((GWMH_TASK_GSTATE (t) & GWMH_STATE_FIXED_POSITION) != 0)
+#define	GWMH_TASK_SKIP_FOCUS(t)      ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_SKIP_FOCUS) != 0)
+#define	GWMH_TASK_SKIP_WINLIST(t)    ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_SKIP_WINLIST) != 0)
+#define	GWMH_TASK_SKIP_TASKBAR(t)    ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_SKIP_TASKBAR) != 0)
+#define	GWMH_TASK_GROUP_TRANSIENT(t) ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_GROUP_TRANSIENT) != 0)
+#define	GWMH_TASK_FOCUS_ON_CLICK(t)  ((GWMH_TASK_GHINTS (t) & GWMH_HINTS_FOCUS_ON_CLICK) != 0)
 #define	GWMH_TASK_UPDATE_QUEUED(t)   ((GWMH_TASK (t)->imask_queued | \
 				       GWMH_TASK (t)->imask_notify) != 0)
 
@@ -143,8 +177,8 @@ struct _GwmhTask
   gchar     *name;
 
   /* window's state and hints */
-  GnomeWinState    gstate;
-  GnomeWinHints    ghints;
+  GwmhState        gstate;
+  GwmhHints        ghints;
   GnomeWinAppState app_state;
   guint            focused : 1;
   guint		   iconified : 1;
@@ -269,17 +303,17 @@ void		gwmh_task_focus			(GwmhTask	 *task);
 void		gwmh_task_raise			(GwmhTask	 *task);
 void		gwmh_task_show			(GwmhTask	 *task);
 void		gwmh_task_set_gstate_flags	(GwmhTask	 *task,
-						 GnomeWinState	  flags);
+						 GwmhState	  flags);
 void		gwmh_task_unset_gstate_flags	(GwmhTask	 *task,
-						 GnomeWinState	  flags);
+						 GwmhState	  flags);
 void		gwmh_task_set_ghint_flags	(GwmhTask	 *task,
-						 GnomeWinHints    flags);
+						 GwmhHints        flags);
 void		gwmh_task_unset_ghint_flags	(GwmhTask	 *task,
-						 GnomeWinHints	  flags);
+						 GwmhHints	  flags);
 void		gwmh_task_set_app_state		(GwmhTask	 *task,
 						 GnomeWinAppState app_state);
 void		gwmh_task_set_layer		(GwmhTask	 *task,
-						 GnomeWinLayer    layer);
+						 GwmhLayer        layer);
 void		gwmh_task_set_desktop		(GwmhTask	 *task,
 						 guint		  desktop);
 void		gwmh_task_set_area		(GwmhTask	 *task,

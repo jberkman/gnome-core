@@ -60,6 +60,7 @@ static gboolean gwm_desktop_task_notifier (gpointer	       func_data,
 					   GwmhTask           *task,
 					   GwmhTaskNotifyType  ntype,
 					   GwmhTaskInfoMask    imask);
+static void     gwm_desktop_map           (GtkWidget          *widget);
 static void     gwm_desktop_realize       (GtkWidget          *widget);
 static void     gwm_desktop_size_allocate (GtkWidget          *widget,
 					   GtkAllocation      *allocation);
@@ -137,6 +138,7 @@ gwm_desktop_class_init (GwmDesktopClass *class)
 
   object_class->destroy = gwm_desktop_destroy;
 
+  widget_class->map = gwm_desktop_map;
   widget_class->realize = gwm_desktop_realize;
   widget_class->size_allocate = gwm_desktop_size_allocate;
   widget_class->unrealize = gwm_desktop_unrealize;
@@ -149,6 +151,7 @@ gwm_desktop_class_init (GwmDesktopClass *class)
   class->orientation = GTK_ORIENTATION_HORIZONTAL;
   class->area_size = 22;
   class->double_buffer = TRUE;
+  class->raised_grid = FALSE;
   class->check_task = NULL;
 
   gwm_desktop_signals[SIGNAL_CHECK_TASK] =
@@ -237,6 +240,17 @@ gwm_desktop_realize (GtkWidget *widget)
 				      widget->allocation.width,
 				      widget->allocation.height,
 				      -1);
+}
+
+static void
+gwm_desktop_map (GtkWidget *widget)
+{
+  GwmDesktop *desktop = GWM_DESKTOP (widget);
+
+  if (desktop->pixmap)
+    gtk_widget_queue_clear (widget);
+
+  GTK_WIDGET_CLASS (parent_class)->map (widget);
 }
 
 static void
@@ -569,6 +583,7 @@ gwm_desktop_draw (GtkWidget    *widget,
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
   GtkObject *object = GTK_OBJECT (desktop);
+  GwmDesktopClass *class = GWM_DESKTOP_GET_CLASS (desktop);
   GwmhDesk *desk = gwmh_desk_get_config ();
   GdkWindow *window = desktop->pixmap ? desktop->pixmap : widget->window;
   GtkStyle *style = widget->style;
@@ -594,14 +609,14 @@ gwm_desktop_draw (GtkWidget    *widget,
 
   gdk_flush ();
 
-  /* draw border */
+  /* clear out */
   gtk_draw_box (style,
 		window,
 		GTK_STATE_ACTIVE,
 		current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
 		0, 0,
 		-1, -1);
-
+  
   /* create gc for current area and draw its background */
   if (desk->n_hareas * desk->n_vareas > 1)
     {
@@ -621,21 +636,25 @@ gwm_desktop_draw (GtkWidget    *widget,
       desktop->x_origin = x - xthick / 2;
       desktop->y_origin = y - ythick / 2;
     }
-  
-  /* draw grid */
-  for (x = 1; x < desk->n_hareas; x++)
-    gtk_draw_vline (style, window,
-		    GTK_WIDGET_STATE (widget),
-		    ythick,
-		    ythick + area_height * desk->n_vareas - ythick / 2,
-		    xthick + x * area_width - xthick / 2);
-  for (y = 1; y < desk->n_vareas; y++)
-    gtk_draw_hline (style, window,
-		    GTK_WIDGET_STATE (widget),
-		    xthick,
-		    xthick + area_width * desk->n_hareas - xthick / 2,
-		    ythick + y * area_height - ythick / 2);
 
+  /* draw grid, take 1 */
+  if (!class->raised_grid)
+    {
+      /* draw grid */
+      for (x = 1; x < desk->n_hareas; x++)
+	gtk_draw_vline (style, window,
+			GTK_WIDGET_STATE (widget),
+			ythick,
+			ythick + area_height * desk->n_vareas - ythick / 2,
+			xthick + x * area_width - xthick / 2);
+      for (y = 1; y < desk->n_vareas; y++)
+	gtk_draw_hline (style, window,
+			GTK_WIDGET_STATE (widget),
+			xthick,
+			xthick + area_width * desk->n_hareas - xthick / 2,
+			ythick + y * area_height - ythick / 2);
+    }
+  
   /* draw tasks */
   desktop->task_list = gwmh_task_list_stack_sort (desktop->task_list);
   for (node = desktop->task_list; node; node = node->next)
@@ -690,11 +709,38 @@ gwm_desktop_draw (GtkWidget    *widget,
 		    grab_area->height);
     }
 
+  /* draw grid, take 2 */
+  if (class->raised_grid)
+    {
+      /* draw grid */
+      for (x = 1; x < desk->n_hareas; x++)
+	gtk_draw_vline (style, window,
+			GTK_WIDGET_STATE (widget),
+			ythick,
+			ythick + area_height * desk->n_vareas - ythick / 2,
+			xthick + x * area_width - xthick / 2);
+      for (y = 1; y < desk->n_vareas; y++)
+	gtk_draw_hline (style, window,
+			GTK_WIDGET_STATE (widget),
+			xthick,
+			xthick + area_width * desk->n_hareas - xthick / 2,
+			ythick + y * area_height - ythick / 2);
+    }
+
+  /* draw border */
+  gtk_draw_shadow (style,
+		   window,
+		   GTK_STATE_ACTIVE,
+		   current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+		   0, 0,
+		   -1, -1);
+
   if (window == desktop->pixmap)
     gdk_draw_pixmap (widget->window,
 		     widget->style->fg_gc[GTK_STATE_NORMAL],
 		     desktop->pixmap,
 		     0, 0, 0, 0,
 		     -1, -1);
+  
   gdk_flush ();
 }
