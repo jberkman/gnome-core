@@ -22,10 +22,12 @@ tasklist_applet_LDADD = ../../panel/libpanel_applet.la \
 EXTRA_DIST = \
 	tasklist_applet.h \
 	tasklist_applet.gnorba \
-	tasklist_applet.desktop 
+	tasklist_applet.desktop \
+	unknown.xpm
 
 sysdir = $(datadir)/applets/Utility
 sys_DATA = tasklist_applet.desktop 
 
 gnorbadir  = $(sysconfdir)/CORBA/servers
 gnorba_DATA = tasklist_applet.gnorba 
+
