@@ -22,7 +22,7 @@ typedef struct {
     GtkWidget *enable_esd_startup, *enable_sound_events;
 
     /* Sound events setup */
-    GtkWidget *table, *ctree;
+    GtkWidget *table, *ctree, *notebook;
     GHashTable *entries;
 
     GtkWidget *btn_filename, *btn_play;
@@ -152,7 +152,7 @@ sound_properties_create(void)
     gtk_signal_connect(GTK_OBJECT(retval->capplet), "cancel",
                        ui_do_cancel, retval);
 
-    notebook = gtk_notebook_new();
+    retval->notebook = notebook = gtk_notebook_new();
 
     /* * * * page "General" * * * */
     wtmp = gtk_vbox_new(FALSE, GNOME_PAD_SMALL);
@@ -168,6 +168,12 @@ sound_properties_create(void)
                       (retval->enable_sound_events =
                        gtk_check_button_new_with_label(_("Enable sounds for events"))));
 
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(retval->enable_sound_events),
+                                gnome_config_get_bool("/sound/system/settings/event_sounds=true"));
+
+    /* do signal connects _after_ setting state so that setting the state
+       doesn't call sound_properties_set_sensitivity() and generate tons of
+       warnings */
     gtk_signal_connect(GTK_OBJECT(retval->enable_esd_startup),
                        "toggled",
                        GTK_SIGNAL_FUNC(sound_properties_set_sensitivity),
@@ -177,9 +183,6 @@ sound_properties_create(void)
                        "toggled",
                        GTK_SIGNAL_FUNC(sound_properties_set_sensitivity),
                        retval);
-
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(retval->enable_sound_events),
-                                gnome_config_get_bool("/sound/system/settings/event_sounds=true"));
 
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), wtmp,
                              gtk_label_new(_("General")));
@@ -204,30 +207,38 @@ sound_properties_create(void)
     gtk_clist_set_column_auto_resize(GTK_CLIST(retval->ctree), 0, TRUE);
     gtk_clist_set_column_auto_resize(GTK_CLIST(retval->ctree), 1, TRUE);
     gtk_clist_set_column_auto_resize(GTK_CLIST(retval->ctree), 2, TRUE);
-#else
     gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 0, 150);
     gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 1, 200);
     gtk_clist_set_column_width(GTK_CLIST(retval->ctree), 2, 200);
-#endif
     gtk_widget_set_usize(GTK_WIDGET(wtmp), 150+200+200+20,
                          250);
 
+#endif
+
     gtk_container_set_border_width(GTK_CONTAINER(table), GNOME_PAD_SMALL);
     wtmp = gtk_scrolled_window_new(NULL, NULL);
-    gtk_widget_set_usize(GTK_WIDGET(wtmp), 150+200+200+20,
+    gtk_widget_set_usize(GTK_WIDGET(wtmp),
+                         gtk_clist_columns_autosize(GTK_CLIST(retval->ctree)),
                          250);
+
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(wtmp), retval->ctree);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(wtmp), GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_ALWAYS);
     gtk_table_attach_defaults(GTK_TABLE(table), wtmp, 0, 2, 0, 1);
-    gtk_table_attach_defaults(GTK_TABLE(table),
-                              (retval->btn_play = gtk_button_new_with_label(_("Play"))),
-                              0, 1, 1, 2);
+    gtk_table_attach(GTK_TABLE(table),
+                     (retval->btn_play = gtk_button_new_with_label(_("Play"))),
+                     0, 1, 1, 2,
+                     GTK_EXPAND|GTK_SHRINK,
+                     GTK_EXPAND|GTK_SHRINK, GNOME_PAD_SMALL, GNOME_PAD_SMALL);
     gtk_signal_connect(GTK_OBJECT(retval->btn_play), "clicked", sound_properties_play_sound, retval);
 
-    gtk_table_attach_defaults(GTK_TABLE(table),
-                              (retval->btn_filename = gnome_file_entry_new(NULL, _("Select sound file"))),
-                              1, 2, 1, 2);
+    gtk_table_attach(GTK_TABLE(table),
+                     (retval->btn_filename = gnome_file_entry_new(NULL, _("Select sound file"))),
+                     1, 2, 1, 2,
+                     GTK_EXPAND|GTK_SHRINK,
+                     GTK_EXPAND|GTK_SHRINK,
+                     GNOME_PAD_SMALL, GNOME_PAD_SMALL);
+
     gtk_signal_connect(GTK_OBJECT(gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(retval->btn_filename))),
                        "changed",
                        GTK_SIGNAL_FUNC(sound_properties_event_change_file),
@@ -466,11 +477,20 @@ static void
 sound_properties_set_sensitivity(GtkToggleButton *btn,
                                  SoundProps *props)
 {
+    GtkWidget *page;
+    gboolean do_events;
+
     gtk_widget_set_sensitive(props->enable_sound_events,
                              GTK_TOGGLE_BUTTON(props->enable_esd_startup)->active);
-    gtk_widget_set_sensitive(props->table,
-                             GTK_TOGGLE_BUTTON(props->enable_esd_startup)->active
-                             && GTK_TOGGLE_BUTTON(props->enable_sound_events)->active);
+
+    page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(props->notebook), 1);
+    do_events = GTK_TOGGLE_BUTTON(props->enable_esd_startup)->active
+        && GTK_TOGGLE_BUTTON(props->enable_sound_events)->active;
+
+    gtk_widget_set_sensitive(page, do_events);
+
+    gtk_widget_set_sensitive(gtk_notebook_get_tab_label(GTK_NOTEBOOK(props->notebook),
+                                                        page), do_events);
 
     capplet_widget_state_changed(CAPPLET_WIDGET(props->capplet), TRUE);
 }
