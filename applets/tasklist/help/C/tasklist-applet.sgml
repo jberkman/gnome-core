@@ -6,12 +6,6 @@
 
   <artheader> 
     <title>Tasklist Applet</title>
-    <authorgroup>
-      <author>
-        <firstname>John</firstname>
-	<surname>Fleck</surname>
-      </author>
-    </authorgroup>
     <copyright>
       <year>2000</year>
       <holder>John Fleck</holder>
