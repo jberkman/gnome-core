@@ -80,7 +80,7 @@ loadup_vals(void)
 	display_fortune = gnome_config_get_bool("/Gnome/Login/HintsAreFortune=false");
 	display_motd = gnome_config_get_bool("/Gnome/Login/HintsAreMotd=false");
 	g_free(motdfile);
-	motdfile = gnome_config_get_string("/Gnome/Login/MotdFile=");
+	motdfile = gnome_config_get_string("/Gnome/Login/MotdFile=/etc/motd");
 }
 
 static void

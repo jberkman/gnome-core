@@ -412,10 +412,8 @@ get_motd(void)
 	char *motd;
 	FILE *fp;
 
-	motd = gnome_config_get_string("/Gnome/Login/MotdFile=");
-	if(!motd || !*motd)
-		motd = g_strdup("/etc/motd");
-	
+	motd = gnome_config_get_string("/Gnome/Login/MotdFile=/etc/motd");
+
 	fp = fopen(motd,"r");
 	g_free(motd);
 	if(fp) {
