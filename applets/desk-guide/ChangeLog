@@ -1,3 +1,18 @@
+Thu Mar  1 05:21:04 2001  Tim Janik  <timj@gtk.org>
+
+	* gwmdesktop.c (thumb_queue_step): don't do thumbnail shooting on
+	iconified or shaded windows.
+
+	* gwmh.h (struct _GwmhTask): made width/height/x/y 32bit ints,
+	to avoid crashes with excessive window sizes.
+
+	* gwmdesktop.c (task_remove_thumb): fixed thumb_queue cleanup
+	code (a bug that could cause segfaults after thumbnailing was
+	turned back on).
+
+	* gwmthumbnail.c (gwm_thumb_nail_destroy): pass the thumbnail in the
+	destroy function.
+
 2001-01-31  Jason Leach  <jasonleach@usa.net>
 
 	* deskguide_applet.c: Added a boolean config option for "Show

@@ -194,11 +194,11 @@ struct _GwmhTask
   guint		   iconified : 1;
   
   /* frame geometry */
-  gint16     frame_x, frame_y;
-  gint16     frame_width, frame_height;
+  gint       frame_x, frame_y;
+  gint       frame_width, frame_height;
   /* window geometry (within frame) */
-  gint16     win_x, win_y;
-  gint16     win_width, win_height;
+  gint       win_x, win_y;
+  gint       win_width, win_height;
 
   /* desktop, desktop area, layer */
   guint16    desktop;

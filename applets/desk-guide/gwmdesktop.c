@@ -708,6 +708,7 @@ thumb_queue_step (gpointer data)
 	  new_queue = node;
 	  
 	  if (task->desktop == desk->current_desktop &&
+	      !GWMH_TASK_ICONIFIED (task) && !GWMH_TASK_SHADED (task) &&
 	      gwm_thumb_nail_update_drawable (nail, task->gdkwindow, task->win_x, task->win_y))
 	    {
 	      GSList *slist;
@@ -744,17 +745,18 @@ thumb_nail_destroy (gpointer data)
 {
   GwmThumbNail *nail = data;
   
-  if (!g_slist_find (thumb_queue, nail)) /* FIXME */
-    g_error ("removing thumbnail from queue failed");
-  thumb_queue = g_slist_remove (thumb_queue, nail);
   gwm_thumb_nail_destroy (nail);
 }
 
 static void
-task_remove_thumb (gpointer data)
+task_remove_thumb (gpointer      data,
+		   GwmThumbNail *nail)
 {
   GwmhTask *task = data;
 
+  if (!g_slist_find (thumb_queue, nail)) /* FIXME */
+    g_error ("removing thumbnail from queue failed");
+  thumb_queue = g_slist_remove (thumb_queue, nail);
   gwmh_task_steal_qdata (task, quark_thumb_nail);
 }
 
