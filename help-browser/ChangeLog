@@ -1,3 +1,7 @@
+1999-01-12  Michael Fulbright <drmike@redhat.com>
+
+	* help/C/default-page.html: updated to use new GNOME logo, nicer look
+
 1999-01-09  Nat Friedman  <nat@nat.org>
 
 	* window.c (helpWindowNew): The help-browser doesn't use the
