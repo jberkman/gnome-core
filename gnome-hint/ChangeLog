@@ -1,3 +1,7 @@
+2000-05-26  Karl Eichwalder  <ke@suse.de>
+
+	* gnome-hint.desktop (Comment): Typo.
+
 2000-05-19  Andreas Hyden  <a.hyden@cyberpoint.se>
 
 	* gnome-hint.desktop, gnome-hint-properties.desktop: Added Swedish translation.
