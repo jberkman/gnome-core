@@ -174,7 +174,7 @@ GtkWidget *createToc(GtkSignalFunc selectCallback)
 				    GTK_POLICY_AUTOMATIC,
 				    GTK_POLICY_AUTOMATIC);
 /*    gtk_container_add(GTK_CONTAINER(box), scrolled_win); */
-    gtk_box_pack_start(GTK_BOX(box), scrolled_win, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(box), scrolled_win, TRUE, TRUE, 0);
     gtk_widget_show(scrolled_win);
 
     /* Tree */
