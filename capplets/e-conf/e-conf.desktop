@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Enlightenment Configuration
+Comment=Enlightenment Configuration
+Exec=e-conf
+Icon=e-conf.png
+Terminal=0
+Type=Application
