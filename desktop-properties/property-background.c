@@ -787,7 +787,7 @@ wallpaper_setup ()
 
 	rbut = gtk_radio_button_new_with_label
 		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
-		 _("Scaled (keep ascpect)"));
+		 _("Scaled (keep aspect)"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
 				     (wpType == WALLPAPER_SCALED_KEEP));
 	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
