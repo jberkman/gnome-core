@@ -137,6 +137,12 @@ deleteSetupWin (GtkWidget *w, GdkEvent *ev, XLockMore *xm)
 }
 
 static gint
+clickedCloseSetupWin (GtkWidget *w, XLockMore *xm)
+{
+  deleteSetupWin(w, NULL, xm);
+}
+
+static gint
 destroySetupWin (GtkWidget *w, XLockMore *xm)
 {
 	deleteSetupWin (w, NULL, xm);
@@ -174,7 +180,7 @@ XLockMore::prepareSetupWindow ()
 		        *bhelp = gtk_button_new_with_label (_("Help"));
 
 		gtk_signal_connect (GTK_OBJECT (bcl), "clicked",
-				    GTK_SIGNAL_FUNC (deleteSetupWin), this);
+				    GTK_SIGNAL_FUNC(clickedCloseSetupWin),this);
 
 		GtkWidget *l1 = gtk_label_new (_(" Mode ")),
 			*l2 = gtk_label_new (_(" XLockMore "));

@@ -59,9 +59,6 @@ struct ScreenSaver {
 	}
 
 	void addMode (ScreenSaverMode *m) {
-#ifdef DEBUG
-	        g_print("Adding mode %s\n", m->name);
-#endif
 		g_hash_table_insert (modes, m->name, m);
 		modesL = g_list_append (modesL, (gpointer) m);
 	}
