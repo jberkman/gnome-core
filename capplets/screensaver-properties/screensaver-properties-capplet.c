@@ -94,9 +94,8 @@ get_settings_frame()
         alignment = gtk_alignment_new (0.0, 0.5, 0, 0);
         label = gtk_label_new (_("Start After "));
         ssentry = get_and_set_min_entry ();
-        gnome_widget_add_help_with_uidata (ssentry, "This determines how long the system will "\
-                                           "wait before starting the selected Screen Saver.",
-                                           testcopymenu, NULL);
+        gnome_widget_add_help (ssentry, "This determines how long the system will "\
+                                           "wait before starting the selected Screen Saver.");
         gtk_box_pack_start (GTK_BOX (temphbox), label, FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (temphbox), ssentry, FALSE, FALSE, 0);
         label = gtk_label_new (_(" Minutes."));
