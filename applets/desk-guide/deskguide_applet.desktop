@@ -2,7 +2,7 @@
 Name=Desk Guide
 Name[sl]=Vodnik po namizju
 Name[cs]=Prùvodce plochou
-Name[da]=Skrivebordsoversigt
+Name[da]=Skrivebordsguide
 Name[de]=Desktop-Übersicht
 Name[el]=Ïäçãüò Ãñáöåßïõ
 Name[et]=Desk Guide
@@ -23,7 +23,7 @@ Name[uk]=ç¦Ä ÒÏÂÏŞÏÇÏ ÓÔÏÌÕ
 Comment=GNOME Desktop Guide (Pager)
 Comment[sl]=GNOME Vodnik po namizju (pager)
 Comment[cs]=Apletu pro práci s virtuálními plochami
-Comment[da]=GNOME skrivebordsoversigt (pager)
+Comment[da]=Giver en oversigt over skrivebordet
 Comment[de]=Überblick über die Desktops (Pager)
 Comment[el]=Ïäçãüò Ãñáöåßïõ GNOME (Ôáìğëş)
 Comment[et]=GNOME virtuaalsete töölaudade haldur (pager)
