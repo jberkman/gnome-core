@@ -9,6 +9,7 @@ Name[no]=Skrivebordoversikt
 Name[sv]=Skrivbordsguide
 Name[pl]=Desk Guide
 Name[pt_BR]=Guia de Desktop
+Name[uk]=Г╕д робочого столу
 Comment=GNOME Desktop Guide (Pager)
 Comment[cs]=Apletu pro prАci s virtuАlnМmi plochami
 Comment[de]=эberblick Эber die Desktops (Pager)
@@ -19,6 +20,7 @@ Comment[no]=GNOME Skrivebordsoversikt (pager)
 Comment[pl]=Pager dla GNOME
 Comment[pt_BR]=GNOME Pager
 Comment[sv]=Skrivbordsguide fЖr GNOME
+Comment[uk]=Г╕д робочого столу (пейджер)
 Exec=deskguide_applet --activate-goad-server=deskguide_applet
 Icon=gnome-deskguide.png
 Terminal=0
