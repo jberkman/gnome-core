@@ -321,8 +321,7 @@ set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg)
 	zvt_term_set_color_scheme (term, red, green, blue);
 	c.pixel = term->colors [17];
 
-	gdk_window_set_background (GTK_WIDGET (term)->parent->window, &c);
-				   
+	gdk_window_set_background (GTK_WIDGET (term)->window, &c);
 	gtk_widget_queue_draw (GTK_WIDGET (term));
 }
 
@@ -1582,8 +1581,10 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
+
 	gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);
 	gtk_box_set_spacing (GTK_BOX (hbox), 3);
+
 	gtk_widget_show (hbox);
 	get_shell_name (&shell, &name, cfg->invoke_as_login_shell);
 
