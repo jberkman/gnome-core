@@ -13,13 +13,15 @@ bin_PROGRAMS = tasklist_applet
 #lib_LTLIBRARIES = libtasklist_applet.la
 
 tasklist_applet_SOURCES = 	\
-	 tasklist_applet.c 	\
-	 tasklist_config.c 	\
-	 tasklist_icon.c 	\
-	 tasklist_menu.c 	\
-	 tasklist_properties.c 	\
-	 gstc.c 		\
-	 gwmh.c
+	pixmaps.h		\
+	tasklist_applet.c 	\
+	tasklist_applet.h	\
+	tasklist_config.c 	\
+	tasklist_icon.c 	\
+	tasklist_menu.c 	\
+	tasklist_properties.c 	\
+	gstc.c 		\
+	gwmh.c
 
 
 #libtasklist_applet_la_SOURCES =\
