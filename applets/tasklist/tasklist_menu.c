@@ -196,7 +196,7 @@ GtkWidget
 		       menu, MENU_ACTION_STICK_UNSTICK,
 		       GWMH_TASK_STICKY (task->gwmh_task)
 		       ? tasklist_unstick_xpm : tasklist_stick_xpm);
-
+#if 0
 	menuitem = gtk_pixmap_menu_item_new ();
 	label = gtk_label_new (_("To desktop"));
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
@@ -236,6 +236,7 @@ GtkWidget
 	menuitem = gtk_menu_item_new ();
 	gtk_widget_show (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
+#endif
 	add_menu_item (_("Close window"), menu, MENU_ACTION_CLOSE,
 		       tasklist_close_xpm);
 
