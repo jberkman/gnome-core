@@ -213,7 +213,9 @@ fill_monitor (void)
 				gdk_pixmap_unref (bg);
 			} else
 			  {
+#ifdef DEBUG
 			    g_print("Setting background in fill_monitor\n");
+#endif
 			    gdk_window_set_background (rootWindow, &bgColor1);
 			    gdk_window_clear (rootWindow);
 			  }
@@ -505,9 +507,9 @@ delete_browse (GtkWidget *w, GdkEvent *e, GtkWidget **f)
 	wpFileSelName = g_strdup (gtk_file_selection_get_filename
 				  (GTK_FILE_SELECTION (*f)));
 	*f = NULL;
-
+#ifdef DEBUG
 	g_print("delete_browse\n");
-
+#endif
 	return TRUE;
 }
 
@@ -739,7 +741,9 @@ background_apply ()
 	gdk_window_get_size (rootWindow, &rootWidth, &rootHeight);
 
 	if (bgType == BACKGROUND_WALLPAPER && wpType == WALLPAPER_TILED) {
+#ifdef DEBUG
 	g_print("Doing tiled pixmap\n");
+#endif
 		if (wpFileName) {
 			rootBack = gdk_pixmap_create_from_xpm (rootWindow, NULL,
 							       &bgColor1, wpFileName);
@@ -751,7 +755,9 @@ background_apply ()
 		}
 	} else if (grad ||
 		   (bgType == BACKGROUND_WALLPAPER && wpType == WALLPAPER_CENTERED)) {
+#ifdef DEBUG
 		   g_print("Doing gradient or centered-pixmap approach\n");
+#endif
 		GdkPixmap *pix, *mask;
 		gint xoff, yoff;
 		gint w, h;
@@ -948,7 +954,9 @@ background_setup ()
 static gint
 background_action (GnomePropertyRequest req)
 {
+#ifdef DEBUG
   g_print("Doing background_action %d\n", req);
+#endif
 	switch (req) {
 	case GNOME_PROPERTY_READ:
 		background_read ();
