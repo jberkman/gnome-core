@@ -60,6 +60,8 @@ display_properties_setup (void)
 	gtk_signal_connect (GTK_OBJECT (display_config->property_box),
 			    "destroy", (GtkSignalFunc) deleteFn, NULL);
 
+	gtk_window_set_title(GTK_WINDOW(display_config->property_box), 
+			     application_title());
 	gtk_widget_show (display_config->property_box);
 }
 

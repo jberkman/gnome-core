@@ -2,7 +2,7 @@ INCLUDES = 			\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
 	-I$(includedir) $(X_CFLAGS) $(GNOME_INCLUDEDIR)
 
-bin_PROGRAMS = mouse-properties keyboard-properties background-properties bell-properties
+bin_PROGRAMS = mouse-properties keyboard-properties background-properties bell-properties ui-properties
 
 mouse_properties_SOURCES =	\
 	main.c			\
@@ -39,6 +39,13 @@ background_properties_SOURCES =	\
 	xlockmore.h		\
 	xlockparse.ll
 
+ui_properties_SOURCES =	\
+	main.c			\
+	args.c			\
+        property-ui.c		\
+	gnome-desktop.h		\
+	app-ui.c
+
 background_properties_LDADD = \
 	$(GNOME_LIBDIR)					\
 	-lImlib						\
@@ -64,7 +71,13 @@ bell_properties_LDADD = \
         @XF86MISC_LIBS@					\
 	$(INTLLIBS)
 
+ui_properties_LDADD = \
+	$(GNOME_LIBDIR)					\
+	$(GNOMEUI_LIBS)					\
+	$(INTLLIBS)
+
 EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop bell.desktop
 
 sysdir = $(datadir)/apps/System
 sys_DATA = background.desktop mouse.desktop keyboard.desktop bell.desktop
+
