@@ -6,10 +6,14 @@ INCLUDES = -I. -I$(srcdir) 				\
 
 bin_PROGRAMS = screensaver-properties-capplet
 
-screensaver_properties_capplet_SOURCES = screensaver-properties-capplet.c\
-	callbacks.c \
-	screensaver-dialog.c \
-	parser.c
+screensaver_properties_capplet_SOURCES = \
+	screensaver-properties-capplet.c	\
+	callbacks.c				\
+	callbacks.h				\
+	screensaver-dialog.c			\
+	screensaver-dialog.h			\
+	parser.c				\
+	parser.h
 
 screensaver_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 	$(GNOME_LIBDIR) $(ORB_LIBS) \
