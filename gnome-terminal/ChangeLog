@@ -1,3 +1,8 @@
+2001-04-19  Stanislav Brabec  <utx@penguin.cz>
+
+	* gnome-terminal.c: Removed obsolette enum *_ROW. Rows are now
+	decided by Glade.
+
 2001-04-18  Stanislav Brabec  <utx@penguin.cz>
 
 	* gnome-terminal.c, gnome-terminal.glade, gnome-terminal.glade.h:

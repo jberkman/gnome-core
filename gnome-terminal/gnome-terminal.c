@@ -1000,36 +1000,6 @@ char *scrollbar_position_list [] = {
 	NULL
 };
 
-enum {
-	COLORPAL_ROW    = 1,
-	FOREBACK_ROW    = 2,
-	FORECOLOR_ROW   = 3,
-	BACKCOLOR_ROW   = 4,
-	CLASS_ROW       = 1,
-	FONT_ROW        = 2,
-	BLINK_ROW       = 3,
-	BELL_ROW        = 4,
-	LOGIN_ROW       = 5,
-#ifdef HAVE_ZVT_DEL_IS_DEL
-	BOLDTOGGLE_ROW  = 2,
-	MENUBAR_ROW     = 3,
-	SWAPKEYS_ROW    = 4,
-	DELISDEL_ROW    = 5,
-#else
-	BOLDTOGGLE_ROW  = 3,
-	MENUBAR_ROW     = 4,
-	SWAPKEYS_ROW    = 5,
-#endif
-	WORDCLASS_ROW	= 6,
-	BACKGROUND_ROW	= 1,
-	PIXMAP_FILE_ROW	= 2,
-	SHADED_ROW      = 4,
-	SCROLL_ROW      = 1,
-	SCROLLBACK_ROW  = 2,
-	KBDSCROLL_ROW   = 3,
-	OUTSCROLL_ROW   = 4
-};
-
 /* called back to free the ColorSelector */
 static void
 free_cs (GtkWidget *widget, GnomeColorPicker *cp)
