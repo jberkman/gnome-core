@@ -16,6 +16,7 @@
 
 static void convertMan(docObj *obj);
 static void convertHTML(docObj *obj);
+static void convertINFO(docObj *obj);
 static void convertText(docObj *obj);
 
 void
@@ -26,7 +27,9 @@ resolveMIME( docObj *obj )
 		return;
 
 	/* do simple recognition for now based on ref */
-	if (strstr(obj->ref, "/man/")) {
+	if (strstr(obj->ref, "info:")) {
+		obj->mimeType = "application/x-info";
+	} else if (strstr(obj->ref, "/man/")) {
 		obj->mimeType = "application/x-troff-man";
 	} else if (strstr(obj->ref, "html") || strstr(obj->ref, "#")
 		   || strstr(obj->ref, "http")) {
@@ -48,6 +51,8 @@ convertMIME( docObj *obj )
 		convertMan(obj);
 	} else if (!strcmp(obj->mimeType, "text/html")) {
 		convertHTML(obj);
+	} else if (!strcmp(obj->mimeType, "application/x-info")) {
+		convertINFO(obj);
 	} else if (!strcmp(obj->mimeType, "text/plain")) {
 		convertText(obj);
 	} else {
@@ -96,6 +101,22 @@ convertMan( docObj *obj )
 	if (!obj->rawData)
 		return;
 	obj->convData = execfilter("gnome-man2html {}",obj->url.u->path, NULL);
+}
+
+
+static void
+convertINFO( docObj *obj )
+{
+	char *argv[2];
+
+	argv[0] = "gnome-info2html";
+	argv[1] = NULL;
+
+	if (!obj->rawData)
+		return;
+	obj->convData = getOutputFrom(argv, obj->rawData, 
+				      strlen(obj->rawData));
+	obj->freeconv = TRUE;
 }
 
 

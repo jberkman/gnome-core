@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in.
 
-SUBDIRS = gnome-man2html
+SUBDIRS = gnome-man2html gnome-info2html
 
 INCLUDES = 			\
 	-I$(includedir)		\
