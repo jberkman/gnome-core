@@ -24,6 +24,9 @@ static void edit_area_set_editable(gboolean enabled);
 
 static void edit_area_changed(void)
 {
+        if ((current_desktop == NULL) || (! current_desktop->editable))
+	  return;
+
 	button_save_enable(TRUE);
 	if (revert_dentry) button_revert_enable(TRUE);
 }
@@ -45,6 +48,15 @@ static void edit_area_set_editable(gboolean enabled)
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->doc_entry, enabled);
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->type_combo, enabled);
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->terminal_button, enabled);
+}
+
+void
+disable_edit_area(void)
+{
+  gnome_dentry_edit_clear(GNOME_DENTRY_EDIT(edit_area));
+  
+  button_save_enable(FALSE);
+  button_revert_enable(FALSE);
 }
 
 void
@@ -83,7 +95,9 @@ void update_edit_area(Desktop_Data *d)
 {
 	GnomeDesktopEntry *dentry;
 
-	if (isdir(d->path))
+	if (d->path == NULL || d->name == NULL)
+	  disable_edit_area();
+	else if (isdir(d->path))
 		{
 		gchar *dirfile = g_concat_dir_and_file(d->path, ".directory");
 
@@ -112,8 +126,8 @@ void update_edit_area(Desktop_Data *d)
 		edit_area_set_editable(TRUE);
 		}
 
-	button_save_enable(TRUE);
 	button_revert_enable(FALSE);
+	button_save_enable(d->editable);
 
 	if (revert_dentry) gnome_desktop_entry_destroy(revert_dentry);
 	revert_dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));

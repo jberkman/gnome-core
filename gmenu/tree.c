@@ -30,12 +30,7 @@ static void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old,
 void
 tree_set_node(GtkCTreeNode *node)
 {
-  update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
-
-  current_node = node;
-  current_desktop = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),
-						node);
-  update_edit_area(current_desktop);
+  gtk_ctree_select(GTK_CTREE(menu_tree_ctree), node);
 }
 
 void
@@ -77,8 +72,6 @@ update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new,
 {
 	Desktop_Data *d;
 
-	if (old) gtk_ctree_unselect(GTK_CTREE(w),old);
-        if (new && select) gtk_ctree_select(GTK_CTREE(w),new);
 
 	d = gtk_ctree_node_get_row_data(GTK_CTREE(w), new);
 	gtk_label_set_text(GTK_LABEL(infolabel),d->comment);
@@ -91,13 +84,17 @@ update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new,
 	if (current_path) g_free (current_path);
 	if (d->isfolder)
 		{
-		current_path = strdup (d->path);
+		  if (d->path == NULL)
+		    current_path = NULL;
+		  else
+		    current_path = strdup (d->path);
 		}
 	else
 		{
 		current_path = strip_one_file_layer(d->path);
 		}
-	gtk_label_set_text(GTK_LABEL(pathlabel),current_path);
+	if (current_path != NULL)
+	  gtk_label_set_text(GTK_LABEL(pathlabel),current_path);
 
 }
 
@@ -186,10 +183,41 @@ static void edit_pressed_cb(GtkWidget *w, gpointer data)
 	update_edit_area(d);
 }
 
+gint tree_row_selected (GtkCTree *ctree, GtkCTreeNode *node, gint column)
+{
+	Desktop_Data *d;
+
+	update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
+
+	current_node = node;
+
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(ctree), node);
+	if (d == NULL)
+	  return TRUE;
+
+	current_desktop = d;
+
+	if (d->isfolder)
+		{
+		if (!d->expanded)
+			{
+			d->expanded = TRUE;
+			add_tree_node(ctree, node, NULL);
+			}
+		}
+
+	if ((node != topnode) && (node != systemnode) && (node != usernode))
+	  update_edit_area(current_desktop);
+	else
+	  disable_edit_area();
+
+
+	return TRUE;
+}
+
 void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 {
 	gint row, col;
-	Desktop_Data *d;
 	GtkCTreeNode *node;
 
 	if (event->window != GTK_CLIST(ctree)->clist_window) return;
@@ -203,31 +231,6 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 	if (!node) return;
 
 	tree_set_node(node);
-
-	if (node == topnode)
-	  return;
-
-	if (event->button == 3 && (node == systemnode || node == usernode)) return;
-
-	d = gtk_ctree_node_get_row_data(GTK_CTREE(ctree),node);
-
-
-	if (node == systemnode || node == usernode) return;
-
-	if (event->button == 3)	update_edit_area(d);
-
-	if (d->isfolder)
-		{
-		if (!d->expanded)
-			{
-			d->expanded = TRUE;
-			add_tree_node(ctree, node, NULL);
-			}
-		}
-
-	update_edit_area (d);
-
-	return;
 }
 
 

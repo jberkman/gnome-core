@@ -1,3 +1,24 @@
+1999-02-07  Nat Friedman  <nat@nat.org>
+
+	* tree.c (tree_set_node): Just set the selection in the ctree.
+  	The tree_row_selected callback will take care of the rest.
+	(update_tree_highlight): Don't select the row.
+	(tree_row_selected): Most of the tree_item_selected code was moved
+ 	here.
+	(tree_item_selected): Call tree_set_node.
+
+	* gmenu.c (main): Connect tree_row_selected to the tree_select_row
+ 	signal.
+	(about_cb): Fixed a segfault.  One-line patch from jwb@cp.net.
+  	Thanks!
+
+	* edit.c (edit_area_changed): Don't enable the save button if it's
+ 	not an editable entry.
+	(disable_edit_area): New function.
+	(update_edit_area): Disable the edit area if the new node has no
+ 	path or name.  Enable the save button selectively.
+	
+
 1999-02-05  Jeff Garzik <jgarzik@pobox.com>
 
 	* gmenu.c:

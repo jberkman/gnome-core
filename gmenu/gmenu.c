@@ -198,7 +198,7 @@ int main (int argc, char *argv[])
 
 	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),
 				 "button_release_event",
-				 GTK_SIGNAL_FUNC(tree_item_selected),NULL);
+				 GTK_SIGNAL_FUNC(tree_item_selected), NULL);
 
 	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),
 				 "tree_collapse",
@@ -243,6 +243,14 @@ int main (int argc, char *argv[])
 	gtk_widget_show(vbox);
 
 	add_main_tree_node();
+
+	/*
+	 * We don't connect this until here so that we don't get signals
+	 * while the tree is being setup.
+	 */
+	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),
+				 "tree_select_row",
+				 GTK_SIGNAL_FUNC(tree_row_selected), NULL);
 
 	gtk_widget_show(app);
 	

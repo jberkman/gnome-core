@@ -70,7 +70,9 @@ void tree_sort_node(GtkCTreeNode *node);
 GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path);
 void move_down_cb(GtkWidget *w, gpointer data);
 void move_up_cb(GtkWidget *w, gpointer data);
-void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data);
+void tree_item_selected (GtkCTree *ctree, GdkEventButton *event,
+			 gpointer data);
+gint tree_row_selected (GtkCTree *ctree, GtkCTreeNode *node, gint column);
 GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file);
 void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkWidget *pbar);
 void add_main_tree_node(void);
@@ -84,6 +86,7 @@ int is_node_moveable(GtkCTreeNode *node);
 
 
 void edit_area_select_name(void);
+void disable_edit_area(void);
 void edit_area_reset_revert(Desktop_Data *d);
 gchar * edit_area_get_filename(void);
 void update_edit_area(Desktop_Data *d);
