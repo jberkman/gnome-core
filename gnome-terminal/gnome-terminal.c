@@ -1280,6 +1280,7 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	save_preferences_cmd (widget, term);
 }
 
+#ifdef HAVE_ZVT_TERM_RESET
 static void
 reset_terminal_soft_cmd (GtkWidget *widget, ZvtTerm *term)
 {
@@ -1292,6 +1293,7 @@ reset_terminal_hard_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	zvt_term_reset(term, 1);
 }
+#endif
 
 void
 paste_cmd (GtkWidget *widget, ZvtTerm *term)
@@ -1320,8 +1322,10 @@ static GnomeUIInfo gnome_terminal_popup_menu_hide [] = {
         GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
         GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
 	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, hide_menu_cmd),
+#ifdef HAVE_ZVT_TERM_RESET
 	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
 	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
+#endif
 	GNOMEUIINFO_END
 };
 
@@ -1329,8 +1333,10 @@ static GnomeUIInfo gnome_terminal_popup_menu_show [] = {
         GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
         GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
 	GNOMEUIINFO_ITEM_NONE (N_("_Show menubar"), NULL, show_menu_cmd),
+#ifdef HAVE_ZVT_TERM_RESET
 	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
 	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
+#endi
 	GNOMEUIINFO_END
 };
 
@@ -1347,8 +1353,10 @@ static GnomeUIInfo gnome_terminal_edit [] = {
 
 static GnomeUIInfo gnome_terminal_settings_menu [] = {
         GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
+#ifdef HAVE_ZVT_TERM_RESET
 	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
 	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
+#endif
 	GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd),
 	GNOMEUIINFO_END
 };
@@ -1976,8 +1984,8 @@ enum {
 static struct poptOption cb_options [] = {
 	{ NULL, '\0', POPT_ARG_CALLBACK, parse_an_arg, 0},
 
-	{ "class", '\0', POPT_ARG_STRING, NULL, CLASS_KEY,
-	  N_("Terminal class name"), N_("CLASS")},
+	{ "tclass", '\0', POPT_ARG_STRING, NULL, CLASS_KEY,
+	  N_("Terminal class name"), N_("TCLASS")},
 
 	{ "font", '\0', POPT_ARG_STRING, NULL, FONT_KEY,
 	  N_("Specifies font name"), N_("FONT")},
