@@ -26,8 +26,8 @@ GList *tasks; /* The list of tasks used */
 GdkPixmap *unknown_icon; /* Unknown icon */
 GdkBitmap *unknown_mask; /* Unknown mask */
 
-gint vert_height; /* Vertical height, used for resizing */
-gint horz_width;  /* Horizontal width, used for resizing */
+gint vert_height=0; /* Vertical height, used for resizing */
+gint horz_width=0;  /* Horizontal width, used for resizing */
 
 extern TasklistConfig Config;
 
