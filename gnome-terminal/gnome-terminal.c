@@ -55,6 +55,10 @@ char **initial_command = NULL;
 /* A list of all the open terminals */
 GList *terminals = 0;
 
+/* The custom colors */
+int user_fore_red, user_fore_green, user_fore_blue;
+int user_back_red, user_back_green, user_back_blue;
+
 typedef struct {
 	GtkWidget *prop_win;
 	GtkWidget *blink_checkbox;
@@ -227,6 +231,7 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		green [16] = 0xffff;
 		blue  [16] = 0;
 		break;
+
 		/* Black on light yellow */
 	case 3:
 		red   [16] = 0;
@@ -235,6 +240,17 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		red   [17] = 0xffff;
 		green [17] = 0xffff;
 		blue  [17] = 0xdddd;
+		break;
+		
+		/* Custom foreground, custom background */
+	case 4:
+		red   [16] = user_fore_red;
+		green [16] = user_fore_green;
+		blue  [16] = user_fore_blue;
+		red   [17] = user_back_red;
+		green [17] = user_back_green;
+		blue  [17] = user_back_blue;
+
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
 	gtk_widget_queue_draw (GTK_WIDGET (term));
@@ -543,9 +559,9 @@ get_shell_name (char **shell, char **name)
 		
 			*name  = g_malloc (len + 2);
 			**name = '-';
-			strcpy ((*name)+1, only_name); 
+			strcpy ((*name)+1, only_name+1); 
 		} else
-			*name = only_name;
+			*name = only_name+1;
 	} else {
 		*shell = "/bin/bash";
 		if (invoke_as_login_shell)
@@ -710,6 +726,8 @@ new_terminal_cmd (char **cmd)
 	case 0: {
 		sprintf (buffer, "WINDOWID=%d",(int) ((GdkWindowPrivate *)app->window)->xwindow);
 		env_copy [winid_pos] = buffer;
+		printf ("cmd=%p cmd=%s\n", cmd, cmd ? cmd [0] : "NONE");
+		printf ("shell=%s, name=%s\n", shell, name);
 		if (cmd) {
 			environ = env_copy;
 			execvp (cmd[0], cmd);

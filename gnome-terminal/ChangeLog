@@ -1,5 +1,7 @@
 1998-05-21  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
+	* gnome-terminal.c (get_shell_name): More fixes:  name variable
+	was not being correctly computed.
 	* gnome-terminal.c: Initialize initial_command variable. 
 
 1998-05-16  Raja R Harinath  <harinath@cs.umn.edu>
