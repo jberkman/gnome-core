@@ -1,5 +1,15 @@
 1998-05-21  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
+	* gnome-terminal.c (parse_an_arg): Add support for specifying the
+	foreground and background colors on the command line. 
+	
+	(drop_data_available): Add drop support for colors.  Currently
+	only the background can be set.  I only need a way to query
+	ZvtTerm to tell me if the drop position has a non-blank character:
+	if so we should set the background instead.
+
+1998-05-21  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
 	* gnome-terminal.c (get_shell_name): Be more agresive while
 	setting up the shell: Use the variable SHELL if defined; if not,
 	use the password entry and if this fails, try a list of shells. 

@@ -36,6 +36,13 @@ char *geometry = 0;
 int color_type;
 
 /* The color set */
+enum {
+	COLORS_WHITE_ON_BLACK,
+	COLORS_BLACK_ON_WHITE,
+	COLORS_GREEN_ON_BLACK,
+	COLORS_BLACK_ON_LIGHT_YELLOW,
+	COLORS_CUSTOM
+};
 int color_set;
 
 /* Scrollbar position */
@@ -56,8 +63,10 @@ char **initial_command = NULL;
 GList *terminals = 0;
 
 /* The custom colors */
-int user_fore_red, user_fore_green, user_fore_blue;
-int user_back_red, user_back_green, user_back_blue;
+GdkColor user_fore, user_back;
+
+/* The colors specified on the command line */
+char *fore_color = NULL, *back_color = NULL;
 
 typedef struct {
 	GtkWidget *prop_win;
@@ -66,6 +75,8 @@ typedef struct {
 	GtkWidget *color_scheme;
 	GtkWidget *def_fore_back;
 	GtkWidget *scrollbar;
+	GnomeColorSelector *fore_cs;
+	GnomeColorSelector *back_cs;
 } preferences_t;
 
 void new_terminal (void);
@@ -179,11 +190,12 @@ gushort rxvt_blu[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0
 		       0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0xffff,
 			0x0,    0x0 };
 
+/* These point to the current table */
+gushort *red, *blue, *green;
+
 static void
 set_color_scheme (ZvtTerm *term, int color_type)
 {
-	gushort *red, *blue, *green;
-	
 	switch (color_type){
 	case 0:
 		red = linux_red;
@@ -203,7 +215,7 @@ set_color_scheme (ZvtTerm *term, int color_type)
 	}
 	switch (color_set){
 		/* White on black */
-	case 0:
+	case COLORS_WHITE_ON_BLACK:
 		red   [16] = red [7];
 		blue  [16] = blue [7];
 		green [16] = green [7];
@@ -213,7 +225,7 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		break;
 
 		/* black on white */
-	case 1:
+	case COLORS_BLACK_ON_WHITE:
 		red   [16] = red [0];
 		blue  [16] = blue [0];
 		green [16] = green [0];
@@ -223,7 +235,7 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		break;
 		
 		/* Green on black */
-	case 2:
+	case COLORS_GREEN_ON_BLACK:
 		red   [17] = 0;
 		green [17] = 0;
 		blue  [17] = 0;
@@ -233,7 +245,7 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		break;
 
 		/* Black on light yellow */
-	case 3:
+	case COLORS_BLACK_ON_LIGHT_YELLOW:
 		red   [16] = 0;
 		green [16] = 0;
 		blue  [16] = 0;
@@ -243,14 +255,14 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		break;
 		
 		/* Custom foreground, custom background */
-	case 4:
-		red   [16] = user_fore_red;
-		green [16] = user_fore_green;
-		blue  [16] = user_fore_blue;
-		red   [17] = user_back_red;
-		green [17] = user_back_green;
-		blue  [17] = user_back_blue;
-
+	case COLORS_CUSTOM:
+		red   [16] = user_fore.red;
+		green [16] = user_fore.green;
+		blue  [16] = user_fore.blue;
+		red   [17] = user_back.red;
+		green [17] = user_back.green;
+		blue  [17] = user_back.blue;
+		break;
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
 	gtk_widget_queue_draw (GTK_WIDGET (term));
@@ -260,6 +272,7 @@ static void
 apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 {
 	int scrollpos;
+	int r, g, b;
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
@@ -272,7 +285,15 @@ apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 	color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
 	scrollpos  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 	color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
-
+	gnome_color_selector_get_color_int (prefs->fore_cs, &r, &g, &b, 65535);
+	user_fore.red   = r;
+	user_fore.green = g;
+	user_fore.blue  = b;
+	gnome_color_selector_get_color_int (prefs->back_cs, &r, &g, &b, 65535);
+	user_back.red   = r;
+	user_back.green = g;
+	user_back.blue  = b;
+	
 	/* sve the global variables */
 	blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
 	if (font)
@@ -335,6 +356,7 @@ typedef struct {
 	GtkWidget        *menu;
 	GnomePropertyBox *box;
 	int              idx;
+	void             *data1, *data2;
 } lambda_t;
 
 static void
@@ -342,6 +364,11 @@ set_active (GtkWidget *widget, lambda_t *t)
 {
 	gtk_object_set_user_data (GTK_OBJECT (t->menu), (void *) t->idx);
 	gnome_property_box_changed (t->box);
+
+	if (t->data1){
+		gtk_widget_set_sensitive (GTK_WIDGET (t->data1), t->idx == COLORS_CUSTOM);
+		gtk_widget_set_sensitive (GTK_WIDGET (t->data2), t->idx == COLORS_CUSTOM);
+	}
 }
 
 static void
@@ -351,7 +378,7 @@ free_lambda (GtkWidget *w, void *l)
 }
 		    
 static GtkWidget *
-create_option_menu (GnomePropertyBox *box, char **menu_list, int item, GtkSignalFunc func)
+create_option_menu_data (GnomePropertyBox *box, char **menu_list, int item, GtkSignalFunc func, void *data1, void *data2)
 {
 	GtkWidget *omenu;
 	GtkWidget *menu;
@@ -364,9 +391,11 @@ create_option_menu (GnomePropertyBox *box, char **menu_list, int item, GtkSignal
 		GtkWidget *entry;
 
 		t = g_new (lambda_t, 1);
-		t->idx  = i;
-		t->menu = omenu;
-		t->box  = box;
+		t->idx   = i;
+		t->menu  = omenu;
+		t->box   = box;
+		t->data1 = data1;
+		t->data2 = data2;
 		entry = gtk_menu_item_new_with_label (_(*menu_list));
 		gtk_signal_connect (GTK_OBJECT (entry), "activate", func, t);
 		gtk_signal_connect (GTK_OBJECT (entry), "destroy",
@@ -382,6 +411,12 @@ create_option_menu (GnomePropertyBox *box, char **menu_list, int item, GtkSignal
 	return omenu;
 }
 
+static GtkWidget *
+create_option_menu (GnomePropertyBox *box, char **menu_list, int item, GtkSignalFunc func)
+{
+	return create_option_menu_data (box, menu_list, item, func, NULL, NULL);
+}
+
 char *color_scheme [] = {
 	N_("Linux console"),
 	N_("Color Xterm"),
@@ -394,6 +429,7 @@ char *fore_back_table [] = {
 	N_("Black on white"),
 	N_("Green on black"),
 	N_("Black on light yellow"),
+	N_("Custom colors"),
 	NULL
 };
 
@@ -405,17 +441,26 @@ char *scrollbar_position_list [] = {
 };
 
 enum {
-	COLORPAL_ROW = 1,
-	FOREBACK_ROW = 2,
-	SCROLL_ROW   = 3,
-	FONT_ROW     = 4,
-	BLINK_ROW    = 5
+	COLORPAL_ROW  = 1,
+	FOREBACK_ROW  = 2,
+	FORECOLOR_ROW = 3,
+	BACKCOLOR_ROW = 4,
+	SCROLL_ROW    = 1,
+	FONT_ROW      = 2,
+	BLINK_ROW     = 3
 };
 
+/* called back to free the ColorSelector */
+static void
+free_cs (GtkWidget *widget, GnomeColorSelector *cs)
+{
+	gnome_color_selector_destroy (cs);
+}
+	 
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GtkWidget *l, *table, *o, *m;
+	GtkWidget *l, *table, *o, *m, *b1, *b2;
 	preferences_t *prefs;
 
 	/* Is a property window for this terminal already running? */
@@ -432,24 +477,6 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("Look")));
 
-	/* Color palette */
-	l = aligned_label (_("Color palette:"));
-	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
-						  color_scheme, color_type, GTK_SIGNAL_FUNC (set_active));
-	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
-			  2, 3, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-
-	/* default foreground/backgorund selector */
-	l = aligned_label (_("Colors:"));
-	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->def_fore_back = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
-						   fore_back_table, color_set, GTK_SIGNAL_FUNC (set_active));
-	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
-			  2, 3, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-			  
 	/* Font */
 	l = aligned_label (_("Font:"));
 	gtk_table_attach (GTK_TABLE (table), l,
@@ -487,7 +514,54 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->blink_checkbox,
 			  2, 3, BLINK_ROW, BLINK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
-	/* Connect the property box signals */
+	/* Color page */
+	table = gtk_table_new (0, 0, 0);
+	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Colors")));
+	
+	/* Color palette */
+	l = aligned_label (_("Color palette:"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
+						  color_scheme, color_type, GTK_SIGNAL_FUNC (set_active));
+	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
+			  2, 6, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Foreground, background buttons */
+	l = aligned_label (_("Foreground color:"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, FORECOLOR_ROW, FORECOLOR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->fore_cs = gnome_color_selector_new ((SetColorFunc) (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), b1 = gnome_color_selector_get_button (prefs->fore_cs),
+			  2, 3, FORECOLOR_ROW, FORECOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
+	gtk_signal_connect (GTK_OBJECT (b1), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->fore_cs);
+	gnome_color_selector_set_color_int (prefs->fore_cs, user_fore.red, user_fore.green, user_fore.blue, 65355);
+	
+	l = aligned_label (_("Background color:"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, BACKCOLOR_ROW, BACKCOLOR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->back_cs = gnome_color_selector_new ((SetColorFunc) (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), b2 = gnome_color_selector_get_button (prefs->back_cs),
+			  2, 3, BACKCOLOR_ROW, BACKCOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
+	gtk_signal_connect (GTK_OBJECT (b2), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->back_cs);
+	gnome_color_selector_set_color_int (prefs->back_cs, user_back.red, user_back.green, user_back.blue, 65355);
+
+	/* default foreground/backgorund selector */
+	l = aligned_label (_("Colors:"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win),
+							fore_back_table, color_set, GTK_SIGNAL_FUNC (set_active),
+							b1, b2);
+	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
+			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	if (color_set != COLORS_CUSTOM){
+		gtk_widget_set_sensitive (b1, 0);
+		gtk_widget_set_sensitive (b2, 0);
+	}
+	
+	/* connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
 			    GTK_SIGNAL_FUNC (apply_changes), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "delete_event",
@@ -495,6 +569,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
 			    GTK_SIGNAL_FUNC (window_closed), term);
 	gtk_widget_show_all (prefs->prop_win);
+}
+
+static char *
+get_color_string (GdkColor c)
+{
+	static char buffer [40];
+
+	sprintf (buffer, "rgb:%04x/%04x/%04x", c.red, c.green , c.blue);
+	return buffer;
 }
 
 static void
@@ -510,6 +593,9 @@ save_preferences (GtkWidget *widget, ZvtTerm *term)
 	gnome_config_set_int    ("/Terminal/Config/color_set", color_set);
 	gnome_config_set_string ("/Terminal/Config/color_scheme",
 				 color_type == 0 ? "linux" : (color_type == 1 ? "xterm" : "rxvt"));
+	gnome_config_set_string ("/Terminal/Config/foreground", get_color_string (user_fore));
+	gnome_config_set_string ("/Terminal/Config/background", get_color_string (user_back));
+	
 	gnome_config_sync ();
 }
 
@@ -571,7 +657,7 @@ get_shell_name (char **shell, char **name)
 		"/bin/csh", "/bin/sh", 0
 	};
 	
-	if (*shell = getenv ("SHELL")){
+	if ((*shell = getenv ("SHELL"))){
 		set_shell_to (*shell, shell, name);
 		return;
 	}
@@ -602,24 +688,60 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 	ZvtTerm *term = ZVT_TERM (widget);
 	char *p = event->data;
 	int count = event->data_numbytes;
-	int len;
+	int len, col, row;
 
-	do {
-		len = 1 + strlen (p);
-		count -= len;
+	if (strcmp (event->data_type, "text/plain") == 0 ||
+	    strcmp (event->data_type, "url:ALL") == 0){
+		do {
+			len = 1 + strlen (p);
+			count -= len;
+			
+			vt_writechild (&term->vx->vt, p, len - 1);
+			vt_writechild (&term->vx->vt, " ", 1);
+			p += len;
+		} while (count > 0);
 
-		vt_writechild (&term->vx->vt, p, len - 1);
-		vt_writechild (&term->vx->vt, " ", 1);
-		p += len;
-	} while (count > 0);
+		return;
+	}
+
+	/* Color dropped */
+	if (strcmp (event->data_type, "application/x-color") == 0){
+		gdouble *data = event->data;
+		int x, y;
+		
+		/* Accept the dropped colors */
+		user_back.red   = data [1] * 65535;
+		user_back.green = data [2] * 65535;
+		user_back.blue  = data [3] * 65535;
+
+		/* Get drop site, and make the coordinates local to our window */
+		gdk_window_get_origin (GTK_WIDGET (term)->window, &x, &y);
+		x = event->coords.x - x;
+		y = event->coords.y - y;
+
+		col = x / term->charwidth;
+		row = y / term->charheight;
+
+		/* Ok.  I got this far.  We need to figure out
+		 * how to know if [col,row] has a character, if so, then
+		 * we should set the foreground, otherwise, we shoulkd set
+		 * the background
+		 */
+		/* Switch to custom colors and copy the current foreground color */
+		color_type = COLORS_CUSTOM;
+		user_fore.red   = red [16];
+		user_fore.green = green [16];
+		user_fore.blue  = blue [16];
+		set_color_scheme (term, color_type);
+	}
 }
 
 static void
 configure_term_dnd (ZvtTerm *term)
 {
-	char *drop_types []= { "url:ALL" };
+	char *drop_types []= { "url:ALL", "text/plain", "application/x-color" };
 	
-	gtk_widget_dnd_drop_set (GTK_WIDGET (term), TRUE, drop_types, 1, FALSE);
+	gtk_widget_dnd_drop_set (GTK_WIDGET (term), TRUE, drop_types, 3, FALSE);
 	gtk_signal_connect (GTK_OBJECT (term), "drop_data_available_event",
 			    GTK_SIGNAL_FUNC (drop_data_available), term);
 }
@@ -764,6 +886,7 @@ static void
 terminal_load_defaults (void)
 {
 	char *p;
+	int color_specified;	/* true if the user provided colors on the command line */
 
 	scrollback = gnome_config_get_int    ("/Terminal/Config/scrollbacklines=100");
 	if (!font)
@@ -783,7 +906,31 @@ terminal_load_defaults (void)
 	else
 		color_type = 2;
 	blink = gnome_config_get_bool ("/Terminal/Config/blinking=0");
-	color_set = gnome_config_get_int ("/Terminal/Config/color_set=0");
+
+	color_specified = (fore_color || back_color);
+
+	/* Default colors in the case the color set is the custom one */
+	if (!fore_color)
+		fore_color = gnome_config_get_string ("/Terminal/Config/foreground=gray");
+	if (!back_color)
+		back_color = gnome_config_get_string ("/Terminal/Config/background=black");
+
+	/* If colors are specified on the command line, ignore the color scheme */
+	if (!color_specified){
+		color_set = gnome_config_get_int ("/Terminal/Config/color_set=0");
+	} else
+		color_set = COLORS_CUSTOM;
+
+	/* Custom colors: load them */
+	if (color_set == COLORS_CUSTOM){
+		if (strcasecmp (fore_color, back_color) == 0)
+			color_set = 0;
+		else {
+			if (!gdk_color_parse (fore_color, &user_fore) || !gdk_color_parse (back_color, &user_back)){
+				color_set = 0;
+			}
+		}
+	}
 }
 
 /* Keys for the ARGP parser, should be negative */
@@ -792,15 +939,19 @@ enum {
 	NOLOGIN_KEY  = -2,
 	LOGIN_KEY    = -3,
 	GEOMETRY_KEY = -4,
-	COMMAND_KEY  = -5
+	COMMAND_KEY  = -5,
+	FORE_KEY     = -6,
+	BACK_KEY     = -7
 };
 
 static struct argp_option argp_options [] = {
-	{ "font",     FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"),                    0 },
-	{ "nologin",  NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
-	{ "login",    LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
-	{ "geometry", GEOMETRY_KEY, N_("GEOMETRY"),0,N_("Specifies the geometry for the main window"), 0 },
-	{ "command",  COMMAND_KEY,  N_("COMMAND"),0,N_("Execute this program instead of a shell"), 0 },
+	{ "font",       FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"),                    0 },
+	{ "nologin",    NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
+	{ "login",      LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
+	{ "geometry",   GEOMETRY_KEY, N_("GEOMETRY"),0,N_("Specifies the geometry for the main window"), 0 },
+	{ "command",    COMMAND_KEY,  N_("COMMAND"),0,N_("Execute this program instead of a shell"), 0 },
+	{ "foreground", FORE_KEY,     N_("COLOR"),0, N_("Foreground color"), 0 },
+	{ "background", BACK_KEY,     N_("COLOR"),0, N_("Background color"), 0 },
 	{ NULL, 0, NULL, 0, NULL, 0 },
 };
 
@@ -824,7 +975,14 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 		initial_command = &state->argv[state->next - 1];
 		state->next = state->argc;
 		break;
-		
+	case FORE_KEY:
+		fore_color = arg;
+		color_set  = COLORS_CUSTOM;
+		break;
+	case BACK_KEY:
+		back_color = arg;
+		color_set  = COLORS_CUSTOM;
+		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}
