@@ -17,16 +17,16 @@ GtkWidget *container;
 GtkWidget *notebook = NULL;
 GtkWidget *splash_screen;
 static GnomeUIInfo mainMenu[] = {
-        //        {GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
-        //         GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+        /*        {GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
+                  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},*/
         {GNOME_APP_UI_ITEM, N_("_Quit"), NULL, exit_callback, NULL, NULL,
          GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 'q', GDK_CONTROL_MASK, NULL},
         {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL, NULL, NULL,
          GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
 };
 static GnomeUIInfo helpMenu[] = {
-        //        {GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
-        //         GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+        /*        {GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
+                  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},*/
         {GNOME_APP_UI_ITEM, N_("_Help with GNOME..."), NULL, help_callback, NULL, NULL,
          GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0, NULL},
         {GNOME_APP_UI_ITEM, N_("_About..."), NULL, about_callback, NULL, NULL,
@@ -142,7 +142,7 @@ create_window ()
         gtk_frame_set_shadow_type (GTK_FRAME (container), GTK_SHADOW_NONE);;
         splash_screen = gtk_drawing_area_new ();
         /*gdk_imlib_load_file_to_pixmap ("splash.png", &temp_splash, NULL);*/
-        gtk_widget_set_usize (splash_screen, 500, 375);
+        gtk_widget_set_usize (splash_screen, 300, 275);
         status_bar = gtk_statusbar_new();
 
         /* we put it all together... */
@@ -161,8 +161,7 @@ create_window ()
 gint
 main (int argc, char *argv[])
 {
-        gnome_init("desktop-manager", NULL, argc, argv, 0, NULL);
-
+        control_center_corba_gtk_init(&argc,argv);
         main_window = create_window ();
         control_center_corba_gtk_main (&argc, argv);
         return 0;

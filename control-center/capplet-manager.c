@@ -73,6 +73,8 @@ launch_capplet (node_data *data)
                 separator = gtk_hseparator_new ();
                 bbox = gtk_hbutton_box_new ();
                 gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_SPREAD);
+                gtk_button_box_set_spacing (GTK_BUTTON_BOX (bbox), 5);
+                gtk_button_box_set_child_size (GTK_BUTTON_BOX (bbox), 5, -1);
                 gtk_container_border_width (GTK_CONTAINER (bbox), 5);
 
                 data->try_button = gtk_button_new_with_label ("Try");

@@ -8,12 +8,6 @@
 /* variables */
 static GtkPlugClass *parent_class;
 static GList *capplet_list = NULL;
-gchar* cc_ior = NULL;
-static gint id = -1;
-guint32 xid = 0;
-gint capid = -1;
-extern GNOME_control_center control_center;
-extern CORBA_Environment ev;
 
 enum {
 	TRY_SIGNAL,
@@ -27,7 +21,7 @@ static int capplet_widget_signals[LAST_SIGNAL] = {0,0,0,0};
 /* prototypes */ 
 static void capplet_widget_class_init	(CappletWidgetClass *klass);
 static void capplet_widget_init		(CappletWidget      *applet_widget);
-GtkWidget *get_widget_by_id(gint id);
+static GtkWidget *get_widget_by_id(gint id);
 
 
 /* administrative calls */
@@ -102,7 +96,6 @@ capplet_widget_class_init (CappletWidgetClass *klass)
 static void
 capplet_widget_init (CappletWidget *widget)
 {
-        widget->control_center_id = id;
         capplet_list = g_list_prepend (capplet_list, widget);
         gtk_signal_connect (GTK_OBJECT (widget), "destroy",
                             (GtkSignalFunc) capplet_corba_gtk_main_quit, NULL);
@@ -112,66 +105,52 @@ GtkWidget *
 capplet_widget_new ()
 {
         CappletWidget * retval;
+
         retval = CAPPLET_WIDGET (gtk_type_new (capplet_widget_get_type()));
-        gtk_plug_construct (GTK_PLUG (retval), xid);
-        
+        retval->capid = -1;
+
+        retval->control_center_id = get_ccid (retval->capid);
+        g_print ("id:%d:\n",retval->control_center_id);
+        gtk_plug_construct (GTK_PLUG (retval), get_xid (retval->capid));
 
         return GTK_WIDGET (retval);
 }
+GtkWidget *
+capplet_widget_multi_new (gint capid)
+{
+        CappletWidget * retval;
 
+        retval = CAPPLET_WIDGET (gtk_type_new (capplet_widget_get_type()));
+        retval->capid = capid;
+
+        retval->control_center_id = get_ccid (retval->capid);
+        gtk_plug_construct (GTK_PLUG (retval), get_xid (retval->capid));
+
+        return GTK_WIDGET (retval);
+}
+void
+capplet_widget_state_changed(CappletWidget *cap, gboolean undoable)
+{
+        if (cap->changed == FALSE) {
+                capplet_corba_state_changed (cap->control_center_id, undoable);
+                cap->changed = TRUE;
+        }
+}
 /* non widget calls */
 void
 capplet_gtk_main (void)
 {
         capplet_corba_gtk_main();
 }
-error_t
-parse_an_arg (int key, char *arg, struct argp_state *state)
-{
-        switch (key) {
-        case 'd':
-                id = atoi (arg);
-                break;
-        case 'c':
-                capid = atoi (arg);
-                break;
-        case 'i':
-                cc_ior = strdup (arg);
-                break;
-        case 'x':
-                xid = strtol(arg, NULL, 10);
-                break;
-        default:
-                return ARGP_ERR_UNKNOWN;
-        }
-        return 0;
-}
-static struct argp_option options[] = {
-        { "id",      'd', N_("ID"),       0, N_("id of the capplet -- assigned by the control-center"),      1 },
-        { "ior",     'i', N_("IOR"),      0, N_("ior of the control-center"), 1 },
-        { "xid",     'x', N_("XID"),      0, N_("X id of the socket it's plugged into"), 1 },
-        { NULL,      0,  NULL,         0, NULL,                       0 }
-};
-static struct argp parser = {
-        options, parse_an_arg, NULL,  NULL,  NULL, NULL, NULL
-};
-
-error_t
+gint
 gnome_capplet_init (char *app_id, struct argp *app_parser,
                      int argc, char **argv, unsigned int flags,
                      int *arg_index)
 {
-        error_t retval;
-        gnome_init (app_id, &parser, argc, argv, flags, arg_index);
-        //        retval = gnome_parse_arguments (app_parser, argc, argv, flags, arg_index);
-
-        if ((xid == 0) || (cc_ior == NULL) || (id == -1)) {
-                g_warning ("Insufficient arguments passed to the arg parser.\n");
-                exit (1);
-        }
-        capplet_widget_corba_init(&argc, argv, cc_ior, id);
-        return retval;
+        return capplet_widget_corba_init (app_id, app_parser, &argc, argv, flags, arg_index);
 }
+
+/* internal calls */
 void
 _capplet_widget_server_try(gint id)
 {
@@ -198,15 +177,7 @@ _capplet_widget_server_help(gint id)
         GtkWidget *capplet = get_widget_by_id (id);
         gtk_signal_emit_by_name(GTK_OBJECT (capplet) ,"help");
 }
-void
-capplet_widget_state_changed(CappletWidget *cap, gboolean undoable)
-{
-        if (cap->changed == FALSE) {
-                GNOME_control_center_state_changed(control_center, cap->control_center_id, undoable, &ev);
-                cap->changed = TRUE;
-        }
-}
-GtkWidget *
+static GtkWidget *
 get_widget_by_id(gint id)
 {
         GList *temp;

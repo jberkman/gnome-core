@@ -1,3 +1,7 @@
+Tue Oct  6 20:14:10 1998  Jonathan Blandford <jrb@redhat.com>
+	* added gnorba support
+	* made the thing start smaller.
+	
 1998-10-04  Martin Baulig  <martin@home-of-linux.org>
 
 	* Makefile.am: Added explicit dependency of $(CORBA_SRCLIST) for

@@ -6,6 +6,13 @@
 
 void capplet_corba_gtk_main (void);
 void capplet_corba_gtk_main_quit (void);
-void capplet_widget_corba_init(gint *argc, char **argv, gchar *cc_ior, gint id);
+void capplet_corba_state_changed (gint id, gboolean undoable);
+guint32 get_xid (gint cid);
+gint get_ccid (gint cid);
+gint capplet_widget_corba_init(char *app_id,
+                               struct argp *app_parser,
+                               int *argc, char **argv,
+                               unsigned int flags,
+                               int *arg_index);
 gint get_new_id();
 #endif

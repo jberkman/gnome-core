@@ -4,6 +4,7 @@
 
 #include <gtk/gtk.h>
 #include <gnome.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,7 @@ struct _CappletWidget
 	int			control_center_id;
         int			capid;
         gboolean 		changed;
+        guint32			xid;
 };
 
 struct _CappletWidgetClass
@@ -37,12 +39,13 @@ struct _CappletWidgetClass
 };
 
 guint           capplet_widget_get_type       	(void);
-GtkWidget*      capplet_widget_new            	(void);
+GtkWidget*      capplet_widget_new            	();
+GtkWidget*      capplet_widget_multi_new       	(gint capid);
 
 
 
 void		capplet_gtk_main  		(void);
-error_t		gnome_capplet_init	(char *app_id,
+gint		gnome_capplet_init	(char *app_id,
                                          struct argp *app_parser,
                                          int argc,
                                          char **argv,

@@ -2,7 +2,8 @@
 #include "corba-glue.h"
 #include "capplet-manager.h"
 #include <orb/orbit.h>
-#include <gnome.h>
+#include "gnome.h"
+#include <libgnorba/gnorba.h>
 
 /* prototypes */
 static void orb_add_connection(GIOPConnection *cnx);
@@ -64,8 +65,9 @@ control_center_corba_gtk_init(gint *argc, char **argv)
         IIOPAddConnectionHandler = orb_add_connection;
         IIOPRemoveConnectionHandler = orb_remove_connection;
         CORBA_exception_init(&ev);
-        orb = CORBA_ORB_init(argc, argv, "orbit-local-orb", &ev);
-
+        //        gnome_init("desktop-manager", NULL, *argc, argv, 0, NULL);
+        //        orb = CORBA_ORB_init(argc, argv, "orbit-local-orb", &ev);
+        orb = gnome_CORBA_init ("desktop-manager", NULL, argc, argv, 0, NULL, &ev);
         POA_GNOME_control_center__init(&poa_control_center_servant, &ev);
         poa = orb->root_poa;
         PortableServer_POAManager_activate(PortableServer_POA__get_the_POAManager(poa, &ev), &ev);
@@ -121,8 +123,8 @@ server_state_changed(PortableServer_Servant servant, CORBA_long id, CORBA_boolea
         node_data *nd = find_node_by_id (id);
         GtkStyle *style;
         if (nd == NULL){
-                g_print ("er, couldn't find node %d\n",id);
-                g_print ("exitting...\n");
+                g_warning ("couldn't find node %d\n",id);
+                g_warning ("this capplet will not function correctly...\n");
                 return;
         }
         nd->modified = TRUE;
