@@ -1,7 +1,11 @@
 [Desktop Entry]
 Name=Fonts
+Name[es]=Fuentes
+Name[fr]=Polices
 Name[pt]=Fontes
-Comment=Fonts
+Comment=Fonts for Enlightment
+Name[es]=Fuentes para Enlightment
+Name[fr]=Polices pour Enlightment
 Comment[pt]=Fontes
 Exec=e-conf --cap-id=2
 Icon=e-conf.png

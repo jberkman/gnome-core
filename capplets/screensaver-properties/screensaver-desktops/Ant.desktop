@@ -18,6 +18,8 @@ RootCommand=-root
 Icon=ant.png
 Author=David Bagely
 ExtendedComment=A cellular automaton that is really a two-dimensional\nTuring machine: as the heads (``ants'') walk\nalong the screen, they change pixel values in their\npath. Then, as they pass over changed pixels, their\nbehavior is influenced.
+ExtendedComment[es]=Un autómata celular que es en realidad una máquina\nde Türing de dos dimensiones: ya que las hormigas\nmientras caminan por la pantalla van cambiando\nel valor de los pixeles sobre los cuales pasan.\nLuego, cuando pasan de vuelta sobre un pixel\nmodificado su comportamiento cambia.
+ExtendedComment[fr]=Un automate cellulaire qui est en fait une machine\nde Türing à deux dimensions: puisque les fourmis\nen marchant à travers l'écran changent la valeur\ndes pixels sur leur chemin. Puis, lorsqu'elles\nrepassent sur des pixels ainsi modifiés\nleur comportemment en est influencé.
 Demo=ant -delay 2
 
 [Arg0]

@@ -1,7 +1,11 @@
 [Desktop Entry]
 Name=Colors
+Name[es]=Colores
+Name[fr]=Couleurs
 Name[pt]=Cores
-Comment=Colors
+Comment=Colors for Enlightment
+Name[es]=Colores para Enlightment
+Name[fr]=Couleurs pour Enlightment
 Comment[pt]=Cores
 Exec=e-conf --cap-id=4
 Icon=e-conf.png

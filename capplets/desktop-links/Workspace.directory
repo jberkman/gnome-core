@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Workspace
 Name[es]=Espacio de Trabajo
+Name[fr]=Espace de Travail
 Name[no]=Arbeidsområde
 Comment=Modify the appearance of your workspace
-Comment[es]=Modificar la apariencia de su espacio de trabajo
+Comment[es]=Permite modificar la apariencia de su espacio de trabajo
+Comment[fr]=Permets de modifier l'apparence de votre espace de travail
 Comment[no]=Endre utseende til arbeidsområdet
 Type=Directory

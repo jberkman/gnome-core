@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Audio
-Comment=Audio
+Comment=Audio configuration for Enlightment
+Comment[es]=Configuración de los sonidos para Enlightment
+Comment[fr]=Configuration des sons pour Enlightment
 Exec=e-conf --cap-id=3
 Icon=e-conf.png
 Terminal=0

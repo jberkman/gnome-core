@@ -1,7 +1,11 @@
 [Desktop Entry]
 Name=General
+Name[es]=General
+Name[fr]=Général
 Name[pt]=Geral
-Comment=General
+Comment=General configuration of Enlightment
+Name[es]=Configuración general de Enlightment
+Name[fr]=Configuration générale de Enlightment
 Comment[pt]=Geral
 Exec=e-conf --cap-id=0
 Icon=e-conf.png

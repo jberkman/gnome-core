@@ -1,10 +1,20 @@
 [Desktop Entry]
 Name=Input Devices
+Name[cs]=Vstupní zaøízení
+Name[da]=Inputenheder
+Name[de]=Eingabe Geräte
 Name[es]=Dispositivos Entrada
+Name[fi]=Syöttölaitteet
+Name[fr]=Périphériques d'entrée
+Name[hu]=Beviteli eszközök
 Name[no]=Innenheter
+Name[pl]=Urz±dzenia wej¶ciowe
 Name[pt]=Dispositivos de Entrada
+Name[sk]=Vstupné zariadenia
+Name[sv]=Inmatningsenheter
 Comment=Modify the settings of your input devices.
 Comment[es]=Permite configurar los dispositivos de entrada
+Comment[fr]=Permets de configurer les périphériques d'entrée
 Comment[no]=Endre instillingene for innenheter
 Comment[pt]=Configura os dispositivos de entrada
 Type=Directory

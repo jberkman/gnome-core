@@ -1,14 +1,21 @@
 [Desktop Entry]
 Name=Menu editor
+Name[cs]=Editor menu
+Name[de]=Menueditor
 Name[es]=Editor de menues
+Name[fi]=Valikkoeditori
 Name[fr]=Editeur de menus
-Name[pt]=Editor de Menus
+Name[hr]=Ureðivaè izbornika
 Name[no]=Menyredigering
+Name[pl]=Edytor menu
+Name[pt]=Editor de Menus
+Name[sk]=Editor menu
+Name[sv]=Menyeditor
 Comment=the GNOME menu editor
 Comment[es]=Editar los menues del panel de GNOME
 Comment[fr]=Editeur de menus GNOME
-Comment[pt]=O editor de menus GNOME
 Comment[no]=Menyredigering for GNOME
+Comment[pt]=O editor de menus GNOME
 Exec=gmenu
 Icon=gnome-gmenu.png
 Terminal=0

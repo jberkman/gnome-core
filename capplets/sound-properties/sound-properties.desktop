@@ -1,8 +1,12 @@
 [Desktop Entry]
 Name=Sound Properties
+Name[es]=Propiedades Sonidos
+Name[fr]=Propriétés Sons
 Name[no]=Egenskaper for lyd
 Name[pt]=Propriedades de Som
 Comment=Configure GNOME's use of sound.
+Comment[es]=Configurar los sonidos de Gnome
+Comment[fr]=Configurer les sons de Gnome
 Comment[no]=Konfigurere GNOMEs bruk av lyd.
 Comemnt[pt]=Configurar o uso de som no GNOME
 Exec=sound-properties
