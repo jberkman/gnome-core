@@ -63,19 +63,51 @@ main(int argc,
      char *argv[])
 {
     SoundProps *sound_properties;
+    int init_ret;
 
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
-    if(argc > 1
-       && !strcmp(argv[1], "--init")) {
-#ifdef TESTING
-        gnome_init ("sound-properties", VERSION, argc, argv);
-#else
-        gnome_capplet_init ("sound-properties", VERSION, argc, argv, NULL, 0, NULL);
-#endif
+    init_ret =
+        gnome_capplet_init ("sound-properties", VERSION,
+                            argc, argv, NULL, 0, NULL);
+
+    if(init_ret == 1) {
+        GnomeClient *client;
+        int token, esdpid;
+        static const char *esd_cmdline[] = {"esd", NULL};
+        char *tmpargv[3];
+
+        client = gnome_master_client();
+
+        if(gnome_client_get_previous_id(client)) {
+            token = gnome_startup_acquire_token("GNOME_SOUND_PROPERTY",
+                                                gnome_client_get_id(client));
+        } else {
+            token = 1;
+        }
+
+        if(!token)
+            return 0;
+
+        if(gnome_config_get_bool("/sound/system/settings/start_esd=true")) {
+            char argbuf[32];
+
+            esdpid = gnome_execute_async(NULL, 1, (char **)esd_cmdline);
+            g_snprintf(argbuf, sizeof(argbuf), "%d", esdpid);
+            tmpargv[0] = "kill";
+            tmpargv[1] = argbuf;
+            tmpargv[2] = NULL;
+            gnome_client_set_shutdown_command(client, 2, tmpargv);
+        }
+
+        gnome_client_set_restart_command(client, argc, argv);
+        gnome_client_set_clone_command(client, argc, argv);
+        gnome_client_set_restart_style(client, GNOME_RESTART_ANYWAY);
+
+        return 0;
     }
-    
+
     sound_properties = sound_properties_create();
     
 #ifdef TESTING

@@ -172,10 +172,18 @@ gnome_capplet_init (const char *app_id, const char *app_version,
                     int argc, char **argv, struct poptOption *options,
                     unsigned int flags, poptContext *return_ctx)
 {
+        gpointer orbptr;
 
-        return capplet_widget_corba_init (app_id, app_version, &argc,
-                                          argv, options, flags, return_ctx);
+        orbptr =
+                capplet_widget_corba_init (app_id, app_version, &argc,
+                                           argv, options, flags, return_ctx);
 
+        if(orbptr)
+                return 0;
+        else if(session_initialization_requested_p())
+                return 1;
+        else
+                return -1;
 }
 
 /* internal calls */

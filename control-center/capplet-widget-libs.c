@@ -13,6 +13,7 @@ static gint id = -1;
 static guint xid = 0;
 static gint capid = -1;
 static GList *id_list = NULL;
+static gint cap_session_init = 0;
 /* structs */
 typedef struct _keyval keyval;
 struct _keyval
@@ -39,9 +40,10 @@ extern void _capplet_widget_server_new_multi_capplet(gint id, gint capid);
 
 static struct poptOption cap_options[] = {
         {"id", '\0', POPT_ARG_INT, &id, 0, N_("id of the capplet -- assigned by the control-center"), N_("ID")},
-        {"cap-id", '\0', POPT_ARG_INT, &capid, 0, N_("multi-capplet id."), N_("CAPID")},
-        {"xid", '\0', POPT_ARG_INT, &xid, 0, N_("X id of the socket it's plugged into"), N_("XID")},
-        {"ior", '\0', POPT_ARG_STRING, &cc_ior, 0, N_("ior of the control-center"), N_("IOR")},
+        {"cap-id", '\0', POPT_ARG_INT, &capid, 0, N_("Multi-capplet id."), N_("CAPID")},
+        {"xid", '\0', POPT_ARG_INT, &xid, 0, N_("X ID of the socket it's plugged into"), N_("XID")},
+        {"ior", '\0', POPT_ARG_STRING, &cc_ior, 0, N_("IOR of the control-center"), N_("IOR")},
+        {"init-session-settings", '\0', POPT_ARG_NONE, &cap_session_init, 0, N_("Initialize session settings"), NULL},
         {NULL, '\0', 0, NULL, 0}
 };
 
@@ -179,6 +181,12 @@ gint get_ccid (gint cid)
         g_warning ("received an unknown cid: %d\n", cid);
         return id;
 }
+
+gint session_initialization_requested_p(void)
+{
+        return cap_session_init;
+}
+
 gint get_capid ()
 {
         return capid;
@@ -201,6 +209,8 @@ void *capplet_widget_corba_init(const char *app_id,
         orb = gnome_CORBA_init_with_popt_table (app_id, app_version,
                                                 argc, argv, options, flags,
                                                 return_ctx, GNORBA_INIT_SERVER_FUNC, &ev);
+        if(cap_session_init)
+                return NULL;
 
         /* sanity check */
         if ((xid == 0) || (cc_ior == NULL) || (id == -1)) {

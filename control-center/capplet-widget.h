@@ -45,6 +45,10 @@ GtkWidget*      capplet_widget_multi_new       	(gint capid);
 
 
 void		capplet_gtk_main  		(void);
+/* returns 0 upon successful initialization.
+   returns 1 if --init-session-settings was passed on the cmdline
+   returns -1 upon error
+*/
 gint gnome_capplet_init (const char *app_id, const char *app_version,
                          int argc, char **argv, struct poptOption *options,
                          unsigned int flags, poptContext *return_ctx);

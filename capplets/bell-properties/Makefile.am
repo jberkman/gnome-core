@@ -17,5 +17,5 @@ bell_properties_LDADD = ../../control-center/libcapplet.la \
 EXTRA_DIST = \
 	bell-properties.desktop
 
-sysdir = $(datadir)/control-center/Multimedia
+sysdir = $(datadir)/control-center/Inputdevs
 sys_DATA = bell-properties.desktop
