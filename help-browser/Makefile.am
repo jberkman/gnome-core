@@ -51,3 +51,6 @@ install-data-local:
 			 $(help_browser_helpdir)/help-browser.html
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-topic.dat \
 			 $(help_browser_helpdir)/topic.dat
+
+helpdir = $(datadir)/apps
+help_DATA = gnome-help.desktop

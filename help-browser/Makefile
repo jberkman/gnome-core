@@ -138,6 +138,9 @@ EXTRA_DIST = sample-help.html gnome-help-browser-help.html \
 
 sample_helpdir = $(datadir)/gnome/help/sample-help/C
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
+
+helpdir = $(datadir)/apps
+help_DATA = gnome-help.desktop
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -163,6 +166,8 @@ sample_LDFLAGS =
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS) -o $@
+DATA =  $(help_DATA)
+
 DIST_COMMON =  README ChangeLog Makefile.am Makefile.in
 
 
@@ -269,6 +274,25 @@ gnome-help-browser: $(gnome_help_browser_OBJECTS) $(gnome_help_browser_DEPENDENC
 sample: $(sample_OBJECTS) $(sample_DEPENDENCIES)
 	@rm -f sample
 	$(LINK) $(sample_LDFLAGS) $(sample_OBJECTS) $(sample_LDADD) $(LIBS)
+
+install-helpDATA: $(help_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(helpdir)
+	@list='$(help_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(helpdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(helpdir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(helpdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(helpdir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-helpDATA:
+	$(NORMAL_UNINSTALL)
+	list='$(help_DATA)'; for p in $$list; do \
+	  rm -f $(helpdir)/$$p; \
+	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -386,13 +410,13 @@ dvi: dvi-recursive
 check: all-am
 	$(MAKE) check-recursive
 installcheck: installcheck-recursive
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(DATA)
 
 install-exec-am: install-binPROGRAMS
 
-install-data-am: install-data-local
+install-data-am: install-helpDATA install-data-local
 
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am: uninstall-binPROGRAMS uninstall-helpDATA
 
 install-exec: install-exec-recursive install-exec-am
 	@$(NORMAL_INSTALL)
@@ -410,7 +434,7 @@ all: all-recursive all-am
 install-strip:
 	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
 installdirs: installdirs-recursive
-	$(mkinstalldirs)  $(bindir)
+	$(mkinstalldirs)  $(bindir) $(helpdir)
 
 
 mostlyclean-generic:
@@ -463,11 +487,12 @@ install-binPROGRAMS mostlyclean-noinstPROGRAMS distclean-noinstPROGRAMS \
 clean-noinstPROGRAMS maintainer-clean-noinstPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile mostlyclean-libtool distclean-libtool \
-clean-libtool maintainer-clean-libtool install-data-recursive \
-uninstall-data-recursive install-exec-recursive \
-uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
-all-recursive check-recursive installcheck-recursive info-recursive \
-dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
+clean-libtool maintainer-clean-libtool uninstall-helpDATA \
+install-helpDATA install-data-recursive uninstall-data-recursive \
+install-exec-recursive uninstall-exec-recursive installdirs-recursive \
+uninstalldirs-recursive all-recursive check-recursive \
+installcheck-recursive info-recursive dvi-recursive \
+mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
 distclean-tags clean-tags maintainer-clean-tags distdir \
 mostlyclean-depend distclean-depend clean-depend \

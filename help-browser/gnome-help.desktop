@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Help system
+Name[es]=Sistema de ayuda 
+Comment=Integrated help system (Info, man, HTML)
+Comment[es]=Sistema integral de ayuda (Info, man, HTML)
+Exec=gnome-help-browser
+Icon=
+Terminal=0
+Type=Application
