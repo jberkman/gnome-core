@@ -1,3 +1,56 @@
+Sun Mar 21 08:28:17 1999  John Ellis  <johne@bellatlantic.net>
+
+	* Merge gmenu_internal_overhaul branch into HEAD.
+
+Wed Mar 17 03:30:53 1999  John Ellis  <johne@bellatlantic.net>
+
+	* edit.c (edit_area_set_as_top_menu): New function to properly update
+	edit area revert button to set correct name on user/system top menus.
+
+Wed Mar 17 03:17:51 1999  John Ellis  <johne@bellatlantic.net>
+
+	* edit.c (edit_area_set_to): Set the revert button state properly
+	when showing the user or system top menu.
+
+Mon Mar 15 23:32:27 1999  John Ellis  <johne@bellatlantic.net>
+
+	* treednd.c (menu_tree_set_dnd_data_cb): Fix for proper uri-list
+	format: added "\r\n".
+
+Fri Mar 12 00:28:26 1999  John Ellis  <johne@bellatlantic.net>
+
+	* Makefile.am(EXTRA_DIST): Remove folder.xpm.
+
+Tue Mar  9 22:12:10 1999  John Ellis  <johne@bellatlantic.net>
+
+	* tree.c: Add startup dialog to show the progress of reading menus.
+	Actually, just to show the program is doing something, since reading
+	the menus takes noticeable time on my system.
+
+Tue Mar  9 21:41:55 1999  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.h, utils.c (pixmap_load): New function to load icons.
+	(pixmap_folder): Removed.
+	* folder.xpm: No longer needed, removed. Was used by pixmap_folder().
+	* desktop.c, edit.c, tree.c: Changes related to loading icons, above.
+	* treenew.c: New items now have default icons.
+	* edit.c: User and System top folders now only allow users to change
+	the icon.
+	* main.c: Cosmetic fixes.
+
+Tue Mar  9 16:05:23 1999  John Ellis  <johne@bellatlantic.net>
+
+	* utils.c (validate_filename): New function to return a newly allocated
+	string with reserved filesystem characters ('/') replaced.
+	* save.c, gmenu.h: Use above function so that the '/' character in
+	menu names is changed to a '_' when generating the desktop filename.
+
+Sun Mar  7 18:37:48 1999  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.h, *.c, Makefile.am: Initial commit of the revised menu editor.
+	Basically most internals have changed. Added right click menu and
+	middle mouse drag (to panel, gmc, etc.) to the tree window.
+
 1999-02-22  Michael Fulbright <drmike@redhat.com>
 	* Makefile.am: moved desktop file to Settings group
 

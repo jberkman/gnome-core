@@ -1,11 +1,13 @@
 /*
- * This file is a part of gmenu, the GNOME panel menu editor.
+ * GNOME menu editor revision 2
+ * (C)1999
  *
- * File: gmenu.h
+ * Authors: John Ellis <johne@bellatlantic.net>
+ *          Nat Friedman <nat@nat.org>
  *
- * This is the header file.
- * 
  */
+
+#include <config.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +20,10 @@
 
 #include <gnome.h>
 
-	/* definitions */
-#define GMENU_VERSION_MAJOR 0
-#define GMENU_VERSION_MINOR 99
-#define GMENU_VERSION_REV 0
+        /* definitions */
+#define GMENU_VERSION_MAJOR 1
+#define GMENU_VERSION_MINOR 0
+#define GMENU_VERSION_MICRO 1
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data
@@ -29,133 +31,81 @@ struct _Desktop_Data
 	gchar *path;
 	gchar *name;
 	gchar *comment;
-	GnomeDesktopEntry *dentry;
 	GtkWidget *pixmap;
 	gint isfolder;
 	gint expanded;
 	gint editable;
 };
 
-typedef struct _Misc_Dialog Misc_Dialog;
-struct _Misc_Dialog
-{
-	GtkWidget *dialog;
-	GtkWidget *entry;
-};
-
-extern gchar *SYSTEM_APPS;
-extern gchar *SYSTEM_PIXMAPS;
-extern gchar *USER_APPS;
-extern gchar *USER_PIXMAPS;
-
 extern GtkWidget *app;
-extern GtkWidget *menu_tree_ctree;
+extern GtkWidget *tree;
 extern GtkWidget *infolabel;
 extern GtkWidget *infopixmap;
-extern GtkWidget *pathlabel;
 
-extern GtkObject *edit_area;
+extern gchar *system_apps_dir;
+extern gchar *user_apps_dir;
+extern gchar *system_pixmap_dir;
+extern gchar *user_pixmap_dir;
 
-extern GtkCTreeNode *topnode;
-extern GtkCTreeNode *usernode;
-extern GtkCTreeNode *systemnode;
-extern GtkCTreeNode *current_node;
-extern Desktop_Data *current_desktop;
-extern gchar *current_path;
+/* tree.c */
+GtkCTreeNode *menu_tree_find_path(GtkCTree *ctree, gchar *path);
+GtkCTreeNode *menu_tree_get_selection(GtkCTree *ctree);
+gint menu_tree_node_is_editable(GtkWidget *ctree, GtkCTreeNode *node);
+void menu_tree_update_paths(GtkWidget *ctree, GtkCTreeNode *node);
+void menu_tree_path_updated(GtkWidget *ctree, gchar *old_path, gchar *new_path, GnomeDesktopEntry *dentry);
+GtkCTreeNode *menu_tree_insert_node(GtkWidget *ctree, GtkCTreeNode *parent,
+			GtkCTreeNode *sibling, Desktop_Data *dd, gint expanded);
+void menu_tree_populate(GtkWidget *ctree);
+void menu_tree_init_signals(GtkWidget *ctree, GnomeUIInfo *tree_popup_uiinfo);
 
-extern Desktop_Data *edit_area_orig_data;
+/* treenew.c */
+void menu_tree_new_folder(GtkWidget *ctree);
+void menu_tree_new_item(GtkWidget *ctree);
 
-/* gmenu.c --------------- */
+/* treedel.c */
+void menu_tree_delete_item(GtkWidget *ctree);
 
-void folder_update_child_paths(GtkCTreeNode *parent, gchar *path);
+/* treeutil.c */
+void menu_tree_move_up(GtkWidget *ctree);
+void menu_tree_move_down(GtkWidget *ctree);
+void menu_tree_sort_selected(GtkWidget *ctree);
+void menu_tree_sort_selected_recursive(GtkWidget *ctree);
 
-/* tree.c ---------------- */
+/* treednd.c */
+void menu_tree_init_dnd(GtkWidget *ctree);
 
-void tree_sort_node(GtkCTreeNode *node);
-GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path);
-void move_down_cb(GtkWidget *w, gpointer data);
-void move_up_cb(GtkWidget *w, gpointer data);
-void tree_item_selected (GtkCTree *ctree, GdkEventButton *event,
-			 gpointer data);
-gint tree_row_selected (GtkCTree *ctree, GtkCTreeNode *node, gint column);
-GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file);
-void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkWidget *pbar);
-void add_main_tree_node(void);
-
-void tree_set_node(GtkCTreeNode *node);
-void tree_item_collapsed(GtkCTree *ctree, GtkCTreeNode *node);
-int is_node_editable(GtkCTreeNode *node);
-int is_node_moveable(GtkCTreeNode *node);
-
-/* edit.c ---------------- */
-
-
-void edit_area_select_name(void);
-void disable_edit_area(void);
-void edit_area_reset_revert(Desktop_Data *d);
-gchar * edit_area_get_filename(void);
-void update_edit_area(Desktop_Data *d);
-void revert_edit_area(void);
-void new_edit_area(void);
-GtkWidget * create_edit_area(void);
-
-/* order.c --------------- */
-
-GList *get_order_of_dir(gchar *dir);
-void save_order_of_dir(GtkCTreeNode *node);
-void free_desktop_data(Desktop_Data *d);
-Desktop_Data * get_desktop_file_info (gchar *file);
-
-/* dialogs.c ------------- */
-
-void remove_node_cb(gpointer data);
-void save_dialog_dentry(void);
-void create_folder_pressed_cb(GtkWidget *w, gpointer data);
-void new_item_pressed_cb(GtkWidget *w, gpointer data);
-void delete_pressed_cb(GtkWidget *w, gpointer data);
-void save_pressed_cb(GtkWidget *w, gpointer data);
-gint create_folder(gchar *full_path);
-
-
-/* delete.c -------------- */
-
-gboolean delete_desktop_entry_node(Desktop_Data *d);
-gboolean delete_desktop_entry_file(gchar *path);
-gboolean delete_desktop_entry(gchar *path);
-gboolean delete_desktop_entry_by_node(GtkCTree *ctree, GtkCTreeNode *node,
-				      gpointer data);
-void delete_recursive_cb(gint button, gpointer data);
-
-/* utils.c -------------- */
-
-gint isfile(char *s);
-gint isdir(char *s);
-gchar *filename_from_path(char *t);
-gchar *strip_one_file_layer(char *t);
-gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename);
-gchar *check_for_dir(char *d);
-char * basename_n(char *path, int n);
-
+/* edit.c */
+GtkWidget * edit_area_create(void);
+void edit_area_set_to(Desktop_Data *dd);
+void edit_area_change_path(gchar *path);
+gchar *edit_area_path(void);
+void edit_area_clear(gchar *path, gchar *name);
+GnomeDesktopEntry *edit_area_get_dentry(void);
+void edit_area_grab_name(void);
 
 /* save.c */
-
-gboolean create_desktop_entry_node(Desktop_Data *d);
-gboolean update_desktop_entry_node(GnomeDesktopEntry *dentry, gchar *old_path);
 gboolean save_desktop_entry_file(GnomeDesktopEntry *dentry, gchar *path,
-				 gboolean prompt_first,
-				 gboolean prompt_about_overwrite,
-				 gboolean error_on_overwrite_conflict);
+			gboolean prompt_first, gboolean prompt_about_overwrite,
+			gboolean error_on_overwrite_conflict);
+void save_desktop_entry(GnomeDesktopEntry *dentry, gchar *path, gint isfolder);
 
-void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
+/* order.c */
+GList *get_order_of_dir(gchar *dir);
+void save_order_of_dir(GtkCTree *ctree, GtkCTreeNode *node, gint is_parent);
 
-/* dnd.c */
-void gmenu_init_dnd(GtkCTree *ctree);
-gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
-			GtkCTreeNode *new_parent, GtkCTreeNode *new_sibling);
-void tree_moved(GtkCTree *ctree, GtkCTreeNode *node, GtkCTreeNode *new_parent,
-			GtkCTreeNode *new_sibling, gpointer data);
+/* desktop.c */
+Desktop_Data *desktop_data_new(gchar *path, gchar *name, gchar *comment, GtkWidget *pixmap);
+Desktop_Data *desktop_data_new_from_path(gchar *path);
+void desktop_data_free(Desktop_Data *dd);
 
-/* load.c */
-int is_desktop_file_editable(gchar *path);
-Desktop_Data * get_desktop_file_info (gchar *file);
-void free_desktop_data(Desktop_Data *d);
+/* utils.c */
+gchar *check_for_dir(char *d);
+gint isfile(gchar *s);
+gint isdir(gchar *s);
+gint file_is_editable(gchar *path);
+gchar *remove_level_from_path(gchar *path);
+gchar *validate_filename(gchar *file);
+GtkWidget *pixmap_top(void);
+GtkWidget *pixmap_unknown(void);
+GtkWidget *pixmap_load(gchar *path);
+

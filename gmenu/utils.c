@@ -1,88 +1,25 @@
 /*
  * This file is a part of gmenu, the GNOME panel menu editor.
  *
- * File: utils.c
+ * File: gmenu.c
  *
- * This file contains some small utility routines that are used
- * throughout gmenu, and that should probably exist in some helper
- * library such as libgnome or glib.
+ * This file contains main() for gmenu.  It handles creating the gmenu
+ * window and widgets, and the 'sort menu' toolbar callbacks are here
+ * too.
  *
  * Authors: John Ellis <johne@bellatlantic.net>
  *          Nat Friedman <nat@nat.org>
  */
 
 #include "gmenu.h"
+#include "top.xpm"
+#include "unknown.xpm"
 
 /*
- * Here is how you can expect basename_n() to behave:
- *    basename_n("/a/b/c/d", 1) ==> "d"
- *    basename_n("/a/b/c/d", 2) ==> "c/d"
- *    basename_n("/a/b/c/d", 3) ==> "b/c/d"
- *    and so on.
- * */
-char *
-basename_n(char *path, int n)
-{
-  char *p;
-  int i;
-
-  p = path + strlen(path);
-
-  for (i = 0 ; i < n ; i ++)
-    {
-      p--;
-
-
-      while (p >= path && *p != '/')
-	p--;
-
-      if (p < path)
-	break;
-    }
-  return g_strdup(p + 1);
-}
-
-gint isfile(char *s)
-{
-   struct stat st;
-
-   if ((!s)||(!*s)) return 0;
-   if (stat(s,&st)<0) return 0;
-   if (S_ISREG(st.st_mode)) return 1;
-   return 0;
-}
-
-gint isdir(char *s)
-{
-   struct stat st;
-   
-   if ((!s)||(!*s)) return 0;
-   if (stat(s,&st)<0) return 0;
-   if (S_ISDIR(st.st_mode)) return 1;
-   return 0;
-}
-
-gchar *filename_from_path(char *t)
-{
-        gchar *p;
-
-        p = t + strlen(t);
-        while(p > &t[0] && p[0] != '/') p--;
-        p++;
-        return p;
-}
-
-gchar *strip_one_file_layer(char *t)
-{
-	gchar *ret;
-	gchar *p;
-
-	ret = strdup(t);
-	p = ret + strlen(ret);
-        while(p > &ret[0] && p[0] != '/') p--;
-	if (strcmp(ret,p) != 0) p[0] = '\0';
-        return ret;
-}
+ *-----------------------------------------------------------------------------
+ * Utility functions (public)
+ *-----------------------------------------------------------------------------
+ */
 
 gchar *check_for_dir(char *d)
 {
@@ -99,24 +36,107 @@ gchar *check_for_dir(char *d)
 	return d;
 }
 
-/* this function returns the correct path to a file given multiple paths, it
-   returns null if neither is correct. The returned pointer points to a string
-   that is freed each time this function is called */
-gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename)
+gint isfile(gchar *s)
 {
-	static gchar *correct_path = NULL;
+	struct stat st;
 
-	if (correct_path) g_free(correct_path);
-	correct_path = NULL;
+	if ((!s)||(!*s)) return 0;
+	if (stat(s,&st)<0) return 0;
+	if (S_ISREG(st.st_mode)) return 1;
+	return 0;
+}
 
-	correct_path = g_strconcat(path1, "/", filename, NULL);
-	if (isfile(correct_path)) return correct_path;
-	g_free(correct_path);
+gint isdir(gchar *s)
+{
+	struct stat st;
+   
+	if ((!s)||(!*s)) return 0;
+	if (stat(s,&st)<0) return 0;
+	if (S_ISDIR(st.st_mode)) return 1;
+	return 0;
+}
 
-	correct_path = g_strconcat(path2, "/", filename, NULL);
-	if (isfile(correct_path)) return correct_path;
-	g_free(correct_path);
 
-	correct_path = NULL;
-	return correct_path;
+
+gint file_is_editable(gchar *path)
+{
+	if (!g_file_exists(path)) return FALSE;
+
+	if (isdir(path))
+		{
+		gchar *dirpath = g_strconcat (path, ".directory", NULL);
+		if (g_file_exists(dirpath))
+			{
+			if (!access(dirpath, W_OK))
+				{
+				g_free(dirpath);
+				return !access(path, W_OK);
+				}
+			else
+				{
+				g_free(dirpath);
+				return FALSE;
+				}
+			}
+		g_free(dirpath);
+		}
+
+	return !access(path, W_OK);
+}
+
+gchar *remove_level_from_path(gchar *path)
+{
+	gint p;
+
+	p = strlen(path);
+	while(p > 0 && path[p] != '/') p--;
+	if (p == 0) p++;
+	return g_strndup(path, p);
+}
+
+/* returns a g_strduped string with filesystem reserved chars replaced */
+gchar *validate_filename(gchar *file)
+{
+	gchar *ret;
+	gchar *ptr;
+
+	if (!file) return NULL;
+
+	ret = g_strdup(file);
+	ptr = ret;
+	while (*ptr != '\0')
+		{
+		if (*ptr == '/') *ptr = '_';
+		ptr++;
+		}
+
+	return ret;
+}
+
+/*
+ *-----------------------------------------------------------------------------
+ * Gnome pixmap functions (public)
+ *-----------------------------------------------------------------------------
+ */
+
+GtkWidget *pixmap_top(void)
+{
+	return gnome_pixmap_new_from_xpm_d (top_xpm);
+}
+
+GtkWidget *pixmap_unknown(void)
+{
+	return gnome_pixmap_new_from_xpm_d (unknown_xpm);
+}
+
+GtkWidget *pixmap_load(gchar *path)
+{
+	GtkWidget *pixmap;
+
+	if (!g_file_exists(path)) return pixmap_unknown();
+
+	pixmap = gnome_stock_pixmap_widget_at_size (NULL, path, 20, 20);
+	if (!pixmap) pixmap = pixmap_unknown();
+
+	return pixmap;
 }

@@ -6,23 +6,24 @@ INCLUDES = 			\
 bin_PROGRAMS = gmenu
 
 gmenu_SOURCES =	\
-	gmenu.c			\
-	gmenu.h			\
-	tree.c			\
-	edit.c			\
-	dialogs.c		\
-	dnd.c			\
 	desktop.c		\
+	edit.c			\
+	main.c			\
+	order.c			\
 	save.c			\
-	utils.c			\
-	delete.c
+	tree.c			\
+	treedel.c		\
+	treednd.c		\
+	treenew.c		\
+	treeutil.c		\
+	utils.c
 
 gmenu_LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
 	$(INTLLIBS)
 
-EXTRA_DIST = gmenu.desktop top.xpm folder.xpm unknown.xpm
+EXTRA_DIST = gmenu.desktop top.xpm unknown.xpm
 
 sysdir = $(datadir)/gnome/apps/Settings
 sys_DATA = gmenu.desktop
