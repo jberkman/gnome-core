@@ -1,3 +1,8 @@
+Sun Sep 27 22:09:38 CEST 1998  Eckehard Berns  <eb@berns.prima.de>
+
+	* property-ui.c: added `Dialog buttons have icons' and `Menu items
+	have icons' to the `Application' tab.
+
 1998-08-06  Jaka Mocnik  <jaka.mocnik@kiss.uni-lj.si>
 
 	* property-ui.c (ui_setup, mdi_mode_cb, mdi_tab_pos_cb): added

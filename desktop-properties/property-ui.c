@@ -131,6 +131,15 @@ static void checkbutton_cb    ( GtkWidget * button,
   property_changed();
 }
 
+static void checkbutton_bool_cb    ( GtkWidget * button, 
+                                       gchar * str )
+{
+  gboolean b = GTK_TOGGLE_BUTTON(button)->active;
+
+  gnome_config_set_bool(str, b);
+  property_changed();
+}
+
 static void
 make_option_menu(GtkWidget * vbox, const gchar * labeltext,
                  gint (*getfunc)(),
@@ -259,6 +268,24 @@ ui_setup (void)
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
                      gnome_preferences_set_statusbar_interactive);
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  button = 
+    gtk_check_button_new_with_label(_("Dialog buttons have icons"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_config_get_bool("/Gnome/Icons/ButtonUseIcons=true"));
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(checkbutton_bool_cb),
+                     "/Gnome/Icons/ButtonUseIcons");
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  button = 
+    gtk_check_button_new_with_label(_("Menu items have icons"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_config_get_bool("/Gnome/Icons/MenusUseIcons=true"));
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(checkbutton_bool_cb),
+                     "/Gnome/Icons/MenusUseIcons");
   gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
 
   gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
