@@ -56,6 +56,7 @@ static void sound_properties_apply(SoundProps *props);
 static void ui_do_revert(GtkWidget *w, SoundProps *props);
 static void ui_do_ok(GtkWidget *w, SoundProps *props);
 static void ui_do_cancel(GtkWidget *w, SoundProps *props);
+static void sound_properties_play_sound(GtkWidget *btn, SoundProps *props); 
 
 int
 main(int argc,
@@ -170,6 +171,8 @@ sound_properties_create(void)
     gtk_table_attach_defaults(GTK_TABLE(table),
                               (retval->btn_play = gtk_button_new_with_label("Play")),
                               0, 1, 1, 2);
+    gtk_signal_connect(GTK_OBJECT(retval->btn_play), "clicked", sound_properties_play_sound, retval);
+
     gtk_table_attach_defaults(GTK_TABLE(table),
                               (retval->btn_filename = gnome_file_entry_new(NULL, "Select sound file")),
                               1, 2, 1, 2);
@@ -350,9 +353,13 @@ sound_properties_event_apply(GtkCTreeNode *node,
     char *cur_filename, *ctmp;
     GtkWidget *entry;
 
-    entry = gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(props->btn_filename));
-    cur_filename = gtk_entry_get_text(GTK_ENTRY(entry));
     ev = gtk_ctree_node_get_row_data(GTK_CTREE(props->ctree), node);
+
+    if(!ev)
+        return;
+
+    gtk_ctree_node_get_text(GTK_CTREE(props->ctree),
+                            node, 2, &cur_filename);
 
     /* If the user didn't change the setting, no need to set it */
     if(!strcmp(cur_filename, ev->file))
@@ -412,4 +419,25 @@ static void
 ui_do_cancel(GtkWidget *w, SoundProps *props)
 {
     gtk_main_quit();
+}
+
+static void
+sound_properties_play_sound(GtkWidget *btn, SoundProps *props)
+{
+    char *ctmp, *ctmp2;
+    GtkCTreeNode *node;
+
+    g_return_if_fail(GTK_CLIST(props->ctree)->selection);
+
+    node = GTK_CTREE_NODE(GTK_CLIST(props->ctree)->selection->data);
+    ctmp = GTK_CLIST_ROW(&node->list)->cell[2].u.text;
+
+    if(*ctmp == '/')
+        ctmp2 = g_strdup(ctmp);
+    else
+        ctmp2 = gnome_sound_file(ctmp);
+
+    gnome_sound_play(ctmp2);
+
+    g_free(ctmp2);
 }
