@@ -116,7 +116,7 @@ mouse_apply (void)
 }
 
 /* Run when the left- or right-handed radiobutton is clicked.  */
-static gint
+static void
 button_toggled (GtkWidget *widget, gpointer data)
 {
   mouse_rtol = (int) data;
@@ -124,7 +124,7 @@ button_toggled (GtkWidget *widget, gpointer data)
 }
 
 /* Run when a scale widget is manipulated.  */
-static gint
+static void
 scale_moved (GtkAdjustment *adj, gpointer data)
 {
   int *value = (int *) data;

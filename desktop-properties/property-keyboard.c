@@ -92,7 +92,8 @@ static void keyboard_apply(void)
 	XChangeKeyboardControl(GDK_DISPLAY(), KBKeyClickPercent, &kbdcontrol);
 }
 
-static gint rbutton_toggled(GtkWidget *widget, gpointer data)
+static void
+rbutton_toggled(GtkWidget *widget, gpointer data)
 {
 	if (keyboard_repeat) {
 		keyboard_repeat = 0;
@@ -104,19 +105,22 @@ static gint rbutton_toggled(GtkWidget *widget, gpointer data)
 	property_changed ();
 }
 
-static gint rate_changed(GtkAdjustment *adj, gpointer data)
+static void
+rate_changed(GtkAdjustment *adj, gpointer data)
 {
 	keyboard_rate = adj->value;
 	property_changed ();
 }
 
-static gint delay_changed(GtkAdjustment *adj, gpointer *data)
+static void
+delay_changed(GtkAdjustment *adj, gpointer *data)
 {
 	keyboard_delay = adj->value;
 	property_changed ();
 }
 
-static gint cbutton_toggled(GtkWidget *widget, gpointer data)
+static void
+cbutton_toggled(GtkWidget *widget, gpointer data)
 {
 	if (click_on_keypress) {
 		click_on_keypress = 0;
@@ -127,7 +131,8 @@ static gint cbutton_toggled(GtkWidget *widget, gpointer data)
 	property_changed ();
 }
 
-static gint cvol_changed(GtkAdjustment *adj, gpointer *data)
+static void
+cvol_changed(GtkAdjustment *adj, gpointer *data)
 {
 	click_volume = adj->value;
 	property_changed ();
