@@ -7,14 +7,12 @@
  */
 
 #include <config.h>
-#ifdef HAVE_LIBINTL
-#    include <libintl.h>
-#endif
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
+#include <config.h>
 #include <gnome.h>
 #include "applet-lib.h"
 #include "applet-widget.h"
@@ -502,14 +500,6 @@ applet_session_save(GtkWidget *w,
 	return FALSE;
 }
 
-static gint
-destroy_applet(GtkWidget *widget, gpointer data)
-{
-	gtk_exit(0);
-	return FALSE;
-}
-
-
 static void
 mailcheck_about(AppletWidget *a_widget, gpointer a_data)
 {
@@ -530,8 +520,8 @@ main(int argc, char **argv)
 {
 	GtkWidget *mailcheck;
 
-	panel_corba_register_arguments ();
-	gnome_init("mailcheck_applet", NULL, argc, argv, 0, NULL);
+	applet_widget_init_defaults("mailcheck_applet", NULL, argc, argv, 0,
+				    NULL,argv[0]);
 
 	/*initial state*/
 	report_mail_mode = REPORT_MAIL_USE_ANIMATION;
@@ -551,7 +541,7 @@ main(int argc, char **argv)
 		}
 	}
 
-	applet = applet_widget_new(argv[0]);
+	applet = applet_widget_new();
 	if (!applet)
 		g_error("Can't create applet!\n");
 
@@ -569,9 +559,6 @@ main(int argc, char **argv)
 	gtk_widget_show(mailcheck);
 	applet_widget_add (APPLET_WIDGET (applet), mailcheck);
 	gtk_widget_show (applet);
-	gtk_signal_connect(GTK_OBJECT(applet),"destroy",
-			   GTK_SIGNAL_FUNC(destroy_applet),
-			   NULL);
 	gtk_signal_connect(GTK_OBJECT(applet),"session_save",
 			   GTK_SIGNAL_FUNC(applet_session_save),
 			   NULL);
