@@ -1,3 +1,9 @@
+2000-04-23  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_icon.c (tasklist_icon_check_x): Prevent up2date from
+	crashing the tasklist. The _real_ bug has to be fixed somewhere else
+	though.
+
 2000-04-22 John Fleck <jfleck@inkstain.net>
 
 	* updated tasklist-fig.png to reflect wmhint icon support

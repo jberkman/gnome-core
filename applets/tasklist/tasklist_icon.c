@@ -217,6 +217,9 @@ tasklist_icon_check_x (TasklistTask *task)
 		      &x, &y, &width, &height,
 		      &border_width, &depth);
 
+	if (width > 65535 || height > 65535)
+		return FALSE;
+	
 	pixmap = gdk_pixmap_new (area->window, width, height, -1);	
 	gc = gdk_gc_new (pixmap);
 
