@@ -1,3 +1,9 @@
+1999-09-22  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* gnome-man2html/.cvsignore: 
+	* gnome-info2html/.cvsignore: 
+	* .cvsignore: updated
+
 1999-09-18  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* window.c: Changed some of the pixmaps on the tool bar to look better

@@ -1,4 +1,5 @@
 gmenu
 .deps
+.libs
 Makefile
 Makefile.in

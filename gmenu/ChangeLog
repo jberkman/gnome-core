@@ -1,3 +1,7 @@
+1999-09-22  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* .cvsignore: updated
+
 1999-06-27  Nat Friedman  <nat@gnome-support.com>
 
 	* main.c (help_menu): Use gnome-app-helper.h standard menu macros.
