@@ -104,6 +104,7 @@ typedef struct {
 
 static void new_terminal (GtkWidget *widget, ZvtTerm *term);
 static void parse_an_arg (poptContext state,
+			  enum poptCallbackReason reason,
 			  const struct poptOption *opt,
 			  const char *arg, void *data);
 
@@ -1663,6 +1664,7 @@ static struct poptOption cb_options[] = {
 
 static void
 parse_an_arg (poptContext state,
+	      enum poptCallbackReason reason,
 	      const struct poptOption *opt,
 	      const char *arg, void *data)
 {
@@ -1733,9 +1735,9 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		class = g_strconcat ("Class-", program_name, NULL);
 	else
 		class = g_strdup ("Config");
-	
+
 	cmdline_config = g_malloc (sizeof (*cmdline_config));
-	memset (cmdline_config, 0, sizeof (cmdline_config));
+	memset (cmdline_config, 0, sizeof (*cmdline_config));
 
 	cb_options[0].descrip = (char *)cmdline_config;
 
