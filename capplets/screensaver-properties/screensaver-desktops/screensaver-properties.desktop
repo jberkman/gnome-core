@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Screensaver Properties
+Comment=Configure the settings of the screensaver.
+Exec=screensaver-properties-capplet
+Icon=gnome-screensaver.png
+Terminal=0
+Type=Application

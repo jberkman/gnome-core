@@ -1,0 +1,68 @@
+[Desktop Entry]
+Name=Qix
+Comment=Bounce colored lines around a window.
+Exec=xscreensaver-command -activate
+TryExec=qix
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id 
+Icon=qix.png
+Author=Jamie Zawinski <jwz@jwz.org>
+ExtendedComment=Qix bounces a series\nof line segments around its window.  This\nis truly the swiss army chainsaw of qix programs.
+DefaultFlags=-color-shift 16 -linear
+
+
+[Arg0]
+Name=Speed
+Type=LRange
+LeftLabel=Slow
+RightLabel=Fast
+Flag=-delay
+ValType=I[10000-65000]=15000
+Label=Speed:
+Comment=Changes the speed at which the Qix moves.
+
+[Arg2]
+Name=Count
+Type=NRange
+ValType=I[1-8]=1
+Flag=-count
+Label=Count:
+LeftLabel=Number of Qix:
+Comment=Sets the number of Qix you have running at once.
+
+[Arg1]
+Name=Segments
+Type=Entry
+ValType=I[1-1000]=50
+Flag=-segments
+LeftLabel=Segments per Qix:
+RightLabel=[1-1000]
+Comment=Sets the number of line segments to be drawn.
+
+[Arg3]
+Name=Spread
+Type=Entry
+ValType=I[1-400]=8
+Flag=-spread
+LeftLabel=Width of segment:
+RightLabel=[1-400]
+Comment=Sets the distance between each line segment.
+
+[Arg4]
+Name=Solid
+Type=Check
+Flag=-solid
+Flag2=-hollow
+LeftLabel=Draw solid Qix.
+Comment=Determines whether to fill in the gaps between the lines.
+
+[Arg5]
+Name=Random
+Type=Check
+Flag=-random
+Flag2=-linear
+LeftLabel=Set random motion for the Qix.
+Comment=Determines whether the lines move erraticly, or bounce off the walls linearly.
