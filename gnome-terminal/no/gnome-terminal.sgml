@@ -33,17 +33,17 @@
       <para>
 	gnome-terminal støtter fargevisning (se seksjonen om
 	miljøvariabler for detaljer) og gir musstøtte til applikasjoner 
-	som vet om mushendelser for x-term lignende terminaler. </para>
+	som støtter mus-hendelser for x-term lignende terminaler. </para>
     </sect1>
     
     <sect1 id="Emulation">
       <title>Emulering</title>
-      <para>   Emuleringen som støttes av GNOME terminal er den samme som
+      <para> Emuleringen som støttes av GNOME terminal er den samme som i
 	xterm programmet som leveres av X consortium (som igjen er en nesten
 	komplett emulering av VT102 DEC	terminalen). </para>
       
       <para>GNOME terminal støtter de samme utvidelsene til VT102
-	som xtermer gir (gjennom spesielle "escape sekvenser", se den
+	som x-termer gir (gjennom spesielle "escape-sekvenser", se den
 	tekniske manualen for detaljer).
       </para>
     </sect1>
@@ -52,10 +52,10 @@
       <title>Konfigurerbare alternativer</title>
 
       <sect2 id="colorschemes">
-	<title>Farge-planer</title> 
+	<title>Fargeoppsett</title> 
 
-	<para>gnome-terminal støtter tre fargeplaner: Linux fargeplanen,
-	  fargeplanen til farge Xterm og fargeplanen til rxvt.
+	<para>gnome-terminal støtter tre fargeoppsett: Linux fargeplanen,
+	  oppsettet til farge X-term og opsettet til rxvt.
 	  Disse definerer intensiteten og fargene for de seksten
 	  ANSI fargekombinasjonene som er støttet av terminalen.</para>
       </sect2>
@@ -66,15 +66,15 @@
 	<para>Når ingen farger er spesifisert, kan programmet bruke et
 	  antall farger for standard forgrunn og bakgrunnsfarger. Hvit 
 	  og sort i den følgende beskrivelsen kobles til de fargene som
-	  defineres av fargeplanen for hvit og sort.</para>
+	  defineres av fargeoppsettet for hvit og sort.</para>
 	
-	<para>Standardmodusene som støttes er: hvit på sort, sort på
+	<para>Standardmodi som støttes er: hvit på sort, sort på
 	  hvit, grønn på sort og sort på lys gul.</para>
       </sect2>
 
       <sect2 id="selcolor">
 	<title>Innstilling av forgrunn og bakgrunn</title>
-	<para>I tillegg til standard fargekombinasjonene for
+	<para>I tillegg til standard fargekombinasjoner for
 	  forgrunn og bakgrunn kan brukeren velge sine egne
 	  forgrunns- og bakgrunnsfarger fra boksen egenskaper.</para> 
 	
@@ -115,7 +115,7 @@
 	  <listitem>
 	    <para><symbol>--class KLASSENAVN</symbol></para>
 	    <para>
-	      KLASSENAVN sesifiserer terminalklassen som brukes til å
+	      KLASSENAVN spesifiserer terminalklassen som brukes til å
 	      konfigurere terminalen ved oppstart.
 	    </para>
 	  </listitem>
@@ -130,21 +130,21 @@
 	  <listitem>
 	    <para><symbol>--font SKRIFTTYPE</symbol></para>
 	    <para>
-	      Setter skrifttypen til terminalen til SKRIFTTYPE.
+	      Setter skrifttypen i terminalen til SKRIFTTYPE.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--foreground FARGE</symbol></para>
 	    <para>
-	      Setter forgrunnen til terminalen til FARGE.
+	      Setter forgrunnen i terminalen til FARGE.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
 	    <para><symbol>--geometry GEOMETRI</symbol></para>
 	    <para>
-	      Spesifisrer geometrien for denne terminalen ved oppstart.
+	      Spesifiserer geometrien for denne terminalen ved oppstart.
 	      Geometrien spesifiserer ønsket bredde og høyde i antall
 	      terminaltegn.  For eksempel: --geometry=80x40 vil 
 	      lage en terminal med åtti kolonner og førti linjer.</para>
@@ -210,7 +210,7 @@
     </sect1>
     
     <sect1 id="enviroment">
-      <title>Enviroment</title>
+      <title>Miljø</title>
       <para>
 	Følgende variabler settes av gnome-terminal: 
 	<itemizedlist>
@@ -222,7 +222,7 @@
 	      implementasjoner og applikasjoner basert på curses ønsker kanskje
 	      at verdien skal være xterm-color, color-xterm eller xterm-debian
 	      for å støtte farger.  Du må kanskje endre denne innstillingen
-	      til en av disse verdiene hvis dine applikasjoner ikke viser 
+	      til en av disse verdiene hvis ikke dine applikasjoner viser 
 	      farger.
 	    </para>
 	  </listitem>
@@ -232,8 +232,8 @@
 
 	    <para>
 	      Denne vriabelen er satt til "xterm".
-	      Flere applikasjoner (spesielt de
-	      Slang-baserte applikasjoene) bruker denne innstillingen til å
+	      Flere applikasjoner (spesielt Slang baserte) 
+	      bruker denne innstillingen til å
 	      bestemme om terminalen støtter farger.
 	    </para>
 	  </listitem>
@@ -242,9 +242,9 @@
 	    <para><symbol>WINDOWID</symbol></para>
 
 	    <para>
-	      Denne variabelen inneholder X11 Vindusidentifikatoren.
+	      Denne variabelen inneholder X11 vindusidentifikatoren.
 	      Denne brukes noen ganger av applikasjoer til å modifisere
-	      innholdet av dette vinduet eller å tilby spesialeffekter.
+	      innholdet av dette vinduet eller til å tilby spesialeffekter.
 	    </para>
 	  </listitem>
 	</itemizedlist>
@@ -265,13 +265,13 @@
 	for bakgrunnsbilder til widget'et.</para>
 
       <para>
-	Miguel skrev hoveddelen av gnome terminal programmet, og Erik Troan
-	tilførte terminalklasse støtten sammen med forskjellige andre
-	funksjoner. Jeff Garzik, Jay, Christopher Blizzart, Michael,
+	Miguel skrev hoveddelen av gnome-terminal programmet, og Erik Troan
+	tilførte terminalklasse-støtten sammen med forskjellige andre
+	funksjoner. Jeff Garzik, Jay, Christopher Blizzard, Michael,
 	Jens Lautenbacher, Tom Tromey, Tristan Tarrant and Jonathan
 	Blandford kom med ekstra feilopprettinger.  Nat Friedman reviderte
 	brukergrensesnittet til å følge retningslinjene til GNOME.  Felix
-	Bellaby, Tom Tromey and Manish Vachharajani implementerte
+	Bellaby, Tom Tromey og Manish Vachharajani implementerte
 	og forbedret koden for sesjonsbehandling.
 	</para>
     </sect1>
