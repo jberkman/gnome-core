@@ -64,6 +64,9 @@ main(int argc,
 {
     SoundProps *sound_properties;
 
+    bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+    textdomain (PACKAGE);
+
 #ifdef TESTING
     gnome_init ("sound-properties", VERSION, argc, argv);
 #else
@@ -90,9 +93,9 @@ sound_properties_create(void)
     SoundProps *retval;
     GtkWidget *table, *wtmp, *notebook;
     static const char *ctree_column_titles[] = {
-        "Category",
-        "Event",
-        "File to Play"
+        N_("Category"),
+        N_("Event"),
+        N_("File to Play")
     };
     gboolean btmp;
 
@@ -121,14 +124,14 @@ sound_properties_create(void)
 
     gtk_container_add(GTK_CONTAINER(wtmp),
                       (retval->enable_esd_startup =
-                       gtk_check_button_new_with_label("Enable GNOME sound support")));
+                       gtk_check_button_new_with_label(_("Enable GNOME sound support"))));
 
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(retval->enable_esd_startup),
                                 gnome_config_get_bool("/sound/system/settings/start_esd"));
 
     gtk_container_add(GTK_CONTAINER(wtmp),
                       (retval->enable_sound_events =
-                       gtk_check_button_new_with_label("Enable sounds for events")));
+                       gtk_check_button_new_with_label(_("Enable sounds for events"))));
 
     gtk_signal_connect(GTK_OBJECT(retval->enable_esd_startup),
                        "toggled",
@@ -144,10 +147,11 @@ sound_properties_create(void)
                                 gnome_config_get_bool("/sound/system/settings/event_sounds"));
 
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), wtmp,
-                             gtk_label_new("General"));
+                             gtk_label_new(_("General")));
 
     /* * * * page "Sound Events" * * * */
     retval->table = table = gtk_table_new(2, 2, FALSE);
+    /* FIXME: This needs to create the columns one at a time to enable i18n. */
     retval->ctree = gtk_ctree_new_with_titles(3, 0,
                                               (gchar **)ctree_column_titles);
     gtk_signal_connect(GTK_OBJECT(retval->ctree), "tree_select_row",
@@ -169,12 +173,12 @@ sound_properties_create(void)
     gtk_container_border_width(GTK_CONTAINER(table), GNOME_PAD_SMALL);
     gtk_table_attach_defaults(GTK_TABLE(table), retval->ctree, 0, 2, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(table),
-                              (retval->btn_play = gtk_button_new_with_label("Play")),
+                              (retval->btn_play = gtk_button_new_with_label(_("Play"))),
                               0, 1, 1, 2);
     gtk_signal_connect(GTK_OBJECT(retval->btn_play), "clicked", sound_properties_play_sound, retval);
 
     gtk_table_attach_defaults(GTK_TABLE(table),
-                              (retval->btn_filename = gnome_file_entry_new(NULL, "Select sound file")),
+                              (retval->btn_filename = gnome_file_entry_new(NULL, _("Select sound file"))),
                               1, 2, 1, 2);
     gtk_signal_connect(GTK_OBJECT(gnome_file_entry_gtk_entry(GNOME_FILE_ENTRY(retval->btn_filename))),
                        "changed",
@@ -182,7 +186,7 @@ sound_properties_create(void)
                        retval);
 
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), table,
-                             gtk_label_new("Sound Events"));
+                             gtk_label_new(_("Sound Events")));
 
     /* * * * end notebook page setup * * * */
 

@@ -3,6 +3,7 @@
 /* Copyright (C) 1998 Redhat Software Inc. 
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
+#include <config.h>
 #include "callbacks.h"
 #include "tree.h"
 #include "corba-glue.h"

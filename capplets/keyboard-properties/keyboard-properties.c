@@ -2,14 +2,13 @@
 /* Author: Jaka Mocnik <jaka.mocnik@kiss.uni-lj.si>
  * Based on gnome-core/desktop-properties/property-keyboard.c
  */
-#include "capplet-widget.h"
 #include <config.h>
+#include "capplet-widget.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <X11/X.h>
-#include <config.h>
 
 #ifdef HAVE_X11_EXTENSIONS_XF86MISC_H
 #include <X11/extensions/xf86misc.h>
@@ -281,6 +280,9 @@ keyboard_setup (void)
 void
 main (int argc, char **argv)
 {
+
+        bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+        textdomain (PACKAGE);
 
         gnome_capplet_init ("keyboard-properties", VERSION, argc,
                             argv, NULL, 0, NULL);

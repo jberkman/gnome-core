@@ -2,13 +2,13 @@
 /* Copyright (C) 1998 Redhat Software Inc. 
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
+#include <config.h>
 #include "capplet-widget.h"
 #include "gnome.h"
 #include "callbacks.h"
 #include "parser.h"
 #include <unistd.h>
 #include <signal.h>
-#include <config.h>
 #include <dirent.h>
 
 /* prototypes */
@@ -205,6 +205,9 @@ main (int argc, char **argv)
                 system (temp);
                 return 0;
         }
+
+        bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+        textdomain (PACKAGE);
 
         gnome_capplet_init ("screensaver-properties", VERSION, argc,
                             argv, NULL, 0, NULL);

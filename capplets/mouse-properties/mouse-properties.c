@@ -2,8 +2,8 @@
 /* Copyright (C) 1998 Redhat Software Inc. 
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
-#include "capplet-widget.h"
 #include <config.h>
+#include "capplet-widget.h"
 #include <X11/Xlib.h>
 #include <assert.h>
 
@@ -316,6 +316,10 @@ main (int argc, char **argv)
                 mouse_apply ();
                 return;
         }
+
+        bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+        textdomain (PACKAGE);
+
         gnome_capplet_init("mouse-properties", VERSION, argc, argv, NULL, 0, NULL);
         mouse_read ();
         mouse_setup();

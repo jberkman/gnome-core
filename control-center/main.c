@@ -161,6 +161,9 @@ create_window ()
 gint
 main (int argc, char *argv[])
 {
+	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
+	textdomain(PACKAGE);
+
         control_center_corba_gtk_init(&argc,argv);
         main_window = create_window ();
         control_center_corba_gtk_main (&argc, argv);

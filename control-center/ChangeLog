@@ -1,3 +1,9 @@
+1998-11-21  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
+
+	* callbacks.c: Include <config.h>
+
+	* main.c (main): Initialize gettext.
+
 Thu Nov 19 23:37:18 CST 1998  Frank Belew <frb@umr.edu>
 	* changed occurences of -lgnorba to $(GNORBA_LIBS) in Makefile.am 
 
