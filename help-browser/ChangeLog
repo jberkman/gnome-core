@@ -1,3 +1,8 @@
+Sun Mar 15 15:38:24 1998  Owen Taylor  <owt1@cornell.edu>
+
+	* gnome-info2html/Makefile.am: added GNOME_INCLUDEDIR to
+	  INCLUDES so glib.h will be found.
+
 1998-03-13  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* Makefile.am (gnome_help_browser_LDADD): Use $(RES_LIBS) found in

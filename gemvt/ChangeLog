@@ -1,3 +1,8 @@
+Sun Mar 15 15:44:35 1998  Owen Taylor  <owt1@cornell.edu>
+
+	*  configure.in: Replaced checks for X and GTK with AM_PATH_GTK
+	*  Makefile.am:  use GTK_CFLAGS and GTK_LIBS
+
 Tue Mar 10 16:22:17 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* gvtmain.c (main): Don't pass pointers to argc,argv to

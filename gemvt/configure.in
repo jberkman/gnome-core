@@ -32,53 +32,7 @@ enable_pedantic_ansi=no)
 dnl Define package requirements.
 AC_DEFUN(AC_GEMVT_REQUIREMENTS,
 [
-	dnl saved_cflags="$CFLAGS"
-	saved_ldflags="$LDFLAGS"
-
-	dnl look at macros/gnome.m4 for explanation
-	CPPFLAGS="$X_CFLAGS $CPPFLAGS"
-	LDFLAGS="$X_LDFLAGS $X_LIBS"
-
-	dnl Checks for libraries. 
-	AC_CHECK_LIB(X11, XOpenDisplay,
-		x_libs="-lX11 $X_EXTRA_LIBS",
-		[AC_MSG_ERROR(No X11 installed)],
-		$X_EXTRA_LIBS)
-
-	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS $x_libs"
-	AC_CHECK_LIB(Xext, XShmAttach,
-		x_libs="$x_libs -lXext", ,
-		$x_libs)
-
-	dnl Assume that if we have -lSM then we also have -lICE.
-	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS"
-	AC_CHECK_LIB(SM, SmcSaveYourselfDone,
-		[AC_DEFINE(HAVE_LIBSM)
-		x_libs="$x_libs -lSM -lICE"], ,
-		$x_libs -lICE)
-
-	LDFLAGS="$saved_ldflags $X_LDFLAGS $X_LIBS"
-	AC_CHECK_LIB(gtk, gtk_init,
-		X_LIBS="$X_LIBS -lgtk -lgdk -lglib $x_libs -lm",
-		[AC_MSG_ERROR(Can not link with gtk/gdk/glib)],
-		-lgdk -lglib $x_libs -lm)
-
-	dnl Check for functions.
-	AC_CHECK_FUNC(putenv,,[AC_MSG_ERROR(Cannot set environment variables)])
-	
-	dnl Check for variables.
-	AC_CHECK_FUNC(environ,AC_DEFINE(HAVE_ENVIRON),
-	  AC_CHECK_FUNC(__environ,AC_DEFINE(HAVE___ENVIRON),
-	    [AC_MSG_ERROR(Cannot access environment)]))
-	
-
-	AC_CHECK_FUNC(getopt_long,
-		      GETOPT_OBJS="",
-		      GETOPT_OBJS="getopt.o getopt1.o")
-	AC_SUBST(GETOPT_OBJS)
-
-	dnl CFLAGS="$saved_cflags"
-	LDFLAGS="$saved_ldflags"
+	AM_PATH_GTK(,,AC_MSG_ERROR(Cannot find GTK: is gtk-config in path?))
 
 	dnl Type checks.
 	AC_TYPE_SIGNAL
@@ -152,11 +106,6 @@ AC_PROG_LN_S
 AM_PROG_LIBTOOL
 
 dnl Check for package requirements.
-AC_PATH_X
-AC_PATH_XTRA
-MC_IF_VAR_EQ($no_x, yes,
-	AC_MSG_ERROR(This package requires the X Window System)
-)
 AC_GEMVT_REQUIREMENTS
 AC_DEFINE_UNQUOTED(GEMVT_MAJOR, $GEMVT_MAJOR)
 AC_DEFINE_UNQUOTED(GEMVT_REVISION, $GEMVT_REVISION)
@@ -190,10 +139,9 @@ dnl So, do check here, after the GNOME checks
 AC_CHECK_LIB(gtktty, gtk_tty_get_type,
   GEMVT_LD_EXTRA="$GEMVT_LD_EXTRA -lgtktty",
   [AC_MSG_ERROR(Can not link with libgtktty)],
-  $X_LIBS)
+  $GTK_LIBS)
 
 dnl Automake @VARIABLE@ exports.
-AC_SUBST(x_libs)
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
