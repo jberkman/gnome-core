@@ -4,6 +4,7 @@
     <cmd name="ToggleMenuBar"  _label="_Hide menubar" type="toggle"/>
     <cmd name="CloseTerminal"  _label="_Close terminal" pixtype="stock" pixname="Close"/>
 
+    <cmd name="Copy"           _label="_Copy" pixtype="stock" pixname="Copy"/>
     <cmd name="Paste"          _label="_Paste" pixtype="stock" pixname="Paste"/>
     
     <cmd name="Preferences"    _label="_Preferences" pixtype="stock" pixname="Preferences"/>
@@ -26,6 +27,7 @@
     </submenu>
 
     <submenu name="Edit" _label="Edit">
+      <menuitem name="Copy" verb=""/>
       <menuitem name="Paste" verb=""/>
     </submenu>
 
