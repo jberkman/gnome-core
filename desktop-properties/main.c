@@ -4,6 +4,7 @@
 
 #include "gnome.h"
 #include "gnome-desktop.h"
+#include "libgnomeui/gnome-session.h"
 
 GtkWidget *main_window;
 GnomePropertyConfigurator *display_config;
@@ -138,17 +139,37 @@ property_main (int argc, char *argv [])
 {
 	int init = 0;
 	int i;
+	char *session_id;
+	char *previous_id = NULL;
+	char *new_argv[4];
 
 	gtk_init (&argc, &argv);
 	gnome_init (&argc, &argv);
-	
+
 	display_config = gnome_property_configurator_new ();
 	application_register (display_config);
 	
+	/* FIXME: look for session management token.  */
 	for (i=1; i<argc; i++)
 		if (!strcmp (argv [i], "-init"))
 			init = 1;
-	
+
+	/* FIXME: actually save state.  */
+	session_id = gnome_init_session (NULL, NULL,
+					 NULL, previous_id);
+
+	/* FIXME: for now, fake out the session manager and have it
+	   restart us in -init mode.  This is pretty bogus.  But it
+	   does point out a deficiency in the session manager.  */
+	new_argv[0] = argv[0];
+	new_argv[1] = "-init";
+	new_argv[2] = "-previous-id";
+	new_argv[3] = session_id;
+	gnome_set_restart_style (GNOME_RESTART_ANYWAY);
+	gnome_set_restart_command (4, new_argv);
+	gnome_set_clone_command (2, new_argv);
+	gnome_set_program (argv[0]);
+
 	gnome_property_configurator_request_foreach (display_config,
 						     GNOME_PROPERTY_READ);
 
