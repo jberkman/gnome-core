@@ -1,5 +1,13 @@
 1999-09-11  Anders Carlsson  <anders.carlsson@tordata.se>
 
+	* tasklist_properties.c: We now set a window title
+
+1999-09-11  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* unknown.xpm: Adding new icon from tigert
+
+1999-09-11  Anders Carlsson  <anders.carlsson@tordata.se>
+
 	* tasklist_applet.c: Fixed a bug with move to desktop
 
 1999-09-11  Anders Carlsson  <anders.carlsson@tordata.se>

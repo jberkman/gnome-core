@@ -165,6 +165,7 @@ display_properties (void)
 	memcpy (&PropsConfig, &Config, sizeof (TasklistConfig));
 
 	prop = gnome_property_box_new ();
+	gtk_window_set_title (GTK_WINDOW (prop), _("Tasklist properties"));
 	gtk_signal_connect (GTK_OBJECT (prop), "apply",
 			    GTK_SIGNAL_FUNC (cb_apply), NULL);
 
