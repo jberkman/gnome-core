@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Hypercube
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=hypercube
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=hypercube.png
+Author=
+ExtendedComment=
+Demo=hypercube -delay 2

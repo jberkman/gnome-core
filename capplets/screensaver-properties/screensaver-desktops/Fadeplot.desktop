@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Fadeplot
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=fadeplot
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=fadeplot.png
+Author=
+ExtendedComment=
+Demo=fadeplot -delay 2

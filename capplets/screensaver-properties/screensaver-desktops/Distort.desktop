@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Distort
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=distort
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=distort.png
+Author=
+ExtendedComment=
+Demo=distort -delay 2

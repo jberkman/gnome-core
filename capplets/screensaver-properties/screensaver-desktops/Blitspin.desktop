@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Blitspin
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=blitspin
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=blitspin.png
+Author=
+ExtendedComment=
+Demo=blitspin -delay 2

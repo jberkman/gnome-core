@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Spiral
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=spiral
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=spiral.png
+Author=
+ExtendedComment=
+Demo=spiral -delay 2

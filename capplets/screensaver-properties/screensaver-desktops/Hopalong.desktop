@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Hopalong
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=hopalong
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=hopalong.png
+Author=
+ExtendedComment=
+Demo=hopalong -delay 2

@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Helix
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=helix
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=helix.png
+Author=
+ExtendedComment=
+Demo=helix -delay 2

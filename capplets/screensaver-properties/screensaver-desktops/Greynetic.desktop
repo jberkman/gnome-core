@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Greynetic
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=greynetic
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=greynetic.png
+Author=
+ExtendedComment=
+Demo=greynetic -delay 2

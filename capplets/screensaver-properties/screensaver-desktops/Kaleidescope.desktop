@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Kaleidescope
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=kaleidescope
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=kaleidescope.png
+Author=
+ExtendedComment=
+Demo=kaleidescope -delay 2

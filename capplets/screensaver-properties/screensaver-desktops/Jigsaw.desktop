@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Jigsaw
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=jigsaw
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=jigsaw.png
+Author=
+ExtendedComment=
+Demo=jigsaw -delay 2

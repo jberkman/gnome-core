@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Halo
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=halo
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=halo.png
+Author=
+ExtendedComment=
+Demo=halo -delay 2

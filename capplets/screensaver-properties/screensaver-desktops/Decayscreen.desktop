@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Decayscreen
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=decayscreen
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=decayscreen.png
+Author=
+ExtendedComment=
+Demo=decayscreen -delay 2

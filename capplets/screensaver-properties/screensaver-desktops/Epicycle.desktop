@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Epicycle
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=epicycle
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=epicycle.png
+Author=
+ExtendedComment=
+Demo=epicycle -delay 2

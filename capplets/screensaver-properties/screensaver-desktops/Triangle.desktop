@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Triangle
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=triangle
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=triangle.png
+Author=
+ExtendedComment=
+Demo=triangle -delay 2

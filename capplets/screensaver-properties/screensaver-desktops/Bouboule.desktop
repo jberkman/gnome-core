@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Bouboule
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=bouboule
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=bouboule.png
+Author=
+ExtendedComment=
+Demo=bouboule -delay 2

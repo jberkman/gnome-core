@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Bsod
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=bsod
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=bsod.png
+Author=
+ExtendedComment=
+Demo=bsod -delay 2

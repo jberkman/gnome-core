@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Julia
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=julia
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=julia.png
+Author=
+ExtendedComment=
+Demo=julia -delay 2

@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Xroger
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=xroger
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=xroger.png
+Author=
+ExtendedComment=
+Demo=xroger -delay 2

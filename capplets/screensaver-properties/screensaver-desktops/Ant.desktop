@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name=Ant
+Comment=
+Exec=xscreensaver-command -activate
+TryExec=ant
+Terminal=0
+Type=Application
+
+[Screensaver Data]
+WindowIdCommand=-window-id
+RootCommand=-root
+Icon=ant.png
+Author=
+ExtendedComment=
+Demo=ant -delay 2
