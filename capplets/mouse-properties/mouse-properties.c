@@ -308,13 +308,13 @@ main (int argc, char **argv)
                 init = TRUE;
         if (init) {
                 argv[1] = NULL;
-                gnome_init ("Mouse Properties", NULL, 1, argv, 0, NULL);
+                gnome_init ("mouse-properties", NULL, 1, argv, 0, NULL);
                 mouse_read ();
                 mouse_apply ();
                 return;
         }
 
-        gnome_capplet_init ("Mouse Properties", NULL, argc, argv, 0, NULL);
+        gnome_capplet_init ("mouse-properties", NULL, argc, argv, 0, NULL);
         
         mouse_read ();
         mouse_setup();
