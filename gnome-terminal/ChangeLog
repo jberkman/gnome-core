@@ -1,3 +1,8 @@
+1998-09-19  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c: Use the keyborad shortcuts;  Make indentation
+	and variable style uniform to the GNOME style :-).
+
 1998-09-19  Manish Vachharajani <mvachhar@vger.rutgers.edu>
 
 	* gnome_terminal.c: Fixed bugs saving session
