@@ -710,7 +710,7 @@ helpWindowNew(gchar *name,
 	gtk_widget_show(w->helpWidget);
 
 	/* add a status bar */
-	w->appBar = gnome_appbar_new(TRUE, TRUE,
+	w->appBar = gnome_appbar_new(FALSE, TRUE,
 				     GNOME_PREFERENCES_USER);
 
 	gnome_app_set_statusbar(GNOME_APP(w->app), GTK_WIDGET(w->appBar));
