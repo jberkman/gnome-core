@@ -1,3 +1,9 @@
+2000-03-19  Jacob Berkman  <jacob@helixcode.com>
+
+	* gnome-help-browser.c (main): show the window before loading
+	th URL so that when we pass an anchor in the initial URL it
+	all works right
+
 2000-02-23  Peter Hawkins  <peterhawkins@ozemail.com.au>
 
 	* gnome-help-browser.c: stopped the about box from being shown twice at once.

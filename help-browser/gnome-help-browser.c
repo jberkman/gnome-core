@@ -222,6 +222,8 @@ main(int argc, char *argv[])
     window = makeHelpWindow(defposx, defposy, defwidth, defheight);
     if (!helpURL)
       helpURL = "toc:";
+
+    gtk_widget_show (helpWindowGetAppWindow (window));
     helpWindowShowURL(window, helpURL, TRUE, TRUE);
 
     browser_object =  impl_help_browser_simple_browser__create(root_poa, 
@@ -248,8 +250,6 @@ main(int argc, char *argv[])
     dup2(output_fd, fileno(stdout));
     dup2(output_fd, fileno(stderr));
     close(output_fd);
-
-    gtk_widget_show (helpWindowGetAppWindow (window));
 
     gtk_main();
 
