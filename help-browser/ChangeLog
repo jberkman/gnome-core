@@ -1,3 +1,7 @@
+1999-11-18  Pablo Saratxaga <pablo@mandrakesoft.com>
+
+	* help/el/*: added a the Greek default page from gnome-core 1.0.*
+
 1999-11-05  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* help/Makefile.am: revert commit adding uk dir,
