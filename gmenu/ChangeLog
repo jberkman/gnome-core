@@ -1,3 +1,8 @@
+1998-06-12  Tristan Tarrant  <ttarrant@suntlc.etnoteam.it>
+
+	* gmenu.c: Fixed SIGSEGV if environment variables are
+	not defined.
+
 1998-06-12  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch]: Added preliminary user folders, now user must be
