@@ -128,7 +128,7 @@ about_terminal_cmd (void)
 
         const gchar *authors[] = {
 		"Zvt terminal widget: "
-		"    Michael Zucchi (zucchi@zedzone.box.net.au)",
+		"    Michael Zucchi (zucchi@zedzone.mmc.com.au)",
 		"GNOME terminal: "
 		"    Miguel de Icaza (miguel@kernel.org)",
 		"    Erik Troan (ewt@redhat.com)",

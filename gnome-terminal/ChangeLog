@@ -1,3 +1,8 @@
+1999-02-14  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
+
+	* gnome-terminal.c (about_terminal_cmd): Fixed my email address
+	in the about box.
+
 1999-02-10  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* gnome-terminal.c (gather_changes): When modifying the Default
