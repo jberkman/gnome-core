@@ -63,6 +63,7 @@ struct terminal_config {
 	enum scrollbar_position_enum scrollbar_position;
 	int invoke_as_login_shell; 		/* How to invoke the shell */
 	GdkColor user_fore, user_back; 		/* The custom colors */
+        char *user_back_str, *user_fore_str;
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int have_user_colors;			/* Only used for command line parsing */
 	int transparent;
@@ -1698,12 +1699,12 @@ parse_an_arg (poptContext state,
 	        initial_command = poptGetArgs(state);
 		break;
 	case FORE_KEY:
-		if (!gdk_color_parse (arg, &cfg->user_fore))
-			cfg->have_user_colors = 1;
+	        cfg->user_fore_str = arg;
+		cfg->have_user_colors = 1;
 		break;
 	case BACK_KEY:
-		if (!gdk_color_parse (arg, &cfg->user_back))
-			cfg->have_user_colors = 1;
+	        cfg->user_back_str = arg;
+		cfg->have_user_colors = 1;
 		break;
 	case DISCARD_KEY:
 		gnome_client_disable_master_connection ();
@@ -1741,13 +1742,20 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	else
 		class = g_strdup ("Config");
 
-	cmdline_config = g_malloc (sizeof (*cmdline_config));
-	memset (cmdline_config, 0, sizeof (*cmdline_config));
+	cmdline_config = g_new0 (struct terminal_config, 1);
 
 	cb_options[0].descrip = (char *)cmdline_config;
 
 	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
 				   cb_options, 0, &ctx);
+
+	if(cmdline_config->user_back_str)
+	   gdk_color_parse(cmdline_config->user_back_str,
+			   &cmdline_config->user_back);
+
+	if(cmdline_config->user_fore_str)
+	   gdk_color_parse(cmdline_config->user_fore_str,
+			   &cmdline_config->user_fore);
 
 	if (cmdline_config->class){
 		free (class);
