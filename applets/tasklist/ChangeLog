@@ -1,3 +1,12 @@
+Wed Dec 20 14:27:54 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.[ch], tasklist_config.c, tasklist_properties.c:
+	  Fixups, optimizations of X traffic (this still needs work).  Add
+	  BeOS like deskbar (I think) sort of mode.  In vertical mode you can
+	  have the width be that of the longest window title.  So all you
+	  have to do to achieve this is to smack an aligned vertical
+	  panel there, make height dynamic and use this setting and voila!
+
 Wed Dec 13 19:17:27 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.c, tasklist_applet.h, tasklist_config.c,

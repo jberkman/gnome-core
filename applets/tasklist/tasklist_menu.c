@@ -166,7 +166,7 @@ cb_to_desktop (GtkWidget *widget, gpointer data)
 			       GPOINTER_TO_INT (data));
 	gwmh_task_set_desktop (current_task->gwmh_task, 
 			       GPOINTER_TO_INT (data));
-	layout_tasklist ();
+	layout_tasklist (TRUE);
 }
 
 /* Create a popup menu */

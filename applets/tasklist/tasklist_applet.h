@@ -4,6 +4,9 @@
 #include "applet-widget.h"
 #include "gwmh.h"
 
+#ifndef TASKLIST_APPLET_H
+#define TASKLIST_APPLET_H
+
 /* The row height of a task */
 #define ROW_HEIGHT 24
 typedef struct _TasklistTask TasklistTask;
@@ -31,6 +34,7 @@ typedef enum
 struct _TasklistTask {
 	gint x, y;
 	gint width, height;
+	gint fullwidth;
 	TasklistIcon *icon;
 	Pixmap wmhints_icon;
 	GwmhTask *gwmh_task;
@@ -61,6 +65,8 @@ struct _TasklistConfig {
 	gint vert_height; /* The height of the tasklist */
 	gint vert_width; /* The width of the tasklist */
 	gboolean vert_fixed; /* Fixed or dynamic sizing */
+	gboolean vert_width_full;  /* a mode where th width is the maximum width */
+				   /* of any window title. */
 
 
 };
@@ -76,10 +82,13 @@ void read_config (void);
 gboolean write_config (gpointer data,
 		       const gchar *privcfgpath,
 		       const gchar *globcfgpath);
-void resort_taslklist (void);
-void change_size (gboolean layout);
-void layout_tasklist (void);
+void resort_tasklist (void);
+/* fullwidth can be -1 so if it's to be recomputed (only if needed */
+void change_size (gboolean layout, int fullwidth);
+void layout_tasklist (gboolean call_change_size);
 GdkPixbuf *tasklist_icon_create_minimized_icon (GdkPixbuf *pixbuf);
 void tasklist_icon_set (TasklistTask *task);
 void tasklist_icon_destroy (TasklistTask *task);
 Pixmap tasklist_icon_get_pixmap (TasklistTask *task);
+
+#endif /* TASKLIST_APPLET_H */

@@ -32,6 +32,8 @@ gboolean write_config (gpointer data,
 			      Config.vert_height);
 	gnome_config_set_int ("tasklist/vert_width",
 			      Config.vert_width);
+	gnome_config_set_bool ("tasklist/vert_width_full",
+			       Config.vert_width_full);
 
 	
 	gnome_config_set_bool ("tasklist/show_mini_icons",
@@ -78,6 +80,7 @@ void read_config (void)
 	Config.vert_fixed = gnome_config_get_bool ("tasklist/vert_fixed=true");
 	Config.vert_width = gnome_config_get_int ("tasklist/vert_width=48");
 	Config.vert_height = gnome_config_get_int ("tasklist/vert_height=300");
+	Config.vert_width_full = gnome_config_get_bool ("tasklist/vert_width_full=false");
 
 	Config.confirm_before_kill = gnome_config_get_bool ("tasklist/confirm_before_kill=true");
 	

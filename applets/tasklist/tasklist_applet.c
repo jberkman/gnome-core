@@ -327,9 +327,45 @@ draw_task (TasklistTask *task, GdkRectangle *rect)
 	}
 }
 
+static int
+max_width (GList *temp_tasks)
+{
+	GList *li;
+	int maxwidth = 0;
+
+	for (li = temp_tasks; li != NULL; li = li->next) {
+		int width;
+		TasklistTask *task = li->data;
+		const char *name = task->gwmh_task->name != NULL ? 
+			task->gwmh_task->name : "";
+
+		if (task->fullwidth < 0) {
+			width = gdk_string_width (area->style->font, name);
+
+			if (GWMH_TASK_ICONIFIED (task->gwmh_task))
+				width += gdk_string_width (area->style->font,
+							   "[]");
+
+			task->fullwidth = width;
+		} else {
+			width = task->fullwidth;
+		}
+
+		if (Config.show_mini_icons)
+			width += 10;
+
+		width += ROW_HEIGHT;
+
+		if (width > maxwidth)
+			maxwidth = width;
+	}
+
+	return maxwidth;
+}
+
 /* Layout the tasklist */
 void
-layout_tasklist (void)
+layout_tasklist (gboolean call_change_size)
 {
 	gint j = 0, k = 0, num = 0, p = 0;
 	GList *temp_tasks, *temp;
@@ -350,7 +386,7 @@ layout_tasklist (void)
 			else
 				horz_width = 4;
 			
-			change_size (FALSE);
+			change_size (FALSE, -1);
 			
 			gtk_widget_draw (area, NULL);
 			return;
@@ -424,7 +460,8 @@ layout_tasklist (void)
 		else
 			horz_width = num_cols * curwidth + 4;
 
-		change_size (FALSE);
+		if (call_change_size)
+			change_size (FALSE, -1);
 
 		break;
 
@@ -437,7 +474,8 @@ layout_tasklist (void)
 			else
 				vert_height = 4;
 			
-			change_size (FALSE);
+			if (call_change_size)
+				change_size (FALSE, -1);
 			
 			gtk_widget_draw (area, NULL);
 			return;
@@ -448,6 +486,13 @@ layout_tasklist (void)
 			curwidth = panel_size - 0;
 		else
 			curwidth = Config.vert_width - 0;
+
+		if (Config.vert_width_full) {
+			int fullwidth = max_width (temp_tasks);
+
+			if (fullwidth > curwidth)
+				curwidth = fullwidth;
+		}
 		
 		num_cols = 1;
 		num_rows = num;
@@ -460,7 +505,8 @@ layout_tasklist (void)
 		else
 			vert_height = curheight * num_rows + 4;
 		
-		change_size (FALSE);
+		if (call_change_size)
+			change_size (FALSE, curwidth);
 
 		for (temp = temp_tasks; temp != NULL; temp = temp->next) {
 			task = (TasklistTask *) temp->data;
@@ -518,7 +564,7 @@ desk_notifier (gpointer func_data, GwmhDesk *desk,
 	    Config.all_desks_normal)
 		return TRUE;
 
-	layout_tasklist ();
+	layout_tasklist (TRUE);
 
 	return TRUE;
 }
@@ -529,36 +575,57 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	       GwmhTaskNotifyType ntype,
 	       GwmhTaskInfoMask imask)
 {
+	gboolean que_draw, que_layout;
         static gint master_serial_number = 0;
 	TasklistTask *task;
 	
 	switch (ntype)
 	{
 	case GWMH_NOTIFY_INFO_CHANGED:
+		que_draw = FALSE;
+		que_layout = FALSE;
+		task = find_gwmh_task (gwmh_task);
+
 		if (imask & GWMH_TASK_INFO_WM_HINTS) {
-			if (tasklist_icon_get_pixmap (find_gwmh_task (gwmh_task)) !=
-			    find_gwmh_task (gwmh_task)->wmhints_icon) {
-				tasklist_icon_destroy (find_gwmh_task (gwmh_task));
-				tasklist_icon_set (find_gwmh_task (gwmh_task));
-				draw_task (find_gwmh_task (gwmh_task), NULL);
+			task->fullwidth = -1;
+			if (tasklist_icon_get_pixmap (task) !=
+			    task->wmhints_icon) {
+				tasklist_icon_destroy (task);
+				tasklist_icon_set (task);
+				que_draw = TRUE;
 			}
 		}
 		if (imask & GWMH_TASK_INFO_GSTATE)
-			layout_tasklist ();
-		if (imask & GWMH_TASK_INFO_ICONIFIED)
-			layout_tasklist ();
-		if (imask & GWMH_TASK_INFO_FOCUSED)
-			draw_task (find_gwmh_task (gwmh_task), NULL);
-		if (imask & GWMH_TASK_INFO_MISC)
-			draw_task (find_gwmh_task (gwmh_task), NULL);
-		if (imask & GWMH_TASK_INFO_DESKTOP) {
-			if (Config.all_desks_minimized && 
-			    Config.all_desks_normal)
-				break;
-
-			/* Redraw entire tasklist */
-			layout_tasklist ();
+			que_layout = TRUE;
+		if (imask & GWMH_TASK_INFO_ICONIFIED) {
+			task->fullwidth = -1;
+			que_layout = TRUE;
 		}
+		if (imask & GWMH_TASK_INFO_FOCUSED)
+			que_draw = TRUE;
+		if (imask & GWMH_TASK_INFO_MISC) {
+			task->fullwidth = -1;
+			que_draw = TRUE;
+
+			/* this might change the size,
+			 * if width full is on. */
+			if (Config.vert_width_full &&
+			    (tasklist_orient == ORIENT_LEFT ||
+			     tasklist_orient == ORIENT_RIGHT))
+				que_layout = TRUE;
+		}
+		if (imask & GWMH_TASK_INFO_DESKTOP) {
+			if ( ! Config.all_desks_minimized ||
+			     ! Config.all_desks_normal)
+				que_layout = TRUE;
+		}
+
+		if (que_layout)
+			/* Redraw entire tasklist */
+			layout_tasklist (TRUE);
+		else if (que_draw)
+			/* We can get away with redrawing the task only */
+			draw_task (task, NULL);
 		break;
 	case GWMH_NOTIFY_NEW:
 		task = g_malloc0 (sizeof (TasklistTask));
@@ -567,7 +634,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 		tasklist_icon_set (task);
                 task->serial_number = master_serial_number++; /* wrapping seems unlikely :-) */
                 tasks = g_list_insert_sorted (tasks, task, tasklist_sorting_compare_func);
-	        layout_tasklist ();
+	        layout_tasklist (TRUE);
 		break;
 	case GWMH_NOTIFY_DESTROY:
 		task = find_gwmh_task (gwmh_task);
@@ -580,7 +647,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 			if(task->menu)
 				gtk_widget_destroy(task->menu);
 			g_free (task);
-			layout_tasklist ();
+			layout_tasklist (TRUE);
 		}
 		break;
 	default:
@@ -808,8 +875,18 @@ resort_tasklist (void)
 
 /* Changes size of the applet */
 void
-change_size (gboolean layout)
+change_size (gboolean layout, int fullwidth)
 {
+	gboolean force_change = FALSE;
+	static int old_handle_width = -1;
+	static int old_handle_height = -1;
+	static int old_width = -1;
+	static int old_height = -1;
+	int handle_width = 0;
+	int handle_height = 0;
+	int width = 0;
+	int height = 0;
+
 	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
@@ -817,13 +894,15 @@ change_size (gboolean layout)
 			horz_width = Config.horz_width;
 		else
 		horz_width = 4;*/
-		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
-		gtk_widget_set_usize (handle, 
-				      DRAG_HANDLE_SIZE + horz_width,
-				      get_horz_rows() * ROW_HEIGHT);
-		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       horz_width,
-				       get_horz_rows() * ROW_HEIGHT);
+
+		width = horz_width;
+		handle_width = DRAG_HANDLE_SIZE + horz_width;
+		height = handle_height = get_horz_rows() * ROW_HEIGHT;
+
+		if (GTK_HANDLE_BOX (handle)->handle_position != GTK_POS_LEFT) {
+			GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
+			force_change = TRUE;
+		}
 		break;
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
@@ -831,20 +910,53 @@ change_size (gboolean layout)
 			vert_height = Config.vert_height;
 		else
 		vert_height = 4;*/
-		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
-		gtk_widget_set_usize (handle, 
-				      (Config.follow_panel_size?
-				       panel_size:
-				       Config.vert_width),
-				      DRAG_HANDLE_SIZE + vert_height);
-		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-				       (Config.follow_panel_size?
-					panel_size:
-					Config.vert_width),
-				       vert_height);
+
+		if (Config.follow_panel_size)
+			width = panel_size;
+		else
+			width = Config.vert_width;
+
+		if (Config.vert_width_full) {
+			if (fullwidth < 0) {
+				GList *temp_tasks = get_visible_tasks ();
+
+				fullwidth = max_width (temp_tasks);
+
+				g_list_free (temp_tasks);
+			}
+
+			if (fullwidth > width)
+				width = fullwidth;
+		}
+
+		if (GTK_HANDLE_BOX (handle)->handle_position != GTK_POS_TOP) {
+			GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
+			force_change = TRUE;
+		}
+
+		handle_width = width;
+		handle_height = vert_height + DRAG_HANDLE_SIZE;
+		height = vert_height;
 	}
+
+	if (force_change ||
+	    old_width != width ||
+	    old_height != height ||
+	    old_handle_width != handle_width ||
+	    old_handle_height != handle_height) {
+		gtk_widget_set_usize (handle,
+				      handle_width,
+				      handle_height);
+		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
+				       width, height);
+		old_width = width;
+		old_height = height;
+		old_handle_width = handle_width;
+		old_handle_height = handle_height;
+	}
+
 	if (layout)
-		layout_tasklist ();
+		layout_tasklist (FALSE);
 }
 
 /* Called when the panel's orient changes */
@@ -855,7 +967,7 @@ cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
 	tasklist_orient = orient;
 
 	/* Change size accordingly */
-	change_size (TRUE);
+	change_size (TRUE, -1);
 }
 
 static void
@@ -865,7 +977,7 @@ cb_change_pixel_size (GtkWidget *widget, int size)
 	
 	/* Change size accordingly */
 	if(Config.follow_panel_size)
-		change_size (TRUE);
+		change_size (TRUE, -1);
 }
 
 static void
@@ -975,7 +1087,7 @@ main (gint argc, gchar *argv[])
 	panel_size = applet_widget_get_panel_pixel_size(APPLET_WIDGET(applet));
 	tasklist_orient = applet_widget_get_panel_orient(APPLET_WIDGET(applet));
 
-	change_size (TRUE);
+	change_size (TRUE, -1);
 
 	gtk_widget_show (applet);
 

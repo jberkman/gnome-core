@@ -20,7 +20,7 @@ cb_apply (GtkWidget *widget, gint page, gpointer data)
 
         /* Resort and redraw everything */
         resort_tasklist ();
-	change_size (TRUE);
+	change_size (TRUE, -1);
 }
 
 /* Callback for radio buttons */
@@ -231,6 +231,11 @@ create_size_page (void)
 	gtk_box_pack_start (GTK_BOX (vbox),
 			    create_radio_button (_("Tasklist height is dynamic"), 
 						 &vertgroup, FALSE, &PropsConfig.vert_fixed),
+			    FALSE, TRUE, 0);
+
+	gtk_box_pack_start (GTK_BOX (vbox),
+			    create_check_button (_("Tasklist width is that of longest title"),
+						 &PropsConfig.vert_width_full),
 			    FALSE, TRUE, 0);
 
 	gtk_container_add (GTK_CONTAINER (frame), vbox);
