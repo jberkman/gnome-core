@@ -2121,8 +2121,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	if (cfg->window_icon) {
 	  gnome_window_icon_set_from_file (GTK_WINDOW(app), cfg->window_icon);
  	}
-	g_snprintf (winclass, sizeof (winclass), "GnomeTerminal.%d", termid);
-	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", winclass);
+	g_snprintf (winclass, sizeof (winclass), "Terminal.%d", termid);
+	gtk_window_set_wmclass (GTK_WINDOW (app), winclass, "Terminal");
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
 	if (cmd != NULL)
