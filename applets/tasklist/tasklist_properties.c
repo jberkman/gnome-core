@@ -84,6 +84,8 @@ create_spin_button (gchar *name,
 	spin = gtk_spin_button_new (GTK_ADJUSTMENT (adj), 1, 0);
 	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
 			    GTK_SIGNAL_FUNC (cb_spin_button), init_value);
+	gtk_signal_connect (GTK_OBJECT (spin), "changed",
+			    GTK_SIGNAL_FUNC (cb_spin_button), init_value);
 
 	label = gtk_label_new (name);
 	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
