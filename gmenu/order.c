@@ -10,7 +10,7 @@ GList *get_order_of_dir(gchar *dir)
 {
 	gchar buf[256];
 	GList *list = NULL;
-	gchar *order_file = g_copy_strings(dir, "/.order", NULL);
+	gchar *order_file = g_strconcat(dir, "/.order", NULL);
 	FILE *f;
 
 	f = fopen(order_file,"r");
@@ -51,7 +51,7 @@ void save_order_of_dir(GtkCTreeNode *node)
 		parent = node;
 
 	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
-	row_file = g_copy_strings(d->path, "/.order", NULL);
+	row_file = g_strconcat(d->path, "/.order", NULL);
 
 	row = GTK_CTREE_ROW(parent)->children;
 
@@ -123,7 +123,7 @@ Desktop_Data * get_desktop_file_info (gchar *file)
 			if (dentry->comment)
 				d->comment = g_strdup(dentry->comment);
 			else
-				d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
+				d->comment = g_strconcat(d->name , _(" Folder"), NULL);
 			if (dentry->icon)
 				{
 				d->pixmap = gnome_stock_pixmap_widget_at_size (NULL, dentry->icon, 20, 20);
@@ -137,7 +137,7 @@ Desktop_Data * get_desktop_file_info (gchar *file)
 		else
 			{
 			d->name = g_strdup(file + g_filename_index(file));
-			d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
+			d->comment = g_strconcat(d->name , _(" Folder"), NULL);
 			d->pixmap = gnome_pixmap_new_from_xpm_d (folder_xpm);
 			}
 		g_free(dirfile);

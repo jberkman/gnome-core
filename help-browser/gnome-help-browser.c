@@ -182,7 +182,7 @@ main(int argc, char *argv[])
     if(leftovers && leftovers[0]) {
       helpURL = leftovers[0];
       if(*helpURL == '/')
-	helpURL = g_copy_strings("file:", helpURL, NULL);
+	helpURL = g_strconcat("file:", helpURL, NULL);
       else
 	helpURL = g_strdup(helpURL);
     }

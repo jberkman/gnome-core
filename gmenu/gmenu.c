@@ -106,7 +106,7 @@ static void drag_data_get_cb (GtkWidget *widget, GdkDragContext *context,
 {
 	if (drop_data)
 		{
-		gchar *uri_list = g_copy_strings ("file:", drop_data, NULL);
+		gchar *uri_list = g_strconcat ("file:", drop_data, NULL);
 		gtk_selection_data_set (selection_data,
 				selection_data->target, 8, uri_list,
 				strlen(uri_list));
@@ -248,11 +248,11 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename)
 	if (correct_path) g_free(correct_path);
 	correct_path = NULL;
 
-	correct_path = g_copy_strings(path1, "/", filename, NULL);
+	correct_path = g_strconcat(path1, "/", filename, NULL);
 	if (isfile(correct_path)) return correct_path;
 	g_free(correct_path);
 
-	correct_path = g_copy_strings(path2, "/", filename, NULL);
+	correct_path = g_strconcat(path2, "/", filename, NULL);
 	if (isfile(correct_path)) return correct_path;
 	g_free(correct_path);
 

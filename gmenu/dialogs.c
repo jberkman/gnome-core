@@ -28,9 +28,9 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 	new_folder = gtk_entry_get_text(GTK_ENTRY(dlg->entry));
 
 	if (current_path)
-		full_path = g_copy_strings(current_path, "/", new_folder, NULL);
+		full_path = g_strconcat(current_path, "/", new_folder, NULL);
 	else
-		full_path = g_copy_strings(USER_APPS, "/", new_folder, NULL);
+		full_path = g_strconcat(USER_APPS, "/", new_folder, NULL);
 
 /*	g_print("creating folder: %s\n",full_path);*/
 
@@ -267,7 +267,7 @@ static void save_dialog_cb( gint button, gpointer data)
 			}
 		else
 			{
-			path = g_copy_strings(current_path, "/",
+			path = g_strconcat(current_path, "/",
 				edit_area_get_filename(), NULL);
 			overwrite = isfile(path);
 			}
@@ -368,7 +368,7 @@ void save_pressed_cb(GtkWidget *w, gpointer data)
 	char *path;
 	GnomeDesktopEntry *dentry;
 
-	path = g_copy_strings(current_path, "/", edit_area_get_filename(), NULL);
+	path = g_strconcat(current_path, "/", edit_area_get_filename(), NULL);
 
 	dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
 	if (!dentry->name)

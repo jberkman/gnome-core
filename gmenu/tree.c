@@ -358,7 +358,7 @@ GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode 
 
 	parent_data = gtk_ctree_node_get_row_data(GTK_CTREE(ctree), parent);
 
-	path_buf = g_copy_strings (parent_data->path, "/", file, NULL);
+	path_buf = g_strconcat (parent_data->path, "/", file, NULL);
 				
 	if (!g_file_exists(path_buf))
 		{
