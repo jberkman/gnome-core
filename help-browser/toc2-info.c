@@ -259,9 +259,9 @@ gint expandInfoTable(GList *table, gchar *name)
 	/* Find the right filename */
 	list = indirect;
 	while (list) {
-	    if (((Pair)list->data)->val >= val) {
+	    if (((Pair)list->data)->val > val) {
 		entry->filename =
-		    findInfoFile(rootFile, ((Pair)list->data)->name);
+		    findInfoFile(rootFile, ((Pair)list->prev->data)->name);
 		break;
 	    }
 	    list = list->next;

@@ -17,6 +17,7 @@
 #include "parseUrl.h"
 #include "window.h"
 #include "history.h"
+#include "bookmarks.h"
 #include "toc2.h"
 #include "docobj.h"
 #include "queue.h"
@@ -60,6 +61,7 @@ struct _helpWindow {
     History history;
     Toc toc;
     DataCache cache;
+    Bookmarks bookmarks;
 };
 
 
@@ -68,6 +70,7 @@ static GtkWidget * makeEntryArea(HelpWindow w);
 /* Callbacks */
 static void quit_cb(void);
 static void about_cb (GtkWidget *w, HelpWindow win);
+static void bookmark_cb (GtkWidget *w, HelpWindow win);
 static void close_cb (GtkWidget *w, HelpWindow win);
 static void delete_cb (GtkWidget *w, void *foo, HelpWindow win);
 static void new_window_cb (GtkWidget *w, HelpWindow win);
@@ -80,6 +83,7 @@ static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 static void anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
+static void ghelpShowBookmarks (GtkWidget *w, HelpWindow win);
 static void ghelpShowToc (GtkWidget *w, HelpWindow win);
 static void entryChanged(GtkWidget *w, HelpWindow win);
 static void setCurrent(HelpWindow w);
@@ -102,6 +106,7 @@ XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 GnomeUIInfo filemenu[] = {
     GNOMEUIINFO_ITEM("New window", "Open new browser window",
 		     new_window_cb, NULL),
+    GNOMEUIINFO_ITEM("Add Bookmark", "Add Bookmark", bookmark_cb, NULL),
     GNOMEUIINFO_ITEM("Close", "Close window", close_cb, NULL),
     GNOMEUIINFO_ITEM("Exit", "Exit program", quit_cb, NULL),
     GNOMEUIINFO_END
@@ -119,6 +124,8 @@ GnomeUIInfo windowmenu[] = {
 		     ghelpShowHistory, NULL),
     GNOMEUIINFO_ITEM("Table of Contents", "Show Table of Contents Window",
 		     ghelpShowToc, NULL),
+    GNOMEUIINFO_ITEM("Bookmarks", "Show Bookmarks Window",
+		     ghelpShowBookmarks, NULL),
     GNOMEUIINFO_END
 };
 
@@ -144,6 +151,8 @@ GnomeUIInfo toolbar[] = {
 		     ghelpShowHistory, contents_xpm),
     GNOMEUIINFO_ITEM("TOC", "Show Table of Contents Window",
 		     ghelpShowToc, contents_xpm),
+    GNOMEUIINFO_ITEM("BMarks", "Show Bookmarks Window",
+		     ghelpShowBookmarks, contents_xpm),
     GNOMEUIINFO_END
 };
 
@@ -159,6 +168,13 @@ about_cb (GtkWidget *w, HelpWindow win)
 {
     if (win->about_cb)
 	(win->about_cb)();
+}
+
+static void
+bookmark_cb (GtkWidget *w, HelpWindow win)
+{
+    if (win->bookmarks)
+	addToBookmarks(win->bookmarks, win->currentRef);
 }
 
 static void
@@ -186,6 +202,12 @@ static void
 ghelpShowHistory (GtkWidget *w, HelpWindow win)
 {
     showHistory(win->history);
+}
+
+static void
+ghelpShowBookmarks (GtkWidget *w, HelpWindow win)
+{
+    showBookmarks(win->bookmarks);
 }
 
 static void
@@ -455,6 +477,7 @@ helpWindowNew(gchar *name,
 	w->close_window_cb = (GHashFunc)close_window_callback;
 	w->set_current_cb = set_current_callback;
 	w->history = NULL;
+	w->bookmarks = NULL;
 	w->cache = NULL;
 	w->currentRef = NULL;
 
@@ -514,6 +537,12 @@ void
 helpWindowSetHistory(HelpWindow win, History history)
 {
     win->history = history;
+}
+
+void
+helpWindowSetBookmarks(HelpWindow win, Bookmarks bookmarks)
+{
+    win->bookmarks = bookmarks;
 }
 
 void

@@ -22,6 +22,7 @@
 
 #include "window.h"
 #include "history.h"
+#include "bookmarks.h"
 #include "toc2.h"
 #include "cache.h"
 
@@ -33,6 +34,7 @@ static void newWindowCallback(void);
 static void closeWindowCallback(HelpWindow win);
 static void setCurrentCallback(HelpWindow win);
 static void historyCallback(gchar *ref);
+static void bookmarkCallback(gchar *ref);
 static void tocCallback(gchar *ref);
 void messageHandler(gchar *s);
 void warningHandler(gchar *s);
@@ -70,6 +72,7 @@ static gchar *bookmarkFile;
 static Toc tocWindow;
 static History historyWindow;
 static DataCache cache;
+static Bookmarks bookmarkWindow;
 
 GList *windowList = NULL;
 
@@ -90,6 +93,8 @@ main(int argc, char *argv[])
 			 cacheFile);
     tocWindow = newToc(manPath, infoPath, ghelpPath,
 		       (GtkSignalFunc)tocCallback);
+    bookmarkWindow = newBookmarks((GSearchFunc)bookmarkCallback, NULL,
+				  bookmarkFile);
 
     window = makeHelpWindow();
 
@@ -99,6 +104,7 @@ main(int argc, char *argv[])
     gtk_main();
 
     saveHistory(historyWindow);
+    saveBookmarks(bookmarkWindow);
     saveCache(cache);
 	
     return 0;
@@ -114,6 +120,7 @@ makeHelpWindow()
     helpWindowSetHistory(window, historyWindow);
     helpWindowSetCache(window, cache);
     helpWindowSetToc(window, tocWindow);
+    helpWindowSetBookmarks(window, bookmarkWindow);
 
     windowList = g_list_append(windowList, window);
     
@@ -155,6 +162,13 @@ static void
 historyCallback (gchar *ref)
 {
     g_message("HISTORY: %s", ref);
+    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref);
+}
+
+static void
+bookmarkCallback (gchar *ref)
+{
+    g_message("BOOKMARKS: %s", ref);
     helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref);
 }
 

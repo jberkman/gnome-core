@@ -1,3 +1,9 @@
+1998-03-06  Marc Ewing  <marc@localhost.localdomain>
+
+	* fix horrible toc/info bug
+
+	* added bookmarks
+
 1998-03-05  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* history saving code

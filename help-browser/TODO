@@ -1,10 +1,10 @@
- - bookmarks
  - get rid of bad function type casts
- - for debug messages, use g_message()
+
  - add configuration stuff:
     filters, paths, etc
     toolbar preferences
     history/cache sizes/filesnames
+
  - session management
 
  - fix error handling (back, etc)
@@ -18,11 +18,9 @@
  - fix broken toc
     use real path for ghelp
     geometry and ui cleanups
-    use gnome-config    
 
  - fix history
     geometry - figure out how to set column widths and let first one expand
-    save to file
 
  - can back/forward buttons have dropdown history?
 

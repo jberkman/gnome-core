@@ -6,6 +6,7 @@
 
 #include "queue.h"
 #include "history.h"
+#include "bookmarks.h"
 #include "cache.h"
 #include "toc2.h"
 
@@ -20,6 +21,7 @@ void helpWindowClose(HelpWindow win);
 void helpWindowShowURL(HelpWindow win, gchar *ref);
 void helpWindowSetHistory(HelpWindow win, History history);
 void helpWindowSetToc(HelpWindow win, Toc toc);
+void helpWindowSetBookmarks(HelpWindow win, Bookmarks bookmarks);
 Toc helpWindowGetToc(HelpWindow win);
 void helpWindowSetCache(HelpWindow win, DataCache cache);
 DataCache helpWindowGetCache(HelpWindow win);
