@@ -280,15 +280,16 @@ draw_task (TasklistTask *task)
 
 		gdk_gc_set_clip_mask (area->style->black_gc, icon->mask);
 		gdk_gc_set_clip_origin (area->style->black_gc,
-					task->x + 3,
-					task->y + (task->height - 16) / 2);
+					task->x + 3 + (16 - pixbuf->art_pixbuf->width) / 2,
+					task->y + (task->height - pixbuf->art_pixbuf->height) / 2);
 		
 		if (pixbuf->art_pixbuf->has_alpha) {
 			gdk_draw_rgb_32_image (area->window,
 					       area->style->black_gc,
-					       task->x + 3, 
-					       task->y + (task->height - 16) / 2,
-					       16, 16,
+					       task->x + 3 + (16 - pixbuf->art_pixbuf->width) / 2, 
+					       task->y + (task->height - pixbuf->art_pixbuf->height) / 2,
+					       pixbuf->art_pixbuf->width,
+					       pixbuf->art_pixbuf->height,
 					       GDK_RGB_DITHER_NORMAL,
 					       pixbuf->art_pixbuf->pixels,
 					       pixbuf->art_pixbuf->rowstride);
@@ -296,9 +297,10 @@ draw_task (TasklistTask *task)
 		else {
 			gdk_draw_rgb_image (area->window,
 					    area->style->black_gc,
-					    task->x + 3, 
-					    task->y + (task->height - 16) / 2,
-					    16, 16,
+					    task->x + 3 + (16 - pixbuf->art_pixbuf->width) / 2, 
+					    task->y + (task->height - pixbuf->art_pixbuf->height) / 2,
+					    pixbuf->art_pixbuf->width,
+					    pixbuf->art_pixbuf->height,
 					    GDK_RGB_DITHER_NORMAL,
 					    pixbuf->art_pixbuf->pixels,
 					    pixbuf->art_pixbuf->rowstride);
@@ -551,13 +553,18 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 		gwmh_task_get_mini_icon (task->gwmh_task, 
 					 &pixmap, &mask);
 		if (pixmap) {
+			gint width, height, x, y, depth;
+			gdk_window_get_geometry (pixmap,
+						 &x, &y,
+						 &width, &height,
+						 &depth);
 			task->icon->mask = mask;
 			task->icon->normal = gdk_pixbuf_get_from_drawable (NULL,
 									   pixmap,
 									   gtk_widget_get_colormap (area),
 									   0, 0,
 									   0, 0,
-									   16, 16);
+									   width, height);
 									   
 			task->icon->minimized = create_minimized_icon (task->icon->normal);
 		}
@@ -571,8 +578,9 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	        layout_tasklist ();
 		break;
 	case GWMH_NOTIFY_DESTROY:
-		g_free (find_gwmh_task (gwmh_task));
-		tasks = g_list_remove (tasks, find_gwmh_task (gwmh_task));
+		task = find_gwmh_task (gwmh_task);
+		tasks = g_list_remove (tasks, task);
+		g_free (task);
 		layout_tasklist ();
 		break;
 	default:
