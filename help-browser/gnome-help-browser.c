@@ -333,10 +333,10 @@ aboutCallback (HelpWindow win)
 		NULL
 	};
 
-	about = gnome_about_new ( N_("Gnome Help Browser"), HELP_VERSION,
-				  "Copyright (c) 1998 Red Hat Software, Inc.",
+	about = gnome_about_new ( _("Gnome Help Browser"), HELP_VERSION,
+				  _("Copyright (c) 1998 Red Hat Software, Inc."),
 				  authors,
-				  N_("GNOME Help Browser allows easy access to "
+				  _("GNOME Help Browser allows easy access to "
 				  "various forms of documentation on your "
 				  "system"),
 				  NULL);

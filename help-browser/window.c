@@ -446,7 +446,7 @@ makeEntryArea(HelpWindow w)
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 3);
     gtk_widget_show(hbox);
     
-    label = gtk_label_new("Location: ");
+    label = gtk_label_new(_("Location: "));
     gtk_widget_show(label);
     
     entry = gnome_entry_new(NULL);
