@@ -289,10 +289,11 @@ main(int argc, char *argv[])
 	gtk_widget_set_usize(canvas,400,200);
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),canvas,TRUE,TRUE,0);
 	
+	read_in_hints();
 	if(gnome_config_get_bool("/gnome-hint/stuff/first_run=TRUE")) {
 		hint = default_hint();
+		curhint = hintlist;
 	} else {
-		read_in_hints();
 		if(!hintlist)
 			hint = default_hint();
 		else

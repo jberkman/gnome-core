@@ -1,3 +1,8 @@
+Sat Oct 02 22:16:32 1999  George Lebl  <jirka@5z.com>
+
+	* gnome-hint.c: load the hints even the first time so that prev
+	  and next buttons work
+
 Sat Oct 02 21:23:54 1999  George Lebl  <jirka@5z.com>
 
 	* gnome-hint.c: if /Gnome/Login/RunHints is false just exit, also
