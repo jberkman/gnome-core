@@ -1,3 +1,8 @@
+Mon Jul 27 18:24:20 1998  John Ellis  <johne@bellatlantic.net>
+
+	* tree.c (add_main_tree_node): instead of root, check for system menu
+	write permission.
+
 Sat Jul 25 00:02:56 1998  John Ellis  <johne@bellatlantic.net>
 
         * order.c (get_desktop_file_info): blank names and comments in .desktop

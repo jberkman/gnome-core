@@ -375,9 +375,12 @@ void add_main_tree_node()
 	d->expanded = FALSE;
 
 	/* FIXME: are we root? then we can edit the system menu */
+/*
 	if (!strcmp("/root",getenv("HOME")) || 
 	    ((getenv("USER"))&&(!strcmp("root",getenv("USER")))) ||
 		((getenv("USERNAME"))&&(!strcmp("root",getenv("USERNAME")))) )
+*/
+	if (!access (SYSTEM_APPS, W_OK))
 		{
 		g_print(_("Running with root privileges.\n"));
 		d->editable = TRUE;
