@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <glib.h>
 
@@ -64,10 +65,39 @@ gint
 transportFile( docObj obj )
 {
 	guchar *buf;
+	gchar filename[BUFSIZ];
+	gchar *s, *end;
 	
 	if (loadFileToBuf(docObjGetDecomposedUrl(obj)->path, &buf)) 
 		return -1;
 	
+	/* Hack to handle .so in man pages */
+	if (!strcmp(docObjGetMimeType(obj), "application/x-info")) {
+	    if (!strncmp(buf, ".so ", 4)) {
+		strcpy(filename, docObjGetDecomposedUrl(obj)->path);
+		if ((s = strrchr(filename, '/'))) {
+		    *s = '\0';
+		    if ((s = strrchr(filename, '/'))) {
+			s++;
+			*s = '\0';
+			s = buf + 4;
+			while (isspace(*s)) {
+			    s++;
+			}
+			end = s;
+			while (!isspace(*end)) {
+			    end++;
+			}
+			*end = '\0';
+			strcat(filename, s);
+			if (loadFileToBuf(docObjGetDecomposedUrl(obj)->path,
+					  &buf))
+			    return -1;
+		    }
+		}
+	    }
+	}
+    
 	docObjSetRawData(obj, buf, TRUE);
 	return 0;
 }

@@ -558,7 +558,6 @@ helpWindowShowURL(HelpWindow win, gchar *ref)
 		return;
 	} else {
 		/* clear the status bar */
-printf("popping status bar\n");
 		gtk_statusbar_pop(GTK_STATUSBAR(win->statusBar), 1);
 	}
 	update_toolbar(win);

@@ -19,12 +19,13 @@ resolveMagicURL( docObj obj, Toc toc )
     gchar *anchor;
     gchar *file;
     gchar buf[BUFSIZ];
+    gchar ext;
+    gchar *s;
 
     ref = docObjGetRef(obj);
 
     if (!strncmp(ref, "info:", 5)) {
 	/* Break into component parts */
-
 	u = decomposeUrl(ref);
 	anchor = *(u->anchor) ? u->anchor : "Top";
 
@@ -47,6 +48,36 @@ resolveMagicURL( docObj obj, Toc toc )
 
 	return 0;
     } else if (!strncmp(ref, "man:", 4)) {
+	/* Break into component parts */
+	u = decomposeUrl(ref);
+	anchor = u->anchor;
+	file = u->path + 1;
+	ext = ' ';
+	if ((s = strrchr(file, '('))) {
+	    *s++ = '\0';
+	    ext = *s;
+	}
+
+	/* Call toc code to find the file */
+	if (!(file = tocLookupMan(toc, file, ext))) {
+	    freeDecomposedUrl(u);
+	    return -1;
+	}
+
+	/* Construct the final URL */
+	g_snprintf(buf, sizeof(buf), "file:%s", file);
+	if (*anchor) {
+	    strcat(buf, "#");
+	    strcat(buf, anchor);
+	}
+	
+	g_message("magic url: %s -> %s", ref, buf);
+
+	docObjSetRef(obj, buf);
+	docObjSetMimeType(obj, "application/x-troff-man");
+	
+	/* Clean up */
+	freeDecomposedUrl(u);
 	return 0;
     } else {
 	/* blow if nothing interesting */
