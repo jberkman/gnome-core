@@ -1235,7 +1235,7 @@ url_requested (GtkHTML *html, const char *url, GtkHTMLStreamHandle handle, HelpW
 
 	if (transport(obj, helpWindowGetCache(win))) {
 	    docObjFree(obj);
-	    gtk_html_stream_end (html, handle, GTK_HTML_STREAM_ERROR);
+	    gtk_html_end (html, handle, GTK_HTML_STREAM_ERROR);
 	    return;
 	}
 

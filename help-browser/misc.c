@@ -1,3 +1,4 @@
+#include <config.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -8,6 +9,11 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <zlib.h>
+
+#ifdef HAVE_LIBBZ2
+        #include <bzlib.h>
+#endif
+
 #include <glib.h>
 
 #include "misc.h"
@@ -131,8 +137,13 @@ loadFileToBuf( gchar *file, guchar **bufout, gint *lenout )
 {
 	guchar buf[8193];
 	guchar *out=NULL;
-	gzFile *f;
+	guchar *ext=NULL;
+	gzFile *f=NULL;
+#ifdef HAVE_LIBBZ2
+	BZFILE *bf=NULL;
+#endif
 	gint bytes, len=0;
+	gint bz = 0;
 
 	struct stat b;
 
@@ -142,21 +153,51 @@ loadFileToBuf( gchar *file, guchar **bufout, gint *lenout )
 	if (!S_ISREG(b.st_mode))
 		return -1;
 
-	if ((f=gzopen(file, "r"))==NULL)
-		return -1;
+	ext = strrchr (file, '.');
+	if (ext) {
+		if (strcmp (ext, ".bz2") == 0)
+			bz = 1;
+	}
 
-	bytes=gzread(f, buf, 8192);
+	switch (bz) {
+	case 1:
+#ifdef HAVE_LIBBZ2 
+		if ((bf=bzopen(file, "r"))==NULL)
+			return -1;
+
+		bytes=bzread(bf, buf, 8192);
+		break;
+#endif
+	default:
+		if ((f=gzopen(file, "r"))==NULL)
+			return -1;
+
+		bytes=gzread(f, buf, 8192);
+		break;
+	}
+
 	while (bytes > 0) {
 		if (!out)
 			out = g_malloc(bytes);
 		else 
 			out = g_realloc(out, len+bytes);
-
+		
 		memcpy(out+len, buf, bytes);
 		len += bytes;
-		bytes=gzread(f, buf, 8192);
+#ifdef HAVE_LIBBZ2
+		if (bz == 1)
+			bytes=bzread(bf, buf, 8192);
+		else
+#endif
+			bytes=gzread(f, buf, 8192);
 	}
-	gzclose(f);
+#ifdef HAVE_LIBBZ2
+	if (bz == 1)
+		bzclose(bf);
+	else
+#endif
+		gzclose(f);
+
 	*bufout = out;
 	if (lenout)
 	        *lenout = len;

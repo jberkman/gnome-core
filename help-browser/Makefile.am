@@ -77,7 +77,7 @@ my_help_browser_idl: $(top_srcdir)/idl/help-browser.idl $(ORBIT_IDL)
 
 help-caller.o gnome-help-browser.o: help-browser.h
 
-gnome_help_browser_LDADD = $(LDADD) $(htmllibs)
+gnome_help_browser_LDADD = $(LDADD) $(htmllibs) $(BZ_LIBS)
 
 PIXMAPS = close.xpm contents.xpm help.xpm left_arrow.xpm right_arrow.xpm 
 
