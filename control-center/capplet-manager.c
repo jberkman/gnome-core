@@ -60,6 +60,8 @@ exec_capplet (node_data *data)
                                 if (strcmp (((node_data *)list->data)->gde->exec[0], data->gde->exec[0]) == 0) {
                                 /* do multi-capplet stuff... */
                                         data->capplet = CORBA_Object_duplicate (((node_data *)list->data)->capplet, &ev);
+                                        capplet_list = g_list_prepend (capplet_list, data);
+
                                         GNOME_capplet_new_multi_capplet(data->capplet,
                                                                         ((node_data *)list->data)->id,
                                                                         data->id,
@@ -90,6 +92,7 @@ exec_capplet (node_data *data)
         argv[2] = temp;
                 
         /*argv[3] = "--gtk-module=gle";*/
+        capplet_list = g_list_prepend (capplet_list, data);
         gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
 }
 void
@@ -158,9 +161,9 @@ launch_capplet (node_data *data)
                 gtk_widget_show_all (vbox);
                 data->notetab_id = current_page++;
                 data->id = id++;
-                exec_capplet (data);
 
-                capplet_list = g_list_prepend (capplet_list, data);
+                exec_capplet (data);
+                
         }
         if (data->notetab_id != -1)
                 gtk_notebook_set_page (GTK_NOTEBOOK (notebook), data->notetab_id);

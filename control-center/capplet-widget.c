@@ -61,10 +61,8 @@ capplet_close_callback (GtkWidget *capplet)
         GList *temp;
         for (temp = capplet_list; temp; temp=temp->next)
                 if (CAPPLET_WIDGET (temp->data) == CAPPLET_WIDGET (capplet)) {
-                        g_print ("we got a match!\n");
                         capplet_list = g_list_remove_link (capplet_list, temp);
                         if (capplet_list == NULL) {
-                                g_print ("all done!!!!\nexitting capplet");
                                 capplet_corba_gtk_main_quit ();
                         }
                 }
