@@ -1,3 +1,11 @@
+1999-07-19  Nat Friedman  <nat@gnome-support.com>
+
+	* gnome-terminal.c (gnome_term_set_font): Cast the terminal to a
+ 	GtkWidget when calling set_hints.
+	(button_press): Grab the keyboard when we return from the popup
+ 	menu if we are in secure keyboard mode.  Closes bug #1722 reported
+ 	by Roberto Zunino <zunino@cli.di.unipi.it>.
+
 1999-07-19  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* C/Makefile.am (gnome-terminal/index.html): The `db2html' in the

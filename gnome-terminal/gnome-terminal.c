@@ -251,7 +251,7 @@ gnome_term_set_font (ZvtTerm *term, char *font_name)
 	}
 
 	if (GTK_WIDGET_REALIZED (term))
-		set_hints(term);
+		set_hints (GTK_WIDGET (term));
 
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
@@ -1676,6 +1676,13 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 
 	gnome_popup_menu_do_popup_modal (menu, NULL, NULL, event, term);
 	gtk_widget_destroy (menu);
+
+	/*
+	 * The popup menu ungrabs the keyboard if it was grabbed,
+	 * so we grab it again here.
+	 */
+	if (cfg->keyboard_secured)
+		gdk_keyboard_grab (term->term_window, TRUE, GDK_CURRENT_TIME);
 
 	return TRUE;
 }
