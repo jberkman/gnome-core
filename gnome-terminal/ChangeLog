@@ -1,3 +1,8 @@
+2000-05-11  Dan Winship  <danw@helixcode.com>
+
+	* Makefile.am: Note that corba.c depends on Terminal.h so it will
+	be built first.
+
 2000-05-05  Hans Petter Jansson  <hpj@helixcode.com>
 
 	* gnome-terminal.c (gnome_term_set_font): Added use_bold option.

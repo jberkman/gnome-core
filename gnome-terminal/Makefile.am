@@ -35,6 +35,8 @@ BUILT_SOURCES = $(CORBA_GENERATED)
 $(CORBA_GENERATED) : $(top_srcdir)/idl/Terminal.idl
 	$(ORBIT_IDL) `gnome-config --cflags idl` $(top_srcdir)/idl/Terminal.idl
 
+corba.c: Terminal.h
+
 gnome_terminal_SOURCES = 	\
 	gnome-terminal.c	\
 	corba.c			\
