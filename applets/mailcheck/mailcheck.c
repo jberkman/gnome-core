@@ -511,17 +511,17 @@ destroy_applet(GtkWidget *widget, gpointer data)
 
 
 static void
-about_window(AppletWidget *a_widget, gpointer a_data)
+mailcheck_about(AppletWidget *a_widget, gpointer a_data)
 {
 	GtkWidget *about = NULL;
 	gchar     *authors [] = { "Miguel de Icaza (miguel@kernel.org)", NULL };
 	
-	l_about = gnome_about_new ( _("Mail check Applet", "1.0"),
+	about = gnome_about_new ( _("Mail check Applet"), "1.0",
 				    _("(c) 1998 the Free Software Foundation"),
 				    authors,
-				    _("Mail check notifies you when new mail is on your mailbox")
+				    _("Mail check notifies you when new mail is on your mailbox"),
 				    NULL);
-  gtk_widget_show(l_about);
+  gtk_widget_show(about);
   return;
 }
 
