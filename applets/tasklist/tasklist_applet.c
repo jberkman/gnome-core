@@ -530,6 +530,8 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 		task->icon = g_new (TasklistIcon, 1);
 		gwmh_task_get_mini_icon (task->gwmh_task, 
 					 &pixmap, &mask);
+#warning NOT USING KWM ICONS
+#if 0
 		if (pixmap) {
 			task->icon->mask = mask;
 			task->icon->normal = gdk_pixbuf_rgb_from_drawable (pixmap,
@@ -538,11 +540,13 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 			task->icon->minimized = create_minimized_icon (task->icon->normal);
 		}
 		else {
+#endif
 			task->icon->mask = unknown_icon->mask;
 			task->icon->normal = unknown_icon->normal;
 			task->icon->minimized = unknown_icon->minimized;
+#if 0
 		}
-		
+#endif		
 		tasks = g_list_append (tasks, task);
 	        layout_tasklist ();
 		break;

@@ -1,3 +1,8 @@
+1999-12-10  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* tasklist_applet.c (task_notifier): #if 0 the KWM mini icons
+	for now, so it can compile
+
 1999-12-04  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c (cb_button_press_event): Show the task twice
