@@ -1207,7 +1207,6 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfg_in)
 
 	if (cmd != NULL)
 		initial_term = app;
-
 #ifdef ZVT_USES_MINIMAL_ALLOC
 	gtk_window_set_policy  (GTK_WINDOW (app), 1, 1, 1);
 #else
@@ -1447,7 +1446,7 @@ enum {
 	NOLOGIN_KEY  = -2,
 	LOGIN_KEY    = -3,
 	GEOMETRY_KEY = -4,
-	COMMAND_KEY  = -5,
+	COMMAND_KEY  = 'e',
 	FORE_KEY     = -6,
 	BACK_KEY     = -7,
 	DISCARD_KEY  = -8,
