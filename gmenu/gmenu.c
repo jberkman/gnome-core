@@ -42,15 +42,13 @@ int main (int argc, char *argv[]);
 
 /* menu bar */
 GnomeUIInfo file_menu[] = {
-	{ GNOME_APP_UI_ITEM, N_("_New Folder..."), NULL, create_folder_pressed, NULL, NULL,
-	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW, GNOME_KEY_NAME_NEW,
-	  GNOME_KEY_MOD_NEW, NULL },
+        GNOMEUIINFO_MENU_NEW_ITEM(N_("_New Folder..."), create_folder_pressed, NULL), 
 	{ GNOME_APP_UI_ITEM, N_("_Delete..."), NULL, delete_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CUT, 'D',
 	  GDK_CONTROL_MASK, NULL },
-	{ GNOME_APP_UI_ITEM, N_("E_xit"), NULL, destroy_cb, NULL, NULL,
-	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT, GNOME_KEY_NAME_EXIT,
-	  GNOME_KEY_MOD_EXIT, NULL },
+
+	GNOMEUIINFO_MENU_EXIT_ITEM(destroy_cb, NULL),
+
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 GnomeUIInfo sort_menu[] = {

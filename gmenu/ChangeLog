@@ -1,5 +1,9 @@
 1999-01-06  Nat Friedman  <nat@nat.org>
 
+	* gmenu.c: Use the gnome-app-helper.h GNOMEUIINFO_MENU macros.
+
+1999-01-06  Nat Friedman  <nat@nat.org>
+
 	* gmenu.c: Use the gnome-uidefs.h macros.  Change the 'new'
  	accelerator from ^F to ^N to match the standard.
 
