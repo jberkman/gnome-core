@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.3.0         ##*/
+/*##                       gmenu (GNOME menu editor)               ##*/
 /*###################################################################*/
 
 #include <config.h>
@@ -119,7 +119,7 @@ void create_folder_pressed()
 
 	if (!is_node_editable(current_node))
 		{
-		gnome_warning_dialog (_("You can't add an entry to that folder!\nTo edit system entries you must be root."));
+		gnome_warning_dialog (_("You can't add an entry to that folder.\nYou do not have the proper permissions."));
 		return;
 		}
 
@@ -208,13 +208,13 @@ void delete_pressed_cb()
 	Desktop_Data *d;
 	if (!current_node)
 		{
-		gnome_warning_dialog (_("You must select something first!"));
+		gnome_warning_dialog (_("You must select something first."));
 		return;
 		}
 
 	if (current_node == topnode || current_node == usernode || current_node == systemnode)
 		{
-		gnome_warning_dialog (_("You can not delete a top level Folder!"));
+		gnome_warning_dialog (_("You can not delete a top level Folder."));
 		return;
 		}
 
@@ -222,7 +222,7 @@ void delete_pressed_cb()
 
 	if (!d->editable)
 		{
-		gnome_warning_dialog (_("You can't delete that file!\nTo edit system entries you must be root."));
+		gnome_warning_dialog (_("You can't delete that file.\nYou do not have the proper permissions."));
 		return;
 		}
 
@@ -382,9 +382,9 @@ void save_pressed_cb()
 	if (!is_node_editable(current_node))
 		{
 		if (isfile(path))
-			gnome_warning_dialog (_("You can't edit an entry in that folder!\nTo edit system entries you must be root."));
+			gnome_warning_dialog (_("You can't edit an entry in that folder.\nYou do not have the proper permissions."));
 		else
-			gnome_warning_dialog (_("You can't add an entry to that folder!\nTo edit system entries you must be root."));
+			gnome_warning_dialog (_("You can't add an entry to that folder.\nYou do not have the proper permissions."));
 		g_free(path);
 		return;
 		}

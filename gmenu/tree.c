@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.3.0         ##*/
+/*##                       gmenu (GNOME menu editor)               ##*/
 /*###################################################################*/
 
 #include <config.h>
@@ -12,6 +12,8 @@ static gint find_file_cb(gconstpointer a, gconstpointer b);
 static void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void move_item_down(GtkCTreeNode *node);
 static void move_item_up(GtkCTreeNode *node);
+static int is_node_moveable(GtkCTreeNode *node);
+static int is_file_editable(gchar *path);
 static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void get_ctree_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static gint get_ctree_count(GtkCTree *ctree);
@@ -238,33 +240,57 @@ static void move_item_up(GtkCTreeNode *node)
 
 void move_down_cb(GtkWidget *w, gpointer data)
 {
-	if (!is_node_editable(current_node)) return;
-	if (current_node == systemnode || current_node == usernode) return;
+	if (!is_node_moveable(current_node)) return;
 	move_item_down(current_node);
 }
 
 void move_up_cb(GtkWidget *w, gpointer data)
 {
-	if (!is_node_editable(current_node)) return;
-	if (current_node == systemnode || current_node == usernode) return;
+	if (!is_node_moveable(current_node)) return;
 	move_item_up(current_node);
+}
+
+static int is_node_moveable(GtkCTreeNode *node)
+{
+	if (node == systemnode || node == usernode) return FALSE;
+	if (!is_node_editable(node)) return FALSE;
+	return is_node_editable(GTK_CTREE_ROW(node)->parent);
 }
 
 int is_node_editable(GtkCTreeNode *node)
 {
 	Desktop_Data *d;
-	gboolean leaf;
-	GtkCTreeNode *parent;
+	if (!node) return FALSE;
 
-	gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),node,
-		NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
-	if (leaf)
-		parent = GTK_CTREE_ROW(node)->parent;
-	else
-		parent = node;
-
-	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), node);
+	if (!d) return FALSE;
 	return d->editable;
+}
+
+static int is_file_editable(gchar *path)
+{
+	if (!g_file_exists(path)) return FALSE;
+
+	if (isdir(path))
+		{
+		gchar *dirpath = g_strconcat (path, ".directory", NULL);
+		if (g_file_exists(dirpath))
+			{
+			if (!access(dirpath, W_OK))
+				{
+				g_free(dirpath);
+				return !access(path, W_OK);
+				}
+			else
+				{
+				g_free(dirpath);
+				return FALSE;
+				}
+			}
+		g_free(dirpath);
+		}
+
+	return !access(path, W_OK);
 }
 
 void edit_pressed_cb()
@@ -345,7 +371,7 @@ GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode 
 		{
 		gchar *text[2];
 
-		d->editable = parent_data->editable;
+		d->editable = is_file_editable(path_buf);
 
 		text[0] = d->name;
 		text[1] = NULL;
@@ -526,16 +552,7 @@ void add_main_tree_node()
 	if (d->comment) free(d->comment);
 	d->comment = strdup(_("Top of system menus"));
 	d->expanded = FALSE;
-
-	/* check if the user has permission to edit the system menu */
-
-	if (!access (SYSTEM_APPS, W_OK))
-		{
-		g_print(_("Running with System Menu privileges.\n"));
-		d->editable = TRUE;
-		}
-	else
-		d->editable = FALSE;
+	d->editable = is_file_editable(SYSTEM_APPS);
 
 	gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), systemnode, d);
 

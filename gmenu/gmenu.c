@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.3.0         ##*/
+/*##                       gmenu (GNOME menu editor)               ##*/
 /*###################################################################*/
 
 #include <config.h>
@@ -60,8 +60,8 @@ GnomeUIInfo sort_menu[] = {
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 GnomeUIInfo help_menu[] = {
-	{ GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
-	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
+/*	{ GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
+	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },*/
 	{ GNOME_APP_UI_ITEM, N_("About..."), NULL, about_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0,
 	  NULL },

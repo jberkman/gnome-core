@@ -1,3 +1,14 @@
+Sat Sep 26 13:24:23 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c: Removed a warning.
+	* tree.c: Each file is now checked for write access when checking
+	for editability. Before it was all or nothing for the system menus.
+	* order.c: Use gnome_stock_pixmap_widget_at_size() for antiailiased
+	icons.
+	* dialogs.c: Remove '!' from dialogs, no need to shout. Tell user
+	about incorrect permissions instead of saying they must be root.
+	* bump verison to 0.3.1
+
 Sat Sep 19 07:19:57 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c: Added underlines to all menus, now pressing [ALT]-f opens

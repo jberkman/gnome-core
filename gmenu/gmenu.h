@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.3.0         ##*/
+/*##                       gmenu (GNOME menu editor) 0.3.1         ##*/
 /*###################################################################*/
 
 #include <stdio.h>
@@ -15,7 +15,7 @@
 	/* definitions */
 #define GMENU_VERSION_MAJOR 0
 #define GMENU_VERSION_MINOR 3
-#define GMENU_VERSION_REV 0
+#define GMENU_VERSION_REV 1
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data

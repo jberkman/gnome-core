@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.3.0         ##*/
+/*##                       gmenu (GNOME menu editor)               ##*/
 /*###################################################################*/
 
 #include "gmenu.h"
@@ -126,7 +126,7 @@ Desktop_Data * get_desktop_file_info (gchar *file)
 				d->comment = g_copy_strings(d->name , _(" Folder"), NULL);
 			if (dentry->icon)
 				{
-				d->pixmap = gnome_pixmap_new_from_file_at_size (dentry->icon, 20, 20);
+				d->pixmap = gnome_stock_pixmap_widget_at_size (NULL, dentry->icon, 20, 20);
 				if (!d->pixmap)
 					d->pixmap = gnome_pixmap_new_from_xpm_d (folder_xpm);
 				}
@@ -158,7 +158,7 @@ Desktop_Data * get_desktop_file_info (gchar *file)
 		d->comment = g_strdup("");
 	if (dentry->icon)
 		{
-		d->pixmap = gnome_pixmap_new_from_file_at_size (dentry->icon, 20, 20);
+		d->pixmap = gnome_stock_pixmap_widget_at_size (NULL, dentry->icon, 20, 20);
 		if (!d->pixmap)
 			d->pixmap = gnome_pixmap_new_from_xpm_d (unknown_xpm);
 		}
