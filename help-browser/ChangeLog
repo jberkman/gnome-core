@@ -1,3 +1,7 @@
+2000-05-06  Jacob Berkman  <jacob@helixcode.com>
+
+	* window.c (helpWindowShowURL): use a stock button
+
 2000-05-06  Radek Doulik  <rodo@helixcode.com>
 
 	* mime.c (convertImage): new function to convert images

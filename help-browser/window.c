@@ -1081,7 +1081,7 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 		snprintf(err, sizeof(err), _("Error loading document:\n\n%s\n\nYou probably don't\nhave this documentation\ninstalled on your system."),
 			 ref);
 		msg = gnome_message_box_new(err, GNOME_MESSAGE_BOX_ERROR,
-					   _("Ok"), NULL);
+					    GNOME_STOCK_BUTTON_OK, NULL);
 		gnome_message_box_set_modal (GNOME_MESSAGE_BOX (msg));
 		gtk_widget_show(msg);
 
