@@ -5,7 +5,6 @@
 
 #include "gnome.h"
 #include "gnome-desktop.h"
-#include "libgnomeui/gnome-session.h"
 
 GtkWidget *main_window;
 GnomePropertyConfigurator *display_config;
@@ -138,9 +137,9 @@ display_properties_setup (void)
 int
 property_main (int argc, char *argv [])
 {
+        GnomeClient *client = NULL;
 	int init = 0;
 	int i;
-	char *session_id;
 	char *previous_id = NULL;
 	char *new_argv[4];
 
@@ -159,21 +158,13 @@ property_main (int argc, char *argv [])
 	/* FIXME: actually save state.
 	   FIXME: does it make sense to contact the session manager in
 	   -init mode?  */
-	session_id = gnome_session_init (NULL, NULL,
-					 NULL, NULL,
-					 previous_id);
-
+	client = gnome_client_new (argc, argv);
+	
 	/* Tell session manager to run us in init mode next time the
 	   session starts up.  */
 	new_argv[0] = argv[0];
 	new_argv[1] = "-init";
-	gnome_session_set_initialization_command (2, new_argv);
-
-	new_argv[1] = "-previous-id";
-	new_argv[2] = session_id;
-	gnome_session_set_restart_command (3, new_argv);
-	gnome_session_set_clone_command (1, new_argv);
-	gnome_session_set_program (argv[0]);
+	/* gnome_client_set_initialization_command (client, 2, new_argv); */
 
 	/* FIXME: set session's notion of pwd.  */
 
