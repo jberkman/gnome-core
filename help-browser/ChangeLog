@@ -1,3 +1,8 @@
+2001-01-29  jacob berkman  <jacob@ximian.com>
+
+	* transport.c (transport): seg fault fix for solaris from Laszlo
+	PETER <Laszlo.Peter@ireland.sun.com>
+
 2000-09-18  Jacob "Ulysses" Berkman  <jacob@helixcode.com>
 
 	* gnome-help-browser.c (main): 
