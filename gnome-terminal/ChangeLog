@@ -1,3 +1,7 @@
+1998-11-11  Michael Zucchi  <zucchi@zzedzone.fsi.com.au>
+
+	* menu.c: Removed file menu.c - obsoleted.
+
 1998-11-09  Michael Zucchi  <zucchi@zzedzone.fsi.com.au>
 
 	* gnome-terminal.c (new_terminal_cmd): Set window hints on
