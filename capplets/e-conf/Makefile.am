@@ -13,7 +13,20 @@ e_conf_LDADD = ../../control-center/libcapplet.la \
 		     $(GNOMEUI_LIBS) $(INTLLIBS) -lgnorba
 
 EXTRA_DIST = \
-	e-conf.desktop
+	e-conf.desktop \
+	e-desks.desktop \
+	e-fonts.desktop \
+	e-sound.desktop
 
-sysdir = $(datadir)/control-center/Workspace
-sys_DATA = e-conf.desktop
+sysdir = $(datadir)/control-center/Workspace/Enlightenment
+sys_DATA = \
+	e-conf.desktop \
+	e-desks.desktop \
+	e-fonts.desktop \
+	e-sound.desktop \
+	e-colors.desktop
+
+install-data-local:
+	$(mkinstalldirs) $(sysdir)
+	$(INSTALL_DATA) $(srcdir)/Enlightenment.directory $(sysdir)/.directory
+					 

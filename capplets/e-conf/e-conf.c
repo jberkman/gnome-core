@@ -11,7 +11,7 @@
 
 #include "gnome.h"
 
-GtkWidget *capplet;
+GtkWidget *current_capplet;
 gchar     e_opt_sound = 1;
 gchar     e_opt_slide_cleanup = 1;
 gchar     e_opt_slide_map = 1;
@@ -30,9 +30,51 @@ gfloat    e_opt_tooltiptime = 1.5;
 gfloat    e_opt_button_move_resistance = 5.0;
 gfloat    e_opt_shade_speed = 4000.0;
 
+FILE *eesh = NULL;
+
 static void
 e_try (void)
 {
+  gchar cmd[4096];
+  gchar *foc[3] = {"pointer","sloppy","click"};
+
+  if (!eesh)
+    {
+      eesh = popen("eesh", "w");
+      if (!eesh)
+	return;
+    }
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 29, (int)e_opt_sound);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 27, (int)e_opt_slide_cleanup);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 28, (int)e_opt_slide_map);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 38, (int)e_opt_slide_desk);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 40, (int)e_opt_hq_background);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 44, (int)e_opt_autosave);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %s\n", 23, foc[(int)e_opt_focus]);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 24, (int)e_opt_move);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 25, (int)e_opt_resize);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 26, (int)e_opt_slide_mode);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 57, (int)e_opt_tooltips);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+/*  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 29, (int)e_opt_tooltiptime);
+  fwrite(cmd, 1, strlen(cmd), eesh);*/
+  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 30, (int)e_opt_button_move_resistance);
+  fwrite(cmd, 1, strlen(cmd), eesh);
+/*  g_snprintf(cmd, sizeof(cmd), "call_raw %i %i\n", 29, (int)e_opt_shade_speed);
+  fwrite(cmd, 1, strlen(cmd), eesh);*/
+  fflush(eesh);
+  pclose(eesh);
+  eesh = NULL;
 }
 
 static void
@@ -46,6 +88,11 @@ e_ok (void)
 }
 
 static void
+e_cancel (void)
+{
+}
+
+static void
 e_read (void)
 {
 }
@@ -53,9 +100,12 @@ e_read (void)
 void
 e_cb_multi(GtkWidget *widget, gpointer data)
 {
+  GtkWidget *c;
   gint *value;
   gint val;
   
+  c = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(widget), "capplet");
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
   val = (gint)gtk_object_get_data(GTK_OBJECT(widget), "value");
   value = (gint *)data;
   *value = val;
@@ -64,8 +114,11 @@ e_cb_multi(GtkWidget *widget, gpointer data)
 void
 e_cb_onoff(GtkWidget *widget, gpointer data)
 {
+  GtkWidget *c;
   gchar *value;
   
+  c = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(widget), "capplet");
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
   value = (gchar *)data;
   if (GTK_TOGGLE_BUTTON(widget)->active)
     *value = 1;
@@ -76,11 +129,14 @@ e_cb_onoff(GtkWidget *widget, gpointer data)
 void
 e_cb_range(GtkWidget *widget, gpointer data)
 {
+  GtkWidget          *c;
   GtkWidget          *w;
   GtkAdjustment      *adj;
   gfloat             *value;
   
   w = GTK_WIDGET(data);
+  c = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(w), "capplet");
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
   adj = gtk_object_get_data(GTK_OBJECT(w), "adj");
   value = (gfloat *)gtk_object_get_data(GTK_OBJECT(w), "value");
   *value = adj->value;
@@ -91,12 +147,15 @@ e_cb_range(GtkWidget *widget, gpointer data)
 void
 e_cb_rangeonoff_toggle(GtkWidget *widget, gpointer data)
 {
+  GtkWidget          *c;
   GtkWidget          *w, *ww;
   GtkAdjustment      *adj;
   gfloat             *value, offvalue;
   gchar              *onoff;
   
   w = GTK_WIDGET(data);
+  c = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(w), "capplet");
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
   adj = gtk_object_get_data(GTK_OBJECT(w), "adj");
   value = (gfloat *)gtk_object_get_data(GTK_OBJECT(w), "value");
   onoff = (gchar *)gtk_object_get_data(GTK_OBJECT(w), "onoff");
@@ -194,6 +253,7 @@ e_add_range_to_frame(GtkWidget *w, gchar *text, gfloat *value, gfloat lower,
 		     GTK_SIGNAL_FUNC(e_cb_range), (gpointer)hscale);
   gtk_object_set_data(GTK_OBJECT(hscale), "adj", (gpointer)adj);
   gtk_object_set_data(GTK_OBJECT(hscale), "value", (gpointer)value);  
+  gtk_object_set_data(GTK_OBJECT(hscale), "capplet", (gpointer)current_capplet);  
   gtk_box_pack_start(GTK_BOX(hbox), hscale, TRUE, TRUE, 0);
   label = gtk_label_new(upper_text);
   gtk_widget_show(label);
@@ -279,6 +339,7 @@ e_add_rangeonoff_to_frame(GtkWidget *w, gchar *text, gfloat *value,
 		     GTK_SIGNAL_FUNC(e_cb_range), (gpointer)hscale);
   gtk_object_set_data(GTK_OBJECT(hscale), "adj", (gpointer)adj);
   gtk_object_set_data(GTK_OBJECT(hscale), "value", (gpointer)value);  
+  gtk_object_set_data(GTK_OBJECT(hscale), "capplet", (gpointer)current_capplet);  
   gtk_object_set_data(GTK_OBJECT(hscale), "onoff", (gpointer)onoff);
   gtk_object_set_data(GTK_OBJECT(hscale), "l1", (gpointer)label);
   offval = g_malloc(sizeof(gfloat));
@@ -347,6 +408,7 @@ e_add_multi_to_frame(GtkWidget *w, gchar *text, gchar *opts, gint *value)
 	}
       mi = gtk_menu_item_new_with_label(s);
       gtk_object_set_data(GTK_OBJECT(mi), "value", (gpointer)i);
+      gtk_object_set_data(GTK_OBJECT(mi), "capplet", (gpointer)current_capplet);  
       gtk_signal_connect(GTK_OBJECT(mi),
 			 "activate", GTK_SIGNAL_FUNC(e_cb_multi),
 			 (gpointer)value);
@@ -392,6 +454,7 @@ e_add_onoff_to_frame(GtkWidget *w, gchar *text, gchar *value)
   gtk_container_add(GTK_CONTAINER(align), check);
   gtk_table_attach_defaults(GTK_TABLE(table), align, 9, 10, rows, rows + 1);
 
+  gtk_object_set_data(GTK_OBJECT(check), "capplet", (gpointer)current_capplet);  
   if (*value)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(check), 1);
   else
@@ -428,6 +491,33 @@ e_add_widget_to_frame(GtkWidget *w, GtkWidget *child)
   gtk_object_set_data(GTK_OBJECT(w), "rows", (gpointer)(rows + 1));
 }
 
+void
+e_add_space_to_frame(GtkWidget *w, gint size)
+{
+  GtkWidget *table, *align, *child;
+  gint rows;
+  
+  if (!w)
+    return;
+  table = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(w), "table");
+  if (!table)
+    return;
+  rows = (gint)gtk_object_get_data(GTK_OBJECT(w), "rows");
+  
+  align = gtk_alignment_new(0.5, 0.5, 1.0, 1.0);
+  gtk_widget_show(align);
+  child = gtk_fixed_new();
+  gtk_widget_show(child);
+  gtk_widget_set_usize(child, 1, size);
+  gtk_container_add(GTK_CONTAINER(align), child);
+  gtk_table_attach(GTK_TABLE(table), align, 0, 10, rows, rows + 1,
+		   GTK_EXPAND | GTK_FILL,
+		   GTK_EXPAND | GTK_FILL, 0, 0);
+  
+  gtk_object_set_data(GTK_OBJECT(w), "rows", (gpointer)(rows + 1));
+}
+
+
 GtkWidget *
 e_create_frame(gchar *title)
 {
@@ -451,16 +541,99 @@ e_create_frame(gchar *title)
 } 
 
 static void
-e_setup (void)
+e_init_capplet (GtkWidget *c, GtkSignalFunc try, GtkSignalFunc revert, 
+		GtkSignalFunc ok, GtkSignalFunc cancel)
+{
+  gtk_widget_show (c);  
+    
+  gtk_signal_connect (GTK_OBJECT (c), "try",
+		      GTK_SIGNAL_FUNC (try), NULL);
+  gtk_signal_connect (GTK_OBJECT (c), "revert",
+		      GTK_SIGNAL_FUNC (revert), NULL);
+  gtk_signal_connect (GTK_OBJECT (c), "ok",
+		      GTK_SIGNAL_FUNC (ok), NULL);
+  gtk_signal_connect (GTK_OBJECT (c), "cancel",
+		      GTK_SIGNAL_FUNC (cancel), NULL);
+}
+
+static void
+e_setup (GtkWidget *c)
+{
+  GtkWidget *frame, *frame2, *hbox;
+
+  current_capplet = c;
+  hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+  gtk_widget_show (hbox);
+  gtk_container_add (GTK_CONTAINER (c), hbox);
+    
+  frame = e_create_frame (_("Options"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
+  
+  frame2 = e_create_frame (_("Window Activites"));
+  e_add_widget_to_frame(frame, frame2);
+  e_add_multi_to_frame(frame2, _("Focus style"), 
+		       _("Pointer\nSloppy\nClick to focus"), &e_opt_focus);
+  e_add_multi_to_frame(frame2, _("Move mode"), 
+		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_move);
+  e_add_multi_to_frame(frame2, _("Resize mode"), 
+		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_resize);
+
+  e_add_space_to_frame(frame, 20);
+  
+  e_add_rangeonoff_to_frame(frame, 
+			    _("Tooltip timeout (sec)"),
+			    &e_opt_tooltiptime,
+			    0.0, 10.0, 
+			    _("Shorter"), _("Longer"), 
+			    &e_opt_tooltips, 0.0);
+  e_add_rangeonoff_to_frame(frame, 
+			    _("Shading speed (pixels / sec)"),
+			    &e_opt_shade_speed,
+			    1.0, 20000.0, 
+			    _("Slower"), _("Faster"), 
+			    NULL, 99999.0);
+
+  e_add_space_to_frame(frame, 20);
+  
+  frame = e_create_frame (_("Effects"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
+  
+  e_add_multi_to_frame(frame, _("Slide mode"), 
+		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_slide_mode);
+  e_add_onoff_to_frame(frame, _("Windows slide on cleanup"), &e_opt_slide_cleanup);
+  e_add_onoff_to_frame(frame, _("Windows slide on map"), &e_opt_slide_map);
+  e_add_onoff_to_frame(frame, _("Desktops slide on change"), &e_opt_slide_desk);
+
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
+}
+
+static void
+e_setup_desktops (GtkWidget *c)
 {
   GtkWidget *frame, *frame2, *hbox;
   
-  capplet = capplet_widget_new();
-  gtk_widget_show (capplet);  
-  
+  current_capplet = c;
   hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
   gtk_widget_show (hbox);
-  gtk_container_add (GTK_CONTAINER (capplet), hbox);
+  gtk_container_add (GTK_CONTAINER (c), hbox);
+    
+  frame = e_create_frame (_("Options"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
+
+  e_add_onoff_to_frame(frame, _("Dither backgrounds"), &e_opt_hq_background);
+
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
+}
+
+static void
+e_setup_fonts (GtkWidget *c)
+{
+  GtkWidget *frame, *frame2, *hbox;
+  
+  current_capplet = c;
+  hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+  gtk_widget_show (hbox);
+  gtk_container_add (GTK_CONTAINER (c), hbox);
     
   frame = e_create_frame (_("Options"));
   gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
@@ -510,25 +683,132 @@ e_setup (void)
   e_add_onoff_to_frame(frame2, _("Sound Effects"), &e_opt_sound);
   e_add_onoff_to_frame(frame2, _("Dither backgrounds"), &e_opt_hq_background);
 
-  
-  gtk_signal_connect (GTK_OBJECT (capplet), "try",
-		      GTK_SIGNAL_FUNC (e_try), NULL);
-  gtk_signal_connect (GTK_OBJECT (capplet), "revert",
-		      GTK_SIGNAL_FUNC (e_revert), NULL);
-  gtk_signal_connect (GTK_OBJECT (capplet), "ok",
-		      GTK_SIGNAL_FUNC (e_ok), NULL);
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
 }
 
+static void
+e_setup_sound (GtkWidget *c)
+{
+  GtkWidget *frame, *frame2, *hbox;
+  
+  current_capplet = c;
+  hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+  gtk_widget_show (hbox);
+  gtk_container_add (GTK_CONTAINER (c), hbox);
+    
+  frame = e_create_frame (_("Options"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
 
+  e_add_onoff_to_frame(frame, _("Sound Effects"), &e_opt_sound);
+
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
+}
+
+static void
+e_setup_colors (GtkWidget *c)
+{
+  GtkWidget *frame, *frame2, *hbox;
+  
+  current_capplet = c;
+  hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+  gtk_widget_show (hbox);
+  gtk_container_add (GTK_CONTAINER (c), hbox);
+    
+  frame = e_create_frame (_("Options"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
+  
+  frame2 = e_create_frame (_("Window Display"));
+  e_add_widget_to_frame(frame, frame2);
+  e_add_multi_to_frame(frame2, _("Focus style"), 
+		       _("Pointer\nSloppy\nClick to focus"), &e_opt_focus);
+  e_add_multi_to_frame(frame2, _("Move mode"), 
+		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_move);
+  e_add_multi_to_frame(frame2, _("Resize mode"), 
+		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_resize);
+
+  frame2 = e_create_frame (_("Miscellaneous"));
+  e_add_widget_to_frame(frame, frame2);
+  e_add_range_to_frame(frame2, _("Button move resistance (pixels)"), 
+		       &e_opt_button_move_resistance,
+		       1.0, 20.0, _("Less"), _("More"));
+  e_add_rangeonoff_to_frame(frame2, 
+			    _("Tooltip timeout (sec)"),
+			    &e_opt_tooltiptime,
+			    0.0, 10.0, 
+			    _("Shorter"), _("Longer"), 
+			    &e_opt_tooltips, 0.0);
+  e_add_rangeonoff_to_frame(frame2, 
+			    _("Shading speed (pixels / sec)"),
+			    &e_opt_shade_speed,
+			    1.0, 20000.0, 
+			    _("Slower"), _("Faster"), 
+			    NULL, 99999.0);
+  e_add_onoff_to_frame(frame2, _("Autosave"), &e_opt_autosave);
+  
+  frame = e_create_frame (_("Effects"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
+  
+
+  frame2 = e_create_frame (_("Sliding"));
+  e_add_widget_to_frame(frame, frame2);
+  e_add_multi_to_frame(frame2, _("Slide mode"), 
+		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_slide_mode);
+  e_add_onoff_to_frame(frame2, _("Windows slide on cleanup"), &e_opt_slide_cleanup);
+  e_add_onoff_to_frame(frame2, _("Windows slide on map"), &e_opt_slide_map);
+  e_add_onoff_to_frame(frame2, _("Desktops slide on change"), &e_opt_slide_desk);
+
+  frame2 = e_create_frame (_("Miscellaneous"));
+  e_add_widget_to_frame(frame, frame2);
+  e_add_onoff_to_frame(frame2, _("Sound Effects"), &e_opt_sound);
+  e_add_onoff_to_frame(frame2, _("Dither backgrounds"), &e_opt_hq_background);
+
+  capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
+}
+
+void 
+e_setup_multi(GtkWidget *old, GtkWidget *c)
+{
+  printf("new capplet? %i\n", CAPPLET_WIDGET(c)->capid);
+
+  gtk_signal_connect (GTK_OBJECT (c), "new_multi_capplet",
+		      GTK_SIGNAL_FUNC (e_setup_multi), NULL);
+  switch (CAPPLET_WIDGET(c)->capid)
+    {
+     default:
+     case -1:
+     case 0:
+      e_setup(c);
+      e_init_capplet(c, e_try, e_revert, e_ok, e_cancel);
+      break;
+     case 1:
+      e_setup_desktops(c);
+      e_init_capplet(c, e_try, e_revert, e_ok, e_cancel);
+      break;
+     case 2:
+      e_setup_fonts(c);
+      e_init_capplet(c, e_try, e_revert, e_ok, e_cancel);
+      break;
+     case 3:
+      e_setup_sound(c);
+      e_init_capplet(c, e_try, e_revert, e_ok, e_cancel);
+     case 4:
+      e_setup_colors(c);
+      e_init_capplet(c, e_try, e_revert, e_ok, e_cancel);
+      break;
+    }
+}
 
 int
 main (int argc, char **argv)
 {
-  gnome_capplet_init("Enlightenment Configuration", NULL, argc, argv, 0, NULL);
+  GtkWidget *capplet;
   
   e_read();
-  e_setup();
-  capplet_gtk_main();
+
+  gnome_capplet_init("Enlightenment Configuration", NULL, argc, argv, 0, NULL);
+  capplet = capplet_widget_new();
   
+  e_setup_multi(NULL, capplet);
+  capplet_gtk_main();
   return 0;
 }

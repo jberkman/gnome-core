@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Desktop Background
+Comment=Desktop Background
+Exec=e-conf --cap-id=1
+Icon=e-conf.png
+Terminal=0
+Type=Application

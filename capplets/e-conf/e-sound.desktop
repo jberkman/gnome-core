@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=General
-Comment=General
-Exec=e-conf --cap-id=0
+Name=Audio
+Comment=Audio
+Exec=e-conf --cap-id=3
 Icon=e-conf.png
 Terminal=0
 Type=Application
