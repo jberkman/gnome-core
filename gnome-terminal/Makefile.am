@@ -4,7 +4,6 @@
 #SUBDIRS = C de da es it no
 
 INCLUDES = 						\
-	-I$(includedir)					\
 	$(GNOME_TERMINAL_CFLAGS)			\
 	-DGNOME_TERMINAL_PREFIX=\""$(prefix)"\"		\
 	-DGNOME_TERMINAL_DATADIR=\""$(datadir)"\" 	\
