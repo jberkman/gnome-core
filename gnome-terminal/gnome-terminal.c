@@ -1377,7 +1377,8 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 		uib.destroy_func = NULL;
 		
 		gtk_object_set_user_data (GTK_OBJECT (menu), term);
-		gnome_app_fill_menu_custom (GTK_MENU_SHELL (menu), uiinfo, &uib, NULL, FALSE, TRUE, 0);
+		gnome_app_fill_menu_custom (GTK_MENU_SHELL (menu), uiinfo,
+					    &uib, NULL, FALSE, 0);
 
 		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, 0, NULL, 3, event->time);
 

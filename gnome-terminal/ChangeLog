@@ -1,3 +1,10 @@
+1998-12-01  Jeff Garzik  <jgarzik@pobox.com>
+
+	* gnome-terminal.c:
+	Correct usage of gnome_app_fill_menu_custom()
+	so that this will compile again.
+	(er, I thought that func was only for UI builders...)
+
 Sun Nov 29 03:03:20 1998  George Lebl  <jirka@5z.com>
 
 	* gnome-terminal.c: split the image stuff into a separate page,
