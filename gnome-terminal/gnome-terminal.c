@@ -1602,7 +1602,7 @@ size_allocate (GtkWidget *widget)
 	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	g_assert (app != NULL);
 
-	/* eek, this isn't right, but it kinda works */
+	/* this is required because of the PADDING in the term widget resize */
 #define PADDING 2
 	sizehints.base_width = 
 	  (GTK_WIDGET (app)->allocation.width) +
@@ -1657,6 +1657,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	char *shell, *name;
 	int i = 0;
 	struct terminal_config *cfg;
+	int width, height;
 
 	/* FIXME: is seems like a lot of this stuff should be done by apply_changes instead */
 
@@ -1707,7 +1708,28 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	terminals = g_list_append (terminals, app);
 
 	/* Setup the Zvt widget */
-	term = ZVT_TERM (zvt_term_new_with_size (80, 25));
+
+	/*
+	 * Handle geometry specification; height and width are in
+	 * terminal rows and columns
+	 */
+	width=80;
+	height=24;
+	if (geometry){
+		int xpos, ypos;
+		
+		gnome_parse_geometry (geometry, &xpos, &ypos, &width, &height);
+		if (xpos != -1 && ypos != -1)
+			gtk_widget_set_uposition (GTK_WIDGET (app), xpos, ypos);
+		if (width == -1 || height == -1) {
+			width=80;
+			height=24;
+		}
+		/* Only the first window gets --geometry treatment for now */
+		geometry = NULL;
+	}
+
+	term = (ZvtTerm *)zvt_term_new_with_size(width, height);
 
 	if ((zvt_term_get_capabilities (term) & ZVT_TERM_PIXMAP_SUPPORT) != 0){
 		zvt_pixmap_support = TRUE;
@@ -1770,22 +1792,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	
 	gnome_app_set_contents (GNOME_APP (app), hbox);
 
-	/*
-	 * Handle geometry specification; height and width are in
-	 * terminal rows and columns
-	 */
-	if (geometry){
-		int xpos, ypos, width, height;
-		
-		gnome_parse_geometry (geometry, &xpos, &ypos, &width, &height);
-		if (xpos != -1 && ypos != -1)
-			gtk_widget_set_uposition (GTK_WIDGET (app), xpos, ypos);
-		if (width != -1 && height != -1)
-		        zvt_term_set_size (ZVT_TERM (term), width, height);
-		
-		/* Only the first window gets --geometry treatment for now */
-		geometry = NULL;
-	}
 	configure_term_dnd (term);
 
 	if (zvt_pixmap_support && cfg->background_pixmap)

@@ -1,3 +1,9 @@
+1999-04-24  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
+
+	* gnome-terminal.c (new_terminal_cmd): 80x24 initial size.
+	(new_terminal_cmd): Extract geometry before calling
+	zvt_term_new_with_size(), so it doesn't have to be set later.
+
 1999-04-20  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (new_terminal_cmd): No, we are not going to
