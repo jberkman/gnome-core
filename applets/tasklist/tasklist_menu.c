@@ -529,6 +529,8 @@ create_task_item (TasklistTask *task, TasklistTask *group)
 	GdkBitmap *bit;
 	gchar *s;
 
+	static GwmhDesk *desk = NULL;
+
 	gdk_pixbuf_render_pixmap_and_mask (
 		task->gwmh_task->iconified
 		? task->icon->minimized
@@ -546,7 +548,15 @@ create_task_item (TasklistTask *task, TasklistTask *group)
 	g_free (s);
 	gtk_container_add (GTK_CONTAINER (task->menuitem), label);
 
-	gtk_menu_append (GTK_MENU (group->menu), task->menuitem);
+	if (!desk)
+		desk = gwmh_desk_get_config ();
+
+	if (task->gwmh_task->desktop == desk->current_desktop &&
+	    task->gwmh_task->harea   == desk->current_harea   &&
+	    task->gwmh_task->varea   == desk->current_varea)
+		gtk_menu_prepend (GTK_MENU (group->menu), task->menuitem);
+	else
+		gtk_menu_append (GTK_MENU (group->menu), task->menuitem);
 
 	gtk_object_set_data (GTK_OBJECT (task->menuitem), "task", task);
 
@@ -565,6 +575,7 @@ tasklist_group_popup (TasklistTask *task, guint button, guint32 activate_time)
 {
 	TasklistTask *subtask;
 	GSList *item;
+	GtkWidget *menuitem;
 
 	tasklist_clean_menu (task);
 
@@ -572,6 +583,15 @@ tasklist_group_popup (TasklistTask *task, guint button, guint32 activate_time)
 	gtk_signal_connect (GTK_OBJECT (task->menu), "deactivate",
 			    GTK_SIGNAL_FUNC (destroy_menu),
 			    NULL);
+
+	if (task->tasklist->config.all_desks_normal ||
+	    task->tasklist->config.all_desks_minimized) {
+		/* seperator */
+		menuitem = gtk_menu_item_new ();
+		gtk_widget_set_sensitive (menuitem, FALSE);
+		gtk_widget_show (menuitem);
+		gtk_menu_append (GTK_MENU (task->menu), menuitem);
+	}
 
 	g_slist_foreach (task->vtasks, (GFunc)create_task_item, task);
 

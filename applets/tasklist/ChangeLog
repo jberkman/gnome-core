@@ -1,3 +1,10 @@
+2001-01-30  jacob berkman  <jacob@ximian.com>
+
+	* tasklist_menu.c (tasklist_group_popup):
+	(create_task_item): add a seperator to the menu; tasks on the
+	current desktop are before, tasks not on after (like that foobar
+	task list)
+
 2001-01-24  jacob berkman  <jacob@ximian.com>
 
 	* tasklist*.[ch]: add shlibification and grouping by wmclass
