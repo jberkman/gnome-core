@@ -1,3 +1,9 @@
+2001-03-04 John Fleck <jfleck@inkstain.net>
+
+	* help/C/tasklist.sgml, help/C/tasklist_applet.sgml, plus
+	screenshots - add discussion of task grouping to docs, update
+	screenshots 
+
 2001-03-02  Anders Carlsson  <andersca@codefactory.se>
 
 	* tasklist_applet.h: Add about box to Tasklist struct.

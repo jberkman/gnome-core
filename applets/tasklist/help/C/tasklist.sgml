@@ -88,15 +88,37 @@
 	</listitem>
 
       </itemizedlist>
-</para>
+      </para>
    </sect2>
+
+    <sect2 id="tasklist-task-grouping">
+      <title>Task Grouping</title>
+      <para><application>Tasklist</application> can group icons together when
+      multiple instances of a program are running. A number in parentheses
+      appears to next to the application. Clicking on the icon brings up a menu
+      listing all of the running instances.</para>
+ <figure id="tasklist-applet-grouping-fig">
+     <title>Task Grouping</title>
+     <screenshot>
+      <screeninfo>Task Grouping</screeninfo> 
+      <graphic format="png" fileref="tasklist-grouping"
+	       srccredit="John Fleck">
+      </graphic>
+     </screenshot>
+    </figure>
+      <para>Clicking on an item in the list brings that window to the foreground
+      and gives it focus.</para>
+      <para>By default, <application>Tasklist</application> groups four or more
+      applications. You can change this in the <link
+    linkend="tasklist-applet-properties">properties window</link>.</para>
+    </sect2>
 
    <sect2 id="tasklist-applet-right-click">
     <title>Right-Click Pop-Up Menu Items</title>
     <para> 
      In addition to the standard menu items (see <xref
     linkend="tasklist-standard-right-click-items">), the
-    right-clickpop-up menu has
+    right-click pop-up menu has
     <guimenuitem>Properties...</guimenuitem> item &mdash; This menu
     item opens the <interface>Properties</interface> dialog (see <xref
     linkend="tasklist-applet-properties">) which allows you to
@@ -174,6 +196,11 @@
 	    the application you click on in the
 	    <application>Tasklist</application> panel.</para>
 	  </listitem>
+	  <listitem>
+	    <para><guilabel>Enable task grouping</guilabel> &mdash; Turns on
+	      <application>Tasklist's</application> <ulink
+							   url="tasklist-task-grouping">grouping feature</ulink> and controls the number of instances of an application that must be running before they are grouped.</para>
+	  </listitem>
 
 
       </itemizedlist>
@@ -226,6 +253,13 @@
 	  there are no tasks), but not more than the value set in
 	  <guilabel>Tasklist width</guilabel>.</para>
 	</listitem>
+	  <listitem>
+	    <para><guilabel>Only use empty space</guilabel> &mdash; If width or
+	    height is set to be dynamic, this option forces 
+	    <application>Tasklist</application> to use only the available space
+	    on your screen, preventing it from pushing other applets out
+	    of the way and off of your screen.</para>
+	  </listitem>
       </itemizedlist>
 
 </para>
@@ -331,7 +365,7 @@
          The <guimenuitem>About...</guimenuitem> menu item brings up a 
          dialogue box containing various information about the applet,
          typically including the applet's  name, version, author,
-         copyright, license and desciption. 
+         copyright, license and description. 
         </para>
        </listitem>
       </varlistentry>
