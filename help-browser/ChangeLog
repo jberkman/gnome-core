@@ -1,5 +1,7 @@
 1998-05-22  Marc Ewing  <marc@germ.labs.redhat.com>
 
+	* can accept drops.  does no MIME type checking.
+
 	* parseUrl.c (decomposeUrlRelative): handle NULL ref
 
 	* window.c: added accelerators for ' ', 'b', 'g'

@@ -103,6 +103,8 @@ static void pageUp(GtkWidget *w, HelpWindow win);
 static void pageDown(GtkWidget *w, HelpWindow win);
 static void focusEnter(GtkWidget *w, HelpWindow win);
 
+static void dndDrop(GtkWidget *widget, GdkEvent *event, HelpWindow win);
+
 static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
 
@@ -615,6 +617,24 @@ static void focusEnter(GtkWidget *w, HelpWindow win)
     gtk_widget_grab_focus(GTK_WIDGET(win->entryBox));
 }
 
+static void dndDrop(GtkWidget *widget, GdkEvent *event, HelpWindow win)
+{
+    gchar buf[BUFSIZ];
+    gchar *s;
+    
+    s = (gchar *)event->dropdataavailable.data;
+    g_message("DROP: %s", s);
+
+    /* Do a little shorthand processing */
+    if (*s == '/') {
+	snprintf(buf, sizeof(buf), "file:%s", s);
+    } else {
+	strncpy(buf, s, sizeof(buf));
+    }
+    
+    helpWindowShowURL(win, buf, TRUE, TRUE);
+}
+
 HelpWindow
 helpWindowNew(gchar *name,
 	      gint x, gint y, gint width, gint height,
@@ -627,6 +647,7 @@ helpWindowNew(gchar *name,
         HelpWindow w;
 	GtkWidget *entryArea;
 	GtkWidget *vbox;
+	char *acceptedDropTypes[] = { "url:ALL" };
 
 	w = (HelpWindow)g_malloc(sizeof(*w));
 
@@ -706,7 +727,14 @@ helpWindowNew(gchar *name,
 
 	gtk_window_set_policy(GTK_WINDOW(w->app), TRUE, TRUE, FALSE);
 	gtk_widget_show(w->app);
-	
+
+	gtk_widget_realize(w->helpWidget);
+	gtk_signal_connect(GTK_OBJECT(GTK_XMHTML(w->helpWidget)->html.work_area),
+			   "drop_data_available_event",
+			   GTK_SIGNAL_FUNC(dndDrop), w);
+	gtk_widget_dnd_drop_set(GTK_XMHTML(w->helpWidget)->html.work_area,
+				TRUE, acceptedDropTypes, 1, FALSE);
+
 	return w;
 }
 
