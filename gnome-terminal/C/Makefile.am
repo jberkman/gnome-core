@@ -11,10 +11,8 @@ all: index.html
 index.html: gnome-terminal/index.html
 	-cp gnome-terminal/index.html .
 
-gnome-terminal/index.html: gnome-terminal.sgml
-	-cp $(srcdir)/gnome-terminal.sgml .
+gnome-terminal/index.html: $(srcdir)/gnome-terminal.sgml
 	db2html $(srcdir)/gnome-terminal.sgml
-
 
 dist-hook:
 	mkdir $(distdir)/gnome-terminal
