@@ -70,6 +70,7 @@ MC_IF_VAR_EQ(GCC, yes,
         	
 	dnl Warnings.
 	MC_ADD_TO_VAR(CFLAGS, -Wall, -Wall)
+	MC_ADD_TO_VAR(CFLAGS, -Wshadow, -Wshadow)
 	MC_ADD_TO_VAR(CFLAGS, -Wmissing-prototypes, -Wmissing-prototypes)
 	MC_ADD_TO_VAR(CFLAGS, -Wstrict-prototypes, -Wstrict-prototypes)
 	MC_ADD_TO_VAR(CFLAGS, -Winline, -Winline)
@@ -78,6 +79,7 @@ MC_IF_VAR_EQ(GCC, yes,
 		MC_ADD_TO_VAR(CFLAGS, -ansi, -ansi)
 		MC_ADD_TO_VAR(CFLAGS, -pedantic, -pedantic)
 	)
+	dnl MC_ADD_TO_VAR(CFLAGS, -Weffc++, -Weffc++)
 
 	dnl Optimizations
 	MC_ADD_TO_VAR(CFLAGS, -O, -O6)

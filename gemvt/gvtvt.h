@@ -86,7 +86,7 @@ struct	_GvtVtClass
   GvtVt		**vts;
   guint		n_vts;
 
-  gint		realized : 1;
+  guint		realized : 1;
 
   GdkBitmap	*gem_red_bit;
   GdkPixmap	*gem_red_pix;
