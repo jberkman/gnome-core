@@ -83,6 +83,7 @@ ui_setup (void)
   GtkWidget * menuitem;
   GtkWidget * label;
   GtkWidget * button;
+  GtkWidget * hbox;
   gint i;
 
   vbox = gtk_vbox_new(TRUE, GNOME_PAD);
@@ -104,11 +105,18 @@ ui_setup (void)
     ++i;
   }
 
+  hbox = gtk_hbox_new (FALSE, GNOME_PAD);
+
   label = gtk_label_new(_("Dialog buttons"));
 
-  gtk_box_pack_start ( GTK_BOX(vbox), label, FALSE, FALSE, GNOME_PAD_SMALL );
-  gtk_box_pack_start ( GTK_BOX(vbox), option_menu, FALSE, FALSE, GNOME_PAD_SMALL );
-  
+  gtk_box_pack_start ( GTK_BOX(hbox), label, FALSE, FALSE, GNOME_PAD_SMALL );
+  /* FIXME: option menu width should be just wide enough to display
+     widest menu item.  Ideally the option menu code would handle this
+     for us.  Also, the button is not tall enough -- descenders seem
+     to get clipped on my display.  */
+  gtk_box_pack_start ( GTK_BOX(hbox), option_menu, TRUE, TRUE, GNOME_PAD_SMALL );
+  gtk_box_pack_start ( GTK_BOX(vbox), hbox, FALSE, FALSE, GNOME_PAD_SMALL);
+
   button = 
     gtk_check_button_new_with_label(_("Use statusbar instead of dialog when possible"));
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 

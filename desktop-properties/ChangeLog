@@ -1,3 +1,8 @@
+Wed Jul 22 23:23:41 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* property-ui.c (ui_setup): Put label and optionmenu into an
+	hbox.
+
 1998-07-20  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* property-screensaver.cc (apply): Use `g_new' rather than
