@@ -1,3 +1,12 @@
+Mon May 08 20:20:54 2000  George Lebl <jirka@5z.com>
+
+	* gnome-hint.c: add options --browse-(hints|motd|fortune) and
+	  --session-startup.  This is so that this can be used as a regular
+	  application.  Also mark the title font for translation
+
+	* gnome-hint.desktop, Makefile.am: install an icon into the utilities
+	  directory.
+
 2000-05-03  Yukihiro Nakai <nakai@gnome.gr.jp>
 
 	* gnome-hint-properties.desktop : Add Japanese translation.

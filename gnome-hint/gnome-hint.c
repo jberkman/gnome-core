@@ -24,6 +24,33 @@ static GnomeCanvasItem *blue_background;
 static GnomeCanvasItem *white_background;
 static int width = 400,height = 200;
 
+static gboolean browse_hints = FALSE;
+static gboolean browse_motd = FALSE;
+static gboolean browse_fortune = FALSE;
+static gboolean session_login = FALSE;
+
+struct poptOption options[] = {
+  { "browse-hints", '\0', POPT_ARG_NONE, &browse_hints, 0,
+	  N_("Start in hint browsing mode"),
+	  NULL
+  },
+  { "browse-motd", '\0', POPT_ARG_NONE, &browse_motd, 0,
+	  N_("Start in motd mode"),
+	  NULL
+  },
+  { "browse-fortune", '\0', POPT_ARG_NONE, &browse_fortune, 0,
+	  N_("Start in fortune mode"),
+	  NULL
+  },
+  { "session-login", '\0', POPT_ARG_NONE, &session_login, 0,
+	  N_("Start in session login mode (used from gsm)"),
+	  NULL
+  },
+  { NULL }
+};
+
+
+
 static char *
 default_hint(void)
 {
@@ -358,7 +385,7 @@ draw_on_canvas(GtkWidget *canvas, int is_fortune, int is_motd, char *hint)
 		"x",(double)200.0,
 		"y",(double)25.0,
 		"fill_color","white",
-		"font","-*-helvetica-bold-r-normal-*-*-180-*-*-p-*-*-*",
+		"font",_("-*-helvetica-bold-r-normal-*-*-180-*-*-p-*-*-*"),
 		"text",is_fortune?"Fortune":is_motd?"Message of The Day":"Gnome Hints",
 		NULL);
 
@@ -369,10 +396,17 @@ static void
 exit_clicked(GtkWidget *window)
 {
 	GtkWidget *message_box;
-	gboolean old_run_hints =
-		gnome_config_get_bool ("/Gnome/Login/RunHints=true");
-	gboolean new_run_hints =
-		gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb));
+	gboolean old_run_hints;
+	gboolean new_run_hints;
+
+	/* if not in session login mode, just quit */
+	if(!session_login) {
+		gtk_main_quit();
+		return;
+	}
+
+	old_run_hints = gnome_config_get_bool ("/Gnome/Login/RunHints=true");
+	new_run_hints = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb));
 	/* show the dialog ONLY when the user toggled the hints off just
 	 * now, and not if they were off before */
 	if (old_run_hints && !new_run_hints) {
@@ -482,7 +516,8 @@ window_realize(GtkWidget *win)
 	   top without other starting apps overlaying it, since it's
 	   what the user should see (especially on the first run) so
 	   we can't have it obscured */
-	gnome_win_hints_set_layer(win, WIN_LAYER_ONTOP);
+	if(session_login)
+		gnome_win_hints_set_layer(win, WIN_LAYER_ONTOP);
 }
 
 int
@@ -494,12 +529,15 @@ main(int argc, char *argv[])
         GnomeClientFlags flags;
 	gboolean is_fortune;
 	gboolean is_motd;
+	poptContext ctx;
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
 
-	gnome_init("gnome-hint", VERSION, argc, argv);
+	gnome_init_with_popt_table ("gnome-hint", VERSION, argc, argv,
+				    options, 0, &ctx);
 	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-hint.png");
+	/* never let us be restarted */
 	client = gnome_master_client();
 	flags = gnome_client_get_flags(client);
 
@@ -509,13 +547,18 @@ main(int argc, char *argv[])
                 gnome_client_flush (client);
         }
 
-	/* we can give fortune instead of hints in fact */
-	is_fortune =
-		gnome_config_get_bool("/Gnome/Login/HintsAreFortune=false");
+	if(browse_hints) {
+		/* if we are in hint browsing mode, ignore the fortunes and
+		 * motd */
+		is_fortune = FALSE;
+		is_motd = FALSE;
+	} else {
+		/* we can give fortune instead of hints in fact */
+		is_fortune = gnome_config_get_bool("/Gnome/Login/HintsAreFortune=false");
 
-	/* actually give a MOTD, not a fortune nor a hint */
-	is_motd =
-		gnome_config_get_bool("/Gnome/Login/HintsAreMotd=false");
+		/* actually give a MOTD, not a fortune nor a hint */
+		is_motd = gnome_config_get_bool("/Gnome/Login/HintsAreMotd=false");
+	}
 
 	if(is_motd) {
 		win = gnome_dialog_new(_("Message of The Day"),
@@ -555,10 +598,14 @@ main(int argc, char *argv[])
 				       GTK_POLICY_NEVER);
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),sw,TRUE,TRUE,0);
 
-	cb = gtk_check_button_new_with_label (_("Display this dialog next time"));
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb),
-				      gnome_config_get_bool("/Gnome/Login/RunHints=true"));
-	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),cb,TRUE,TRUE,0);
+	/* only add the display this dialog next time if we are in session
+	 * login mode */
+	if(session_login) {
+		cb = gtk_check_button_new_with_label (_("Display this dialog next time"));
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb),
+					      gnome_config_get_bool("/Gnome/Login/RunHints=true"));
+		gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),cb,TRUE,TRUE,0);
+	}
 
 	canvas = gnome_canvas_new();
 	gtk_container_add(GTK_CONTAINER(sw),canvas);
