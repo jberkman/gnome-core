@@ -1,3 +1,9 @@
+1999-05-28  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* gnome-terminal.c (new_terminal_cmd): display an error dialog
+	if pty_login fails.  Simple try to catch linux unix98 pty 
+	mis-installations
+
 1999-05-15  Jacob Berkman  <jberk+@cmu.edu>
 
 	* gnome-terminal.desktop (Icon): use gnome-terminal.png

@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include <gdk/gdkx.h>
 #include <gdk/gdkprivate.h>
@@ -1646,6 +1647,34 @@ term_change_pos(GtkWidget *widget)
 		gtk_widget_queue_draw(widget);
 }
 
+/* do this because there have been only 5 bug reports about this */
+static void
+show_pty_error_dialog ()
+{
+	char *tmpmsg, *errmsg;
+	GtkWidget *dialog;
+
+	tmpmsg = errno ? 
+		g_strdup_printf(_("The error was: %s"), g_strerror(errno)) : 
+		_("If you are using Linux 2.2.x with glibc 2.1.x, this\n"
+		  "is probably due to incorrectly setup Unix98 ptys.\n\n"
+		  "Please read linux/Documentation/Changes for how to\n"
+		  "set them up correctly.");
+	
+	errmsg =  g_strdup_printf(_("There has been an error while "
+				    "trying to log in.\n\n%s"), tmpmsg);
+	
+	
+	dialog = gnome_message_box_new (errmsg,
+					GNOME_MESSAGE_BOX_ERROR,
+					GNOME_STOCK_BUTTON_OK, NULL);
+							
+	gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
+
+	if (errno) g_free(tmpmsg);
+	g_free(errmsg);
+}
+
 GtkWidget *
 new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 {
@@ -1771,7 +1800,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	hbox = gtk_hbox_new (0, 0);
 
 /*	gtk_container_set_border_width (GTK_CONTAINER (hbox), 2); */
-	gtk_box_set_spacing (GTK_BOX (hbox), 3);
+       	gtk_box_set_spacing (GTK_BOX (hbox), 3);
 
 	gtk_widget_show (hbox);
 	get_shell_name (&shell, &name, cfg->invoke_as_login_shell);
@@ -1821,7 +1850,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	switch (zvt_term_forkpty (term, update_records)){
 	case -1:
-		perror ("Error: unable to fork");
+		show_pty_error_dialog();
+		perror("Error: unable to fork");
+		/* should we exit maybe? */
 		return NULL;
 		
 	case 0: {
