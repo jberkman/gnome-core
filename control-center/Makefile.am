@@ -27,7 +27,7 @@ gnomecc_LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
 	$(INTLLIBS)					\
-	-lgnorba					\
+	$(GNORBA_LIBS)					\
 	$(ORB_LIBS)
 
 appicondir = $(datadir)/pixmaps
@@ -50,7 +50,7 @@ libcapplet_la_SOURCES = \
 	$(CORBA_SRCLIST)
 
 libcapplet_la_LDFLAGS = -version-info 0:0:0 -rpath $(libdir)
-libcapplet_la_LIBADD = $(ORB_LIBS) -lm $(DL_LIB) -lgnorba
+libcapplet_la_LIBADD = $(ORB_LIBS) -lm $(DL_LIB) $(GNORBA_LIBS)
 
 
 include_HEADERS = capplet-widget.h

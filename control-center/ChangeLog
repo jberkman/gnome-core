@@ -1,3 +1,6 @@
+Thu Nov 19 23:37:18 CST 1998  Frank Belew <frb@umr.edu>
+	* changed occurences of -lgnorba to $(GNORBA_LIBS) in Makefile.am 
+
 1998-11-08  Felix Bellaby <felix@pooh.u-net.com>
 	* Makefile.am: added ORBIT_IDL to dependencies.
 
