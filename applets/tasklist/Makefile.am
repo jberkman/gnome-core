@@ -24,7 +24,8 @@ EXTRA_DIST = \
 	tasklist_applet.h \
 	tasklist_applet.gnorba \
 	tasklist_applet.desktop \
-	unknown.xpm
+	unknown.xpm		\
+	gnome-tasklist.png
 
 pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = gnome-tasklist.png
