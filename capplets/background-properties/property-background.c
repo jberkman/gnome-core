@@ -5,6 +5,7 @@
  * Authors: Miguel de Icaza.
  *          Federico Mena.
  *          Radek Doulik
+ *          Michael Fulbright
  */
 
 #include <config.h>
@@ -30,21 +31,7 @@ static GtkWidget *wpOMenu;
 static gchar *wpFileSelName = NULL;
 static gint wpNum;
 static gint fillPreview = TRUE;
-
-#if 0
-/* If true, the display is a gradient from color1..color2 */
-static gint grad;
-
-/* Direction of the gradient */
-static gint vertical;
-
-static gint bgType;
-static gint wpType;
-
-static gchar *wpFileName=NULL;
-
-static GdkColor  bgColor1, bgColor2;
-#endif
+static gint ignoreChanges = TRUE;
 
 enum {
 	WALLPAPER_TILED,
@@ -78,15 +65,46 @@ void background_init(void);
 void background_read(struct bgState *state);
 void background_setup(struct bgState *state);
 
+
+void
+printState( struct bgState *state )
+{
+    printf("\n-------------------------------\n");
+    printf("Color 1: #%04x%04x%04x\n",
+	      state->bgColor1.red >> 8,
+	      state->bgColor1.green >> 8,
+	      state->bgColor1.blue >> 8);
+    printf("Color 2: #%04x%04x%04x\n",
+	      state->bgColor2.red >> 8,
+	      state->bgColor2.green >> 8,
+	      state->bgColor2.blue >> 8);
+    printf("Mode   : %s\n", (state->grad) ? "gradient" : "solid");
+    printf("Direct : %s\n", (state->vertical) ? "vertical" : "horizontal");
+    printf("bgType : %s\n", (state->bgType == BACKGROUND_SIMPLE) ? "none" : state->wpFileName);
+    printf("wpType : %d\n", state->wpType);
+    printf("\n-------------------------------\n");
+}
+
+void
+copyState(struct bgState *dest, struct bgState *src)
+{
+    memcpy(dest, src, sizeof(struct bgState));
+    if (src->wpFileName)
+	dest->wpFileName = g_strdup(src->wpFileName);
+    if (src->wpFileSelName)
+	dest->wpFileSelName = g_strdup(src->wpFileSelName);
+}
+    
+
 static void
 fill_gradient (unsigned char *d, gint w, gint h,
 	       GdkColor *c1, GdkColor *c2, int vertical)
 {
-	gint i, j;
-	gint dr, dg, db;
-	gint gs1, w3;
-	gint vc = (!vertical || (c1 == c2));
-	unsigned char *b, *row;
+    gint i, j;
+    gint dr, dg, db;
+    gint gs1, w3;
+    gint vc = (!vertical || (c1 == c2));
+    unsigned char *b, *row;
 
 #define R1 c1->red
 #define G1 c1->green
@@ -95,40 +113,40 @@ fill_gradient (unsigned char *d, gint w, gint h,
 #define G2 c2->green
 #define B2 c2->blue
 
-	dr = R2 - R1;
-	dg = G2 - G1;
-	db = B2 - B1;
+    dr = R2 - R1;
+    dg = G2 - G1;
+    db = B2 - B1;
 
-	gs1 = (vertical) ? h-1 : w-1;
-	w3 = w*3;
+    gs1 = (vertical) ? h-1 : w-1;
+    w3 = w*3;
 
-	row = g_new (unsigned char, w3);
+    row = g_new (unsigned char, w3);
 
-	if (vc) {
-		b = row;
-		for (j = 0; j < w; j++) {
-			*b++ = (R1 + (j * dr) / gs1) >> 8;
-			*b++ = (G1 + (j * dg) / gs1) >> 8;
-			*b++ = (B1 + (j * db) / gs1) >> 8;
-		}
+    if (vc) {
+	b = row;
+	for (j = 0; j < w; j++) {
+	    *b++ = (R1 + (j * dr) / gs1) >> 8;
+	    *b++ = (G1 + (j * dg) / gs1) >> 8;
+	    *b++ = (B1 + (j * db) / gs1) >> 8;
 	}
+    }
 
-	for (i = 0; i < h; i++) {
-		if (!vc) {
-			unsigned char cr, cg, cb;
-			cr = (R1 + (i * dr) / gs1) >> 8;
-			cg = (G1 + (i * dg) / gs1) >> 8;
-			cb = (B1 + (i * db) / gs1) >> 8;
-			b = row;
-			for (j = 0; j < w; j++) {
-				*b++ = cr;
-				*b++ = cg;
-				*b++ = cb;
-			}
-		}
-		memcpy (d, row, w3);
-		d += w3;
+    for (i = 0; i < h; i++) {
+	if (!vc) {
+	    unsigned char cr, cg, cb;
+	    cr = (R1 + (i * dr) / gs1) >> 8;
+	    cg = (G1 + (i * dg) / gs1) >> 8;
+	    cb = (B1 + (i * db) / gs1) >> 8;
+	    b = row;
+	    for (j = 0; j < w; j++) {
+		*b++ = cr;
+		*b++ = cg;
+		*b++ = cb;
+	    }
 	}
+	memcpy (d, row, w3);
+	d += w3;
+    }
 
 #undef R1
 #undef G1
@@ -137,7 +155,7 @@ fill_gradient (unsigned char *d, gint w, gint h,
 #undef G2
 #undef B2
 
-	g_free (row);
+    g_free (row);
 }
 
 static void
@@ -241,7 +259,8 @@ fill_monitor (int prop_changed, struct bgState *state)
 			   bi->rgb_width, bi->rgb_height,
 			   0, 0);
 
-		XSetWindowBackgroundPixmap (GDK_DISPLAY (), GDK_ROOT_WINDOW (), bg);
+		XSetWindowBackgroundPixmap(GDK_DISPLAY(), GDK_ROOT_WINDOW(),
+					   bg);
 		
 		Imlib_free_pixmap (imlib_data, pix);
 		Imlib_free_pixmap (imlib_data, mask);
@@ -259,17 +278,28 @@ fill_monitor (int prop_changed, struct bgState *state)
 	    gdk_gc_unref (gc);
 	    
 	    /* Reset the cursor to normal */
-	    
 	    if (capplet)
 		gdk_window_set_cursor (capplet->window, NULL);
 	    
 	    return;
 	}
 	
-	screen = gdk_pixmap_new (rootWindow, rootWidth, rootHeight, -1);
 	cx = cy = 0;
-	cw = rootWidth;
-	ch = rootHeight;
+
+	if (state->grad && state->bgType == BACKGROUND_SIMPLE) {
+	    if (state->vertical) {
+		cw = 32;
+		ch = rootHeight;
+	    } else {
+		cw = rootWidth;
+		ch = 32;
+	    }
+	} else {
+	    cw = rootWidth;
+	    ch = rootHeight;
+	}
+/*	screen = gdk_pixmap_new (rootWindow, rootWidth, rootHeight, -1); */
+	screen = gdk_pixmap_new (rootWindow, cw, ch, -1); 
     } else {
 	screen = GTK_PIXMAP (GTK_BIN (monitor)->child)->pixmap;
 	cw = MONITOR_CONTENTS_WIDTH;
@@ -448,7 +478,14 @@ fill_monitor (int prop_changed, struct bgState *state)
 static void
 color_sel_set (GnomeColorPicker *gcp, gpointer data)
 {
-	fill_monitor (TRUE, &curState);
+    fill_monitor (TRUE, &curState);
+    if (!ignoreChanges)
+	capplet_widget_state_changed(CAPPLET_WIDGET(capplet), TRUE);
+
+#ifdef DEBUG
+    printf("Changing color, ignore changes is %d\n",ignoreChanges);
+    printState(&curState);
+#endif
 }
 
 static gint
@@ -459,27 +496,36 @@ idle_fill_monitor (gpointer data)
 }
 
 static GtkWidget *radioh, *radiov, *radiof, *radiog;
+static GtkWidget *tiledButton, *scaledButton;
+static GtkWidget *scaledkeepButton, *centeredButton;
 
 static void
 set_background_mode (GtkWidget *widget)
 {
-	if (GTK_TOGGLE_BUTTON (widget)->active) {
-		if (widget == radiof) {
-			/* Flat color */
-			gtk_widget_set_sensitive(cp2, FALSE);
-			gtk_widget_set_sensitive(radioh, FALSE);
-			gtk_widget_set_sensitive(radiov, FALSE);
-			curState.grad = FALSE;
-		} else if (widget == radiog) {
-			/* Gradient fill */
-			gtk_widget_set_sensitive(cp2, TRUE);
-			gtk_widget_set_sensitive(radioh, TRUE);
-			gtk_widget_set_sensitive(radiov, TRUE);
-			curState.grad = TRUE;
-		}
-
-		fill_monitor (TRUE, &curState);
+    if (GTK_TOGGLE_BUTTON (widget)->active) {
+	if (widget == radiof) {
+	    /* Flat color */
+	    gtk_widget_set_sensitive(cp2, FALSE);
+	    gtk_widget_set_sensitive(radioh, FALSE);
+	    gtk_widget_set_sensitive(radiov, FALSE);
+	    curState.grad = FALSE;
+	} else if (widget == radiog) {
+	    /* Gradient fill */
+	    gtk_widget_set_sensitive(cp2, TRUE);
+	    gtk_widget_set_sensitive(radioh, TRUE);
+	    gtk_widget_set_sensitive(radiov, TRUE);
+	    curState.grad = TRUE;
 	}
+
+	fill_monitor (!ignoreChanges, &curState);
+    }
+    if (!ignoreChanges)
+	capplet_widget_state_changed(CAPPLET_WIDGET(capplet), TRUE);
+
+#ifdef DEBUG
+    printf("Setting mode to %s\n",(widget == radiof) ? "Solid" : "Gradient");
+    printState(&curState);
+#endif
 }
 
 static void
@@ -491,8 +537,15 @@ set_orientation (GtkWidget *widget)
 	else if (widget == radiov)
 	    curState.vertical = TRUE;   /* Vertical gradient */
 	
-	fill_monitor (TRUE, &curState);
+	fill_monitor (!ignoreChanges, &curState);
     }
+    if (!ignoreChanges)
+	capplet_widget_state_changed(CAPPLET_WIDGET(capplet), TRUE);
+
+#ifdef DEBUG
+    printf("Setting orientation to %s\n",(widget == radioh) ? "Horizontal" : "Vertical");
+    printState(&curState);
+#endif
 }
 
 static void
@@ -501,8 +554,10 @@ set_wallpaper_type (GtkWidget *widget, gpointer data)
     if (GTK_TOGGLE_BUTTON (widget)->active) {
 	curState.wpType = (gint) data;
 	
-	fill_monitor (TRUE, &curState);
+	fill_monitor (!ignoreChanges, &curState);
     }
+    if (!ignoreChanges)
+	capplet_widget_state_changed(CAPPLET_WIDGET(capplet), TRUE);
 }
 
 static GtkWidget *
@@ -530,7 +585,7 @@ color_setup (struct bgState *state)
     cp1 = gnome_color_picker_new ();
     gnome_color_picker_set_i16 (GNOME_COLOR_PICKER(cp1), 
 				state->bgColor1.red, state->bgColor1.green,
-				state->bgColor1.blue, 0xffff);
+				state->bgColor1.blue, 0xff);
     gtk_signal_connect(GTK_OBJECT(cp1), "color_set", 
 		       GTK_SIGNAL_FUNC(color_sel_set), NULL);
 	
@@ -550,7 +605,7 @@ color_setup (struct bgState *state)
     cp2 = gnome_color_picker_new ();
     gnome_color_picker_set_i16 (GNOME_COLOR_PICKER(cp2), 
 				state->bgColor2.red, state->bgColor2.green,
-				state->bgColor2.blue, 0xffff);
+				state->bgColor2.blue, 0xff);
     gtk_signal_connect(GTK_OBJECT(cp2), "color_set", 
 		       GTK_SIGNAL_FUNC(color_sel_set), NULL);
     
@@ -571,8 +626,9 @@ color_setup (struct bgState *state)
     gtk_widget_show(radioh);
 
     /* BEFORE our signals are connected, set initial states */
-    gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radiog), state->grad);
-    gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radioh), !state->vertical);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON((state->grad) ? radiog : radiof), TRUE);
+
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON((state->vertical) ? radiov : radioh), TRUE);
     
     gtk_widget_set_sensitive(cp2, state->grad);
     gtk_widget_set_sensitive(radioh, state->grad);
@@ -634,7 +690,7 @@ wp_selection_cancel (GtkWidget *w, GtkWidget **f)
 }
 
 static void
-set_monitor_filename (char *str)
+set_monitor_filename (gchar *str)
 {
     GString *gs;
     gchar num[32];
@@ -642,21 +698,22 @@ set_monitor_filename (char *str)
     GList *child = GTK_MENU_SHELL (wpMenu)->children;
     GtkWidget *cf;
     
+    printf("searching for %s\n",str);
     while (child) {
 	if (child->data)
 	    if (GTK_BIN (child->data)->child) {
-				/* printf ("%s\n", GTK_LABEL (GTK_BIN (child->data)->child)->label); */
+		printf ("Searching %s\n", GTK_LABEL (GTK_BIN (child->data)->child)->label);
 		if (!strcmp (GTK_LABEL (GTK_BIN (child->data)->child)->label, str)) {
 		    found = i;
-		    /* printf ("found: %d\n", i); */
+		    printf ("found: %d\n", i); 
 		}
 	    }
 	i++;
 	child = child->next;
     }
     
-    
-    if (found < 0) {
+    /* hack */
+    if (!ignoreChanges && found < 0) {
 	
 	cf = gtk_menu_item_new_with_label (str);
 	gtk_signal_connect (GTK_OBJECT (cf),
@@ -676,7 +733,6 @@ set_monitor_filename (char *str)
 	gnome_config_set_string ("/Desktop/Background/wallpapers_dir",
 				 str);
 	
-	
 	found = wpNum;
 	gnome_config_sync ();
     }
@@ -688,7 +744,10 @@ set_monitor_filename (char *str)
     
     gtk_option_menu_set_history (GTK_OPTION_MENU (wpOMenu), found);
     
-    fill_monitor (TRUE, &curState);
+    fill_monitor (!ignoreChanges, &curState);
+
+    if (!ignoreChanges)
+	capplet_widget_state_changed(CAPPLET_WIDGET(capplet), TRUE);
 }
 
 static void
@@ -713,6 +772,9 @@ browse_wallpapers (GtkWidget *w, gpointer p)
 	if (wpFileSelName)
 	    gtk_file_selection_set_filename (GTK_FILE_SELECTION (fileSel),
 					     wpFileSelName);
+	else if (origState.wpFileName)
+	    gtk_file_selection_set_filename (GTK_FILE_SELECTION (fileSel),
+					     origState.wpFileName);
 	
 	gtk_signal_connect (GTK_OBJECT (fileSel), "delete_event",
 			    (GtkSignalFunc) delete_browse,
@@ -806,7 +868,8 @@ wallpaper_setup (struct bgState *state)
 			(gpointer)WALLPAPER_SCALED);
     gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
     gtk_widget_show (rbut);
-    
+    scaledButton = rbut;
+
     rbut = gtk_radio_button_new_with_label
 	(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
 	 _("Scaled (keep aspect)"));
@@ -817,6 +880,7 @@ wallpaper_setup (struct bgState *state)
 			(gpointer) WALLPAPER_SCALED_KEEP);
     gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
     gtk_widget_show (rbut);
+    scaledkeepButton = rbut;
 
     rbut = gtk_radio_button_new_with_label
 	(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
@@ -828,6 +892,7 @@ wallpaper_setup (struct bgState *state)
 			(gpointer) WALLPAPER_CENTERED);
     gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
     gtk_widget_show (rbut);
+    centeredButton = rbut;
 
     rbut = gtk_radio_button_new_with_label
 	(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
@@ -839,10 +904,10 @@ wallpaper_setup (struct bgState *state)
 			(gpointer) WALLPAPER_TILED);
     gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
     gtk_widget_show (rbut);
+    tiledButton = rbut;
 
     gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
     gtk_container_add (GTK_CONTAINER (wallp), vbox);
-
 
     gtk_widget_show (wpOMenu);
     gtk_widget_show (but);
@@ -856,22 +921,100 @@ wallpaper_setup (struct bgState *state)
 static void
 background_apply (struct bgState *state)
 {
-	fillPreview = FALSE;
-	fill_monitor (FALSE, state);
-	fillPreview = TRUE;
+    GtkWidget *choice;
+
+    /* need to move all this stuff eventually */
+    ignoreChanges = TRUE;
+
+
+    gnome_color_picker_set_i16 (GNOME_COLOR_PICKER(cp1), 
+				state->bgColor1.red, state->bgColor1.green,
+				state->bgColor1.blue, 0xff);
+    gnome_color_picker_set_i16 (GNOME_COLOR_PICKER(cp2), 
+				state->bgColor2.red, state->bgColor2.green,
+				state->bgColor2.blue, 0xff);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON((state->grad) ? radiog : radiof), TRUE);
+
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON((state->vertical) ? radiov : radioh), TRUE);
+    
+    gtk_widget_set_sensitive(cp2, state->grad);
+    gtk_widget_set_sensitive(radioh, state->grad);
+    gtk_widget_set_sensitive(radiov, state->grad);
+
+    switch (state->wpType) {
+      case WALLPAPER_SCALED:
+	choice = scaledButton;
+	break;
+      case WALLPAPER_SCALED_KEEP:
+	choice = scaledkeepButton;
+	break;
+      case WALLPAPER_CENTERED:
+	choice = centeredButton;
+	break;
+      case WALLPAPER_TILED:
+	choice = tiledButton;
+	break;
+      default:
+	choice = tiledButton;
+    }
+    gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (choice), TRUE);
+
+    if (state->bgType!= BACKGROUND_SIMPLE) {
+	gchar *tmp;
+printf("setting filename back to %s\n",state->wpFileName);
+	/* ok this is horrible i should die */
+	tmp = g_strdup(state->wpFileName);
+	set_monitor_filename(tmp);
+	g_free(tmp);
+    } else {
+	gtk_option_menu_set_history(GTK_OPTION_MENU(wpOMenu), 0);
+    }
+
+#if 1
+    fillPreview = FALSE;
+    fill_monitor (FALSE, state);
+    fillPreview = TRUE;
+#endif
+    ignoreChanges=FALSE;
+}
+
+static void
+background_try(GtkWidget *widget, struct bgState *state)
+{
+    background_apply(state);
 }
 
 static void
 background_revert ()
 {
+    ignoreChanges = TRUE;
+
+    printf("Current State\n");
+    printState(&origState);
+
     background_apply(&origState);
+    fillPreview = TRUE;
+    fill_monitor (FALSE, &origState);
+
+#ifdef DEBUG
+    printf("Restored State\n");
+    printState(&origState);
+#endif
+
+    copyState(&curState, &origState);
+    ignoreChanges = FALSE;
 }
 
 static void
 background_write (struct bgState *state)
 {
     char buffer [60];
-    
+
+
+#ifdef DEBUG
+    printf("Saving state to disk\n");
+    printState(state);
+#endif
     snprintf (buffer, sizeof(buffer), "#%02x%02x%02x",
 	      state->bgColor1.red >> 8,
 	      state->bgColor1.green >> 8,
@@ -893,8 +1036,9 @@ background_write (struct bgState *state)
     gnome_config_set_int ("/Desktop/Background/wallpaperAlign", state->wpType);
     
     gnome_config_sync ();
-    
+#if 0    
     background_apply(state);
+#endif
 }
 
 void
@@ -946,11 +1090,24 @@ background_read ( struct bgState *state )
 		state->bgType = BACKGROUND_WALLPAPER;
 }
 
+void
+background_ok(GtkWidget *widget, struct bgState *state)
+{
+    background_apply(state);
+    background_write(state);
+}
 
 void
 background_init() {
     background_read(&origState);
+    copyState(&curState, &origState);
+    ignoreChanges = TRUE;
     background_setup(&origState);
+    ignoreChanges = FALSE;
+
+#ifdef DEBUG
+    printState(&origState);
+#endif
 }
 
 /*
@@ -991,75 +1148,74 @@ connect_dnd (void)
 void
 background_setup (struct bgState *state)
 {
-	GtkWidget *settings;
-	GtkWidget *vbox, *hbox;
-	GtkWidget *fill, *wallp;
-	GtkWidget *align;
+    GtkWidget *settings;
+    GtkWidget *vbox, *hbox;
+    GtkWidget *fill, *wallp;
+    GtkWidget *align;
 
-	capplet = capplet_widget_new();
-	
-	vbox = gtk_vbox_new (FALSE, 0);
+    capplet = capplet_widget_new();
 
-	hbox = gtk_hbox_new (FALSE, 0);
-	gtk_container_border_width (GTK_CONTAINER(hbox), GNOME_PAD);
+    vbox = gtk_vbox_new (FALSE, 0);
+    hbox = gtk_hbox_new (FALSE, 0);
+    gtk_container_border_width (GTK_CONTAINER(hbox), GNOME_PAD);
 
-	align = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
+    align = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
 
-	monitor = get_monitor_preview_widget ();
-	gtk_signal_connect (GTK_OBJECT (monitor),
-			    "realize",
-			    GTK_SIGNAL_FUNC (connect_dnd),
-			    NULL);
-	gdk_null_window_warnings = 0;
+    monitor = get_monitor_preview_widget ();
+    gtk_signal_connect (GTK_OBJECT (monitor),
+			"realize",
+			GTK_SIGNAL_FUNC (connect_dnd),
+			NULL);
+    gdk_null_window_warnings = 0;
 #if 0
-	preview = gtk_preview_new(GTK_PREVIEW_COLOR);
-	gtk_preview_size(GTK_PREVIEW(preview),
-			 MONITOR_CONTENTS_WIDTH,
-			 MONITOR_CONTENTS_HEIGHT);
+    preview = gtk_preview_new(GTK_PREVIEW_COLOR);
+    gtk_preview_size(GTK_PREVIEW(preview),
+		     MONITOR_CONTENTS_WIDTH,
+		     MONITOR_CONTENTS_HEIGHT);
 #endif
-	gtk_container_add (GTK_CONTAINER (align), monitor);
-	gtk_box_pack_start (GTK_BOX(hbox), align, TRUE, TRUE, 0);
+    gtk_container_add (GTK_CONTAINER (align), monitor);
+    gtk_box_pack_start (GTK_BOX(hbox), align, TRUE, TRUE, 0);
 
-	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 	
-	settings = gtk_hbox_new (FALSE, GNOME_PAD);
-	gtk_container_border_width (GTK_CONTAINER(settings), GNOME_PAD);
-	gtk_box_pack_end (GTK_BOX (vbox), settings, TRUE, TRUE, 0);
+    settings = gtk_hbox_new (FALSE, GNOME_PAD);
+    gtk_container_border_width (GTK_CONTAINER(settings), GNOME_PAD);
+    gtk_box_pack_end (GTK_BOX (vbox), settings, TRUE, TRUE, 0);
 
-	fill = color_setup (state);
-	gtk_box_pack_start (GTK_BOX (settings), fill, FALSE, FALSE, 0);
+    fill = color_setup (state);
+    gtk_box_pack_start (GTK_BOX (settings), fill, FALSE, FALSE, 0);
 	
-	wallp  = wallpaper_setup (state);
-	gtk_box_pack_end (GTK_BOX (settings), wallp, TRUE, TRUE, 0);
+    wallp  = wallpaper_setup (state);
+    gtk_box_pack_end (GTK_BOX (settings), wallp, TRUE, TRUE, 0);
 	
-	gtk_widget_show (align);
-	gtk_widget_show (monitor);
-	gtk_widget_show (settings);
-	gtk_widget_show (hbox);
-	gtk_widget_show (vbox);
+    gtk_widget_show (align);
+    gtk_widget_show (monitor);
+    gtk_widget_show (settings);
+    gtk_widget_show (hbox);
+    gtk_widget_show (vbox);
 
 
-        gtk_signal_connect (GTK_OBJECT (capplet), "try",
-                            GTK_SIGNAL_FUNC (background_apply), NULL);
-        gtk_signal_connect (GTK_OBJECT (capplet), "revert",
-                            GTK_SIGNAL_FUNC (background_revert), NULL);
-        gtk_signal_connect (GTK_OBJECT (capplet), "ok",
-                            GTK_SIGNAL_FUNC (background_write), NULL);
+    gtk_signal_connect (GTK_OBJECT (capplet), "try",
+			GTK_SIGNAL_FUNC (background_try), &curState);
+    gtk_signal_connect (GTK_OBJECT (capplet), "revert",
+			GTK_SIGNAL_FUNC (background_revert), NULL);
+    gtk_signal_connect (GTK_OBJECT (capplet), "ok",
+			GTK_SIGNAL_FUNC (background_ok), &curState);
 
-	gtk_container_add(GTK_CONTAINER(capplet), vbox);
-	gtk_widget_show(capplet);
+    gtk_container_add(GTK_CONTAINER(capplet), vbox);
+    gtk_widget_show(capplet);
 }
 
 
 enum {
-	INIT_KEY      = -1,
-	WALLPAPER_KEY = -2,
-	COLOR_KEY     = -3,
-	ENDCOLOR_KEY  = -4,
-	ORIENT_KEY    = -5,
-	SOLID_KEY     = -6,
-	GRADIENT_KEY  = -7,
-	ALIGN_KEY     = -8
+    INIT_KEY      = -1,
+    WALLPAPER_KEY = -2,
+    COLOR_KEY     = -3,
+    ENDCOLOR_KEY  = -4,
+    ORIENT_KEY    = -5,
+    SOLID_KEY     = -6,
+    GRADIENT_KEY  = -7,
+    ALIGN_KEY     = -8
 };
 
 #if 0

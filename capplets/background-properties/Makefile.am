@@ -19,6 +19,6 @@ background_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 
 EXTRA_DIST = background-properties.desktop
 
-sysdir = $(datadir)/apps/System
+sysdir = $(datadir)/control-center/Workspace
 sys_DATA = background-properties.desktop 
 
