@@ -1,3 +1,14 @@
+1998-02-26  Marc Ewing  <marc@redhat.com>
+
+	* multiple windows!
+	* closing windows is *not* handled properly.  Have to
+	  figure out what the deal is with GnomeApp.
+
+	* need some way to update the "current" window based
+	  on focus or last activity or something.
+
+	* fix history a bit
+
 1998-02-26  Michael Fulbright  <msf@redhat.com>
 
 	* fixed info handling to work with the 'dir' file

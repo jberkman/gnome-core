@@ -51,6 +51,8 @@ struct _helpWindow {
 
     /* Passed to us by the main program */
     GtkSignalFunc about_cb;
+    GtkSignalFunc new_window_cb;
+    GHashFunc close_window_cb;
     History history;
     GtkWidget *toc;
     DataCache cache;
@@ -60,9 +62,10 @@ struct _helpWindow {
 static GtkWidget * makeEntryArea(HelpWindow w);
 
 /* Callbacks */
-static void close_cb(void);
 static void quit_cb(void);
 static void about_cb (GtkWidget *w, HelpWindow win);
+static void close_cb (GtkWidget *w, HelpWindow win);
+static void new_window_cb (GtkWidget *w, HelpWindow win);
 static void help_forward(GtkWidget *w, HelpWindow win);
 static void help_backward(GtkWidget *w, HelpWindow win);
 static void help_contents(GtkWidget *w, HelpWindow win);
@@ -89,6 +92,8 @@ XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 /* Menu and toolbar structures */
 
 GnomeUIInfo filemenu[] = {
+    GNOMEUIINFO_ITEM("New window", "Open new browser window",
+		     new_window_cb, NULL),
     GNOMEUIINFO_ITEM("Close", "Close window", close_cb, NULL),
     GNOMEUIINFO_ITEM("Exit", "Exit program", quit_cb, NULL),
     GNOMEUIINFO_END
@@ -144,7 +149,22 @@ GnomeUIInfo toolbar[] = {
 static void
 about_cb (GtkWidget *w, HelpWindow win)
 {
-    (win->about_cb)();
+    if (win->about_cb)
+	(win->about_cb)();
+}
+
+static void
+new_window_cb (GtkWidget *w, HelpWindow win)
+{
+    if (win->new_window_cb)
+	(win->new_window_cb)();
+}
+
+static void
+close_cb (GtkWidget *w, HelpWindow win)
+{
+    if (win->close_window_cb)
+	(win->close_window_cb)(win);
 }
 
 static void
@@ -157,14 +177,6 @@ static void
 ghelpShowToc (GtkWidget *w, HelpWindow win)
 {
     showToc(win->toc);
-}
-
-static void
-close_cb (void)
-{
-    /* XXX this should just close the current window */
-    gtk_main_quit ();
-    return;
 }
 
 static void
@@ -359,8 +371,17 @@ void helpWindowJumpToLine(HelpWindow w, gint n)
     gnome_helpwin_jump_to_line(GNOME_HELPWIN(w->helpWidget), n);
 }
 
+void helpWindowClose(HelpWindow win)
+{
+    /* XXX this is bogus! */
+    gtk_widget_hide(win->app);
+    g_free(win);
+}
+
 HelpWindow
-helpWindowNew(GtkSignalFunc about_cb)
+helpWindowNew(GtkSignalFunc about_callback,
+	      GtkSignalFunc new_window_callback,
+	      GtkSignalFunc close_window_callback)
 {
         HelpWindow w;
 	GtkWidget *entryArea;
@@ -369,7 +390,9 @@ helpWindowNew(GtkSignalFunc about_cb)
 	w = (HelpWindow)g_malloc(sizeof(*w));
 
 	w->queue= queue_new();
-	w->about_cb = about_cb;
+	w->about_cb = about_callback;
+	w->new_window_cb = new_window_callback;
+	w->close_window_cb = (GHashFunc)close_window_callback;
 	w->history = NULL;
 	w->cache = NULL;
 	w->currentRef = NULL;
@@ -377,10 +400,11 @@ helpWindowNew(GtkSignalFunc about_cb)
 	/* XXX this needs to change.  The "app" needs to be */
 	/* Somehow distinct from the windows.  Or at least, only */
 	/* One of the windows can be the "app". */
-	/* Make the main window and binds the delete event so you can close
-	   the program from your WM */
 	w->app = gnome_app_new ("GnomeHelp", "Gnome Help Browser");
 	gtk_widget_realize (w->app);
+	/* XXX This is wrong - delete should just close window */
+	/* Make the main window and binds the delete event so you can close
+	   the program from your WM */
 	gtk_signal_connect (GTK_OBJECT (w->app), "delete_event",
 			    GTK_SIGNAL_FUNC (close_cb),
 			    NULL);

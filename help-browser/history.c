@@ -12,6 +12,7 @@ struct _history_struct {
     GSearchFunc callback;
     gpointer data;
     gint length;
+    gint internalSelectSkipThis;
 };
 
 struct _history_entry {
@@ -36,6 +37,7 @@ History newHistory(gint length, GSearchFunc callback, gpointer data)
     res->table = g_hash_table_new(g_str_hash, g_str_equal);
     res->callback = callback;
     res->data = data;
+    res->internalSelectSkipThis = 0;
 
     createHistoryWindow(res, &res->window, &res->clist);
 
@@ -86,7 +88,7 @@ void addToHistory(History h, gchar *ref)
     sprintf(buf0, "%s", ref);
     timet = (time_t)entry->timestamp;
     tstruct = localtime(& timet);
-    strftime(buf1, sizeof(buf1), "%a %b %d %Y", tstruct);
+    strftime(buf1, sizeof(buf1), "%b %d, %Y %H:%M", tstruct);
     sprintf(buf2, "%d", entry->count);
 
     text[0] = buf0;
@@ -99,7 +101,8 @@ void addToHistory(History h, gchar *ref)
     }
     gtk_clist_insert(GTK_CLIST(h->clist), 0, text);
     gtk_clist_set_row_data(GTK_CLIST(h->clist), 0, entry);
-    /*gtk_clist_select_row(GTK_CLIST(h->clist), 0, 0);*/
+    h->internalSelectSkipThis = 1;
+    gtk_clist_select_row(GTK_CLIST(h->clist), 0, 0);
 
     gtk_clist_thaw(GTK_CLIST(h->clist));
 }
@@ -109,6 +112,11 @@ static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
 {
     struct _history_entry *entry;
 
+    if (h->internalSelectSkipThis) {
+	h->internalSelectSkipThis = 0;
+	return;
+    }
+    
     entry = gtk_clist_get_row_data(GTK_CLIST(clist), row);
     if (h->callback) {
 	(h->callback)(entry->ref, h->data);
@@ -163,8 +171,8 @@ static void createHistoryWindow(History h, GtkWidget **window,
 				       GTK_JUSTIFY_CENTER);
     gtk_clist_set_column_justification(GTK_CLIST(*clist), 2,
 				       GTK_JUSTIFY_RIGHT);
-    gtk_clist_set_column_width(GTK_CLIST(*clist), 0, 300);
-    gtk_clist_set_column_width(GTK_CLIST(*clist), 1, 100);
+    gtk_clist_set_column_width(GTK_CLIST(*clist), 0, 280);
+    gtk_clist_set_column_width(GTK_CLIST(*clist), 1, 120);
     gtk_clist_set_column_width(GTK_CLIST(*clist), 2, 50);
 
     gtk_box_pack_start(GTK_BOX(box), *clist, TRUE, TRUE, 0);
@@ -175,7 +183,7 @@ static void createHistoryWindow(History h, GtkWidget **window,
 		       GTK_SIGNAL_FUNC(hideHistoryInt), NULL);
     gtk_signal_connect(GTK_OBJECT (*window), "delete_event",
 		       GTK_SIGNAL_FUNC(hideHistoryInt), NULL);
-    gtk_signal_connect(GTK_OBJECT(*clist), "select_row",
+    gtk_signal_connect_after(GTK_OBJECT(*clist), "select_row",
 		       GTK_SIGNAL_FUNC(mouseDoubleClick), h);
 }
 

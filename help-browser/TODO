@@ -1,29 +1,38 @@
+ - get rid of bad function type casts
  - for debug messages, use g_message()
  - add configuration stuff:
     filters, paths, etc
     toolbar preferences
     history/cache sizes/filesnames
  - session management
+
  - fix error handling (back, etc)
+
  - Make a better scheme to reference files/section than using a real filename?
  - work on DocBook output to generate topic.dat automatically (need to use
    special tags in DocBook to denote links which should go into the 'Help' 
    menu).
  - Need to have help browser<->application communication for better
    integration into GNOME apps in the future
+
  - fix broken toc
     use real path for ghelp
     toss the tree widget -- too slow
     geometry and ui cleanups
     use gnome-config    
+
  - fix history
     geometry - figure out how to set column widths and let first one expand
     first visit
     save to file
     better date string
+
  - can back/forward buttons have dropdown history?
- - code cleanup
-    rethink the url/docobj processing and callback entries to the
-     docobj processing path
+ - fix image loading callback to fit in to the scheme of things
  - mutiple windows
+
+ - add "magic" urls (eg "man:ls")
+
+ - fix path (eg /usr/X11R6/man)
+
  - make man2html & info (and other filters) loadable modules
