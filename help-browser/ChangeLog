@@ -1,3 +1,8 @@
+2000-01-22  Jacob Berkman  <jacob@helixcode.com>
+
+	* Makefile.am (install-exec-local): copy the binaries from
+	$(top_srcdir)
+
 Sat Jan 15 00:23:22 2000  George Lebl <jirka@5z.com>
 
 	* *.[ch]: while looking for bugs I fixed a bunch of warnings,

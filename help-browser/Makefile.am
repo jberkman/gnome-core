@@ -81,4 +81,5 @@ sysdir = $(datadir)/gnome/apps
 sys_DATA = gnome-help.desktop
 
 install-exec-local:
-	$(INSTALL_PROGRAM) gnome-download gnome-convert $(bindir)/
+	$(INSTALL_PROGRAM) $(top_srcdir)/help-browser/gnome-download \
+		$(top_srcdir)/help-browser/gnome-convert $(bindir)/
