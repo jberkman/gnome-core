@@ -1,3 +1,7 @@
+1999-11-27  Matthias Warkus  <mawa@iname.com>
+
+	* gnome-hint.png: Icon by Eduardo added.
+
 Thu Nov 04 13:16:25 1999  George Lebl <jirka@5z.com>
 
 	* gnome-hint.c: use free for strings gotten from gnome-xml

@@ -27,10 +27,14 @@ gnome_hint_properties_capplet_LDADD = -lcapplet \
 # util_DATA = gnome-hint.desktop
 
 EXTRA_DIST = \
-	gnome-hint-properties.desktop
+	gnome-hint-properties.desktop \
+	gnome-hint.png
 
 sysdir = $(datadir)/control-center/
 sys_DATA = gnome-hint-properties.desktop
+
+pixmapsdir = $(datadir)/pixmaps
+pixmaps_DATA = gnome-hint.png
 
 install-data-local:
 	$(INSTALL_DATA) $(srcdir)/gnome-hint-properties.desktop $(DESTDIR)$(datadir)/gnome/apps/Settings/gnome-hint-properties.desktop
