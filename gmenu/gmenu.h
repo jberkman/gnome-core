@@ -69,11 +69,12 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename);
 /* tree.c ---------------- */
 
 GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path);
-void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint move);
+void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint select);
 void move_down_cb(GtkWidget *w, gpointer data);
 void move_up_cb(GtkWidget *w, gpointer data);
 int is_node_editable(GtkCTreeNode *node);
-void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data);
+void edit_pressed_cb();
+void tree_item_selected (GtkWidget *widget, gint row, gint column, GdkEventButton *bevent);
 GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file);
 void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent);
 void add_main_tree_node();

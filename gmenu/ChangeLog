@@ -1,3 +1,8 @@
+Sun Aug  2 00:27:39 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.[ch], dialogs.c, tree.c: Improved tree selection, added edit
+	button, and made text a tooltip on the tree buttons.
+
 Sat Aug  1 22:32:24 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch], dialogs.c, order.c, tree.c: Changed all casts of GList *

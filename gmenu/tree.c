@@ -55,37 +55,35 @@ GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path)
 	return node;
 }
 
-void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint move)
+void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint select)
 {
+	Desktop_Data *d;
+
         if (old) gtk_ctree_unselect(GTK_CTREE(w),old);
+        if (new && select) gtk_ctree_select(GTK_CTREE(w),new);
 
-        if (new) gtk_ctree_select(GTK_CTREE(w),new);
+	d = gtk_ctree_get_row_data(GTK_CTREE(w), new);
+	gtk_label_set(GTK_LABEL(infolabel),d->comment);
+	if (d->editable)
+		gnome_stock_pixmap_widget_set_icon(GNOME_STOCK_PIXMAP_WIDGET(infopixmap),
+							GNOME_STOCK_MENU_BLANK );
+	else
+		gnome_stock_pixmap_widget_set_icon(GNOME_STOCK_PIXMAP_WIDGET(infopixmap),
+							GNOME_STOCK_MENU_BOOK_RED );
+	if (current_path) g_free (current_path);
+	if (d->isfolder)
 		{
-		Desktop_Data *d = gtk_ctree_get_row_data(GTK_CTREE(w), new);
-
-		gtk_label_set(GTK_LABEL(infolabel),d->comment);
-
-		if (d->editable)
-			gnome_stock_pixmap_widget_set_icon(GNOME_STOCK_PIXMAP_WIDGET(infopixmap),
-								GNOME_STOCK_MENU_BLANK );
-		else
-			gnome_stock_pixmap_widget_set_icon(GNOME_STOCK_PIXMAP_WIDGET(infopixmap),
-								GNOME_STOCK_MENU_BOOK_RED );
-
-		if (current_path) g_free (current_path);
-		if (d->isfolder)
-			{
-			current_path = strdup (d->path);
-			}
-		else
-			{
-			current_path = strip_one_file_layer(d->path);
-			}
-		gtk_label_set(GTK_LABEL(pathlabel),current_path);
+		current_path = strdup (d->path);
 		}
+	else
+		{
+		current_path = strip_one_file_layer(d->path);
+		}
+	gtk_label_set(GTK_LABEL(pathlabel),current_path);
 
-        if (move)
+/*	if (move)
 		gtk_ctree_moveto (GTK_CTREE(w), new, 0, 0.5, 0.0);
+*/
 }
 
 static void move_item_down(GtkCTreeNode *node)
@@ -166,14 +164,22 @@ int is_node_editable(GtkCTreeNode *node)
 	return d->editable;
 }
 
-void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
+void edit_pressed_cb()
 {
-	gint row, col;
-	GtkCTreeNode *node;
 	Desktop_Data *d;
 
-	gtk_clist_get_selection_info (GTK_CLIST (ctree), event->x, event->y,
-                                      &row, &col);
+	if (!current_node || current_node == topnode || current_node == usernode ||
+			current_node == systemnode) return;
+	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
+	update_edit_area(d);
+}
+
+void tree_item_selected (GtkWidget *widget, gint row, gint column, GdkEventButton *bevent)
+{
+	Desktop_Data *d;
+	GtkCTree *ctree = GTK_CTREE(widget);
+	GtkCTreeNode *node;
+
 	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (ctree)->row_list, row));
 
 	if (!node) return;
@@ -188,7 +194,7 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 
 	if (node == systemnode || node == usernode) return;
 
-	if ( event->type == GDK_2BUTTON_PRESS || event->button == 2 )
+	if ( bevent->type == GDK_2BUTTON_PRESS || bevent->button == 2 )
 		{
 		update_edit_area(d);
 		}
@@ -201,6 +207,7 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 			add_tree_node(ctree, node);
 			}
 		}
+
 }
 
 /* if node is null it is appended, if it is a sibling, it is inserted */

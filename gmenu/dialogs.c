@@ -98,7 +98,7 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 				gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
 				save_order_of_dir(parent);
 				add_tree_node(GTK_CTREE(menu_tree_ctree), node);
-				update_tree_highlight(menu_tree_ctree, current_node, node, FALSE);
+				update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
 				current_node = node;
 				}
 			}
@@ -189,7 +189,7 @@ static void delete_dialog_cb( gint button, gpointer data)
 				}
 			}
 
-		update_tree_highlight(menu_tree_ctree, current_node, node, FALSE);
+		update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
 		gtk_ctree_remove(GTK_CTREE(menu_tree_ctree),current_node);
 		current_node = node;
 
@@ -351,7 +351,7 @@ static void save_dialog_cb( gint button, gpointer data)
 
 		edit_area_reset_revert(d);
 
-		update_tree_highlight(menu_tree_ctree, current_node, node, FALSE);
+		update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
 		current_node = node;
 		g_free(path);
 		}

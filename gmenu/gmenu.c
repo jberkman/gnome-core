@@ -259,8 +259,8 @@ int main (int argc, char *argv[])
 	GtkWidget *vbox;
 	GtkWidget *frame;
 	GtkWidget *pixmap;
-	GtkWidget *label;
 	GtkWidget *button;
+	GtkTooltips *tooltips;
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
@@ -286,6 +286,8 @@ int main (int argc, char *argv[])
 	gnome_app_create_menus_with_data (GNOME_APP(app), main_menu, app);
 	gtk_menu_item_right_justify(GTK_MENU_ITEM(main_menu[1].widget));
 
+	tooltips = gtk_tooltips_new();
+
 	mainbox = gtk_hbox_new (FALSE, 0);
         gnome_app_set_contents(GNOME_APP(app),mainbox);
         gtk_widget_show (mainbox);
@@ -304,7 +306,7 @@ int main (int argc, char *argv[])
 	gtk_clist_set_row_height(GTK_CLIST(menu_tree_ctree),22);
 	gtk_clist_set_column_width(GTK_CLIST(menu_tree_ctree),0,300);
 	gtk_clist_set_selection_mode(GTK_CLIST(menu_tree_ctree),GTK_SELECTION_BROWSE);
-	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"button_press_event", GTK_SIGNAL_FUNC(tree_item_selected),NULL);
+	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"select_row", GTK_SIGNAL_FUNC(tree_item_selected),NULL);
 	gtk_box_pack_start(GTK_BOX(vbox),menu_tree_ctree,TRUE,TRUE,0);
 	gtk_widget_show(menu_tree_ctree);
 
@@ -318,34 +320,22 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
 	gtk_widget_show(button);
 
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(button),hbox);
-	gtk_widget_show(hbox);
-
 	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_NEW );
-	gtk_box_pack_start(GTK_BOX(hbox),pixmap,FALSE,FALSE,0);
+	gtk_container_add(GTK_CONTAINER(button),pixmap);
 	gtk_widget_show(pixmap);
 
-	label = gtk_label_new(_("New Folder"));
-	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
-	gtk_widget_show(label);
+	gtk_tooltips_set_tip (tooltips, button, _("New Folder"), NULL);
 
 	button = gtk_button_new();
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(delete_pressed_cb), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
 	gtk_widget_show(button);
 
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(button),hbox);
-	gtk_widget_show(hbox);
-
 	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_CUT );
-	gtk_box_pack_start(GTK_BOX(hbox),pixmap,FALSE,FALSE,0);
+	gtk_container_add(GTK_CONTAINER(button),pixmap);
 	gtk_widget_show(pixmap);
 
-	label = gtk_label_new(_("Delete"));
-	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
-	gtk_widget_show(label);
+	gtk_tooltips_set_tip (tooltips, button, _("Delete"), NULL);
 
 	button = gtk_button_new();
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(move_up_cb), NULL);
@@ -364,6 +354,17 @@ int main (int argc, char *argv[])
 	pixmap = gnome_pixmap_new_from_xpm_d( down_xpm );
 	gtk_container_add(GTK_CONTAINER(button),pixmap);
 	gtk_widget_show(pixmap);
+
+	button = gtk_button_new();
+	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(edit_pressed_cb), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
+	gtk_widget_show(button);
+
+	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_PROPERTIES );
+	gtk_container_add(GTK_CONTAINER(button),pixmap);
+	gtk_widget_show(pixmap);
+
+	gtk_tooltips_set_tip (tooltips, button, _("Edit Properties"), NULL);
 
 	/* tree info area */
 	hbox = gtk_hbox_new (FALSE, 0);
