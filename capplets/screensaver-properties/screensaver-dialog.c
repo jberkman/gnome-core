@@ -24,6 +24,7 @@ make_dialog (screensaver_data *sd)
         dialog = gnome_dialog_new (sd->name, "Preview", GNOME_STOCK_BUTTON_CLOSE, NULL);
         gnome_dialog_set_default (GNOME_DIALOG (dialog), 1);
         gnome_dialog_set_parent (GNOME_DIALOG (dialog), GTK_WINDOW (capplet));
+        gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
         hbox = gtk_hbox_new (FALSE, GNOME_PAD);
         vbox = gtk_vbox_new (FALSE, GNOME_PAD);
     
@@ -79,6 +80,7 @@ make_dialog (screensaver_data *sd)
         gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), hbox, TRUE, TRUE, GNOME_PAD_SMALL);
 
         gtk_signal_connect (GTK_OBJECT (dialog), "clicked", (GtkSignalFunc) dialog_callback, sd);
+        gtk_signal_connect (GTK_OBJECT (dialog), "destroy", (GtkSignalFunc) dialog_destroy_callback, sd);
         gtk_widget_show_all (dialog);
         return dialog;
 }

@@ -12,7 +12,8 @@ struct _screensaver_data
         gchar *desktop_filename; /* the file name of the screensaver .desktop file */
         gchar *tryexec; /* the name of the screensaver executable */
         gchar *name; /* the name of the screensaver */
-        gchar *windowid; /* the command that lets you put the screensaver in a partic. window */
+        gchar *windowid; /* the flag that lets you put the screensaver in a partic. window */
+        gchar *root; /* the flag that lets you right on the root window */
         gchar *args; /* the current, up to date args that the screensaver has. */
         gchar *icon; /* the complete pathname of the screensaver icon */
         gchar *comment; /* as it sounds.  Used in the dialog box */

@@ -20,8 +20,9 @@ extern int errno;
 
 extern GtkWidget *capplet;
 extern GtkWidget *setup_button;
+extern GtkWidget *setup_label;
 extern GtkWidget *monitor;
-extern gshort priority;
+extern gint ss_priority;
 extern gshort waitmins;
 extern gshort dpmsmins;
 extern gboolean dpms;
@@ -31,6 +32,113 @@ extern screensaver_data *sd;
 extern GList *sdlist;
 static pid_t pid = 0;
 static pid_t pid_big = 0;
+
+
+/* Loading info... */
+void
+screensaver_load ()
+{
+        ss_priority = gnome_config_get_int ("/Screensaver/Default/nice=10");
+        waitmins = gnome_config_get_int ("/Screensaver/Default/waitmins=20");
+        if (waitmins > 9999)
+                waitmins = 9999;
+        else if (waitmins < 0)
+                waitmins = 0;
+        dpmsmins = gnome_config_get_int ("/Screensaver/Default/dpmsmins=20");
+        if (dpmsmins > 9999)
+                dpmsmins = 9999;
+        else if (dpmsmins < 1)
+                dpmsmins = 1;
+        dpms = gnome_config_get_bool ("/Screensaver/Default/dpms=true");
+        password = gnome_config_get_bool ("/Screensaver/Default/password=true");
+        screensaver = gnome_config_get_string ("/Screensaver/Default/mode=NONE");
+        sd = NULL;
+}
+
+GtkWidget *
+get_and_set_min_entry ()
+{
+        gchar tempmin[5];
+        static GtkWidget *retval = NULL;
+
+        if (!retval) {
+                retval = gtk_entry_new ();
+                gtk_signal_connect (GTK_OBJECT (retval), "insert_text", GTK_SIGNAL_FUNC (insert_text_callback), &waitmins);
+                gtk_signal_connect_after (GTK_OBJECT (retval), "insert_text", GTK_SIGNAL_FUNC (insert_text_callback2), &waitmins);
+                gtk_signal_connect_after (GTK_OBJECT (retval), "delete_text", GTK_SIGNAL_FUNC (delete_text_callback), &waitmins);
+                gtk_entry_set_max_length (GTK_ENTRY (retval), 4);
+                gtk_widget_set_usize (retval, 50, -2);
+        }
+        snprintf (tempmin, 5, "%d",waitmins);
+        gtk_entry_set_text (GTK_ENTRY (retval), tempmin);
+        return retval;
+}
+GtkWidget *
+get_and_set_pword ()
+{
+        static GtkWidget *retval = NULL;
+
+        if (!retval) {
+                retval = gtk_check_button_new_with_label (_("Requires Password"));
+                gtk_signal_connect (GTK_OBJECT (retval), "toggled", (GtkSignalFunc) password_callback, NULL);
+        }
+        gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (retval), password);
+        return retval;
+}
+
+GtkAdjustment *
+get_and_set_nice ()
+{
+        static GtkAdjustment *retval = NULL;
+
+        if (!retval) {
+                retval = GTK_ADJUSTMENT (gtk_adjustment_new ((gfloat)ss_priority,0.0, 19.0, 1.0, 1.0, 0.0));
+                gtk_signal_connect (GTK_OBJECT (retval), "value_changed", (GtkSignalFunc) nice_callback, NULL);
+        } else {
+                retval->value = (gfloat) ss_priority;
+                gtk_adjustment_value_changed (retval);
+        }
+        return retval;                
+}
+
+GtkWidget *
+get_and_set_dpmsmin ()
+{
+        static GtkWidget *retval = NULL;
+        gchar tempmin[5];
+
+        if (!retval) {
+                retval = gtk_entry_new ();
+                gtk_signal_connect (GTK_OBJECT (retval), "insert_text", GTK_SIGNAL_FUNC (insert_text_callback), &dpmsmins);
+                gtk_signal_connect_after (GTK_OBJECT (retval), "insert_text", GTK_SIGNAL_FUNC (insert_text_callback2), &dpmsmins);
+                gtk_signal_connect_after (GTK_OBJECT (retval), "delete_text", GTK_SIGNAL_FUNC (delete_text_callback), &dpmsmins);
+                gtk_entry_set_max_length (GTK_ENTRY (retval), 4);
+                gtk_widget_set_usize (retval, 50, -2);
+        }
+        snprintf (tempmin, 5, "%d",dpmsmins);
+        gtk_entry_set_text (GTK_ENTRY (retval), tempmin);
+
+        return retval;
+}
+
+GtkWidget *
+get_and_set_dpmscheck (GtkWidget *box)
+{
+        static GtkWidget *retval = NULL;
+        static GtkWidget *localbox;
+
+        if (!retval) {
+                localbox = box;
+                retval = gtk_check_button_new_with_label (_("Use power management."));
+                gtk_signal_connect (GTK_OBJECT (retval), "toggled", (GtkSignalFunc) dpms_callback, localbox);
+        }
+        gtk_signal_handler_block_by_func (GTK_OBJECT (retval), (GtkSignalFunc) dpms_callback, localbox);
+        gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (retval), dpms);
+        gtk_signal_handler_unblock_by_func (GTK_OBJECT (retval), (GtkSignalFunc) dpms_callback, localbox);
+        gtk_widget_set_sensitive (localbox, dpms);
+        return retval;
+}
+
 
 void
 launch_miniview (screensaver_data *sd)
@@ -83,25 +191,45 @@ setup_callback (GtkWidget *widget, gpointer data)
         }
 }
 void
-list_click_callback (GtkWidget *list, GdkEventButton *event, void *data)
+list_click_callback (GtkWidget *widget, GdkEventButton *event, void *data)
 {
+        static gint visited = FALSE;
+        gchar *label;
+
         if (data == sd)
-                /* FIXME.  if I click on "no screensaver" right away, it's wrong */
-                return;
-        if (data == NULL) 
-                /* FIXME: No screensaver value for now.  Need to generate it and random. */
                 return;
 
+        if (!visited) {
+                gtk_signal_disconnect_by_func (GTK_OBJECT (widget), list_click_callback, data);
+                visited = TRUE;
+
+        } else
+                capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        if (data == NULL){
+                screensaver = NULL;
+                sd = NULL;
+                gtk_label_set (GTK_LABEL (setup_label), _("Settings..."));                
+                gtk_widget_set_sensitive (setup_button, FALSE);
+                if (pid) {
+                        kill (pid, SIGTERM);
+                        pid = 0;
+                }
+                gdk_draw_rectangle (monitor->window,monitor->style->black_gc, TRUE, 0, 0, monitor->allocation.width, monitor->allocation.height);
+                return;
+        }
         sd = (screensaver_data *) data;
         if (sd->args == NULL)
                 init_screensaver_data (sd);
+        label = g_copy_strings (sd->name, _(" Settings"), NULL);
+        gtk_label_set (GTK_LABEL (setup_label),label);
+        g_free (label);
         if ((sd->setup_data == NULL) || (sd->dialog != NULL))
                 gtk_widget_set_sensitive (setup_button, FALSE);
         else
                 gtk_widget_set_sensitive (setup_button, TRUE);
+        
         launch_miniview (sd);
-
-        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+        screensaver = sd->name;
 }
 void
 insert_text_callback (GtkEditable    *editable, const gchar    *text,
@@ -142,6 +270,7 @@ dpms_callback (GtkWidget *check, void *data)
                 gtk_widget_set_sensitive (GTK_WIDGET (data), TRUE);
         else
                 gtk_widget_set_sensitive (GTK_WIDGET (data), FALSE);
+
         capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 void
@@ -151,9 +280,9 @@ password_callback (GtkWidget *pword, void *data)
         capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 void
-nice_callback (GtkWidget *nice, void *data)
+nice_callback (GtkObject *adj, void *data)
 {
-        priority = GTK_ADJUSTMENT(nice)->value;
+        ss_priority = (gint) GTK_ADJUSTMENT(adj)->value;
         capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 static void
@@ -167,6 +296,14 @@ ssaver_callback (GtkWidget *dialog, GdkEventKey *event, GdkWindow *sswin)
         /*gtk_signal_emit_stop_by_name (GTK_OBJECT (dialog),"key_press_event");
           gtk_signal_emit_stop_by_name (GTK_OBJECT (dialog),"button_press_event");*/
         gdk_window_hide (sswin);
+}
+void
+dialog_destroy_callback (GtkWidget *dialog, screensaver_data *newsd)
+{
+        newsd->dialog = NULL;
+        newsd->dialog = NULL;
+        if (sd == newsd)
+                gtk_widget_set_sensitive (setup_button, TRUE);
 }
 void
 dialog_callback (GtkWidget *dialog, gint button, screensaver_data *newsd)
@@ -217,7 +354,6 @@ dialog_callback (GtkWidget *dialog, gint button, screensaver_data *newsd)
         case 1:
                 gnome_dialog_close (GNOME_DIALOG (dialog));
                 newsd->dialog = NULL;
-                newsd->dialog = NULL;
                 if (sd == newsd)
                         gtk_widget_set_sensitive (setup_button, TRUE);
                 break;
@@ -233,22 +369,136 @@ void
 ok_callback ()
 {
         /* we want to commit our changes to disk. */
-        gchar *command;
-        if (sd->dialog)
-                store_screensaver_data (sd);
+        GString *command;
+        gchar temp[10];
+
+
+        /* save the stuff... */
+        gnome_config_set_int ("/Screensaver/Default/nice", ss_priority);
+        gnome_config_set_int ("/Screensaver/Default/waitmins", waitmins);
+        gnome_config_set_int ("/Screensaver/Default/dpmsmins", dpmsmins);
+        gnome_config_set_bool ("/Screensaver/Default/dpms", dpms);
+        gnome_config_set_bool ("/Screensaver/Default/password", password);
+        if (screensaver)
+                gnome_config_set_string ("/Screensaver/Default/mode", screensaver);
+        else
+                gnome_config_set_string ("/Screensaver/Default/mode", "NONE");
+
         gnome_config_sync ();
         system ("xscreensaver-command -exit");
         
+        if (sd && waitmins) {
+                if (sd->dialog)
+                        store_screensaver_data (sd);
+                command = g_string_new ("xscreensaver -no-splash -timeout ");
+                snprintf (temp, 5, "%d", waitmins );
+                g_string_append (command, temp);
+                g_string_append (command, " -nice ");
+                snprintf (temp, 5, "%d",20 - ss_priority);
+                g_string_append (command, temp);
+                if (!password)
+                        g_string_append (command, " -lock-mode");
+                g_string_append (command," -xrm \"*programs:\t");
+                g_string_append (command, sd->args);
+                if (sd->root) {
+                        g_string_append (command, " ");
+                        g_string_append (command, sd->root);
+                }
+                g_string_append (command, "\"&");
+                
+                system (command->str);
+                gnome_config_set_string ("/Screensaver/Default/command", command->str);
+                g_string_free (command, TRUE);
+        }
+        if (dpms) {
+                /* does anyone know what standby is? */
+                /* does it matter? laptops? */
+                snprintf (temp, 10, "%d",(gint) (dpmsmins + waitmins) * 60);
+                command = g_string_new ("xset dpms ");
+                g_string_append (command, temp); /* suspend */
+                g_string_append_c (command, ' ');
+                g_string_append (command, temp); /* standby */
+                g_string_append_c (command, ' ');
+                g_string_append (command, temp); /* off */
+
+                system (command->str);
+                g_string_free (command, TRUE);
+        }
+        else
+                system ("xset -dpms");
+
 }
 void
 try_callback ()
 {
-        g_print ("try clicked\n");
+        GString *command;
+        gchar temp[10];
+        system ("xscreensaver-command -exit");
+        
+        if (sd && waitmins) {
+                if (sd->dialog)
+                        store_screensaver_data (sd);
+                command = g_string_new ("xscreensaver -no-splash -timeout ");
+                snprintf (temp, 5, "%d", waitmins );
+                g_string_append (command, temp);
+                g_string_append (command, " -nice ");
+                snprintf (temp, 5, "%d",20 - ss_priority);
+                g_string_append (command, temp);
+                if (!password)
+                        g_string_append (command, " -lock-mode");
+                g_string_append (command," -xrm \"*programs:\t");
+                g_string_append (command, sd->args);
+                if (sd->root) {
+                        g_string_append (command, " ");
+                        g_string_append (command, sd->root);
+                }
+                g_string_append (command, "\"&");
+                
+                system (command->str);
+                g_string_free (command, TRUE);
+        }
+        if (dpms) {
+                /* does anyone know what standby is? */
+                /* does it matter? laptops? */
+                snprintf (temp, 10, "%d",(gint) (dpmsmins + waitmins) * 60);
+                command = g_string_new ("xset dpms ");
+                g_string_append (command, temp); /* suspend */
+                g_string_append_c (command, ' ');
+                g_string_append (command, temp); /* standby */
+                g_string_append_c (command, ' ');
+                g_string_append (command, temp); /* off */
+
+                system (command->str);
+                g_string_free (command, TRUE);
+        }
+        else
+                system ("xset -dpms");
 }
 void
 revert_callback ()
 {
-        g_print ("revert clicked\n");
+        gchar *temp, *temp2;
+        
+        if (sd && sd->dialog) {
+                gnome_dialog_close (GNOME_DIALOG (sd->dialog));
+                sd->dialog = NULL;
+                gtk_widget_set_sensitive (setup_button, TRUE);
+        }
+        gnome_config_drop_all ();
+        screensaver_load ();
+
+        temp = gnome_config_get_string ("/Screensaver/Default/command=xscreensaver -no-splash");
+        temp2 = g_copy_strings (temp, " &", NULL);
+        system (temp2);
+        g_free (temp);
+        g_free (temp2);
+        /* set the devices to the correct one. */
+        get_and_set_min_entry ();
+        get_and_set_pword ();
+        get_and_set_nice ();
+        get_and_set_dpmsmin();
+        get_and_set_dpmscheck(NULL);
+        
 }
 void
 sig_child(int sig)

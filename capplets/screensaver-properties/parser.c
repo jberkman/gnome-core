@@ -4,6 +4,7 @@
  */
 #include "parser.h"
 #include "gnome.h"
+#include "capplet-widget.h"
 
 #define get_lrange(ssd) (get_range (ssd, 0)) 
 #define get_nrange(ssd) (get_range (ssd, 1)) 
@@ -32,6 +33,7 @@ struct _setup_data
         gchar *arg;
 };
 
+extern GtkWidget *capplet;
 
 /* Callback prototypes for the generated widgets */
 static void entry_callback (GtkEditable *editable, const gchar *text, gint length, gint *position, setup_data *ssd);
@@ -195,19 +197,32 @@ parse_key (setup_data *arg_vals, gchar *key, gchar *value)
 static
 void set_entry (setup_data *ssd)
 {
+        /* FIXME: set arg field */
         gnome_config_set_string (ssd->name, gtk_entry_get_text (GTK_ENTRY (ssd->widget)));
 }
 static
 void set_range (setup_data *ssd)
 {
-        if (ssd->val_type[0] == 'I')
+        gchar val[100];
+        if (ssd->arg)
+                g_free (ssd->arg);
+        if (ssd->val_type[0] == 'I') {
+                snprintf (val, 100, " %d", (gint) (GTK_RANGE (ssd->widget))->adjustment->value);
                 gnome_config_set_int (ssd->name, (gint) (GTK_RANGE (ssd->widget))->adjustment->value);
-        else
+        } else {
+                snprintf (val, 100, " %f", (GTK_RANGE (ssd->widget))->adjustment->value);
                 gnome_config_set_float (ssd->name, (GTK_RANGE (ssd->widget))->adjustment->value);
+        }
+        ssd->arg = g_copy_strings (ssd->flag1, val, NULL);
 }
 static
 void set_check (setup_data *ssd)
 {
+        if (GTK_TOGGLE_BUTTON (ssd->widget)->active)
+                ssd->arg = g_strdup (ssd->flag1);
+        else 
+                ssd->arg = g_strdup (ssd->flag2);
+   
         gnome_config_set_bool (ssd->name,(GTK_TOGGLE_BUTTON (ssd->widget)->active));
 }
 static GtkAdjustment *
@@ -419,6 +434,8 @@ entry_callback (GtkEditable *editable, const gchar *text, gint length, gint *pos
                 g_free (ssd->arg);
         
         ssd->arg = g_copy_strings (ssd->flag1, " \"", gtk_entry_get_text (GTK_ENTRY (editable)),"\"", NULL);
+        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+
 }
 static void
 entry_delete_callback (GtkEditable *editable, gint length, gint *position, setup_data *ssd)
@@ -430,6 +447,8 @@ entry_delete_callback (GtkEditable *editable, gint length, gint *position, setup
                 ssd->arg = g_copy_strings (ssd->flag1, " \"", gtk_entry_get_text (GTK_ENTRY (editable)),"\"", NULL);
         else
                 ssd->arg = g_copy_strings (ssd->flag1, " \"\"", NULL);
+        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
+
 }
 static void
 check_callback (GtkWidget *cbox, setup_data *ssd)
@@ -453,6 +472,7 @@ range_callback (GtkAdjustment *adj, setup_data *ssd)
         else
                 snprintf (val, 100, " %f", adj->value);
         ssd->arg = g_copy_strings (ssd->flag1, val, NULL);
+        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 
 /* public functions */
@@ -565,13 +585,17 @@ store_screensaver_data (screensaver_data *sd)
         if (sd->args)
                 g_free (sd->args);
         arg = g_string_new (sd->tryexec);
-        
+        /*        if (sd->root){
+                g_string_append_c (arg, ' ');
+                g_string_append (arg, sd->root);
+                } */       
         for (list = sd->setup_data; list; list=list->next) {
                 write_field ((setup_data *)list->data);
-                /* we do this b/c if there is no flag (ie. a default setting) 
-                 * we don't want to add an extra space
-                 */
+
                 if (strlen (((setup_data *)list->data)->arg) > 0) {
+                        /* we do this b/c if there is no flag
+                         * (ie. a default setting) 
+                         * we don't want to add an extra space */
                         g_string_append_c (arg, ' ');
                         g_string_append (arg, ((setup_data *)list->data)->arg);
                 }
