@@ -1,3 +1,9 @@
+Mon, 19 Nov 2001 01:40:21 -0500 Frank Belew <frb@ximian.com>
+	
+	* gnome-terminal.c: replaced PACKAGE with GETTEXT_PACKAGE on all
+          calls to bindtextdomain and textdomain
+	* Makefile.am: added gnome-terminal.glade to EXTRA_DIST
+
 2001-11-05  Michael Meeks  <michael@ximian.com>
 
 	* gnome-terminal.c (new_terminal_cmd): fixup _set_ui.

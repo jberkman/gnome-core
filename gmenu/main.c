@@ -273,8 +273,8 @@ int main (int argc, char *argv[])
 	GtkWidget *scrolled;
 	GtkTooltips *tooltips;
 
-	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
-	textdomain(PACKAGE);
+	bindtextdomain(GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	textdomain(GETTEXT_PACKAGE);
 
 	gnome_init ("GNOME menu editor", VERSION, argc, argv);
 	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-gmenu.png");

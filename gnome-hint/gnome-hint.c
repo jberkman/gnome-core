@@ -575,8 +575,8 @@ main(int argc, char *argv[])
 	gboolean is_motd;
 	poptContext ctx;
 
-	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
-	textdomain(PACKAGE);
+	bindtextdomain(GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	textdomain(GETTEXT_PACKAGE);
 
 	gnome_init_with_popt_table ("gnome-hint", VERSION, argc, argv,
 				    options, 0, &ctx);

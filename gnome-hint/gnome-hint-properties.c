@@ -211,8 +211,8 @@ main (int argc, char **argv)
 {
 	GtkWidget *the_crapplet;
 
-	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
-	textdomain(PACKAGE);
+	bindtextdomain(GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	textdomain(GETTEXT_PACKAGE);
 
 	/* Make sure that we don't register changes yet */
 	changing = TRUE;

@@ -179,8 +179,8 @@ main(int argc, char *argv[])
     CORBA_exception_init(&ev);
     
     /* Initialize the i18n stuff */
-    bindtextdomain (PACKAGE, GNOMELOCALEDIR);
-    textdomain (PACKAGE);
+    bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
+    textdomain (GETTEXT_PACKAGE);
 
     orb = gnome_CORBA_init_with_popt_table(NAME, VERSION, &argc, argv,
 					   options, 0, &ctx, GNORBA_INIT_SERVER_FUNC, &ev);

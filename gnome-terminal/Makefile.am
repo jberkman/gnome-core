@@ -70,7 +70,8 @@ EXTRA_DIST =				\
 	$(glade_DATA)			\
 	$(glade_msgs)			\
 	$(man_MANS)			\
-	$(ui_DATA)
+	$(ui_DATA)			\
+	gnome-terminal.glade
 
 # BUILT_SOURCES = $(CORBA_SOURCE)
 CLEANFILES    = $(BUILT_SOURCES)

@@ -2961,8 +2961,8 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	CORBA_ORB orb;
 	CORBA_Environment ev;
 
-	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
-	textdomain (PACKAGE);
+	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	textdomain (GETTEXT_PACKAGE);
 
 	cmdline_login = FALSE;
 
