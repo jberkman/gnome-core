@@ -1,5 +1,5 @@
 INCLUDES = 			\
-	-I$(includedir)
+	-I$(includedir) $(X_CFLAGS)
 
 bin_PROGRAMS = mouse-properties keyboard-properties background-properties
 
