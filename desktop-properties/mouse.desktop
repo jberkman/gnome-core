@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Mouse Properties
 Name[es]=Propiedades del ratón
+Name[de]=Maus Einstellungen
 Comment=Mouse Properties
 Comment[es]=Propiedades del ratón
+Comment[de]=Einstellungen für die Maus
 Exec=mouse-properties
 Icon=
 Terminal=0

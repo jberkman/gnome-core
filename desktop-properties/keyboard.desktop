@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Keyboard Properties
 Name[es]=Propiedades del teclado
+Name[de]=Tastatur Einstellungen
 Comment=Keyboard Properties
 Comment[es]=Propiedades del teclado
+Comment[de]=Einstellungen für die Tastatur
 Exec=keyboard-properties
 Icon=
 Terminal=0

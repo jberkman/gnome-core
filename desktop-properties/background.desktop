@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Background Properties
 Name[es]=Propiedades del tapiz
+Name[de]=Hintergrund Einstellungen
 Comment=Background Properties
 Comment[es]=Propiedades del tapiz
+Comment[de]=Einstellungen für den Desktop Hintergrund
 Exec=background-properties
 Icon=
 Terminal=0
