@@ -121,6 +121,14 @@ ConfigScreenSaver::lock_changed (GtkWidget *check, ConfigScreenSaver *th)
 	property_changed ();
 }
 
+void
+ConfigScreenSaver::check_dodpms_changed (GtkWidget *check, ConfigScreenSaver *th)
+{
+	// printf ("check_dodpms changed %d\n", GTK_TOGGLE_BUTTON (check)->active);
+	th->dpmsV = GTK_TOGGLE_BUTTON (check)->active;
+	property_changed ();
+}
+
 GtkWidget *
 ConfigScreenSaver::settings_frame ()
 {
@@ -152,6 +160,15 @@ ConfigScreenSaver::settings_frame ()
 			    (GtkSignalFunc) ConfigScreenSaver::lock_changed,
 			    this);
 
+	
+	check_dodpms = gtk_check_button_new_with_label (_("Use DPMS"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (check_dodpms),
+				     dpmsV);
+	gtk_signal_connect (GTK_OBJECT (check_dodpms),
+			    "toggled",
+			    (GtkSignalFunc) ConfigScreenSaver::check_dodpms_changed,
+			    this);
+
 	vb1 = gtk_vbox_new (FALSE, 0);
 	l3 = gtk_label_new (_("Priority"));
 	gtk_misc_set_alignment (GTK_MISC (l3), 0, 0.5);
@@ -177,6 +194,7 @@ ConfigScreenSaver::settings_frame ()
 	gtk_box_pack_start (GTK_BOX (hb1), l2, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), hb1, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), lock, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox), check_dodpms, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vb1), l3, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (vb1), nice, FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (hb2), l5, FALSE, FALSE, 0);
@@ -189,6 +207,7 @@ ConfigScreenSaver::settings_frame ()
 	gtk_widget_show (l2);
 	gtk_widget_show (waitMin);
 	gtk_widget_show (lock);
+	gtk_widget_show (check_dodpms);
 	gtk_widget_show (l3);
 	gtk_widget_show (nice);
 	gtk_widget_show (l4);
@@ -336,6 +355,23 @@ ConfigScreenSaver::apply ()
 
 		curMode->run (SS_CMDLINE, niceV, lockV, &cmdLine);
 
+#ifdef DO_BUGGY_DPMS_STUFF
+		/* This is an ugly hack; there has to be a way
+		   to do this directly through dpmsstr.h
+		   - I'm just too clueless to do it ATM */
+		if(dpmsV) {
+		  cmdLine = g_malloc(40);
+		  system("xset +dpms");
+		  snprintf(39, cmdLine, "xset dpms 0 0 %s", waitV);
+		  system(cmdLine);
+		  g_free(cmdLine);
+		} else {
+		  system("xset -dpms");
+		}
+#else
+		g_print("DPMS settings are not being set - see the source\n");
+#endif
+
 		/* pid = gnome_config_get_int ("/Desktop/ScreenSaver/xautolock_pid=0");
 	        if (pid)
 			::kill (pid, SIGTERM); */
@@ -365,6 +401,9 @@ screensaver_read ()
 {
 	css->niceV = gnome_config_get_int ("/Desktop/ScreenSaver/nice=12");
 	css->lockV = gnome_config_get_bool ("/Desktop/ScreenSaver/lock=true");
+
+	css->dpmsV = gnome_config_get_bool ("/Desktop/ScreenSaver/powersaving=true");
+
 	css->waitV = g_strdup
 		(gnome_config_get_string ("/Desktop/ScreenSaver/waitMin=5"));
 
@@ -389,6 +428,8 @@ screensaver_write ()
 {
 	gnome_config_set_int ("/Desktop/ScreenSaver/nice", css->niceV);
 	gnome_config_set_bool ("/Desktop/ScreenSaver/lock", css->lockV);
+	gnome_config_set_bool ("/Desktop/ScreenSaver/powersaving",
+			       css->dpmsV);
 	gnome_config_set_string ("/Desktop/ScreenSaver/waitMin", css->waitV);
 
 	gnome_config_set_string ("/Desktop/ScreenSaver/screensaver",

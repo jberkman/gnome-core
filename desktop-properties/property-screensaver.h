@@ -29,11 +29,14 @@ struct ConfigScreenSaver {
 	gint lockV;
 	gint niceV;
 	gchar *waitV;
+        gint dpmsV;
 
 	gchar *screensaver_name;
 	gchar *mode_name;
 
 	GtkWidget *lock;
+        GtkWidget *check_dodpms;
+        GtkWidget *ent_dpmsstandby, *ent_dpmssuspend, *ent_dpmsoff;
 	GtkWidget *waitMin;
 	GtkWidget *nice;
 
@@ -48,6 +51,8 @@ struct ConfigScreenSaver {
 	static void wait_changed (GtkWidget *, ConfigScreenSaver *th);
 	static void nice_changed (GtkWidget *, ConfigScreenSaver *th);
 	static void lock_changed (GtkWidget *, ConfigScreenSaver *th);
+	static void check_dodpms_changed (GtkWidget *,
+					  ConfigScreenSaver *th);
 
 	void register_screensavers ();
 };
