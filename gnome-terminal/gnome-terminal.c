@@ -849,6 +849,7 @@ save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
+	static GnomeHelpMenuEntry help_entry = { NULL, "properties" };
 	GtkWidget *l, *table, *picker, *label, *b1, *b2, *e;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
@@ -1118,6 +1119,12 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (window_closed_event), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
 			    GTK_SIGNAL_FUNC (window_closed), term);
+
+	help_entry.name = gnome_app_id;
+	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "help",
+			    GTK_SIGNAL_FUNC (gnome_help_pbox_display),
+			    &help_entry);
+
 	gtk_widget_show_all (prefs->prop_win);
 }
 

@@ -1,3 +1,8 @@
+1999-01-20  Nat Friedman  <nat@nat.org>
+
+	* gnome-terminal.c (preferences_cmd): Connect the help signal to
+ 	gnome_help_pbox_display.
+
 1999-01-09  Nat Friedman  <nat@nat.org>
 
 	* gnome-terminal.c: Replaced the Terminal menu with a File menu.
