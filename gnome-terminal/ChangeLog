@@ -1,5 +1,7 @@
 2001-09-04  jacob berkman  <jacob@ximian.com>
 
+	* gnome-terminal.c: make it compile against current gnome-libs
+	
 	* gnome-terminal.c (button_press): set the hidden attribute on the
 	model rather than the view side of the things
 

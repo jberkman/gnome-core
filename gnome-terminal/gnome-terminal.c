@@ -1622,7 +1622,8 @@ load_url_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 
 	url = gtk_object_get_data (GTK_OBJECT (term), "matchstr");
 	if (url) {
-		gnome_url_show(url);
+#warning FIXME
+		gnome_url_show(url, NULL);
 	}
 }
 
@@ -1973,7 +1974,8 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	    && (event->state & GDK_CONTROL_MASK)
 	    && match) {
 		gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
-		gnome_url_show (match);
+#warning FIXME
+		gnome_url_show (match, NULL);
 		return TRUE;
 	}
 
@@ -2172,9 +2174,11 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
 	/* override the icon if it was in the config */
+#ifdef HAVE_WINDOW_ICON
 	if (cfg->window_icon) {
 	  gnome_window_set_icon_from_file (GTK_WINDOW(app), cfg->window_icon, TRUE);
  	}
+#endif
 	g_snprintf (winclass, sizeof (winclass), "Terminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), winclass, "Terminal");
 	//gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
