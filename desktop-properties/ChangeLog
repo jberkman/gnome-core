@@ -1,3 +1,8 @@
+Sun May  3 11:33:33 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* main.c (property_main): If no previous session id, but `--init'
+	specified, then assume it is a user request and always honor it.
+
 1998-05-01  Michael Fulbright  <msf@redhat.com>
 
 	* property-background.c: wpFileName was being set to values

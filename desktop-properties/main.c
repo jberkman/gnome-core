@@ -135,6 +135,12 @@ property_main (char *app_id, int argc, char *argv [])
 	if (gnome_client_get_previous_id (client))
 	        token = gnome_startup_acquire_token (application_property (),
 						     gnome_client_get_id (client));
+	else if (init) {
+		/* User requested --init on command line, but no
+		   session id was given.  We honor the user's
+		   request.  */
+		token = 1;
+	}
 
 	/* If our only purpose is to set the properties and then exit,
 	   and we didn't acquire the lock, then we are done.  */
