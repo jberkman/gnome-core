@@ -349,9 +349,6 @@ static GnomeClient
 {
 	GnomeClient *client;
 
-	return NULL; /* cant figure out why below is causing seg faults */
-
-#if 0
         client = gnome_client_new_default();
 
 	g_message("SM client ID is %s", client->client_id);
@@ -365,7 +362,6 @@ static GnomeClient
         gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
                             GTK_SIGNAL_FUNC (save_state), NULL);
         return client;
-#endif
 }
 
 /**********************************************************************/
