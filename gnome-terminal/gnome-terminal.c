@@ -1486,7 +1486,9 @@ paste_cmd (GtkWidget *widget, ZvtTerm *term)
 		time = GDK_CURRENT_TIME;
 	}
 	
-	gtk_selection_convert (GTK_WIDGET (term), GDK_SELECTION_PRIMARY, string_atom,
+	gtk_selection_convert (GTK_WIDGET (term),
+                               gdk_atom_intern ("CLIPBOARD", FALSE),
+                               string_atom,
 			       time);
 }
 
