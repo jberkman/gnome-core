@@ -103,6 +103,10 @@ mail_animation_filename ()
 			return fname;
 		else
 			free (fname);
+	} else if(fname && !*fname) {
+		free (fname);
+		/*we are using text only, since the filename was ""!*/
+		return NULL;
 	}
 	fname = gnome_unconditional_pixmap_file ("mailcheck/email.xpm");
 	if (g_file_exists (fname))
@@ -376,12 +380,14 @@ close_callback (GtkWidget *widget, void *data)
 void
 load_new_pixmap_callback (GtkWidget *widget, void *data)
 {
+	PanelCommand cmd;
+
 	gtk_container_remove (GTK_CONTAINER (bin), containee);
 	gtk_widget_hide (containee);
 	
 	if (selected_pixmap_name == mailcheck_text_only){
 		report_mail_mode = REPORT_MAIL_USE_TEXT;
-		gtk_container_add (GTK_CONTAINER (bin), containee = label);
+		containee = label;
 		gnome_config_set_string (config_animation_file, "");
 		mail_check_timeout (0);
 	} else {
