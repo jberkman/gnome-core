@@ -18,7 +18,7 @@ LDADD = \
         $(INTLLIBS)
 
 
-bin_PROGRAMS = gnome-help-browser  gnome-help-caller gnome-download gnome-convert
+bin_PROGRAMS = gnome-help-browser  gnome-help-caller
 
 gnome_help_caller_SOURCES = \
 				$(ORBIT_HELP_CLIENT_SOURCES)   \
@@ -79,3 +79,6 @@ gnorba_DATA = help-browser.gnorba
 
 sysdir = $(datadir)/gnome/apps
 sys_DATA = gnome-help.desktop
+
+install-exec-local:
+	$(INSTALL_PROGRAM) gnome-download gnome-convert $(bindir)/

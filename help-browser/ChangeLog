@@ -1,3 +1,8 @@
+1999-12-03  Pavel Machek <pavel@ucw.cz>
+
+	* Makefile.am (install-exec-local): add gnome-download
+	gnome-convert so that they are correctly installed
+
 1999-03-23  Pavel Machek  <pavel@bug.ucw.cz>
 
 	* gnome-man2html/gnome-man2html.c (main): Bugfix: code used to
