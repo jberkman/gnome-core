@@ -339,10 +339,30 @@ grow_text_if_necessary(void)
 			      NULL);
 }
 
+/* evil lies herein */
+static gboolean
+title_event (GnomeCanvasItem *item, GdkEvent *event, gpointer data)
+{
+	static int clicks = 0;
+
+	if (event->type == GDK_BUTTON_PRESS) {
+		clicks ++;
+		if (clicks == 3) {
+			gnome_canvas_item_set
+				(item,
+				 "text", "ALL YOUR BASE ARE BELONG TO US",
+				 NULL);
+		}
+	}
+
+	return FALSE;
+}
+
 static void
 draw_on_canvas(GtkWidget *canvas, gboolean is_fortune, gboolean is_motd, const char *hint)
 {
 	GnomeCanvasItem *item;
+	char *title_text;
 	
 	blue_background = gnome_canvas_item_new(
 		gnome_canvas_root(GNOME_CANVAS(canvas)),
@@ -354,43 +374,47 @@ draw_on_canvas(GtkWidget *canvas, gboolean is_fortune, gboolean is_motd, const c
 		"fill_color","blue",
 		NULL);
 
-	white_background = gnome_canvas_item_new(
-		gnome_canvas_root(GNOME_CANVAS(canvas)),
-		gnome_canvas_rect_get_type(),
-		"x1",(double)75.0,
-		"y1",(double)50.0,
-		"x2",(double)400.0,
-		"y2",(double)200.0,
-		"fill_color","white",
-		NULL);
+	white_background =
+		gnome_canvas_item_new (gnome_canvas_root(GNOME_CANVAS(canvas)),
+				       gnome_canvas_rect_get_type(),
+				       "x1",(double)75.0,
+				       "y1",(double)50.0,
+				       "x2",(double)400.0,
+				       "y2",(double)200.0,
+				       "fill_color","white",
+				       NULL);
+
+	hint_item = gnome_canvas_item_new
+		(gnome_canvas_root (GNOME_CANVAS(canvas)),
+		 gnome_canvas_text_get_type (),
+		 "x", (double)237.5,
+		 "y", (double)125.0,
+		 "fill_color", "black",
+		 "clip_width", (double)325.0,
+		 "clip_height", (double)150.0,
+		 "clip", TRUE,
+		 "text", hint,
+		 NULL);
 	
-	if(is_fortune || is_motd) {
-		hint_item = gnome_canvas_item_new(
-			gnome_canvas_root(GNOME_CANVAS(canvas)),
-			gnome_canvas_text_get_type(),
-			"x",(double)237.5,
-			"y",(double)125.0,
-			"fill_color","black",
-			"font","fixed",
-			"clip_width",(double)325.0,
-			"clip_height",(double)150.0,
-			"clip",TRUE,
-			"text",hint,
-			NULL);
+	if (is_fortune || is_motd) {
+		gnome_canvas_item_set
+			(GNOME_CANVAS_ITEM (hint_item),
+			 /* the fixed font should be a font that is of a fixed
+			  * spacing, such as would be one in a terminal */
+			 "fontset", _("fixed"),
+			 NULL);
 	} else {
-		hint_item = gnome_canvas_item_new(
-			gnome_canvas_root(GNOME_CANVAS(canvas)),
-			gnome_canvas_text_get_type(),
-			"x",(double)237.5,
-			"y",(double)125.0,
-			"fill_color","black",
-			"font_gdk",canvas->style->font,
-			"clip_width",(double)325.0,
-			"clip_height",(double)150.0,
-			"clip",TRUE,
-			"text",hint,
-			NULL);
+		gnome_canvas_item_set (GNOME_CANVAS_ITEM (hint_item),
+				       "font_gdk", canvas->style->font,
+				       NULL);
 	}
+
+	if (is_fortune)
+		title_text = _("Fortune");
+	else if (is_motd)
+		title_text = _("Message of The Day");
+	else
+		title_text = _("GNOME Hints");
 
 	item = gnome_canvas_item_new(
 		gnome_canvas_root(GNOME_CANVAS(canvas)),
@@ -398,9 +422,12 @@ draw_on_canvas(GtkWidget *canvas, gboolean is_fortune, gboolean is_motd, const c
 		"x",(double)200.0,
 		"y",(double)25.0,
 		"fill_color","white",
-		"font",_("-*-helvetica-bold-r-normal-*-*-180-*-*-p-*-*-*"),
-		"text",is_fortune?_("Fortune"):is_motd?_("Message of The Day"):_("GNOME Hints"),
+		"fontset",_("-*-helvetica-bold-r-normal-*-*-180-*-*-p-*-*-*"),
+		"text", title_text,
 		NULL);
+	gtk_signal_connect (GTK_OBJECT (item), "event",
+			    GTK_SIGNAL_FUNC (title_event),
+			    NULL);
 
 	grow_text_if_necessary();
 }
