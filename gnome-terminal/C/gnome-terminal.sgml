@@ -377,6 +377,23 @@
 	  While holding down the CTRL key, the right mouse button can
 	  be used to display this menu.
 	</para>
+      <sect2 id="url-highlight">
+        <title>Launching URL's</title>
+        <para>
+          Gnome terminal can be used to select URL's from the text
+          display, simply by moving the mouse over the URL text.  The
+          URL will be highlighted, by being redrawn with an underline,
+          and the mouse pointer will change to a pointing hand.
+        </para> 
+        <para>
+          Invoking the <link linkend="menu-popup">control-menu</link>
+          while over a highlighted URL will add a new option to load
+          that url into a browser.
+	</para>
+	<para>
+	  Pressing the left mouse button, while holding down the CTRL
+	  key is a shortcut to launch the url immediately.
+        </para>
       <sect2 id="pointer-dnd">
 	<title>Drag and Drop</title>
 	<para>
@@ -588,6 +605,17 @@
 	      <para>
 		Resets the terminal attributes and clears the
 		screen.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Open in browser</term>
+	    <listitem>
+	      <para>
+	        If the mouse pointer was over a URL when the popup
+		menu is invoked, then this option is available to
+		launch a browser to view the URL.  Using
+		CTRL-left mouse button is a shortcut for this menu item.
 	      </para>
 	    </listitem>
 	  </varlistentry>

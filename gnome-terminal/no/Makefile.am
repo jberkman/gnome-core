@@ -17,13 +17,13 @@ gnome-terminal/index.html: $(srcdir)/gnome-terminal.sgml
 	-srcdir=`cd $(srcdir) && pwd`; \
 	db2html $$srcdir/gnome-terminal.sgml
 
-dist-hook:
+dist-hook: index.html
 	mkdir $(distdir)/gnome-terminal
 	-cp gnome-terminal/*.html $(distdir)/gnome-terminal
 	-cp gnome-terminal/*.css $(distdir)/gnome-terminal
 
 install-data-local: index.html
-	-for file in gnome-terminal/*.html gnome-terminal/*.css; do \
+	-for file in $(srcdir)/gnome-terminal/*.html $(srcdir)/gnome-terminal/*.css; do \
 	  basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(gnome_terminal_helpdir)/$$basefile; \
 	done
