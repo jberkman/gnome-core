@@ -1,0 +1,6 @@
+DO NOT HACK ON ME - This directory is deprecated. It will eventually
+disappear.
+
+If you feel the urge to hack in this directory, then please look at the new
+utility found in nautilus/components/help/converters/gnome-man2html2 (and work
+on that instead).
