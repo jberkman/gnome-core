@@ -1475,13 +1475,32 @@ void
 paste_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GdkAtom string_atom;
-
+	GdkEvent *event;
+	gint32 time;
+	
 	string_atom = gdk_atom_intern ("STRING", FALSE);
 	if (string_atom == GDK_NONE)
 		return;
+
+	event = gtk_get_current_event ();
+	switch (event->type){
+	case GDK_BUTTON_PRESS:
+	case GDK_2BUTTON_PRESS:
+	case GDK_BUTTON_RELEASE:
+		time = event->button.time;
+		break;
+
+	case GDK_KEY_PRESS:
+	case GDK_KEY_RELEASE:
+		time = event->key.time;
+		break;
+
+	default:
+		time = GDK_CURRENT_TIME;
+	}
 	
 	gtk_selection_convert (GTK_WIDGET (term), GDK_SELECTION_PRIMARY, string_atom,
-			       GDK_CURRENT_TIME);
+			       time);
 }
 
 void
