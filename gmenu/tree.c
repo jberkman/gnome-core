@@ -7,52 +7,23 @@
 #include "gmenu.h"
 #include "top.xpm"
 
+static gint find_file_cb(gconstpointer a, gconstpointer b);
 static void move_item_down(GtkCTreeNode *node);
 static void move_item_up(GtkCTreeNode *node);
 static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
+static void get_ctree_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
+static gint get_ctree_count(GtkCTree *ctree);
 
-/* if ctree = null, reset ret. if node = null, return ret. */
-static GtkCTreeNode *check_file_match(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
+static gint find_file_cb(gconstpointer a, gconstpointer b)
 {
-	static GtkCTreeNode *ret = NULL;
-	char *path = data;
-	Desktop_Data *d;
+	if (!((Desktop_Data *)(a))->path) return 1;
 
-	if (!ctree)
-		{
-		ret = NULL;
-		return ret;
-		}
-
-	if (!node)
-		{
-		return ret;
-		}
-
-	d = gtk_ctree_get_row_data(GTK_CTREE(ctree), node);
-	if (d->path && !strcmp(d->path, path))
-		{
-		ret = node;
-		return ret;
-		}
-	else
-		return NULL;
+	return strcmp(((Desktop_Data *)(a))->path, (gchar *)b);
 }
 
 GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path)
 {
-	GtkCTreeNode *node = NULL;
-
-	/* reset the static pointer */
-	check_file_match(NULL, NULL, NULL);
-
-	/* do the check */
-	gtk_ctree_pre_recursive(GTK_CTREE(ctree), NULL, (GtkCTreeFunc) check_file_match, path);
-
-	/* get the static pointer */
-	node = check_file_match(ctree, NULL, NULL);
-
-	return node;
+	return gtk_ctree_find_by_row_data_custom (GTK_CTREE(ctree), NULL, path, find_file_cb);
 }
 
 void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint select)
@@ -81,9 +52,6 @@ void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, g
 		}
 	gtk_label_set(GTK_LABEL(pathlabel),current_path);
 
-/*	if (move)
-		gtk_ctree_moveto (GTK_CTREE(w), new, 0, 0.5, 0.0);
-*/
 }
 
 static void move_item_down(GtkCTreeNode *node)
@@ -153,13 +121,10 @@ int is_node_editable(GtkCTreeNode *node)
 	gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),node,
 		NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
 	if (leaf)
-		{
 		parent = GTK_CTREE_ROW(node)->parent;
-		}
 	else
-		{
 		parent = node;
-		}
+
 	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
 	return d->editable;
 }
@@ -335,6 +300,18 @@ static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer da
 	if (d->isfolder && !d->expanded ) add_tree_node(ctree, node);
 }
 
+static void get_ctree_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
+{
+	gint *p = data;
+	*p = *p + 1;
+}
+
+static gint get_ctree_count(GtkCTree *ctree)
+{
+	gint count = 0;
+	gtk_ctree_post_recursive (ctree, NULL, get_ctree_count_cb, &count);
+	return count;
+}
 
 void add_main_tree_node()
 {
@@ -381,15 +358,11 @@ void add_main_tree_node()
 	d->comment = strdup(_("Top of system menus"));
 	d->expanded = FALSE;
 
-	/* FIXME: are we root? then we can edit the system menu */
-/*
-	if (!strcmp("/root",getenv("HOME")) || 
-	    ((getenv("USER"))&&(!strcmp("root",getenv("USER")))) ||
-		((getenv("USERNAME"))&&(!strcmp("root",getenv("USERNAME")))) )
-*/
+	/* check if the user has permission to edit the system menu */
+
 	if (!access (SYSTEM_APPS, W_OK))
 		{
-		g_print(_("Running with root privileges.\n"));
+		g_print(_("Running with System Menu privileges.\n"));
 		d->editable = TRUE;
 		}
 	else
@@ -416,10 +389,11 @@ void add_main_tree_node()
 
 	/* now load the entire menu tree */
 	c = 0;
-	while (g_list_length((GList *)topnode) > c)
+	while (get_ctree_count(GTK_CTREE(menu_tree_ctree)) > c)
 		{
-		c = g_list_length((GList *)topnode);
-		gtk_ctree_pre_recursive(GTK_CTREE(menu_tree_ctree), topnode, add_tree_recurse_cb, NULL);
+		c = get_ctree_count(GTK_CTREE(menu_tree_ctree));
+
+		gtk_ctree_post_recursive(GTK_CTREE(menu_tree_ctree), topnode, add_tree_recurse_cb, NULL);
 		}
 
 	current_node = usernode;

@@ -1,3 +1,9 @@
+Sun Aug  9 14:12:18 1998  John Ellis  <johne@bellatlantic.net>
+
+	* tree.c: cleanups, fixes, and optimizations.
+	(get_ctree_count): new function to calculate # of nodes in a ctree,
+	maybe a similar routine should be in gtkctree.[ch] ?
+
 Sun Aug  9 11:55:11 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c (sort node), (sort_single_pressed), (sort_recurse_cb),
