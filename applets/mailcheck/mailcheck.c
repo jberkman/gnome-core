@@ -17,13 +17,12 @@
 #include <string.h>
 #include <gnome.h>
 #include "applet-lib.h"
+#include "applet-widget.h"
 #include <gdk_imlib.h>
 
 #define WIDGET_HEIGHT 48
 
-GtkWidget *plug = NULL;
-
-int applet_id = -1;/*this is our id we use to comunicate with the panel */
+GtkWidget *applet = NULL;
 
 static char *mail_file;
 
@@ -486,15 +485,10 @@ mailcheck_properties (void)
 }
 
 
-/*these are commands sent over corba:*/
-void
-change_orient(int id, int orient)
-{
-	PanelOrientType o = (PanelOrientType)orient;
-}
-
-int
-session_save(int id, const char *cfgpath, const char *globcfgpath)
+static int
+applet_session_save(GtkWidget *w,
+		    const char *cfgpath,
+		    const char *globcfgpath)
 {
 	char *query;
 
@@ -509,7 +503,7 @@ session_save(int id, const char *cfgpath, const char *globcfgpath)
 }
 
 static gint
-destroy_plug(GtkWidget *widget, gpointer data)
+destroy_applet(GtkWidget *widget, gpointer data)
 {
 	gtk_exit(0);
 	return FALSE;
@@ -527,19 +521,9 @@ int
 main(int argc, char **argv)
 {
 	GtkWidget *mailcheck;
-	char *result;
-	char *cfgpath;
-	char *globcfgpath;
-
-	char *myinvoc;
-	guint32 winid;
-
-	myinvoc = get_full_path(argv[0]);
-	if(!myinvoc)
-		return 1;
 
 	panel_corba_register_arguments ();
-	gnome_init("cdplayer_applet", NULL, argc, argv, 0, NULL);
+	gnome_init("mailcheck_applet", NULL, argc, argv, 0, NULL);
 
 	/*initial state*/
 	report_mail_mode = REPORT_MAIL_USE_ANIMATION;
@@ -548,51 +532,38 @@ main(int argc, char **argv)
 	if (!mail_file)
 		return 1;
 
-	if (!gnome_panel_applet_init_corba ())
-		g_error ("Could not comunicate with the panel\n");
+	applet = applet_widget_new(argv[0]);
+	if (!applet)
+		g_error("Can't create applet!\n");
 
-	result = gnome_panel_applet_request_id(myinvoc,&applet_id,
-					       &cfgpath,&globcfgpath,
-					       &winid);
-
-	g_free(myinvoc);
-	if (result)
-		g_error ("Could not talk to the Panel: %s\n", result);
-
-	if(cfgpath && *cfgpath) {
-		char *query = g_copy_strings(cfgpath,"animation_file=",NULL);
+	if(APPLET_WIDGET(applet)->cfgpath &&
+           *(APPLET_WIDGET(applet)->cfgpath)) {
+		char *query = g_copy_strings(APPLET_WIDGET(applet)->cfgpath,
+					     "animation_file=",NULL);
 		animation_file = gnome_config_get_string(query);
 		g_free(query);
 	} else 
 		animation_file = NULL;
-		
-
-	g_free(globcfgpath);
-	g_free(cfgpath);
-
-	plug = gtk_plug_new (winid);
 
 	mailcheck_text_only = _("Text only");
 	mailcheck = create_mail_widgets ();
 	gtk_widget_show(mailcheck);
-	gtk_container_add (GTK_CONTAINER (plug), mailcheck);
-	gtk_widget_show (plug);
-	gtk_signal_connect(GTK_OBJECT(plug),"destroy",
-			   GTK_SIGNAL_FUNC(destroy_plug),
+	applet_widget_add (APPLET_WIDGET (applet), mailcheck);
+	gtk_widget_show (applet);
+	gtk_signal_connect(GTK_OBJECT(applet),"destroy",
+			   GTK_SIGNAL_FUNC(destroy_applet),
+			   NULL);
+	gtk_signal_connect(GTK_OBJECT(applet),"session_save",
+			   GTK_SIGNAL_FUNC(applet_session_save),
 			   NULL);
 
-
-	result = gnome_panel_applet_register(plug,applet_id);
-	if (result)
-		g_error ("Could not talk to the Panel: %s\n", result);
-
-	gnome_panel_applet_register_callback(applet_id,
+	gnome_panel_applet_register_callback(APPLET_WIDGET(applet)->applet_id,
 					     "properties",
 					     _("Properties"),
 					     properties_corba_callback,
 					     NULL);
 
-	applet_corba_gtk_main ("IDL:GNOME/Applet:1.0");
+	applet_widget_gtk_main ();
 
 	return 0;
 }
