@@ -1,3 +1,8 @@
+2001-06-20  Kjartan Maraas  <kmaraas@gnome.org>
+
+	* deskguide_applet.c: Make all uses of the gettext macros
+	look like _() and N_(), not _ () and N_ ().
+	
 2001-04-27  Leandro su Nerone  <leandro@firenze.linux.it>
 
 	* help/it/desk-guide.sgml: Little adjustment
