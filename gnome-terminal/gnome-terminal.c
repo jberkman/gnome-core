@@ -486,7 +486,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", prefs);
 
 	/* Look page */
-	table = gtk_table_new (0, 0, 0);
+	table = gtk_table_new (3, 4, FALSE);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("Look")));
 
@@ -528,7 +528,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			  2, 3, BLINK_ROW, BLINK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Color page */
-	table = gtk_table_new (0, 0, 0);
+	table = gtk_table_new (4, 4, FALSE);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Colors")));
 	
 	/* Color palette */
