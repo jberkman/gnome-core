@@ -212,8 +212,6 @@ main (gint   argc,
 				 "signal::destroy", gtk_widget_destroyed, &gp_container,
 				 "child", gtk_type_new (GTK_TYPE_WIDGET),
 				 NULL);
-  applet_widget_add (APPLET_WIDGET (gp_applet), gp_container);
-  
   /* notifiers and callbacks
    */
   gwmh_desk_notifier_add (gp_desk_notifier, NULL);
@@ -226,6 +224,12 @@ main (gint   argc,
 		  "object_signal::save-session", gp_save_session, NULL,
 		  "signal::destroy", gtk_main_quit, NULL,
 		  NULL);
+
+  /* add container to applet, note that this MUST come after binding
+   * the change-* signals otherwise we have a race */
+  applet_widget_add (APPLET_WIDGET (gp_applet), gp_container);
+  
+
   applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
 					 "properties",
 					 GNOME_STOCK_MENU_PROP,

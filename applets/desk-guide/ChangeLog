@@ -1,3 +1,9 @@
+Tue Dec 05 20:08:49 2000  George Lebl <jirka@5z.com>
+
+	* deskguide_applet.c: bind signals on applet-widget BEFORE
+	  we call applet_widget_add, as otherwise there is a race where
+	  we may not get them.
+
 Wed Nov 29 13:01:34 2000  Tim Janik  <timj@gtk.org>
 
 	* gwmdesktop.c (gwm_desktop_button_press): take deco window movement
