@@ -55,26 +55,9 @@ get_monitor_preview_widget (void)
 	GdkBitmap *mask;
 	char *f;
 
-	if (!monitor_image) {
-		f = gnome_pixmap_file ("monitor.xpm");
-		monitor_image = gdk_imlib_load_image (f);
-		gdk_imlib_render (monitor_image,
-				  monitor_image->rgb_width,
-				  monitor_image->rgb_height);
-		g_free(f);
-	}
-
-	gtk_widget_push_visual (gdk_imlib_get_visual ());
-	gtk_widget_push_colormap (gdk_imlib_get_colormap ());
-
-	pixmap = gdk_imlib_copy_image (monitor_image);
-	mask = gdk_imlib_copy_mask (monitor_image);
-
-	pwid = gtk_pixmap_new (pixmap, mask);
-
-	gtk_widget_pop_colormap ();
-	gtk_widget_pop_visual ();
-
+	f = gnome_pixmap_file ("monitor.xpm");
+	pwid = gnome_pixmap_new_from_file (f);
+	g_free (f);
 	gtk_widget_show (pwid);
 
 	return pwid;

@@ -179,10 +179,14 @@ fill_monitor (void)
 			gint xoff, yoff;
 			gint w, h;
 			GdkPixmap *pix;
+			GdkImlibImage *im;
+
+			im = gdk_imlib_load_image (wpFileName);
+			w = im->rgb_width;
+			h = im->rgb_height;
 			
-			pix = gdk_pixmap_create_from_xpm (monitor->window, NULL,
-							  &bgColor1, wpFileName);
-			gdk_window_get_size (pix, &w, &h);
+			gdk_imlib_render (im, w, h);
+			pix = gdk_imlib_move_image (im);
 			
 			for (yoff = 0; yoff < MONITOR_CONTENTS_HEIGHT;
 			     yoff += h)
@@ -204,7 +208,7 @@ fill_monitor (void)
 						 );
 
 				}
-			gdk_pixmap_unref (pix);
+			gdk_imlib_free_pixmap (pix);
 		} else {
 			if (grad)
 				set_gradient();
@@ -229,15 +233,19 @@ fill_monitor (void)
 				GdkBitmap *mask;
 				gint xoff, yoff;
 				gint w, h;
-			
-				pix = gdk_pixmap_create_from_xpm (monitor->window,
-								  &mask,
-								  &bgColor1,
-								  wpFileName);
+				GdkImlibImage *im;
 
-				gdk_window_get_size (pix, &w, &h);
+				im = gdk_imlib_load_image (wpFileName);
+				w = im->rgb_width;
+				h = im->rgb_height;
+				
+				gdk_imlib_render (im, w, h);
+				pix = gdk_imlib_move_image (im);
+				mask = gdk_imlib_move_mask (im);
+				
 				xoff = (MONITOR_CONTENTS_WIDTH - w) >> 1;
 				yoff = (MONITOR_CONTENTS_HEIGHT - h) >> 1;
+				
 				if (xoff < 0) xoff = 0;
 				if (yoff < 0) yoff = 0;
 				/* printf ("copy area\n"); */
@@ -275,7 +283,8 @@ fill_monitor (void)
 						(monitor->style->black_gc,
 						 0, 0);
 				}
-				gdk_pixmap_unref (pix);				
+				gdk_imlib_free_pixmap (pix);
+				gdk_imlib_free_bitmap (pix);
 			}
 
 		}
@@ -822,7 +831,7 @@ background_setup ()
 	gtk_container_border_width (GTK_CONTAINER(hbox), GNOME_PAD);
 
 	monitor = get_monitor_preview_widget ();
-	screen = GTK_PIXMAP (monitor)->pixmap;
+	screen = GNOME_PIXMAP (monitor)->pixmap;
 
 	preview = gtk_preview_new(GTK_PREVIEW_COLOR);
 	gtk_preview_size(GTK_PREVIEW(preview),

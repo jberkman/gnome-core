@@ -1,3 +1,7 @@
+Tue Mar 10 14:49:11 1998  Miguel de Icaza/Federico Mena  <miguel@nuclecu.unam.mx>
+
+	* main.c (get_monitor_preview_widget): Simplify and fix to use gdk_imlib.
+
 Tue Mar 10 02:06:01 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* main.c (display_properties_setup): Use stock buttons.
