@@ -1,3 +1,7 @@
+2000-04-13  Eric Baudais  <baudais@okstate.edu>
+
+	*help/C/*.sgml: Updated the docs to the 1.x template.
+
 2000-04-12  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c: Update for new GdkPixbuf.
