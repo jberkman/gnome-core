@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Startup Hint
+Name[da]=Opstartstips
 Comment=Options for the startup hint dialog
+Comment[da]=Indstillinger for opstartstipsboksen
 Exec=gnome-hint-properties-capplet
 Icon=
 Terminal=0
