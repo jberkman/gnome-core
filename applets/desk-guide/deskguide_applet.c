@@ -394,13 +394,17 @@ gp_desk_notifier (gpointer	   func_data,
   else
     {
       /* keep number of desktop widgets in sync with desk */
-      gp_create_desk_widgets ();
+      if (change_mask & (GWMH_DESK_INFO_DESKTOP_NAMES |
+			 GWMH_DESK_INFO_N_DESKTOPS |
+			 GWMH_DESK_INFO_N_AREAS |
+			 GWMH_DESK_INFO_BOOTUP))
+	gp_create_desk_widgets ();
       
       if (gp_n_desk_widgets && BOOL_CONFIG (current_only))
 	gwm_desktop_set_index (GWM_DESKTOP (gp_desk_widget[0]),
 			       desk->current_desktop);
     }
-
+  
   return TRUE;
 }
 

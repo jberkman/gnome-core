@@ -1,3 +1,10 @@
+Fri Oct  8 00:56:10 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_desk_notifier): uh oh, fixed a bad bad bug that
+	caused all desktop widgets to be destroyed and recreated upon area
+	changes. caused bad bad flickering, in the end that's not what we wrote
+	double buffering for.
+
 Thu Oct  7 14:04:01 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c: added bug-fixing option to configure unified_area
