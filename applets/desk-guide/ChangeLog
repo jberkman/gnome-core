@@ -1,3 +1,9 @@
+2000-11-02  Jacob "Ulysses" Berkman  <jacob@helixcode.com>
+
+	* deskguide_applet.c: disable thumbnails by default since this
+	eats CPU on slow machines and seems to crash for quite a few
+	people
+
 2000-10-25  Karl Eichwalder  <ke@suse.de>
 
 	* deskguide_applet.c: s/Sawmill/Sawfish/.

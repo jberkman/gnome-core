@@ -82,7 +82,7 @@ static ConfigItem gp_config_items[] = {
   CONFIG_BOOL (raise_grid,	FALSE,
 	       N_ ("Raise area grid over tasks")),
   CONFIG_SECTION (sect_thumb_nail,				N_ ("Thumb Nails")),
-  CONFIG_BOOL (enable_thumb_nails,	TRUE,
+  CONFIG_BOOL (enable_thumb_nails,	FALSE,
 	       N_ ("Fill window thumbnails with screen contents")),
   CONFIG_RANGE (thumb_nail_delay, 500,	50,	5000,
 		N_ ("Incremental update delay [ms]")),
