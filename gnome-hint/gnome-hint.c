@@ -463,30 +463,10 @@ main(int argc, char *argv[])
 	flags = gnome_client_get_flags(client);
 
 	if (flags & GNOME_CLIENT_IS_CONNECTED) {
-		token = gnome_startup_acquire_token("GNOME_HINT",
-						    gnome_client_get_id(client));
-
-		if (token) {
-			char *session_args[2];
-
-			session_args[0] = argv[0];
-			session_args[1] = NULL;
-			gnome_client_set_priority(client, 20);
-			gnome_client_set_restart_style(client, 
-						       GNOME_RESTART_ANYWAY);
-			gnome_client_set_restart_command(client, 1, 
-						  session_args);
-
-		} else 
-			gnome_client_set_restart_style (client, 
-							GNOME_RESTART_NEVER);
-
+		gnome_client_set_restart_style (client, 
+						GNOME_RESTART_NEVER);
                 gnome_client_flush (client);
         }
-
-	/* if we are turned off */
-	if(!gnome_config_get_bool("/Gnome/Login/RunHints=true"))
-		return 0;
 
 	/* we can give fortune instead of hints in fact */
 	is_fortune =
