@@ -40,6 +40,8 @@ GList *newGhelpTable(struct _toc_config *conf)
       p = strchr(lang, '_');
       if (p) {
 	new_lang_list = g_list_append(new_lang_list, lang);
+	lang = g_strdup((gchar*) temp->data);
+	p = strchr(lang, '_');
 	*p = '\0';
 	new_lang_list = g_list_append(new_lang_list, lang);
       } else {
