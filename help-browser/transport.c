@@ -132,6 +132,38 @@ getHostByName(const char *host, struct in_addr *address)
     return 0;
 }
 
+static gboolean
+getDocBegin (gchar *buf, gchar **s)
+{
+	gchar *s1, *s2;
+
+	s1 = strstr (buf, "\n\n");
+	s2 = strstr (buf, "\r\n\r\n");
+
+	if (!s1 && !s2)			/* Other side failed to follow protocol */
+		return FALSE;
+
+	if (s1 && s2) {
+		if (s1 < s2) {
+			*s1 = 0;
+			*s  = s1 + 2;
+		} else {
+			*s2 = 0;
+			*s  = s2 + 4;
+		}
+	} else {
+		if (s1) {
+			*s1 = 0;
+			*s  = s1 + 2;
+		} else {
+			*s2 = 0;
+			*s  = s2 + 4;
+		}
+	}
+
+	return TRUE;
+}
+
 static int
 loadSock( docObj obj, int sock )
 {
@@ -156,19 +188,8 @@ loadSock( docObj obj, int sock )
 	memcpy(outbuf + outbuflen, buf, bytes);
 	outbuflen += bytes;
     }
-    if (!outbuf)
+    if (!outbuf || !getDocBegin (outbuf, &s))
         return -1;
-
-    if ((s = strstr(outbuf, "\n\n"))) {
-	*s = '\0';
-	s += 2;
-    } else {
-	s = strstr(outbuf, "\r\n\r\n");
-	if (!s)			/* Other side failed to follow protocol */
-	   return -1;
-	*s = '\0';
-	s += 4;
-    } 
 
     /* Mime type */
     mimeType = strstr(outbuf, "Content-Type:");

@@ -1,3 +1,13 @@
+2000-05-06  Radek Doulik  <rodo@helixcode.com>
+
+	* transport.c (getDocBegin): new function, splits buf into header
+	and doc data parts, sets doc begin to *s parameter
+	(loadSock): use getDocBegin, this fixes case when server ends
+	header with \r\n\r\n and document contains \n\n, before this fix
+	it eats document top part (upto \n\n), now it may correctly
+	identify doc begin (try http://freshmeat.net now :) margins are
+	right now)
+
 2000-05-04  Jacob Berkman  <jacob@helixcode.com>
 
 	* history.c (createHistoryWindow): 
