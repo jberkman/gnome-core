@@ -149,9 +149,19 @@ static void
 mailcheck_load_animation (char *fname)
 {
 	int width, height;
+	GdkImlib *im;
 
-	gnome_create_pixmap_gtk (panel_window, &email_pixmap, &email_mask, da, fname);
-	gdk_window_get_size (email_pixmap, &width, &height);
+	im = gdk_imlib_load_image (fname);
+
+	width = im->rgb_width;
+	height = im->rgb_height;
+
+	gdk_imlib_render (im, width, height);
+
+	email_pixmap = gdk_imlib_copy_image (im);
+	email_mask = gdk_imlib_copy_mask (im);
+
+	gdk_imlib_destroy_image (im);
 	
 	/* yeah, they have to be square, in case you were wondering :-) */
 	frames = width / WIDGET_HEIGHT;
@@ -275,7 +285,11 @@ create_mail_widgets ()
 	mail_timeout = gtk_timeout_add (10000, mail_check_timeout, 0);
 
 	/* The drawing area */
+	gtk_widget_push_visual (gdk_imlib_get_visual ());
+	gtk_widget_push_colormap (gdk_imlib_get_colormap ());
 	da = gtk_drawing_area_new ();
+	gtk_widget_pop_colormap ();
+	gtk_widget_pop_visual ();
 	gtk_drawing_area_size (GTK_DRAWING_AREA(da), 48, 48);
 	gtk_signal_connect (GTK_OBJECT(da), "expose_event", (GtkSignalFunc)icon_expose, 0);
 	gtk_widget_set_events(GTK_WIDGET(da),GDK_EXPOSURE_MASK);
