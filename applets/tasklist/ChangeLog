@@ -1,3 +1,7 @@
+1999-09-17  Richard Hult  <rhult@hem2.passagen.se>
+
+	* tasklist_applet.desktop: Added Swedish desktop entry. 
+
 1999-09-17  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_menu.c

@@ -5,12 +5,14 @@ Name[et]=Programmipaneel
 Name[ja]=¥¿¥¹¥¯¥ê¥¹¥È
 Name[no]=Oppgaveliste
 Name[pl]=Lista zadañ
+Name[sv]=Programlist
 Comment=GNOME Tasklist
 Comment[de]=GNOMEs Taskliste
 Comment[et]=Programmide juhtpaneel
 Comment[ja]=¥¦¥¤¥ó¥É¥¦°ìÍ÷
 Comment[no]=GNOME oppgaveliste
 Comment[pl]=Lista zadañ dla GNOME
+Comment[sv]=Programlist för GNOME
 Exec=tasklist_applet --activate-goad-server=tasklist_applet
 Icon=
 Terminal=0

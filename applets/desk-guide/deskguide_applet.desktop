@@ -5,12 +5,14 @@ Name[et]=Desk Guide
 Name[ja]=¥Ç¥¹¥¯¥¬¥¤¥É
 Name[no]=Skrivebordoversikt
 Name[pl]=Desk Guide
+Name[sv]=Skrivbordsguide
 Comment=GNOME Desktop Guide (Pager)
 Comment[de]=Überblick über die Desktops (Pager)
 Comment[et]=GNOME virtuaalsete töölaudade haldur (pager)
 Comment[ja]=GNOME¥Ç¥¹¥¯¥È¥Ã¥×¥¬¥¤¥É(¥Ú¡¼¥¸¥ã¡¼)
 Comment[no]=GNOME Skrivebordsoversikt (pager)
 Comment[pl]=Pager dla GNOME
+Comment[sv]=Skrivbordsguide för GNOME
 Exec=deskguide_applet --activate-goad-server=deskguide_applet
 Icon=gnome-deskguide.png
 Terminal=0
