@@ -269,7 +269,21 @@
 	      the computer (the utmp database).  This is the default.
 	    </para>
 	  </listitem>
+
+	  <listitem>
+	    <para><symbol>--lastlog</symbol></para>
+	    <para>
+	      Always create a lastlog entry for each terminal login.
+	    </para>
+	  </listitem>
 	  
+	  <listitem>
+	    <para><symbol>--lastlog</symbol></para>
+	    <para>
+	      Do not create a lastlog entry for each terminal login.
+	    </para>
+	  </listitem>
+	  	  
 	  <listitem>
 	    <para><symbol>--title TITLE, -t TITLE</symbol></para>
 	    <para>

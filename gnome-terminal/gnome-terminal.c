@@ -32,6 +32,11 @@
 
 #include "gnome-terminal.h"
 
+/* In case old gnome-libs */
+#ifndef ZVT_TERM_DO_LASTLOG
+#   define ZVT_TERM_DO_LASTLOG 4
+#endif
+
 /* The program environment */
 extern char **environ;		
 
@@ -487,11 +492,14 @@ load_config (char *class)
 		cfg->color_type = PALETTE_CUSTOM;
 	else
 		cfg->color_type = PALETTE_LINUX;
-	cfg->bell      = gnome_config_get_bool ("bell_silenced=0");
-	cfg->blink     = gnome_config_get_bool ("blinking=0");
-	cfg->swap_keys = gnome_config_get_bool ("swap_del_and_backspace=0");
+	
+	cfg->keyboard_secured  = FALSE;
+	
+	cfg->bell              = gnome_config_get_bool ("bell_silenced=0");
+	cfg->blink             = gnome_config_get_bool ("blinking=0");
+	cfg->swap_keys         = gnome_config_get_bool ("swap_del_and_backspace=0");
 
-	cfg->login_by_default = gnome_config_get_bool ("login_by_default=0");
+	cfg->login_by_default  = gnome_config_get_bool ("login_by_default=0");
 
 #ifdef ZVT_BACKGROUND_SCROLL
 	cfg->scroll_background = gnome_config_get_bool ("scroll_background=0");
@@ -514,7 +522,7 @@ load_config (char *class)
 	cfg->termname = NULL;
 	cfg->terminal_id = 0;
 
-	cfg->update_records = ZVT_TERM_DO_UTMP_LOG|ZVT_TERM_DO_WTMP_LOG;
+	cfg->update_records = ZVT_TERM_DO_UTMP_LOG | ZVT_TERM_DO_WTMP_LOG | ZVT_TERM_DO_LASTLOG;
 
 	if (strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
@@ -1002,6 +1010,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_string ("scrollpos",
 				 cfg->scrollbar_position == SCROLLBAR_LEFT ? "left" :
 				 cfg->scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
+
 	gnome_config_set_bool   ("bell_silenced", cfg->bell);
 	gnome_config_set_bool   ("blinking", cfg->blink);
 	gnome_config_set_bool   ("swap_del_and_backspace", cfg->swap_keys);
@@ -2316,6 +2325,8 @@ load_session ()
 			cfg->update_records |= ZVT_TERM_DO_UTMP_LOG;
 		if (gnome_config_get_bool ("do_wtmp=true"))
 			cfg->update_records |= ZVT_TERM_DO_WTMP_LOG;
+		if (gnome_config_get_bool ("do_lastlog=true"))
+			cfg->update_records |= ZVT_TERM_DO_LASTLOG;
 
 		start_terminal_factory = gnome_config_get_bool ("start_terminal_factory=false");
 		use_terminal_factory = gnome_config_get_bool ("use_terminal_factory=false");
@@ -2426,11 +2437,11 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		gnome_config_set_string("window_title", cfg->window_title?cfg->window_title:"Terminal");
 		gnome_config_set_bool("do_utmp", (cfg->update_records & ZVT_TERM_DO_UTMP_LOG) != 0);
 		gnome_config_set_bool("do_wtmp", (cfg->update_records & ZVT_TERM_DO_WTMP_LOG) != 0);
-
 		gnome_config_set_bool("start_terminal_factory", 
 				      start_terminal_factory);
 		gnome_config_set_bool("use_terminal_factory",
 				      use_terminal_factory);
+		gnome_config_set_bool("do_lastlog", (cfg->update_records & ZVT_TERM_DO_LASTLOG) != 0);
 
 		gnome_config_pop_prefix ();
 		g_free (prefix);
@@ -2486,7 +2497,9 @@ enum {
         TITLE_KEY    = -13,
 	TERM_KEY     = -14,
 	START_FACTORY_KEY= -15,
-	USE_FACTORY_KEY  = -16
+	USE_FACTORY_KEY  = -16,
+	DOLASTLOG_KEY   = -17,
+	DONOLASTLOG_KEY = -18,
 };
 
 static struct poptOption cb_options [] = {
@@ -2530,6 +2543,12 @@ static struct poptOption cb_options [] = {
 
 	{ "nowtmp", '\0', POPT_ARG_NONE, NULL, DONOWTMP_KEY,
 	  N_("Do not update wtmp entry"), N_("NOWTMP") },
+
+	{ "lastlog", '\0', POPT_ARG_NONE, NULL, DOLASTLOG_KEY,
+	  N_("Update lastlog entry"), N_("LASTLOG") },
+
+	{ "nolastlog", '\0', POPT_ARG_NONE, NULL, DONOLASTLOG_KEY,
+	  N_("Do not update lastlog entry"), N_("NOLASTLOG") },
 	
 	{ "title", 't', POPT_ARG_STRING, NULL, TITLE_KEY,
           N_("Set the window title"), N_("TITLE") },
@@ -2635,6 +2654,14 @@ parse_an_arg (poptContext state,
 		cfg->update_records_xor &= ~ZVT_TERM_DO_WTMP_LOG;
 		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
+		break;
+	case DOLASTLOG_KEY:
+		cfg->update_records_and &= ~ZVT_TERM_DO_LASTLOG;
+		cfg->update_records_xor |= ZVT_TERM_DO_LASTLOG;
+		break;
+	case DONOLASTLOG_KEY:
+		cfg->update_records_and &= ~ZVT_TERM_DO_LASTLOG;
+		cfg->update_records_xor &= ~ZVT_TERM_DO_LASTLOG;
 		break;
 	case TITLE_KEY:
 	        cfg->window_title = g_strdup(arg);
