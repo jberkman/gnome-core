@@ -1555,7 +1555,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);
+	/*gtk_container_set_border_width (GTK_CONTAINER (hbox), 2);*/
 	gtk_box_set_spacing (GTK_BOX (hbox), 3);
 	gtk_widget_show (hbox);
 	get_shell_name (&shell, &name, cfg->invoke_as_login_shell);

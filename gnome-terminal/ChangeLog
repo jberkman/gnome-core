@@ -1,3 +1,10 @@
+1999-01-06  Jonathan Blandford  <jrb@redhat.com>
+
+	* gnome-terminal.c (new_terminal_cmd): Commented out the border
+	width settings as the old layout was driving me crazy.  If anyone
+	wants to revert it, they can go ahead; but I think this looks much
+	better.
+
 1998-12-31 Jay Painter <jpaint@serv.net>
 
 	* gnome-terminal.c: fix the session_save geometry saving so that		the terminal geometry gets saved in terminal columns/rows instead
