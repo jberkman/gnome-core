@@ -1,3 +1,9 @@
+1998-11-04  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* transport.c: Include <sys/types.h> and reorder other includes.
+	(transport): Use `g_snprintf' instead of `snprintf'.
+	(transportHTTP): Likewise.
+
 Wed Oct 28 Felix Bellaby <felix@pooh.u-net.com>
 
 	* help-caller.c (main): use proper repo_id.

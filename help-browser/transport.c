@@ -5,9 +5,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 
 #include <glib.h>
@@ -30,7 +31,7 @@ transport( docObj obj, DataCache cache )
     gint len;
 
     url = docObjGetDecomposedUrl(obj);
-    snprintf(key, sizeof(key), "%s://%s%s", url->access, url->host, url->path);
+    g_snprintf(key, sizeof key, "%s://%s%s", url->access, url->host, url->path);
 
     if (docObjUseCache(obj) && cache) {
 	p = lookupInDataCacheWithLen(cache, key, &len);
@@ -167,10 +168,10 @@ transportHTTP( docObj obj )
 	return -1;
     }
 
-    if (sizeof (buf) == snprintf(buf, sizeof(buf),
-				 "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n",
-				 docObjGetDecomposedUrl(obj)->path,
-				 docObjGetDecomposedUrl(obj)->host)) {
+    if (sizeof (buf) == g_snprintf(buf, sizeof buf,
+				   "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n",
+				   docObjGetDecomposedUrl(obj)->path,
+				   docObjGetDecomposedUrl(obj)->host)) {
         g_warning ("buffer too small");
 	return -1;
     }
