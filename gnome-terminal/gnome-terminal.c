@@ -624,7 +624,7 @@ switch_terminal_class (ZvtTerm *term, struct terminal_config *newcfg)
 	if (!prefs->changed){
 	    /* just do it! */
 	    switch_terminal_cb (NULL, 0, term);
-	    free (newcfg);
+	    terminal_config_free (newcfg);
 	    gtk_object_set_data (GTK_OBJECT (term), "newcfg", NULL);
 	    return;
 	}
