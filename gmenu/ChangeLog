@@ -1,3 +1,19 @@
+1999-01-21  Nat Friedman  <nat@nat.org>
+
+	* gmenu.c (main): Initialize support for dropping menu items onto
+ 	the ctree.
+	(possible_drag_item_pressed): Save the GtkCTreeNode being dragged
+ 	in drop_data.
+
+	(drag_data_get_cb): Handle drops to external apps and to gmenu.
+
+	(folder_drag_data_received): New function to handle drops onto the
+ 	ctree.  Move a menu item here if the user has write permission, and
+	the drop was on a folder.
+
+	* tree.c (tree_item_selected): Always update the edit area when
+ 	someone clicks on a tree item.
+
 1999-01-18  Jeff Garzik  <jgarzik@pobox.com>
 
 	* gmenu.c (main):

@@ -18,6 +18,7 @@ static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer da
 static void get_ctree_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static gint get_ctree_count(GtkCTree *ctree);
 
+
 /* new = TRUE, increment feet = FALSE */
 static void update_pbar(GtkWidget *pbar)
 {
@@ -346,8 +347,11 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 			}
 		}
 
+	update_edit_area (d);
+
 	return;
 }
+
 
 /* if node is null it is appended, if it is a sibling, it is inserted */
 GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file)
@@ -376,12 +380,14 @@ GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode 
 		text[0] = d->name;
 		text[1] = NULL;
 		if (d->isfolder)
+		  {
 			node = gtk_ctree_insert_node (GTK_CTREE(ctree), parent, node, text, 5,
 				GNOME_PIXMAP(d->pixmap)->pixmap,
 				GNOME_PIXMAP(d->pixmap)->mask,
 				GNOME_PIXMAP(d->pixmap)->pixmap,
 				GNOME_PIXMAP(d->pixmap)->mask,
 				FALSE, FALSE);
+		  }
 		else
 			node = gtk_ctree_insert_node (GTK_CTREE(ctree), parent, node, text, 5,
 				GNOME_PIXMAP(d->pixmap)->pixmap,
