@@ -1,5 +1,10 @@
 1999-09-18  Anders Carlsson  <anders.carlsson@tordata.se>
 
+	* gnome-tasklist.png
+	  tasklist_applet.desktop: Added applet icon
+
+1999-09-18  Anders Carlsson  <anders.carlsson@tordata.se>
+
 	* tasklist_applet.c: Fixed a small bug with the handle
 
 1999-09-18  Anders Carlsson  <anders.carlsson@tordata.se>

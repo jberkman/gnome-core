@@ -26,6 +26,9 @@ EXTRA_DIST = \
 	tasklist_applet.desktop \
 	unknown.xpm
 
+pixmapdir = $(datadir)/pixmaps
+pixmap_DATA = gnome-tasklist.png
+
 sysdir = $(datadir)/applets/Utility
 sys_DATA = tasklist_applet.desktop 
 

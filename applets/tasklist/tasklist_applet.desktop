@@ -14,6 +14,6 @@ Comment[no]=GNOME oppgaveliste
 Comment[pl]=Lista zadañ dla GNOME
 Comment[sv]=Programlist för GNOME
 Exec=tasklist_applet --activate-goad-server=tasklist_applet
-Icon=
+Icon=gnome-tasklist.png
 Terminal=0
 Type=Application
