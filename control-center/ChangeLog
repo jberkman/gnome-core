@@ -1,3 +1,7 @@
+Fri Aug 21 13:15:17 1998  Jonathan Blandford <jrb@redhat.com>
+	* test.c: Hmm, thought i'd already deleted this file.
+	It's gone now...
+	
 Fri Aug 21 13:12:35 1998  Jonathan Blandford <jrb@redhat.com>
 	* Checked in an even newer revision.  A lot more useable now. 
 	I will start doing proper Changelog entries now. (:
