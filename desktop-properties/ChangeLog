@@ -1,3 +1,8 @@
+1998-11-22  Andrew T. Veliath  <andrewtv@usa.net>
+
+	* property-ui.c (ui_setup): New UI properties: "Toolbars have flat
+	look" and "Toolbars have line separators."
+
 1998-11-21  Andrew T. Veliath  <andrewtv@usa.net>
 
 	* property-ui.c (ui_setup): New UI property: "Menubars have
