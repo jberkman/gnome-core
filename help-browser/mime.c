@@ -33,7 +33,7 @@ resolveMIME( docObj obj )
 	ref = docObjGetAbsoluteRef(obj);
 	
 	/* do simple recognition for now based on ref */
-	if (strstr(ref, "info:")) {
+	if (strstr(ref, "/info/")) {
 	        docObjSetMimeType(obj, "application/x-info");
 	} else if (strstr(ref, "/man/")) {
 		docObjSetMimeType(obj, "application/x-troff-man");

@@ -103,6 +103,8 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 		decomp->path   = g_malloc(strlen(r) + 16);
 		strcpy(decomp->path, "/usr/info/");
 		strcat(decomp->path, r);
+		obj->absoluteRef = g_malloc(strlen(decomp->path)+10);
+		sprintf(obj->absoluteRef, "file:%s", decomp->path);
 		
 		g_free(r);
 	} else if (isRelative(obj->ref)) {
