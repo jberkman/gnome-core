@@ -289,7 +289,14 @@ char *scrollbar_position_list [] = {
 	N_("Hidden"),
 	NULL
 };
-       
+
+enum {
+	COLORPAL_ROW = 1,
+	SCROLL_ROW   = 2,
+	FONT_ROW     = 3,
+	BLINK_ROW    = 4
+};
+
 static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
@@ -309,18 +316,18 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	table = gtk_table_new (0, 0, 0);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("Look")));
-	l = aligned_label (_("Color scheme:"));
+	l = aligned_label (_("Color palette:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, 1, 2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
 						  color_scheme, 0);
 	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
-			  2, 3, 1, 2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	
 	/* Font */
 	l = aligned_label (_("Font:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, 3, 4, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->font_entry = gtk_entry_new ();
 	gtk_entry_set_text (GTK_ENTRY (prefs->font_entry),
 			    gtk_object_get_user_data (GTK_OBJECT (term)));
@@ -328,22 +335,22 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->font_entry), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
-			  2, 3, 3, 4, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	o = gtk_option_menu_new ();
 	m = create_font_menu (term, GTK_SIGNAL_FUNC (prop_changed_zvt));
 	gtk_option_menu_set_menu (GTK_OPTION_MENU (o), m);
 	gtk_table_attach (GTK_TABLE (table), o,
-			  3, 4, 3, 4, 0, 0, 0, 0);
+			  3, 4, FONT_ROW, FONT_ROW+1, 0, 0, 0, 0);
 	
 	/* Scrollbar position */
 	l = aligned_label (_("Scrollbar position"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
 					       scrollbar_position_list,
 					       scrollbar_position);
 	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
-			  2, 3, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Blinking status */
 	prefs->blink_checkbox = gtk_check_button_new_with_label (_("Blinking cursor"));
@@ -352,7 +359,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->blink_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->blink_checkbox,
-			  2, 3, 5, 6, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, BLINK_ROW, BLINK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
@@ -483,6 +490,7 @@ new_terminal (void)
 
 	app = gnome_app_new ("Terminal", "Terminal");
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
+	gtk_window_set_policy  (GTK_WINDOW (app), 0, 1, 1);
 	gtk_widget_realize (app);
 	terminals = g_list_prepend (terminals, app);
 
