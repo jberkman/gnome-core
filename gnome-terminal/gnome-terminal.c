@@ -54,7 +54,8 @@ enum targets_enum {
 struct terminal_config {
 	int blink       :1; 			/* Do we want blinking cursor? */
 	int scroll_key  :1;			/* Scroll on input? */
-	int scroll_out  :1;			/* scroll on output? */
+	int scroll_out  :1;			/* Scroll on output? */
+	int swap_keys   :1;			/* Swap DEL/Backspace? */
 	int color_type; 			/* The color mode */
 	enum color_set_enum color_set;
 	char *font; 				/* Font used by the terminals */
@@ -87,6 +88,7 @@ typedef struct {
 	GtkWidget *blink_checkbox;
 	GtkWidget *scroll_kbd_checkbox;
 	GtkWidget *scroll_out_checkbox;
+	GtkWidget *swapkeys_checkbox;
 	GtkWidget *pixmap_checkbox;
 	GtkWidget *pixmap_file_entry;
 	GtkWidget *transparent_checkbox;
@@ -348,8 +350,9 @@ load_config (char *class)
 		cfg->color_type = 1;
 	else
 		cfg->color_type = 2;
-	cfg->blink = gnome_config_get_bool ("blinking-0");
-
+	cfg->blink     = gnome_config_get_bool ("blinking=0");
+	cfg->swap_keys = gnome_config_get_bool ("swap_del_and_backspace=0");
+	
 	/* Default colors in the case the color set is the custom one */
 	fore_color = gnome_config_get_string ("foreground=gray");
 	back_color = gnome_config_get_string ("background=black");
@@ -388,11 +391,12 @@ gather_changes (ZvtTerm *term)
 
 	memset (newcfg, 0, sizeof (*newcfg));
 
-	newcfg->blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
+	newcfg->blink          = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
+	newcfg->swap_keys      = GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox)->active;
 	newcfg->menubar_hidden = GTK_TOGGLE_BUTTON (prefs->menubar_checkbox)->active;
+	newcfg->scroll_out     = GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox)->active;
+	newcfg->scroll_key     = GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox)->active;
 	newcfg->scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin));
-	newcfg->scroll_out = GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox)->active;
-	newcfg->scroll_key = GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox)->active;
 
 	newcfg->transparent = GTK_TOGGLE_BUTTON (prefs->transparent_checkbox)->active;
 	newcfg->shaded = GTK_TOGGLE_BUTTON (prefs->shaded_checkbox)->active;
@@ -467,6 +471,7 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	zvt_term_set_scrollback (term, cfg->scrollback);
+	zvt_term_set_del_key_swap (term, cfg->swap_keys);
 	zvt_term_set_background (term,
 				 cfg->background_pixmap?cfg->pixmap_file:NULL,
 				 cfg->transparent, cfg->shaded);
@@ -741,22 +746,23 @@ char *scrollbar_position_list [] = {
 };
 
 enum {
-	COLORPAL_ROW  = 1,
-	FOREBACK_ROW  = 2,
-	FORECOLOR_ROW = 3,
-	BACKCOLOR_ROW = 4,
-	CLASS_ROW    = 1,
-	FONT_ROW      = 2,
-	BLINK_ROW     = 3,
-	MENUBAR_ROW    = 4,
-	PIXMAP_ROW	= 5,
-	PIXMAP_FILE_ROW	= 6,
-	TRANSPARENT_ROW = 7,
-	SHADED_ROW    = 8,
-	SCROLL_ROW    = 1,
-	SCROLLBACK_ROW = 2,
-	KBDSCROLL_ROW = 3,
-	OUTSCROLL_ROW = 4
+	COLORPAL_ROW    = 1,
+	FOREBACK_ROW    = 2,
+	FORECOLOR_ROW   = 3,
+	BACKCOLOR_ROW   = 4,
+	CLASS_ROW       = 1,
+	FONT_ROW        = 2,
+	BLINK_ROW       = 3,
+	MENUBAR_ROW     = 4,
+	SWAPKEYS_ROW    = 5,
+	PIXMAP_ROW	= 6,
+	PIXMAP_FILE_ROW	= 7,
+	TRANSPARENT_ROW = 8,
+	SHADED_ROW      = 9,
+	SCROLL_ROW      = 1,
+	SCROLLBACK_ROW  = 2,
+	KBDSCROLL_ROW   = 3,
+	OUTSCROLL_ROW   = 4
 };
 
 /* called back to free the ColorSelector */
@@ -869,6 +875,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
 			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
+	/* Swap keys */
+	prefs->swapkeys_checkbox = gtk_check_button_new_with_label (_("Swap DEL/Backsapce"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox),
+				     cfg->swap_keys ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->swapkeys_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->swapkeys_checkbox,
+			  2, 3, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	
 	/* Background Pixmap checkbox */
 	prefs->pixmap_checkbox = gtk_check_button_new_with_label (_("Background pixmap"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox),
@@ -1056,6 +1071,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg)
 				 cfg->scrollbar_position == SCROLLBAR_LEFT ? "left" :
 				 cfg->scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
 	gnome_config_set_bool   ("blinking", cfg->blink);
+	gnome_config_set_bool   ("swap_del_and_backspace", cfg->swap_keys);
 	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
 	gnome_config_set_int    ("color_set", cfg->color_set);
 	gnome_config_set_string ("color_scheme",
@@ -1645,27 +1661,37 @@ enum {
 	CLASS_KEY    = -9
 };
 
-static struct poptOption cb_options[] = {
-  {NULL, '\0', POPT_ARG_CALLBACK, parse_an_arg, 0},
-  {"class", '\0', POPT_ARG_STRING, NULL, CLASS_KEY,
-   N_("Terminal class name"), N_("CLASS")},
-  {"font", '\0', POPT_ARG_STRING, NULL, FONT_KEY,
-   N_("Specifies font name"), N_("FONT")},
-  {"nologin", '\0', POPT_ARG_NONE, NULL, NOLOGIN_KEY,
-   N_("Do not start up shells as logins shells"), NULL},
-  {"login", '\0', POPT_ARG_NONE, NULL, LOGIN_KEY,
-   N_("Start up shells as logins shells"), NULL},
-  {"geometry", '\0', POPT_ARG_STRING, NULL, GEOMETRY_KEY,
-   N_("Specifies the geometry for the main window"), N_("GEOMETRY")},
-  {"command", 'e', POPT_ARG_STRING, NULL, COMMAND_KEY,
-   N_("Execute this program instead of a shell"), N_("COMMAND")},
-  {"foreground", '\0', POPT_ARG_STRING, NULL, FORE_KEY,
-   N_("Foreground color"), N_("COLOR")},
-  {"background", '\0', POPT_ARG_STRING, NULL, BACK_KEY,
-   N_("Background color"), N_("COLOR")},
-  {"discard", '\0', POPT_ARG_STRING, NULL, DISCARD_KEY,
-   NULL, N_("ID")},
-  {NULL, '\0', 0, NULL, 0}
+static struct poptOption cb_options [] = {
+	{ NULL, '\0', POPT_ARG_CALLBACK, parse_an_arg, 0},
+
+	{ "class", '\0', POPT_ARG_STRING, NULL, CLASS_KEY,
+	  N_("Terminal class name"), N_("CLASS")},
+
+	{ "font", '\0', POPT_ARG_STRING, NULL, FONT_KEY,
+	  N_("Specifies font name"), N_("FONT")},
+
+	{ "nologin", '\0', POPT_ARG_NONE, NULL, NOLOGIN_KEY,
+	  N_("Do not start up shells as logins shells"), NULL},
+
+	{ "login", '\0', POPT_ARG_NONE, NULL, LOGIN_KEY,
+	  N_("Start up shells as logins shells"), NULL},
+
+	{ "geometry", '\0', POPT_ARG_STRING, NULL, GEOMETRY_KEY,
+	  N_("Specifies the geometry for the main window"), N_("GEOMETRY")},
+
+	{ "command", 'e', POPT_ARG_STRING, NULL, COMMAND_KEY,
+	  N_("Execute this program instead of a shell"), N_("COMMAND")},
+
+	{ "foreground", '\0', POPT_ARG_STRING, NULL, FORE_KEY,
+	  N_("Foreground color"), N_("COLOR")},
+
+	{ "background", '\0', POPT_ARG_STRING, NULL, BACK_KEY,
+	  N_("Background color"), N_("COLOR")},
+
+	{ "discard", '\0', POPT_ARG_STRING, NULL, DISCARD_KEY,
+	  NULL, N_("ID")},
+
+	{ NULL, '\0', 0, NULL, 0}
 };
 
 static void

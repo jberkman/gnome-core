@@ -1,3 +1,8 @@
+1998-11-11  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c: Add support for setting the DEL/Backspace
+	swapping.
+
 1998-11-11  Martin Baulig  <martin@home-of-linux.org>
 
 	* gnome-terminal.c: Use `invoke_as_login_shell' from the command
