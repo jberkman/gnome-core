@@ -102,12 +102,13 @@ delete_desktop_entry(gchar *path)
 	{
 	  new_current_node = GTK_CTREE_ROW(node)->parent;
 	  if (GTK_CTREE_ROW(new_current_node)->children != node
-	      && GTK_CTREE_ROW(new_current_node)->children != NULL)	{
-	    new_current_node = GTK_CTREE_ROW(node)->children;
-	    while(GTK_CTREE_ROW(new_current_node)->sibling != node
-		  && GTK_CTREE_ROW(new_current_node)->sibling != NULL)
-	      new_current_node = GTK_CTREE_ROW(new_current_node)->sibling;
-	  }
+	      && GTK_CTREE_ROW(new_current_node)->children != NULL)
+	    {
+	      new_current_node = GTK_CTREE_ROW(new_current_node)->children;
+	      while(GTK_CTREE_ROW(new_current_node)->sibling != node
+		    && GTK_CTREE_ROW(new_current_node)->sibling != NULL)
+		new_current_node = GTK_CTREE_ROW(new_current_node)->sibling;
+	    }
 	}
     }
   else
