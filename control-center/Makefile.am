@@ -8,6 +8,7 @@ gnomecc_SOURCES =	\
 	main.c		\
 	tree.c		\
 	callbacks.c	\
+	control-center-widget.c \
 	$(CORBA_SRCLIST)
 
 

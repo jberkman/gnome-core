@@ -35,8 +35,7 @@ GNOME_control_panel_cpo_request_id(GNOME_control_panel _obj,
    {
       GIOP_unsigned_long len = cookie ? (strlen(cookie) + 1) : 0;
 
-      giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 4);
-      giop_send_buffer_append_mem_indirect(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
+      giop_send_buffer_append_mem_indirect_a(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
       if (cookie)
 	 giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), cookie, len);
    }
@@ -99,15 +98,13 @@ GNOME_control_panel_cpo_register(GNOME_control_panel _obj,
    {
       GIOP_unsigned_long len = ior ? (strlen(ior) + 1) : 0;
 
-      giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 4);
-      giop_send_buffer_append_mem_indirect(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
+      giop_send_buffer_append_mem_indirect_a(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
       if (ior)
 	 giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), ior, len);
    }
 
    /* marshal parameter cpo_id */
-   giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 2);
-   giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), &cpo_id, sizeof(cpo_id));
+   giop_message_buffer_append_mem_a(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), &cpo_id, sizeof(cpo_id));
 
    giop_send_buffer_write(_ORBIT_send_buffer);
    giop_send_buffer_unuse(_ORBIT_send_buffer);
@@ -154,8 +151,7 @@ GNOME_control_panel_quit(GNOME_control_panel _obj,
    {
       GIOP_unsigned_long len = cookie ? (strlen(cookie) + 1) : 0;
 
-      giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 4);
-      giop_send_buffer_append_mem_indirect(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
+      giop_send_buffer_append_mem_indirect_a(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
       if (cookie)
 	 giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), cookie, len);
    }

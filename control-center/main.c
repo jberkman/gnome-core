@@ -16,12 +16,12 @@ GtkWidget *main_window;
 GtkWidget *config_window;
 GtkWidget *status_bar;
 GtkWidget *exit_dialog;
+GtkWidget *cpw_socket;
 
-GNOME_control_panel control_panel;
-CORBA_Environment ev;
-gint label_id = 0;
+
 CORBA_ORB orb = NULL;
 CORBA_Environment ev;
+GNOME_control_panel control_panel;
 gchar *ior;
 /* prototypes */
 
@@ -58,6 +58,7 @@ GNOME_control_panel_cpo_request_id(GNOME_control_panel _obj,
                                    CORBA_Environment * ev)
 {
         g_print ("WooHoo!  got string:%s\n", cookie);
+        fflush (stdout);
         return 1;
 }
 
@@ -95,7 +96,8 @@ static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCond
 static void
 orb_add_connection(GIOPConnection *cnx)
 {
-        cnx->user_data = (gpointer)gtk_input_add_full(GIOP_CONNECTION_GET_FD(cnx),
+        g_print ("in add_connection\n");
+         cnx->user_data = (gpointer)gtk_input_add_full(GIOP_CONNECTION_GET_FD(cnx),
                                                       GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
                                                       (GdkInputFunction)orb_handle_connection,
                                                       NULL, cnx, NULL);
@@ -104,6 +106,7 @@ orb_add_connection(GIOPConnection *cnx)
 static void
 orb_remove_connection(GIOPConnection *cnx)
 {
+        g_print ("in remove_connection\n");
         gtk_input_remove((guint)cnx->user_data);
         cnx->user_data = (gpointer)-1;
 }
@@ -115,49 +118,47 @@ control_panel_corba_gtk_main_quit(void)
 }
 
 void
-control_panel_corba_gtk_init(void)
+control_panel_corba_gtk_init(gint *argc, char **argv)
 {
-        GNOME_control_panel acc;
-        PortableServer_ObjectId objid = {0, sizeof("appname_interface"), "appname_interface"};
-        char *name;
-        int n = 1;
+        PortableServer_ObjectId objid = {0, sizeof("control_center_interface"), "control_center_interface"};
+        PortableServer_POA poa;
 
-        g_message("Initializing CORBA interface...\n");
+        IIOPAddConnectionHandler = orb_add_connection;
+        IIOPRemoveConnectionHandler = orb_remove_connection;
+        CORBA_exception_init(&ev);
+        orb = CORBA_ORB_init(argc, argv, "orbit-local-orb", &ev);
 
-       CORBA_exception_init(&ev);
+        POA_GNOME_control_panel__init(&poa_control_panel_servant, &ev);
+        poa = orb->root_poa;
+        PortableServer_POAManager_activate(PortableServer_POA__get_the_POAManager(poa, &ev), &ev);
 
-       /* ORBit currently only uses IIOP, which is the internet CORBA protocol,
-          and uses the IOR addresses you see when the server intitializes. */
-       IIOPAddConnectionHandler = orb_add_connection;
-       IIOPRemoveConnectionHandler = orb_remove_connection;
+        PortableServer_POA_activate_object_with_id(poa, 
+                                                   &objid, &poa_control_panel_servant, &ev);
+        control_panel = PortableServer_POA_servant_to_reference((PortableServer_POA)orb->root_poa, 
+                                                      &poa_control_panel_servant, &ev);
 
-       /* It's not like ORBit reads the cmdline anyways, right now */
-       orb = CORBA_ORB_init(&n, &name /* dummy */, "mico-local-orb", &ev);
+        if (!control_panel) {
+                g_error ("We cannot get objref\n");
+                exit (1);
+        }
+        ior = CORBA_ORB_object_to_string(orb, control_panel, &ev);
        
-       /* more stuff I don't really comprehend */
-       POA_GNOME_control_panel__init(&poa_control_panel_servant, &ev);
-       PortableServer_POA_activate_object_with_id((PortableServer_POA)orb->root_poa, 
-                                                  &objid, &poa_control_panel_servant, &ev);
-
-       acc = PortableServer_POA_servant_to_reference((PortableServer_POA)orb->root_poa, 
-                                                     &poa_control_panel_servant, &ev);
-
-       ior = CORBA_ORB_object_to_string(orb, acc, &ev);
-       
-       /* print IOR address so the client can use it to connect to us. */
-       g_print ("%s\n", ior);
-
-       CORBA_Object_release(acc, &ev);
-
-       ORBit_custom_run_setup(orb, &ev);
+        /* print IOR address so the client can use it to connect to us. */
+        g_print ("%s\n", ior);fflush (stdout);
+        
+        CORBA_Object_release(control_panel, &ev);
+        //        CORBA_ORB_run(orb, &ev);
+        ORBit_custom_run_setup(orb, &ev);
 }
+
 void
-control_panel_corba_gtk_main (void)
+control_panel_corba_gtk_main (gint *argc, char **argv)
 {
         if(!orb)
-                control_panel_corba_gtk_init();
-
+                control_panel_corba_gtk_init( argc, argv);
+        g_print ("calling gtk_main\n");
         gtk_main();
+        g_print ("done calling gtk_main\n");
 }
 GtkWidget *
 create_exit_dialog (GList *apps)
@@ -250,13 +251,16 @@ create_window ()
         gtk_paned_gutter_size (GTK_PANED (hpane), 10);
         tree = generate_tree();
         config_window = gtk_drawing_area_new ();
+        cpw_socket = gtk_socket_new ();
         gdk_imlib_load_file_to_pixmap ("splash.png", &temp_splash, NULL);
         gtk_widget_set_usize (config_window, 500, 375);
+        gtk_widget_set_usize (cpw_socket, 500, 375);
         status_bar = gtk_statusbar_new();
 
         /* we put it all together... */
         gtk_paned_add1 (GTK_PANED (hpane), tree);
-        gtk_paned_add2 (GTK_PANED (hpane), config_window);
+        //        gtk_paned_add2 (GTK_PANED (hpane), config_window);
+        gtk_paned_add2 (GTK_PANED (hpane), cpw_socket);
         gtk_box_pack_end (GTK_BOX (vbox), status_bar, FALSE, FALSE, 0);
         gtk_box_pack_end (GTK_BOX (vbox), hpane, TRUE, TRUE, 0);
         gnome_app_set_contents(GNOME_APP(retval), vbox);
@@ -267,23 +271,20 @@ create_window ()
         gtk_widget_show (tree);
         gtk_widget_show (status_bar);
         gtk_widget_show (retval);
+        gtk_widget_show (cpw_socket);
         gtk_widget_show (config_window);
-        gdk_window_set_back_pixmap (config_window->window, temp_splash, FALSE);
+        //gdk_window_set_back_pixmap (config_window->window, temp_splash, FALSE);
+        gdk_window_set_back_pixmap (cpw_socket->window, temp_splash, FALSE);
         return retval;
 }
-
 gint
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
-        gint retval;
-        CORBA_ORB orb;
-        CORBA_exception_init(&ev);
         gnome_init("desktop-manager", NULL, argc, argv, 0, NULL);
-        orb = CORBA_ORB_init(&argc, argv, "orbit-local-orb", &ev);
 
 
         main_window = create_window ();
-        control_panel_corba_gtk_main ();
+        control_panel_corba_gtk_main (&argc, argv);
         /* when does control_panel get set? */
         /*        CORBA_Object_release(control_panel, &ev); */
         return 0;
