@@ -283,7 +283,9 @@ draw_task (TasklistTask *task)
 		text_width = gdk_string_width (area->style->font, tempstr);
 		gdk_draw_string (area->window,
 				 area->style->font,
-				 area->style->fg_gc[0],
+				 GWMH_TASK_FOCUSED (task->gwmh_task) ?
+				 area->style->fg_gc[GTK_STATE_ACTIVE] :
+				 area->style->fg_gc[GTK_STATE_NORMAL],
 				 task->x +
 				 (Config.show_mini_icons ? 8 : 0) +
 				 ((task->width - text_width) / 2),
