@@ -50,10 +50,10 @@ extern GtkWidget *pathlabel;
 
 extern GtkObject *edit_area;
 
-extern GList *topnode;
-extern GList *usernode;
-extern GList *systemnode;
-extern GList *current_node;
+extern GtkCTreeNode *topnode;
+extern GtkCTreeNode *usernode;
+extern GtkCTreeNode *systemnode;
+extern GtkCTreeNode *current_node;
 extern gchar *current_path;
 
 extern Desktop_Data *edit_area_orig_data;
@@ -68,14 +68,14 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename);
 
 /* tree.c ---------------- */
 
-GList *find_file_in_tree(GtkCTree * ctree, char *path);
-void update_tree_highlight(GtkWidget *w, GList *old, GList *new, gint move);
+GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path);
+void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint move);
 void move_down_cb(GtkWidget *w, gpointer data);
 void move_up_cb(GtkWidget *w, gpointer data);
-int is_node_editable(GList *node);
+int is_node_editable(GtkCTreeNode *node);
 void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data);
-GList *add_leaf_node(GtkCTree *ctree, GList *parent, GList *node, char *file);
-void add_tree_node(GtkCTree *ctree, GList *parent);
+GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file);
+void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent);
 void add_main_tree_node();
 
 /* edit.c ---------------- */
@@ -90,7 +90,7 @@ GtkWidget * create_edit_area();
 /* order.c --------------- */
 
 GList *get_order_of_dir(char *dir);
-void save_order_of_dir(GList *node);
+void save_order_of_dir(GtkCTreeNode *node);
 void free_desktop_data(Desktop_Data *d);
 Desktop_Data * get_desktop_file_info (char *file);
 

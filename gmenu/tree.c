@@ -7,14 +7,14 @@
 #include "gmenu.h"
 #include "top.xpm"
 
-static void move_item_down(GList *node);
-static void move_item_up(GList *node);
-static void add_tree_recurse_cb(GtkCTree *ctree, GList *node, gpointer data);
+static void move_item_down(GtkCTreeNode *node);
+static void move_item_up(GtkCTreeNode *node);
+static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 
 /* if ctree = null, reset ret. if node = null, return ret. */
-static GList *check_file_match(GtkCTree *ctree, GList *node, gpointer data)
+static GtkCTreeNode *check_file_match(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 {
-	static GList *ret = NULL;
+	static GtkCTreeNode *ret = NULL;
 	char *path = data;
 	Desktop_Data *d;
 
@@ -39,9 +39,9 @@ static GList *check_file_match(GtkCTree *ctree, GList *node, gpointer data)
 		return NULL;
 }
 
-GList *find_file_in_tree(GtkCTree * ctree, char *path)
+GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path)
 {
-	GList *node = NULL;
+	GtkCTreeNode *node = NULL;
 
 	/* reset the static pointer */
 	check_file_match(NULL, NULL, NULL);
@@ -55,7 +55,7 @@ GList *find_file_in_tree(GtkCTree * ctree, char *path)
 	return node;
 }
 
-void update_tree_highlight(GtkWidget *w, GList *old, GList *new, gint move)
+void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint move)
 {
         if (old) gtk_ctree_unselect(GTK_CTREE(w),old);
 
@@ -88,11 +88,11 @@ void update_tree_highlight(GtkWidget *w, GList *old, GList *new, gint move)
 		gtk_ctree_moveto (GTK_CTREE(w), new, 0, 0.5, 0.0);
 }
 
-static void move_item_down(GList *node)
+static void move_item_down(GtkCTreeNode *node)
 {
-	GList *parent = GTK_CTREE_ROW(node)->parent;
-	GList *sibling = GTK_CTREE_ROW(node)->sibling;
-	GList *next;
+	GtkCTreeNode *parent = GTK_CTREE_ROW(node)->parent;
+	GtkCTreeNode *sibling = GTK_CTREE_ROW(node)->sibling;
+	GtkCTreeNode *next;
 	int row;
 
 	if (!sibling) return;
@@ -100,20 +100,20 @@ static void move_item_down(GList *node)
 	gtk_ctree_move(GTK_CTREE(menu_tree_ctree), sibling, parent, node);
 	save_order_of_dir(parent);
 
-	if (node->next)
-		next = node->next;
+	if ((GList *)(((GList *)node)->next))
+		next = GTK_CTREE_NODE((GList *)(((GList *)node)->next));
 	else
 		next = node;
-	row = g_list_position(topnode, next);
+	row = g_list_position((GList *)topnode, (GList *)next);
 	if (!gtk_clist_row_is_visible(GTK_CLIST(menu_tree_ctree),row ))
 		gtk_ctree_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 1.0, 0.0);
 }
 
-static void move_item_up(GList *node)
+static void move_item_up(GtkCTreeNode *node)
 {
-	GList *parent = GTK_CTREE_ROW(node)->parent;
-	GList *sibling = GTK_CTREE_ROW(parent)->children;
-	GList *next;
+	GtkCTreeNode *parent = GTK_CTREE_ROW(node)->parent;
+	GtkCTreeNode *sibling = GTK_CTREE_ROW(parent)->children;
+	GtkCTreeNode *next;
 	int row;
 
 	if (sibling == node) return;
@@ -123,11 +123,11 @@ static void move_item_up(GList *node)
 	gtk_ctree_move(GTK_CTREE(menu_tree_ctree), node, parent, sibling);
 	save_order_of_dir(parent);
 
-	if (node->prev)
-		next = node->prev;
+	if ((GList *)(((GList *)node)->prev))
+		next = GTK_CTREE_NODE((GList *)(((GList *)node)->prev));
 	else
 		next = node;
-	row = g_list_position(topnode, next);
+	row = g_list_position((GList *)topnode, (GList *)next);
 	if (!gtk_clist_row_is_visible(GTK_CLIST(menu_tree_ctree),row ))
 		gtk_ctree_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 0.0, 0.0);
 }
@@ -146,11 +146,11 @@ void move_up_cb(GtkWidget *w, gpointer data)
 	move_item_up(current_node);
 }
 
-int is_node_editable(GList *node)
+int is_node_editable(GtkCTreeNode *node)
 {
 	Desktop_Data *d;
 	gboolean leaf;
-	GList *parent;
+	GtkCTreeNode *parent;
 
 	gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),node,
 		NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
@@ -169,12 +169,12 @@ int is_node_editable(GList *node)
 void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 {
 	gint row, col;
-	GList *node;
+	GtkCTreeNode *node;
 	Desktop_Data *d;
 
 	gtk_clist_get_selection_info (GTK_CLIST (ctree), event->x, event->y,
                                       &row, &col);
-	node = g_list_nth (GTK_CLIST (ctree)->row_list, row);
+	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (ctree)->row_list, row));
 
 	if (!node) return;
 
@@ -204,7 +204,7 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 }
 
 /* if node is null it is appended, if it is a sibling, it is inserted */
-GList *add_leaf_node(GtkCTree *ctree, GList *parent, GList *node, char *file)
+GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file)
 {
 	Desktop_Data *d;
 	Desktop_Data *parent_data;
@@ -245,12 +245,12 @@ GList *add_leaf_node(GtkCTree *ctree, GList *parent, GList *node, char *file)
 	return node;
 }
 
-void add_tree_node(GtkCTree *ctree, GList *parent)
+void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent)
 {
 	DIR *dp; 
 	struct dirent *dir;
 
-	GList *node = NULL;
+	GtkCTreeNode *node = NULL;
 	GList *orderlist = NULL;
 	Desktop_Data *parent_data;
 
@@ -322,7 +322,7 @@ void add_tree_node(GtkCTree *ctree, GList *parent)
 	closedir(dp);
 }
 
-static void add_tree_recurse_cb(GtkCTree *ctree, GList *node, gpointer data)
+static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 {
 	Desktop_Data *d = gtk_ctree_get_row_data(GTK_CTREE(ctree), node);
 	if (d->isfolder && !d->expanded ) add_tree_node(ctree, node);
@@ -409,9 +409,9 @@ void add_main_tree_node()
 
 	/* now load the entire menu tree */
 	c = 0;
-	while (g_list_length(topnode) > c)
+	while (g_list_length((GList *)topnode) > c)
 		{
-		c = g_list_length(topnode);
+		c = g_list_length((GList *)topnode);
 		gtk_ctree_pre_recursive(GTK_CTREE(menu_tree_ctree), topnode, add_tree_recurse_cb, NULL);
 		}
 

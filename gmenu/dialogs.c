@@ -49,8 +49,8 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 		else
 			{
 			Desktop_Data *d;
-			GList *parent;
-			GList *node;
+			GtkCTreeNode *parent;
+			GtkCTreeNode *node;
 			d = get_desktop_file_info (full_path);
 			if (d)
 				{
@@ -147,7 +147,7 @@ static void delete_dialog_cb( gint button, gpointer data)
 	if (!button)
 		{
 		Desktop_Data *d;
-		GList *node;
+		GtkCTreeNode *node;
 		d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
 
 		if (d->isfolder)
@@ -250,8 +250,8 @@ static void save_dialog_cb( gint button, gpointer data)
 	if (!button)
 		{
 		Desktop_Data *d;
-		GList *node;
-		GList *parent;
+		GtkCTreeNode *node;
+		GtkCTreeNode *parent;
 		gint overwrite;
 		char *path;
 		GnomeDesktopEntry *dentry = NULL;

@@ -20,10 +20,10 @@ GtkWidget *pathlabel;
 
 GtkObject *edit_area;
 
-GList *topnode;
-GList *usernode;
-GList *systemnode;
-GList *current_node = NULL;
+GtkCTreeNode *topnode;
+GtkCTreeNode *usernode;
+GtkCTreeNode *systemnode;
+GtkCTreeNode *current_node = NULL;
 gchar *current_path;
 
 Desktop_Data *edit_area_orig_data = NULL;
@@ -95,7 +95,7 @@ static void dnd_data_dropped(GtkWidget *widget, GdkEventDropDataAvailable *event
 	char *ptr = event->data;*/
 	int row, col;
 	int winx, winy;
-	GList *node;
+	GtkCTreeNode *node;
 	Desktop_Data *d;
 
 	g_print("drop");
@@ -105,7 +105,7 @@ static void dnd_data_dropped(GtkWidget *widget, GdkEventDropDataAvailable *event
 	gdk_window_get_origin (GTK_CLIST (widget)->clist_window, &winx, &winy);
 	gtk_clist_get_selection_info (GTK_CLIST (menu_tree_ctree), event->coords.x - winx, event->coords.y - winy, &row, &col);
 
-	node = g_list_nth (GTK_CLIST (menu_tree_ctree)->row_list, row);
+	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (menu_tree_ctree)->row_list, row));
 
 	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
 

@@ -1,3 +1,9 @@
+Sat Aug  1 22:32:24 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.[ch], dialogs.c, order.c, tree.c: Changed all casts of GList *
+	to GtkCTreeNode *'s where applicable, and fixed all the other casts
+	broken by the GtkCtree change. Fun with casting :)
+
 Mon Jul 27 18:24:20 1998  John Ellis  <johne@bellatlantic.net>
 
 	* tree.c (add_main_tree_node): instead of root, check for system menu

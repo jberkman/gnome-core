@@ -39,12 +39,12 @@ GList *get_order_of_dir(char *dir)
 	return list;
 }
 
-void save_order_of_dir(GList *node)
+void save_order_of_dir(GtkCTreeNode *node)
 {
 	Desktop_Data *d;
 	gboolean leaf;
-	GList *parent;
-	GList *row;
+	GtkCTreeNode *parent;
+	GtkCTreeNode *row;
 	char *row_file;
 	FILE *f;
 
