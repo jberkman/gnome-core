@@ -37,6 +37,7 @@ mouse_read (void)
 {
   unsigned char buttons[MAX_BUTTONS];
   int acc_num, acc_den, thresh;
+  int rtol_default;
 
   mouse_nbuttons = XGetPointerMapping (GDK_DISPLAY (), buttons, MAX_BUTTONS);
   assert (mouse_nbuttons <= MAX_BUTTONS);
@@ -46,8 +47,9 @@ mouse_read (void)
      We could handle this by showing the mouse buttons and letting the
      user drag-and-drop them to reorder.  But I'm not convinced this
      is worth it.  */
-  mouse_rtol = gnome_config_get_int ("/Desktop/Mouse/right-to-left=-1");
-  if (mouse_rtol == -1)
+  mouse_rtol = gnome_config_get_bool_with_default ("/Desktop/Mouse/right-to-left=false",
+						   &rtol_default);
+  if (rtol_default)
     mouse_rtol = (buttons[mouse_nbuttons - 1] == 1);
 
   mouse_thresh = gnome_config_get_int ("/Desktop/Mouse/threshold=-1");
@@ -83,8 +85,7 @@ mouse_write (void)
 {
   gnome_config_set_int ("/Desktop/Mouse/acceleration", mouse_acceleration);
   gnome_config_set_int ("/Desktop/Mouse/threshold", mouse_thresh);
-  gnome_config_set_string ("/Desktop/Mouse/right-to-left",
-			   mouse_rtol ? "true" : "false");
+  gnome_config_set_bool ("/Desktop/Mouse/right-to-left", mouse_rtol);
 }
 
 static void

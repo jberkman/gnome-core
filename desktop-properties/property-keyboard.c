@@ -33,15 +33,17 @@ static XF86MiscKbdSettings kbdsettings;
 
 static void keyboard_read(void)
 {
+	int repeat_default, click_default;
+
 	keyboard_rate = gnome_config_get_int("/Desktop/Keyboard/rate=-1");
 	keyboard_delay = gnome_config_get_int("/Desktop/Keyboard/delay=-1");
-	keyboard_repeat = gnome_config_get_int("/Desktop/Keyboard/repeat=-1");
+	keyboard_repeat = gnome_config_get_bool_with_default ("/Desktop/Keyboard/repeat=false", &repeat_default);
         click_volume = gnome_config_get_int("/Desktop/Keyboard/clickvolume=-1");
-        click_on_keypress = gnome_config_get_int("/Desktop/Keyboard/click=-1");
+        click_on_keypress = gnome_config_get_bool_with_default("/Desktop/Keyboard/click=false", &click_default);
 
 	XGetKeyboardControl(GDK_DISPLAY(), &kbdstate);
 
-	if (keyboard_repeat == -1) {
+	if (repeat_default) {
 		keyboard_repeat = kbdstate.global_auto_repeat;
 	}
 	if (keyboard_rate == -1 || keyboard_delay == -1) {
@@ -56,7 +58,7 @@ static void keyboard_read(void)
 #endif
 	}
 
-	if (click_on_keypress == -1) {
+	if (click_default) {
 		click_on_keypress =  (kbdstate.key_click_percent == 0);
 	}
 	if (click_volume == -1) {
@@ -66,12 +68,10 @@ static void keyboard_read(void)
 
 static void keyboard_write(void)
 {
-	gnome_config_set_string("/Desktop/Keyboard/repeat",
-				keyboard_repeat ? "true" : "false");
+	gnome_config_set_bool("/Desktop/Keyboard/repeat", keyboard_repeat);
 	gnome_config_set_int("/Desktop/Keyboard/delay", keyboard_delay);
 	gnome_config_set_int("/Desktop/Keyboard/rate", keyboard_rate);
-	gnome_config_set_string("/Desktop/Keyboard/click",
-				click_on_keypress ? "true" : "false");
+	gnome_config_set_bool("/Desktop/Keyboard/click", click_on_keypress);
 	gnome_config_set_int("/Desktop/Keyboard/clickvolume", click_volume);
 }
 

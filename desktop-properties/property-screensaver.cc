@@ -364,7 +364,7 @@ static gint
 screensaver_read ()
 {
 	css->niceV = gnome_config_get_int ("/Desktop/ScreenSaver/nice=12");
-	css->lockV = gnome_config_get_int ("/Desktop/ScreenSaver/lock=1");
+	css->lockV = gnome_config_get_bool ("/Desktop/ScreenSaver/lock=true");
 	css->waitV = g_strdup
 		(gnome_config_get_string ("/Desktop/ScreenSaver/waitMin=5"));
 
@@ -388,7 +388,7 @@ static gint
 screensaver_write ()
 {
 	gnome_config_set_int ("/Desktop/ScreenSaver/nice", css->niceV);
-	gnome_config_set_int ("/Desktop/ScreenSaver/lock", css->lockV);
+	gnome_config_set_bool ("/Desktop/ScreenSaver/lock", css->lockV);
 	gnome_config_set_string ("/Desktop/ScreenSaver/waitMin", css->waitV);
 
 	gnome_config_set_string ("/Desktop/ScreenSaver/screensaver",
