@@ -274,6 +274,7 @@ int main (int argc, char *argv[])
 	GtkTooltips *tooltips;
 
 	bindtextdomain(GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 
 	gnome_init ("GNOME menu editor", VERSION, argc, argv);

@@ -1747,8 +1747,9 @@ main (gint argc, gchar *argv[])
 	Tasklist *tasklist;
 	
 	/* Initialize i18n */
-	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
-	textdomain (PACKAGE);
+	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	textdomain (GETTEXT_PACKAGE);
 
 	applet_widget_init ("tasklist_applet",
 			    VERSION,
