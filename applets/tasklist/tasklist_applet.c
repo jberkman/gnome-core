@@ -30,9 +30,9 @@ GNOME_Panel_OrientType tasklist_orient; /* Tasklist orient */
 GtkWidget *handle; /* The handle box */
 GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
-GList *tasks; /* The list of tasks used */
+GList *tasks = NULL; /* The list of tasks used */
 
-TasklistIcon *unknown_icon; /* The unknown icon */
+TasklistIcon *unknown_icon = NULL; /* The unknown icon */
 
 gint vert_height=0; /* Vertical height, used for resizing */
 gint horz_width=0;  /* Horizontal width, used for resizing */
@@ -48,10 +48,17 @@ extern TasklistConfig Config;
 gint
 get_horz_rows(void)
 {
-	if(Config.follow_panel_size)
-		return panel_size/ROW_HEIGHT;
+	int result;
+
+	if (Config.follow_panel_size)
+		result = panel_size/ROW_HEIGHT;
 	else
-		return Config.horz_rows;
+		result = Config.horz_rows;
+
+	if (result < 1)
+		result = 1;
+
+	return result;
 }
 
 /* Shorten a label that is too long */
@@ -123,13 +130,13 @@ fixup_task_label (TasklistTask *task)
 TasklistTask *
 task_get_xy (gint x, gint y)
 {
-	GList *temp_tasks;
+	GList *temp_tasks, *temp;
 	TasklistTask *task;
 
 	temp_tasks = get_visible_tasks ();
 
-	while (temp_tasks) {
-		task = (TasklistTask *)temp_tasks->data;
+	for (temp = temp_tasks; temp != NULL; temp = temp->next) {
+		task = (TasklistTask *)temp->data;
 		if (x > task->x &&
 		    x < task->x + task->width &&
 		    y > task->y &&
@@ -137,10 +144,10 @@ task_get_xy (gint x, gint y)
 			g_list_free (temp_tasks);
 			return task;
 		}
-		temp_tasks = temp_tasks->next;
 	}
 
-	g_list_free (temp_tasks);
+	if (temp_tasks != NULL)
+		g_list_free (temp_tasks);
 
 	return NULL;
 }
@@ -156,10 +163,10 @@ get_visible_tasks (void)
 	temp_tasks = tasks;
 	while (temp_tasks) {
 		if (is_task_visible ((TasklistTask *) temp_tasks->data))
-			visible_tasks = g_list_append (visible_tasks, temp_tasks->data);
+			visible_tasks = g_list_prepend (visible_tasks, temp_tasks->data);
 		temp_tasks = temp_tasks->next;
 	}
-	return visible_tasks;
+	return g_list_reverse (visible_tasks);
 }
 
 /* Check if a task is "visible", 
@@ -277,7 +284,7 @@ void
 layout_tasklist (void)
 {
 	gint j = 0, k = 0, num = 0, p = 0;
-	GList *temp_tasks;
+	GList *temp_tasks, *temp;
 	TasklistTask *task;
 	/* gint extra_space; */
 	gint num_rows = 0, num_cols = 0;
@@ -337,8 +344,8 @@ layout_tasklist (void)
 		cury = 0;
 
 
-		while (temp_tasks) {
-			task = (TasklistTask *) temp_tasks->data;
+		for (temp = temp_tasks; temp != NULL; temp = temp->next) {
+			task = (TasklistTask *) temp->data;
 			
 			task->x = curx;
 			task->y = cury;
@@ -362,14 +369,8 @@ layout_tasklist (void)
 					curx = 0;
 				}
 			}
-			
-			if (temp_tasks->next)
-				temp_tasks = temp_tasks->next;
-			else {
-				g_list_free (temp_tasks);
-				break;
-			}
 		}
+
 		if (Config.horz_fixed)
 			horz_width = Config.horz_width;
 		else
@@ -413,8 +414,8 @@ layout_tasklist (void)
 		
 		change_size (FALSE);
 
-		while (temp_tasks) {
-			task = (TasklistTask *) temp_tasks->data;
+		for (temp = temp_tasks; temp != NULL; temp = temp->next) {
+			task = (TasklistTask *) temp->data;
 			
 			task->x = curx;
 			task->y = cury;
@@ -429,16 +430,13 @@ layout_tasklist (void)
 				cury += curheight;
 				curx = 0;
 			}
-			
-			if (temp_tasks->next)
-				temp_tasks = temp_tasks->next;
-			else {
-				g_list_free (temp_tasks);
-				break;
-			}
 		}
+
 		break;
 	}
+
+	if (temp_tasks != NULL)
+		g_list_free (temp_tasks);
 
 	
 	gtk_widget_draw (area, NULL);
@@ -590,7 +588,7 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 gboolean
 cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 {
-	GList *temp_tasks;
+	GList *temp_tasks, *temp;
 	TasklistTask *task;
 
 	temp_tasks = get_visible_tasks ();
@@ -600,9 +598,9 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 			    &event->area, area, "button",
 			    0, 0, -1, -1);
 	
-	while (temp_tasks) {
+	for (temp = temp_tasks; temp != NULL; temp = temp->next) {
 		GdkRectangle rect, dest;
-		task = (TasklistTask *)temp_tasks->data;
+		task = (TasklistTask *)temp->data;
 
 		rect.x = task->x;
 		rect.y = task->y;
@@ -611,10 +609,10 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 
 		if(gdk_rectangle_intersect(&event->area, &rect, &dest))
 			draw_task (task, &dest);
-		temp_tasks = temp_tasks->next;
 	}
 
-	g_list_free (temp_tasks);
+	if (temp_tasks != NULL)
+		g_list_free (temp_tasks);
 
 	return FALSE;
 }

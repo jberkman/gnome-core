@@ -1,3 +1,9 @@
+Wed Sep 27 21:10:23 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c: fix leaks from the get_visible_tasks.  Fix
+	  weird loops.  The horiz_rows is now returning > 0 value always,
+	  just to make sure that we don't crash on an ultratiny panel.
+
 2000-09-24  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c (layout_tasklist): Prevent segfaulting
