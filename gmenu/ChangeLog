@@ -1,3 +1,94 @@
+1999-01-25  Nat Friedman  <nat@nat.org>
+
+	* desktop.c: New file to contain all of the .desktop file
+ 	saving/loading routines.
+
+	* utils.c: New file to contain all of the little utility routines.
+	(basename_n): New function.
+
+	* dnd.c: New file which now contains all of the Drag-N-Drop
+ 	routines.
+	(gmenu_init_dnd): New function.  We no longer manually handle the
+ 	drag-n-drop, but instead use gtk_clist_set_reorderable() and
+ 	connect to the "tree_move" signal.
+	(tree_moved): Expand a tree if we drop an item into it.
+
+	* save.c: New file which handles everything that happens when the
+ 	'save' button is pressed.
+	(save_desktop_entry_file): New function that handles things much
+ 	more logically.  Specifically, we now enforce a strict mapping
+ 	between menu item names and the names of the corresponding
+ 	.desktop files.  That is, a menu item named "Foo" will be stored
+ 	in "Foo.desktop".  Doing this greatly simplifies the interface for
+ 	the average user.  We handle checking for conflicts much better
+ 	now too.
+	(set_ctree_node_data): New function to handle changes to some of a
+ 	menu item's fields.
+	(update_desktop_entry_node): New function.
+
+	* delete.c: New file to handle node/menu item deletion.
+ 	(delete_desktop_entry_file): New function to delete the
+ 	desktop file associated with a path.
+	(remove_node_cb): New function connect to the remove_node signal
+ 	on the Ctree.  It handles freeing the Desktop_Data and destroying
+ 	the file associated with a defunct menu item.  Doing deletion this
+ 	way makes recursive delete possible.
+	(delete_desktop_entry): Use this new function as the entry point
+ 	to the menu item deletion routines.  It deletes the file
+ 	associated with a menu item, destroys its CTree nodes, and resets
+ 	'current_node' if appopriate.
+	(delete_recursive_cb): Recursively delete a submenu.
+
+	* tree.c (tree_set_node): New function to be used to set the
+ 	current node.  It also updates the new current_desktop variable
+ 	and the edit area.
+	(tree_item_collapsed): New callback function.  Set the current
+ 	node appropriately.
+	
+	* gmenu.c: Added a "current_desktop" global variable.  Removed all
+ 	of the drag-n-drop functions and put them in dnd.c.  Renamed
+ 	"Folder" to "Submenu" everywhere.  Added a "New Item" menu entry.
+  	Moved the utility routines to utils.c.  Moved the new_item
+ 	callback to dialogs.c.  
+
+	(main): Connected to the tree_collapse signal so that we can reset
+ 	the current node when it is no longer visible.  Use the CTree in
+ 	BROWSE mode.  Use a pane to separate the CTree from the edit box.
+	(about_cb):  Added myself to the authors list.
+
+	Renamed "Folder" to "Submenu" everywhere.
+
+	* edit.c (edit_area_select_name): New function.  This selects the
+ 	contents of the "Name" GtkEntry widget and gives it focus.  For
+ 	use after the creation of a new menu item.
+	(edit_area_get_filename): Removed.  The filename of the .desktop
+ 	file is now hidden from the user.  It was confusing and lead to a
+ 	lot of problems to expose that information.  Besides which, the
+ 	average user doesn't care, and the users who do can very well use
+ 	a text-editor to edit the menus.
+	(create_edit_area): Removed the filename widgets.  Grab the
+ 	default on the 'save' button.  This doesn't work though, for some
+ 	reason.
+
+	* dialogs.c (create_folder): Expand the parent folder.  Use
+ 	tree_set_node() to set the current node.
+	(create_folder_pressed_cb): Renamed from create_folder_pressed.
+	(new_item_pressed_cb): New callback function for when the 'new
+ 	item' toolbar button is pressed.
+	(delete_dialog_cb): Use the new delete.c node/menu entry deletion
+ 	functions.
+	(delete_pressed_cb): "Delete this menu entry?" instead of "Delete
+ 	file?".  Handle recursive deletion of non-empty submenus.
+
+	Most of the item saving functionality has been removed from this
+ 	file, broken down into more logical functional units, and put into
+ 	save.c.
+
+	(save_pressed_cb): This function has been completely rewritten to
+ 	use the new save.c routines.
+
+	Renamed "Folder" to "Submenu" everywhere.
+
 1999-01-21  Nat Friedman  <nat@nat.org>
 
 	* gmenu.c (menu_drag_data_received): Renamed

@@ -10,8 +10,12 @@ gmenu_SOURCES =	\
 	gmenu.h			\
 	tree.c			\
 	edit.c			\
-	order.c			\
-	dialogs.c
+	dialogs.c		\
+	dnd.c			\
+	desktop.c		\
+	save.c			\
+	utils.c			\
+	delete.c
 
 gmenu_LDADD = \
 	$(GNOME_LIBDIR)					\

@@ -1,16 +1,23 @@
-/*###################################################################*/
-/*##                       gmenu (GNOME menu editor)               ##*/
-/*###################################################################*/
+/*
+ * This file is a part of gmenu, the GNOME panel menu editor.
+ *
+ * File: dialogs.c
+ *
+ * This file contains the callback routines for the toolbar buttons,
+ * and the code which creates most of the dialogs in gmenu.
+ *
+ * Authors: Nat Friedman <nat@nat.org>
+ *          John Ellis <johne@bellatlantic.net>
+ */
 
 #include <config.h>
+#include <errno.h>
 
 #include "gmenu.h"
 
 static gint close_folder_dialog_cb(GtkWidget *b, gpointer data);
 static gint create_folder_cb(GtkWidget *w, gpointer data);
 static void delete_dialog_cb( gint button, gpointer data);
-static void save_dialog_cb( gint button, gpointer data);
-
 
 static gint close_folder_dialog_cb(GtkWidget *b, gpointer data)
 {
@@ -57,8 +64,6 @@ create_folder(gchar *full_path)
 				gnome_desktop_entry_save(dentry);
 				gnome_desktop_entry_destroy(dentry);
 
-				update_edit_area(d);
-
 				text[0] = d->name;
 				text[1] = NULL;
 
@@ -90,11 +95,15 @@ create_folder(gchar *full_path)
 					node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 						GNOME_PIXMAP(d->pixmap)->pixmap,
 						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-				gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
+				gtk_ctree_node_set_row_data_full (GTK_CTREE(menu_tree_ctree), node, d, remove_node_cb);
 				save_order_of_dir(parent);
+
+				gtk_ctree_expand(GTK_CTREE(menu_tree_ctree),
+						 parent);
+
 				add_tree_node(GTK_CTREE(menu_tree_ctree), node, NULL);
-				update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
-				current_node = node;
+
+				tree_set_node(node);
 				}
 			}
 		}
@@ -123,22 +132,22 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 	return TRUE;
 }
 
-void create_folder_pressed(GtkWidget *w, gpointer data)
+void create_folder_pressed_cb(GtkWidget *w, gpointer data)
 {
 	Misc_Dialog *dlg;
 	GtkWidget *label;
 
 	if (!is_node_editable(current_node))
 		{
-		gnome_warning_dialog (_("You can't add an entry to that folder.\nYou do not have the proper permissions."));
+		gnome_warning_dialog (_("You can't add an entry to that submenu.\nYou do not have the proper permissions."));
 		return;
 		}
 
 	dlg = g_new(Misc_Dialog, 1);
 	
-	dlg->dialog = gnome_dialog_new(_("New Folder"), GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
+	dlg->dialog = gnome_dialog_new(_("New Submenu"), GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
 
-	label = gtk_label_new(_("Create Folder:"));
+	label = gtk_label_new(_("Create Submenu:"));
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dlg->dialog)->vbox),label,FALSE,FALSE,0);
 	gtk_widget_show(label);
 
@@ -156,62 +165,54 @@ void create_folder_pressed(GtkWidget *w, gpointer data)
 }
 
 
+
+void
+new_item_pressed_cb(GtkWidget *w, gpointer data)
+{
+  GtkCTreeNode *parent;
+  Desktop_Data *d;
+  GnomeDesktopEntry *dentry;
+  gchar *filename, *path;
+
+  if (! is_node_editable(current_node))
+    {
+      gnome_warning_dialog (_("You can't add an entry to that submenu.\nYou do not have the proper permissions."));
+      return;
+    }
+
+  new_edit_area();
+  dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
+
+  filename = "untitled.desktop";
+  path = g_strconcat(current_path, "/", filename, NULL);
+
+  if (! save_desktop_entry_file(dentry, path, FALSE, FALSE, TRUE))
+    {
+      g_free(path);
+      gnome_desktop_entry_destroy(dentry);
+      return;
+    }
+
+  d = get_desktop_file_info(path);
+
+  create_desktop_entry_node(d);
+
+  edit_area_select_name();
+
+  gnome_desktop_entry_destroy(dentry);
+  g_free(path);
+}
+
 static void delete_dialog_cb( gint button, gpointer data)
 {
-	if (!button)
-		{
-		Desktop_Data *d;
-		GtkCTreeNode *node;
-		d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
+  Desktop_Data *d;
+  gchar *path;
 
-		if (d->isfolder)
-			{
-			gchar *dirfile = g_concat_dir_and_file (d->path, ".directory");
-			if (g_file_exists(dirfile))
-				{
-				if ( (unlink (dirfile) < 0) )
-					g_print("Failed to delete %s\n", dirfile);
-				}
-			g_free(dirfile);
+  d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),
+				  current_node);
+  delete_desktop_entry(d->path);
 
-			if ( (rmdir (d->path) < 0) )
-				{
-				gnome_warning_dialog (_("Failed to delete the folder."));
-				return;
-				}
-			}
-		else
-			{
-			if ( (unlink (d->path) < 0) )
-				{
-				gnome_warning_dialog (_("Failed to delete the file."));
-				return;
-				}
-			}
-
-/*		g_print("deleted file: %s\n",d->path);*/
-
-		if (GTK_CTREE_ROW(current_node)->sibling)
-			node = GTK_CTREE_ROW(current_node)->sibling;
-		else
-			{
-			node = GTK_CTREE_ROW(current_node)->parent;
-			if (GTK_CTREE_ROW(node)->children != current_node)
-				{
-				node = GTK_CTREE_ROW(node)->children;
-				while(GTK_CTREE_ROW(node)->sibling != current_node) node = GTK_CTREE_ROW(node)->sibling;
-				}
-			}
-
-		update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
-		gtk_ctree_remove_node(GTK_CTREE(menu_tree_ctree),current_node);
-		current_node = node;
-
-		free_desktop_data(d);
-		save_order_of_dir(node);
-
-		new_edit_area();
-		}
+  new_edit_area();
 }
 
 void delete_pressed_cb(GtkWidget *w, gpointer data)
@@ -225,7 +226,7 @@ void delete_pressed_cb(GtkWidget *w, gpointer data)
 
 	if (current_node == topnode || current_node == usernode || current_node == systemnode)
 		{
-		gnome_warning_dialog (_("You can not delete a top level Folder."));
+		gnome_warning_dialog (_("You can not delete a top level submenu."));
 		return;
 		}
 
@@ -239,7 +240,7 @@ void delete_pressed_cb(GtkWidget *w, gpointer data)
 
 	if (isfile(d->path))
 		{
-		gnome_question_dialog (_("Delete file?"),
+		gnome_question_dialog (_("Delete this menu item?"),
 			(GnomeReplyCallback) delete_dialog_cb, NULL);
 		return;
 		}
@@ -248,216 +249,171 @@ void delete_pressed_cb(GtkWidget *w, gpointer data)
 		{
 		if (!GTK_CTREE_ROW(current_node)->children)
 			{
-			gnome_question_dialog (_("Delete empty folder?"),
+			gnome_question_dialog (_("Delete empty submenu?"),
 				(GnomeReplyCallback) delete_dialog_cb, NULL);
 			}
 		else
-			gnome_warning_dialog (_("Cannot delete folder.\nTo delete a folder. it must be empty."));
+		  {
+		    gnome_question_dialog(_("Are you sure you want to delete this submenu and all its contents?"),
+					  (GnomeReplyCallback) delete_recursive_cb, current_node);
+		  }
 		}
 	else
-		gnome_warning_dialog (_("File or Folder does not exist on filesystem."));
+	  {
+		gnome_question_dialog (_("Delete this menu item?"),
+			(GnomeReplyCallback) delete_dialog_cb, NULL);
+	  }
+
 }
-
-
-static void 
-save_dialog_cb( gint button, gpointer data)
-{
-	if (!button)
-		{
-		Desktop_Data *d;
-		GtkCTreeNode *node = NULL;
-		GtkCTreeNode *parent;
-		gint overwrite;
-		char *path;
-		GnomeDesktopEntry *dentry = NULL;
-
-
-		dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
-
-		if (edit_area_orig_data && edit_area_orig_data->isfolder)
-			{
-			path = g_strdup(edit_area_get_filename());
-			overwrite = TRUE;
-			}
-		else
-			{
-			  gchar * filename;
-
-			  /*
-			   * If they haven't bothered to change
-			   * the file name, set one for them.
-			   */
-			  if (! strcmp(edit_area_get_filename(),
-				       "untitled.desktop"))
-			    filename = g_strconcat(dentry->name, ".desktop",
-						   NULL);
-			  else
-			    filename = g_strdup(edit_area_get_filename());
-
-			  path = g_strconcat(current_path, "/", filename,
-					     NULL);
-
-			  g_free(filename);
-
-			overwrite = isfile(path);
-			}
-
-		dentry->location = g_strdup(path);
-		gnome_desktop_entry_save (dentry);
-		gnome_desktop_entry_destroy (dentry);
-
-		if (overwrite && edit_area_orig_data && edit_area_orig_data->isfolder)
-			{
-			g_free(path);
-			path = g_strdup(edit_area_orig_data->path);
-			}
-
-		d = get_desktop_file_info (path);
-		if (!d)
-			{
-			g_print("unable to load desktop file for: %s\n", path);
-			g_free(path);
-			return;
-			}
-
-		if (overwrite) node = find_file_in_tree(GTK_CTREE(menu_tree_ctree), path);
-
-		if (overwrite && node)
-			{
-			gint8 spacing;
-			gboolean leaf;
-			gboolean expanded;
-
-			free_desktop_data(gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), node));
-
-			/* since we are saving, it it safe to assume a folder's
-			submenus have been read */
-			if (d->isfolder) d->expanded = TRUE;
-
-			gtk_ctree_node_set_row_data(GTK_CTREE(menu_tree_ctree), node, d);
-
-			gtk_ctree_get_node_info (GTK_CTREE(menu_tree_ctree), node, NULL, &spacing,
-						NULL, NULL, NULL, NULL, &leaf, &expanded);
-			gtk_ctree_set_node_info (GTK_CTREE(menu_tree_ctree), node, d->name, spacing,
-						GNOME_PIXMAP(d->pixmap)->pixmap, GNOME_PIXMAP(d->pixmap)->mask,
-						GNOME_PIXMAP(d->pixmap)->pixmap, GNOME_PIXMAP(d->pixmap)->mask,
-						leaf, expanded);
-			save_order_of_dir(node);
-			}
-		else
-			{
-			gchar *text[2];
-			gboolean leaf;
-
-			text[0] = d->name;
-			text[1] = NULL;
-
-			gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),current_node,
-				NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
-
-			if (leaf)
-				{
-				node = current_node;
-				parent = GTK_CTREE_ROW(current_node)->parent;
-				}
-			else
-				{
-				parent = current_node;
-				if (GTK_CTREE_ROW(current_node)->children)
-					node = GTK_CTREE_ROW(current_node)->children;
-				else
-					node = NULL;
-				}
-
-			if (d->isfolder)
-				node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
-					GNOME_PIXMAP(d->pixmap)->pixmap,
-					GNOME_PIXMAP(d->pixmap)->mask, 
-					GNOME_PIXMAP(d->pixmap)->pixmap,
-					GNOME_PIXMAP(d->pixmap)->mask, 
-					FALSE, FALSE);
-			else
-				node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
-					GNOME_PIXMAP(d->pixmap)->pixmap,
-					GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-			gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
-			save_order_of_dir(node);
-			}
-
-		edit_area_reset_revert(d);
-
-		update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
-		current_node = node;
-		g_free(path);
-
-		/*
-		 * We may have changed the file name, so update
-		 * the dialog.
-		 */
-		update_edit_area(d);
-
-		}
-} 
 
 void
 save_pressed_cb(GtkWidget *w, gpointer data)
 {
-  save_dialog_dentry();
-}
+  gchar *orig_path, *path, *savepath;
+  GnomeDesktopEntry *dentry;
+  Desktop_Data *d, *old_d;
+  gboolean is_folder;
 
-void
-save_dialog_dentry(void)
-{
-	char *path;
-	GnomeDesktopEntry *dentry;
-	
-	path = g_strconcat(current_path, "/", edit_area_get_filename(), NULL);
+  d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), current_node);
+  if (! d->editable)
+    {
+      gnome_warning_dialog("You do not have the proper permissions to be able to modify this menu item.");
+      revert_edit_area();
+      return;
+    }
 
-	dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
-	if (!dentry->name)
-		{
-		gnome_warning_dialog (_("The Name text field can not be blank."));
-		gnome_desktop_entry_destroy(dentry);
-		return;
-		}
-	gnome_desktop_entry_destroy(dentry);
+  /*
+   * (1) Determine the path to which the menu entry should be saved.
+   */
 
-	if (!is_node_editable(current_node))
-		{
-		if (isfile(path))
-			gnome_warning_dialog (_("You can't edit an entry in that folder.\nYou do not have the proper permissions."));
-		else
-			gnome_warning_dialog (_("You can't add an entry to that folder.\nYou do not have the proper permissions."));
-		g_free(path);
-		return;
-		}
+  dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(edit_area));
 
-	if (edit_area_orig_data && edit_area_orig_data->isfolder)
-		{
-		gnome_question_dialog (_("Save Changes?"),
-			(GnomeReplyCallback) save_dialog_cb, NULL);
-		g_free(path);
-		return;
-		}
+  old_d = (Desktop_Data *) gtk_ctree_node_get_row_data(
+				      GTK_CTREE(menu_tree_ctree),
+				      current_node);
 
-	if (isfile(path))
-		{
-#if 0
-		gnome_question_dialog (_("Overwrite existing file?"),
-			(GnomeReplyCallback) save_dialog_cb, NULL);
-#else
-		save_dialog_cb(0, NULL);
-#endif
-		g_free(path);
-		return;
-		}
+  is_folder = FALSE;
+  if (edit_area_orig_data != NULL)
+    is_folder = edit_area_orig_data->isfolder;
 
-	save_dialog_cb(0, NULL);
+  if (is_folder)
+    {
+      gchar *parent_dir;
+      /*
+       * Folder
+       */
 
-#if 0
-	gnome_question_dialog (_("Save file?"),
-		(GnomeReplyCallback) save_dialog_cb, NULL);
-#endif
-	g_free(path);
+      parent_dir = g_dirname(current_path);
+      path = g_concat_dir_and_file(parent_dir, dentry->name);
+      g_free(parent_dir);
+
+      orig_path = g_strdup(current_path);
+    }
+  else
+    {
+      gchar *filename;
+      /*
+       * File
+       */
+
+      /*
+       * We insist that the menu item name correspond to the name of the
+       * .desktop entry.  This will prevent non-savvy users from shooting
+       * themselves in the foot.
+       */
+      filename = g_strconcat(dentry->name, ".desktop", NULL);
+      path = g_concat_dir_and_file(current_path, filename);
+      g_free(filename);
+      orig_path = g_strdup(old_d->path);
+    }
+
+
+  /*
+   * (2) If the path has changed, we need to:
+   *    (a) make sure the new path doesn't conflict with something
+   *    (b) rename the file
+   * And if it is a folder that's being renamed, then:
+   *    (c) Update current_path
+   */
+  
+
+  if (orig_path && strcmp(path, orig_path))
+    {
+      if (g_file_exists(path))
+	{
+	  gnome_warning_dialog(_("This change conflicts with an existing menu item.\nNo two menu items in a submenu can have the same name."));
+	  return;
+	}
+
+      if (rename(orig_path, path) < 0)
+	g_warning("Unable to rename file %s to %s: %s\n",
+		  orig_path, path, g_strerror(errno));
+
+      if (is_folder)
+	{
+	  if (current_path != NULL)
+	    g_free(current_path);
+	  current_path = g_strdup(path);
+	}
+    }
+
+  /*
+   * (3) Save the changed menu data to disk.
+   */
+
+  if (is_folder)
+    savepath = g_concat_dir_and_file(path, ".directory");
+  else
+    savepath = g_strdup(path);
+
+  if (! save_desktop_entry_file(dentry, savepath, FALSE, FALSE, FALSE))
+
+    {
+      gnome_desktop_entry_destroy (dentry);
+      g_free(path);
+      g_free(orig_path);
+      gnome_warning_dialog("Unable to write new menu data");
+      return;
+    }
+
+  g_free(savepath);
+
+
+  if (is_folder)
+    {
+      g_free(dentry->location);
+      dentry->location = g_strdup(path);
+    }
+
+  /*
+   * (4) Update the CTree
+   */
+  update_desktop_entry_node(dentry, orig_path);
+
+  /*
+   * (5) If it was a folder whose name has changed, update the paths
+   * of its descendents.
+   */
+  if (is_folder && (strcmp (path, orig_path)))
+    {
+      GtkCTreeNode *node;
+
+      node = find_file_in_tree(GTK_CTREE(menu_tree_ctree), path);
+      gtk_ctree_pre_recursive(GTK_CTREE(menu_tree_ctree), node,
+			      recalc_paths_cb, NULL);
+    }
+
+  /*
+   * (6) Update the edit area
+   */
+  d = get_desktop_file_info (path);
+
+  update_edit_area(d);
+  edit_area_reset_revert(d);
+
+  gnome_desktop_entry_destroy (dentry);
+  free_desktop_data(d);
+  g_free(orig_path);
+  g_free(path);
 }
 

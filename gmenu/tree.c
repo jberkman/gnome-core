@@ -1,6 +1,15 @@
-/*###################################################################*/
-/*##                       gmenu (GNOME menu editor)               ##*/
-/*###################################################################*/
+/*
+ * This file is a part of gmenu, the GNOME panel menu editor.
+ *
+ * File: tree.c
+ *
+ * This file contains all the routines which handle manipulating the
+ * GtkCTree used in gmenu, except some node creating/updating
+ * routines, which are in save.c.
+ *
+ * Authors: John Ellis <johne@bellatlantic.net>
+ *          Nat Friedman <nat@nat.org>
+ */
 
 #include <config.h>
 
@@ -9,15 +18,31 @@
 
 static void update_pbar(GtkWidget *pbar);
 static gint find_file_cb(gconstpointer a, gconstpointer b);
-static void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void move_item_down(GtkCTreeNode *node);
 static void move_item_up(GtkCTreeNode *node);
-static int is_node_moveable(GtkCTreeNode *node);
-static int is_file_editable(gchar *path);
 static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void get_ctree_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static gint get_ctree_count(GtkCTree *ctree);
+static void edit_pressed_cb(GtkWidget *w, gpointer data);
+static void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old,
+				  GtkCTreeNode *new, gint select);
 
+void
+tree_set_node(GtkCTreeNode *node)
+{
+  update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
+
+  current_node = node;
+  current_desktop = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),
+						node);
+  update_edit_area(current_desktop);
+}
+
+void
+tree_item_collapsed(GtkCTree *ctree, GtkCTreeNode *node)
+{
+  tree_set_node(node);
+}
 
 /* new = TRUE, increment feet = FALSE */
 static void update_pbar(GtkWidget *pbar)
@@ -43,7 +68,12 @@ GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path)
 	return gtk_ctree_find_by_row_data_custom (GTK_CTREE(ctree), NULL, path, find_file_cb);
 }
 
-void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint select)
+/*
+ * Select a new item in the menu tree.
+ */
+static void
+update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new,
+		      gint select)
 {
 	Desktop_Data *d;
 
@@ -71,129 +101,6 @@ void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, g
 
 }
 
-static void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
-{
-	GtkCTreeNode *parent;
-	Desktop_Data *n;
-	Desktop_Data *p;
-	gchar *path;
-
-	parent = GTK_CTREE_ROW(node)->parent;
-	n = gtk_ctree_node_get_row_data(ctree, node);
-	p = gtk_ctree_node_get_row_data(ctree, parent);
-
-	path = g_strconcat(p->path, "/", n->path + g_filename_index(n->path), NULL);
-	g_free(n->path);
-	n->path = path;
-
-	/* now update current state */
-	if (node == current_node)
-		{
-		g_free(current_path);
-		current_path = g_strdup(p->path);
-		gtk_label_set_text(GTK_LABEL(pathlabel),current_path);
-		}
-}
-
-void tree_moved(GtkCTree *ctree, GtkCTreeNode *node, GtkCTreeNode *new_parent,
-			GtkCTreeNode *new_sibling, gpointer data)
-{
-	static GtkCTreeNode *old_parent;
-
-	if (data)
-		{
-		/* this happens before the move, we need this to get the original parent,
-		because we can't save or move anything until the node moves */
-		old_parent = GTK_CTREE_ROW(node)->parent;
-		}
-	else
-		{
-		/* this happens after the move */
-		Desktop_Data *node_data;
-		gchar *old_filename;
-		gchar *new_filename;
-		GtkCTreeNode *parent;
-
-		node_data = gtk_ctree_node_get_row_data(ctree, node);
-		old_filename = node_data->path;
-
-		parent = GTK_CTREE_ROW(node)->parent;
-
-		if (parent == old_parent)
-			{
-			/* nothing to physically move, only update order file */
-			save_order_of_dir(parent);
-			}
-		else
-			{
-			Desktop_Data *d = gtk_ctree_node_get_row_data(ctree, parent);
-			new_filename = g_strconcat(d->path, "/",
-					old_filename + g_filename_index(old_filename), NULL);
-
-			if (rename (old_filename, new_filename) < 0)
-				g_print("Failed to move file: %s\n", old_filename);
-
-			g_free(old_filename);
-			node_data->path = new_filename;
-
-			save_order_of_dir(old_parent);
-			save_order_of_dir(parent);
-
-			/* it would probably be easier to reread the menus, but I'm doing
-			it this way :)    --John */
-			if (node_data->isfolder)
-				{
-				gtk_ctree_pre_recursive(ctree, node, recalc_paths_cb, NULL);
-				}
-			}
-		}
-}
-
-gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
-			GtkCTreeNode *new_parent, GtkCTreeNode *new_sibling)
-{
-	Desktop_Data *d;
-
-	if (source_node == topnode || source_node == usernode || source_node == systemnode ||
-			new_parent == NULL)
-		return FALSE;
-
-	if (gtk_ctree_is_ancestor(ctree, usernode, source_node))
-		{
-		if (new_parent != usernode && !gtk_ctree_is_ancestor(ctree, usernode, new_parent))
-			return FALSE;
-		}
-
-	if (gtk_ctree_is_ancestor(ctree, systemnode, source_node))
-		{
-		if (new_parent != systemnode && !gtk_ctree_is_ancestor(ctree, systemnode, new_parent))
-			return FALSE;
-		}
-
-	d = gtk_ctree_node_get_row_data(ctree, new_parent);
-	if (!d || !d->editable)
-		return FALSE;
-
-	d = gtk_ctree_node_get_row_data(ctree, source_node);
-	if (!d || !d->editable)
-		return FALSE;
-
-	/* and a final check to make sure a DIFFERENT file of the same name does not exist */
-	if (new_parent != GTK_CTREE_ROW(source_node)->parent)
-		{
-		gint index = g_filename_index(d->path);
-		GtkCTreeNode *node = GTK_CTREE_ROW(new_parent)->children;
-		while (node)
-			{
-			Desktop_Data *n = gtk_ctree_node_get_row_data(ctree, node);
-			if (!strcmp(d->path + index, n->path + g_filename_index(n->path)))
-				return FALSE;
-			node = GTK_CTREE_ROW(node)->sibling;
-			}
-		}
-
-	return TRUE;
-}
 
 static void move_item_down(GtkCTreeNode *node)
 {
@@ -251,7 +158,7 @@ void move_up_cb(GtkWidget *w, gpointer data)
 	move_item_up(current_node);
 }
 
-static int is_node_moveable(GtkCTreeNode *node)
+int is_node_moveable(GtkCTreeNode *node)
 {
 	if (node == systemnode || node == usernode) return FALSE;
 	if (!is_node_editable(node)) return FALSE;
@@ -268,33 +175,8 @@ int is_node_editable(GtkCTreeNode *node)
 	return d->editable;
 }
 
-static int is_file_editable(gchar *path)
-{
-	if (!g_file_exists(path)) return FALSE;
 
-	if (isdir(path))
-		{
-		gchar *dirpath = g_strconcat (path, ".directory", NULL);
-		if (g_file_exists(dirpath))
-			{
-			if (!access(dirpath, W_OK))
-				{
-				g_free(dirpath);
-				return !access(path, W_OK);
-				}
-			else
-				{
-				g_free(dirpath);
-				return FALSE;
-				}
-			}
-		g_free(dirpath);
-		}
-
-	return !access(path, W_OK);
-}
-
-void edit_pressed_cb(GtkWidget *w, gpointer data)
+static void edit_pressed_cb(GtkWidget *w, gpointer data)
 {
 	Desktop_Data *d;
 
@@ -320,19 +202,15 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 
 	if (!node) return;
 
+	tree_set_node(node);
+
 	if (node == topnode)
-		{
-		update_tree_highlight(menu_tree_ctree, node, current_node, TRUE);
-		return;
-		}
+	  return;
 
 	if (event->button == 3 && (node == systemnode || node == usernode)) return;
 
 	d = gtk_ctree_node_get_row_data(GTK_CTREE(ctree),node);
 
-	update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
-
-	current_node = node;
 
 	if (node == systemnode || node == usernode) return;
 
@@ -375,7 +253,7 @@ GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode 
 		{
 		gchar *text[2];
 
-		d->editable = is_file_editable(path_buf);
+		d->editable = is_desktop_file_editable(path_buf);
 
 		text[0] = d->name;
 		text[1] = NULL;
@@ -392,7 +270,8 @@ GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode 
 			node = gtk_ctree_insert_node (GTK_CTREE(ctree), parent, node, text, 5,
 				GNOME_PIXMAP(d->pixmap)->pixmap,
 				GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-		gtk_ctree_node_set_row_data (GTK_CTREE(ctree), node, d);
+		gtk_ctree_node_set_row_data_full (GTK_CTREE(ctree), node, d,
+						  remove_node_cb);
 		}
 	g_free(path_buf);
 	return node;
@@ -507,6 +386,7 @@ void add_main_tree_node(void)
 	label = gtk_label_new(_("One moment, reading menus..."));
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(dialog)->vbox), label, FALSE, FALSE, 5);
 	gtk_widget_show(label);
+	gtk_widget_realize(label);
 
 	progressbar = gtk_progress_bar_new();
 	gtk_progress_set_activity_mode(GTK_PROGRESS(progressbar), TRUE);
@@ -537,7 +417,8 @@ void add_main_tree_node(void)
 	d->isfolder = TRUE;
 	d->editable = FALSE;
 
-	gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), topnode, d);
+	gtk_ctree_node_set_row_data_full (GTK_CTREE(menu_tree_ctree), topnode,
+					  d, remove_node_cb);
 
 	/* system's menu tree */
 	text[0] = _("System Menus");
@@ -552,9 +433,10 @@ void add_main_tree_node(void)
 	if (d->comment) free(d->comment);
 	d->comment = strdup(_("Top of system menus"));
 	d->expanded = FALSE;
-	d->editable = is_file_editable(SYSTEM_APPS);
+	d->editable = is_desktop_file_editable(SYSTEM_APPS);
 
-	gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), systemnode, d);
+	gtk_ctree_node_set_row_data_full (GTK_CTREE(menu_tree_ctree),
+					  systemnode, d, remove_node_cb);
 
 	/* user's menu tree */
 	text[0] = _("User Menus");
@@ -571,7 +453,8 @@ void add_main_tree_node(void)
 	d->expanded = FALSE;
 	d->editable = TRUE;
 
-	gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), usernode, d);
+	gtk_ctree_node_set_row_data_full (GTK_CTREE(menu_tree_ctree),
+					  usernode, d, remove_node_cb);
 
 	/* now load the entire menu tree */
 	c = 0;
@@ -583,12 +466,23 @@ void add_main_tree_node(void)
 			add_tree_recurse_cb, progressbar);
 		}
 
-	current_node = usernode;
 
 	gnome_dialog_close(GNOME_DIALOG(dialog));
 
 	gtk_clist_thaw(GTK_CLIST(menu_tree_ctree));
 
-	update_tree_highlight(menu_tree_ctree, NULL, current_node, FALSE);
+	tree_set_node(usernode);
 }
 
+void tree_sort_node(GtkCTreeNode *node)
+{
+	Desktop_Data *d;
+
+	if (!node || node == topnode) return;
+
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	if (!d->isfolder) node = GTK_CTREE_ROW(node)->parent;
+
+	gtk_ctree_sort_node(GTK_CTREE(menu_tree_ctree), node);
+	save_order_of_dir(node);
+}

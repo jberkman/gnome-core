@@ -1,6 +1,13 @@
-/*###################################################################*/
-/*##                       gmenu (GNOME menu editor)               ##*/
-/*###################################################################*/
+/*
+ * This file is a part of gmenu, the GNOME panel menu editor.
+ *
+ * File: edit.c
+ *
+ * This file contains the routines which handle the menu item editing
+ * dialog on the right half of the display.
+ *
+ * Author: John Ellis <johne@bellatlantic.net>
+ */
 
 #include <config.h>
 
@@ -8,7 +15,6 @@
 
 static GtkWidget *button_save;
 static GtkWidget *button_revert;
-static GtkWidget *filename_entry;
 static GnomeDesktopEntry *revert_dentry;
 
 static void edit_area_changed(void);
@@ -34,12 +40,26 @@ static void button_revert_enable(gboolean enabled)
 
 static void edit_area_set_editable(gboolean enabled)
 {
-	gtk_widget_set_sensitive(filename_entry, enabled);
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->exec_entry, enabled);
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->tryexec_entry, enabled);
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->doc_entry, enabled);
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->type_combo, enabled);
 	gtk_widget_set_sensitive(GNOME_DENTRY_EDIT(edit_area)->terminal_button, enabled);
+}
+
+void
+edit_area_select_name(void)
+{
+  GtkWidget *name_entry;
+  gchar *text;
+
+  name_entry = gnome_dentry_get_name_entry(GNOME_DENTRY_EDIT(edit_area));
+
+  text = gtk_entry_get_text(GTK_ENTRY(name_entry));
+  
+  gtk_entry_select_region(GTK_ENTRY(name_entry), 0, strlen(text));
+
+  gtk_widget_grab_focus(name_entry);
 }
 
 void edit_area_reset_revert(Desktop_Data *d)
@@ -57,11 +77,6 @@ void edit_area_reset_revert(Desktop_Data *d)
 		edit_area_orig_data = NULL;
 		}
 	button_revert_enable(FALSE);
-}
-
-gchar * edit_area_get_filename(void)
-{
-	return gtk_entry_get_text(GTK_ENTRY(filename_entry));
 }
 
 void update_edit_area(Desktop_Data *d)
@@ -87,7 +102,6 @@ void update_edit_area(Desktop_Data *d)
 			gnome_desktop_entry_destroy(dentry);
 			}
 
-		gtk_entry_set_text(GTK_ENTRY(filename_entry), dirfile);
 		edit_area_set_editable(FALSE);
 
 		g_free(dirfile);
@@ -95,7 +109,6 @@ void update_edit_area(Desktop_Data *d)
 	else
 		{
 		gnome_dentry_edit_load_file(GNOME_DENTRY_EDIT(edit_area), d->path);
-		gtk_entry_set_text(GTK_ENTRY(filename_entry), d->path + g_filename_index (d->path));
 		edit_area_set_editable(TRUE);
 		}
 
@@ -112,10 +125,6 @@ void revert_edit_area(void)
 {
 	if (revert_dentry) gnome_dentry_edit_set_dentry(GNOME_DENTRY_EDIT(edit_area), revert_dentry);
 
-	if (edit_area_orig_data && !edit_area_orig_data->isfolder)
-		gtk_entry_set_text(GTK_ENTRY(filename_entry),
-			edit_area_orig_data->path + g_filename_index (edit_area_orig_data->path));
-
 	button_revert_enable(FALSE);
 }
 
@@ -131,9 +140,6 @@ void new_edit_area(void)
 	dentry->type = strdup("Application");
 	gnome_dentry_edit_set_dentry(GNOME_DENTRY_EDIT(edit_area), dentry);
 	gnome_desktop_entry_destroy(dentry);
-
-	gtk_entry_set_text(GTK_ENTRY(filename_entry), "untitled.desktop");
-
 	edit_area_set_editable(TRUE);
 	button_save_enable(TRUE);
 	button_revert_enable(FALSE);
@@ -172,15 +178,6 @@ GtkWidget * create_edit_area(void)
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,5);
 	gtk_widget_show(hbox);
 
-	label = gtk_label_new(_("File name:"));
-	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,0);
-	gtk_widget_show(label);
-
-	filename_entry = gtk_entry_new_with_max_length(255);
-	gtk_signal_connect(GTK_OBJECT(filename_entry), "changed", GTK_SIGNAL_FUNC(edit_area_changed), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox),filename_entry,TRUE,TRUE,0);
-	gtk_widget_show(filename_entry);
-
 	hbox1 = gtk_hbox_new(TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox1,FALSE,FALSE,10);
 	gtk_widget_show(hbox1);
@@ -189,6 +186,8 @@ GtkWidget * create_edit_area(void)
 	gtk_signal_connect(GTK_OBJECT(button_save),"clicked",GTK_SIGNAL_FUNC(save_pressed_cb), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox1),button_save,FALSE,FALSE,0);
 	gtk_widget_show(button_save);
+	GTK_WIDGET_SET_FLAGS (button_save, GTK_CAN_DEFAULT);
+	gtk_widget_grab_default(button_save);
 
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(button_save),hbox);
@@ -198,7 +197,7 @@ GtkWidget * create_edit_area(void)
 	gtk_box_pack_start(GTK_BOX(hbox),pixmap,FALSE,FALSE,0);
 	gtk_widget_show(pixmap);
 
-	label = gtk_label_new(_("Apply"));
+	label = gtk_label_new(_("Save"));
 	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
 	gtk_widget_show(label);
 
