@@ -32,6 +32,8 @@ GtkWidget *multi_args_button;
 GtkWidget *tryexec_entry;
 GtkWidget *doc_entry;
 
+GnomeDEntryEdit *edit_area;
+
 GList *topnode;
 GList *usernode;
 GList *systemnode;
@@ -290,7 +292,7 @@ int main (int argc, char *argv[])
 	USER_PIXMAPS = check_for_dir(gnome_util_home_file("pixmaps"));
 
 	app = gnome_app_new ("gmenu","GNOME menu editor");
-	gtk_widget_set_usize (app, 600,400);
+	gtk_widget_set_usize (app, 600,420);
 	gtk_signal_connect(GTK_OBJECT(app), "delete_event", GTK_SIGNAL_FUNC(destroy_cb), NULL);
 
 	gnome_app_create_menus_with_data (GNOME_APP(app), main_menu, app);
@@ -418,8 +420,22 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start (GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
 	gtk_widget_show(notebook);
 
+	edit_area = gnome_dentry_edit_new (GTK_NOTEBOOK(notebook));
+
+	hbox = gtk_hbox_new(FALSE,5);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,5);
+	gtk_widget_show(hbox);
+
+	label = gtk_label_new(_("File name:"));
+	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,0);
+	gtk_widget_show(label);
+
+	filename_entry = gtk_entry_new_with_max_length(255);
+	gtk_box_pack_start(GTK_BOX(hbox),filename_entry,TRUE,TRUE,0);
+	gtk_widget_show(filename_entry);
+
 	/* properties page */
-	frame = gtk_frame_new(NULL);
+/*	frame = gtk_frame_new(NULL);
 	gtk_container_border_width (GTK_CONTAINER (frame), 5);
 	gtk_widget_show(frame);
  
@@ -493,8 +509,8 @@ int main (int argc, char *argv[])
 	label = gtk_label_new(_("Properties"));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
 
-	/* advanced page */
-	frame = gtk_frame_new(NULL);
+*/	/* advanced page */
+/*	frame = gtk_frame_new(NULL);
 	gtk_container_border_width (GTK_CONTAINER (frame), 5);
 	gtk_widget_show(frame);
  
@@ -526,7 +542,7 @@ int main (int argc, char *argv[])
 
 	label = gtk_label_new(_("Advanced"));
 	gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
-
+*/
 	hbox1 = gtk_hbox_new(TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox1,FALSE,FALSE,10);
 	gtk_widget_show(hbox1);

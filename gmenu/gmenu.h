@@ -69,6 +69,8 @@ extern GtkWidget *multi_args_button;
 extern GtkWidget *tryexec_entry;
 extern GtkWidget *doc_entry;
 
+extern GnomeDEntryEdit *edit_area;
+
 extern GList *topnode;
 extern GList *usernode;
 extern GList *systemnode;

@@ -5,6 +5,8 @@
 #include "gmenu.h"
 #include "unknown.xpm"
 
+static GnomeDesktopEntry *revert_dentry;
+
 static void icon_cb(void *data);
 
 static void icon_cb(void *data)
@@ -37,9 +39,19 @@ void icon_button_pressed()
 
 void update_edit_area(Desktop_Data *d)
 {
+	gnome_dentry_edit_load_file(edit_area, d->path);
+
+	if (d->path)
+		gtk_entry_set_text(GTK_ENTRY(filename_entry), d->path + g_filename_index (d->path));
+	else
+		gtk_entry_set_text(GTK_ENTRY(filename_entry), "");
+
+	if (revert_dentry) gnome_desktop_entry_destroy(revert_dentry);
+	revert_dentry = gnome_dentry_get_dentry(edit_area);
+
 	edit_area_orig_data = d;
 
-	if (d->name)
+/*	if (d->name)
 		gtk_entry_set_text(GTK_ENTRY(name_entry), d->name);
 	else
 		gtk_entry_set_text(GTK_ENTRY(name_entry), "");
@@ -93,18 +105,34 @@ void update_edit_area(Desktop_Data *d)
 		gtk_entry_set_text(GTK_ENTRY(doc_entry), "");
 
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON(multi_args_button), d->multiple_args);
+*/
 }
 
 void revert_edit_area()
 {
+	if (revert_dentry) gnome_dentry_edit_set_dentry(edit_area, revert_dentry);
+
 	if (edit_area_orig_data)
-		update_edit_area(edit_area_orig_data);
+		gtk_entry_set_text(GTK_ENTRY(filename_entry),
+			edit_area_orig_data->path + g_filename_index (edit_area_orig_data->path));
 }
 
 void new_edit_area()
 {
+	GnomeDesktopEntry *dentry;
+
+	gnome_dentry_edit_clear(edit_area);
+	if (revert_dentry)
+		{
+		gnome_desktop_entry_destroy(revert_dentry);
+		revert_dentry = NULL;
+		}
+
+	gtk_entry_set_text(GTK_ENTRY(filename_entry), "untitled.desktop");
+
 	edit_area_orig_data = NULL;
-	gtk_entry_set_text(GTK_ENTRY(name_entry), "");
+
+/*	gtk_entry_set_text(GTK_ENTRY(name_entry), "");
 	gtk_entry_set_text(GTK_ENTRY(comment_entry), "");
 
 	if (current_path)
@@ -125,5 +153,6 @@ void new_edit_area()
 	gtk_entry_set_text(GTK_ENTRY(doc_entry), "");
 
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON(multi_args_button), FALSE);
+*/
 }
 

@@ -1,3 +1,9 @@
+Fri Jul 17 15:58:12 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.[ch], edit.c, dialogs.c: quick hack to test
+	gnome-dentry-edit and gnome-icon-sel in gnome-libs/libgnomeui.
+	* AUTHORS: new file.
+
 1998-07-01  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* gmenu.desktop: Added Portuguese translation.
@@ -66,3 +72,6 @@ Thu Jun 11 20:09:28 1998  Tom Tromey  <tromey@cygnus.com>
 	using gnome_unconditional_datadir_file(...). TreExec now works,
 	DocPath and MultipleArgs options added to advanced tab.
 
+
+
+	

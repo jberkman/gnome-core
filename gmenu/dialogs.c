@@ -235,12 +235,18 @@ static void save_dialog_cb( gint button, gpointer data)
 		GList *parent;
 		gint overwrite;
 		char *path;
+		GnomeDesktopEntry *dentry = NULL;
 
 		path = g_copy_strings(current_path, "/", gtk_entry_get_text(GTK_ENTRY(filename_entry)), NULL);
 
 		overwrite = isfile(path);
 
-		save_desktop_file_info (path,
+		dentry = gnome_dentry_get_dentry(edit_area);
+		dentry->location = strdup(path);
+		gnome_desktop_entry_save (dentry);
+		gnome_desktop_entry_destroy (dentry);
+
+/*		save_desktop_file_info (path,
 					gtk_entry_get_text(GTK_ENTRY(name_entry)),
 					gtk_entry_get_text(GTK_ENTRY(comment_entry)),
 					gtk_entry_get_text(GTK_ENTRY(tryexec_entry)),
@@ -250,6 +256,8 @@ static void save_dialog_cb( gint button, gpointer data)
 					gtk_entry_get_text(GTK_ENTRY(type_entry)),
 					gtk_entry_get_text(GTK_ENTRY(doc_entry)),
 					GTK_TOGGLE_BUTTON (multi_args_button)->active);
+
+*/
 		if (overwrite)
 			{
 			gint8 spacing;
