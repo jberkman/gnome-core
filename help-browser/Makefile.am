@@ -16,8 +16,6 @@ LDADD = \
 
 bin_PROGRAMS = gnome-help-browser 
 
-noinst_PROGRAMS = sample
-
 gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 			     gnome-help-browser.c \
 			     toc2.c toc2-man.c toc2-ghelp.c toc2-info.c \
@@ -37,25 +35,14 @@ CFLAGS += -Wall
 
 PIXMAPS = close.xpm contents.xpm help.xpm left_arrow.xpm right_arrow.xpm 
 
-EXTRA_DIST = sample-help.html gnome-help-browser-help.html \
-	     sample-topic.dat gnome-help-browser-topic.dat \
+EXTRA_DIST = gnome-help-browser-help.html \
+	     gnome-help-browser-topic.dat \
 	     default-page.html bg.xpm gnome-logo2.xpm \
 	     $(PIXMAPS) gnome-help.desktop
 
-#
-# shouldn't hard code locate here, how do I get it??
-#
-#sample_DATA = sample-help.html sample-topic.dat
-#gnome_help_browser_DATA = gnome-help-browser-help.html \
-#	    	         gnome-help-browser-topic.dat
-
-sample_helpdir = $(datadir)/gnome/help/sample-help/C
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
 install-data-local:
-	$(mkinstalldirs) $(sample_helpdir)
 	$(mkinstalldirs) $(help_browser_helpdir)
-	$(INSTALL_DATA)  $(srcdir)/sample-help.html $(sample_helpdir)/
-	$(INSTALL_DATA)  $(srcdir)/sample-topic.dat $(sample_helpdir)/topic.dat
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-help.html \
 			 $(help_browser_helpdir)/help-browser.html
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-topic.dat \
@@ -65,8 +52,6 @@ install-data-local:
 	$(INSTALL_DATA)  $(srcdir)/gnome-logo2.xpm $(help_browser_helpdir)/
 	cd $(help_browser_helpdir); \
 	     ln -fs help-browser.html index.html
-	cd $(sample_helpdir); \
-	     ln -fs sample-help.html index.html
 
 sysdir = $(datadir)/apps
 sys_DATA = gnome-help.desktop

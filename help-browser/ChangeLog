@@ -1,3 +1,10 @@
+1998-05-01  Michael Fulbright  <msf@redhat.com>
+
+	* Makefile.am: removed references to sample-help*
+	* sample-help*: removed these useless files
+	* gnome-help-browser-help.html: added command line options
+	* gnome-help-browser-topic.dat: added command line options
+
 1998-04-29  Michael Fulbright  <msf@redhat.com>
 
 	* toc2.c: fixed man/info/ghelp toc HTML generation to use 3 col table
