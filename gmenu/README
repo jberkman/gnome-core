@@ -1,0 +1,16 @@
+#########################################################
+####           GNOME menu editor 0.2.1                ###
+#########################################################
+
+edit Makefile to point to your gnome install path
+( again, default is /usr )
+
+Very preliminary work, possibly unstable.
+
+if you can build it , run gmenu when done.
+
+to COMPILE:
+run make
+then make install
+
+Good luck!

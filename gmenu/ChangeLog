@@ -1,0 +1,11 @@
+1998-06-11  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu directory: Checked into CVS. Still need a Makefile.am
+	though, The current Makefile defaults to /usr
+
+1998-06-11  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c: PREFIX is now set automatically to the gnome datadir
+	using gnome_unconditional_datadir_file(...). TreExec now works,
+	DocPath and MultipleArgs options added to advanced tab.
+
