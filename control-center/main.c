@@ -55,7 +55,7 @@ create_exit_dialog (GList *apps)
         char *s;
 
         /* we create the widgets */
-        retval = gnome_dialog_new ("Warning:", GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
+        retval = gnome_dialog_new ("Warning:", GNOME_STOCK_BUTTON_CLOSE, GNOME_STOCK_BUTTON_CANCEL, NULL);
         gnome_dialog_set_default (GNOME_DIALOG (retval), 1);
         gnome_dialog_set_parent (GNOME_DIALOG (retval), GTK_WINDOW (main_window));
 

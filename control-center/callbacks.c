@@ -7,6 +7,7 @@
 #include "tree.h"
 #include "corba-glue.h"
 #include "capplet-manager.h"
+extern GtkWidget *main_window;
 extern GtkWidget *exit_dialog;
 extern GtkWidget *notebook;
 extern GtkWidget *create_exit_dialog();
@@ -30,7 +31,8 @@ exit_callback(GtkWidget *widget, gpointer data)
         g_list_foreach (capplet_list, create_templist, &templist);
 
         if (!templist) {
-                control_center_corba_gtk_main_quit();                
+                gtk_widget_destroy (main_window);
+                control_center_corba_gtk_main_quit();
                 return;
         }                
         exit_dialog = create_exit_dialog(templist);
@@ -39,13 +41,12 @@ exit_callback(GtkWidget *widget, gpointer data)
 void
 exit_dialog_ok_callback(GtkWidget *widget, gpointer data)
 {
-        g_print ("ok callback\n");
+        gtk_widget_destroy (main_window);
         control_center_corba_gtk_main_quit();
 }
 void
 exit_dialog_cancel_callback(GtkWidget *widget, gpointer data)
 {
-        g_print ("cancel callback\n");
         gnome_dialog_close (GNOME_DIALOG (exit_dialog));
         exit_dialog = NULL;
 }
