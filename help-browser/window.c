@@ -229,7 +229,7 @@ static void help_onhelp(GtkWidget *w, HelpWindow win) {
 	strcpy(q,"file:");
 	strcat(q, p);
 	g_free(p);
-	visitURL(win, q);
+	helpWindowShowURL(win, q);
 	return;
 }
 

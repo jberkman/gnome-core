@@ -135,12 +135,10 @@ resolveMagicURL( docObj obj )
 		c += 24;
 		val = -1;
 		convanchor = g_strdup((*(u->anchor)) ? u->anchor : "Top");
-		for (s=convanchor; *s; s++)
-			if (*s == '_')
-				*s = ' ';
 
 		while (*c != '') {
 			gchar *s;
+			gchar anc[257];
 			gchar *eoln;
 
 			c += 6;
@@ -151,7 +149,10 @@ resolveMagicURL( docObj obj )
 			}
 			*s = '\0';
 
-			if (strcmp(c, convanchor)) {
+			strncpy(anc, c, sizeof(anc));
+			map_spaces_to_underscores(anc);
+
+			if (strcmp(anc, convanchor)) {
 				c = strchr(s+1, '\n')+1;
 				continue;
 			}

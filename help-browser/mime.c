@@ -143,10 +143,6 @@ convertINFO( docObj obj )
 		strcpy(a,"\"");
 		strcat(a, docObjGetDecomposedUrl(obj)->anchor);
 		strcat(a, "\"");
-		/* unmap '_' to ' ' */
-		for (p=a; *p; p++)
-			if (*p == '_')
-				*p = ' ';
 	} else {
 		a = "\"Top\"";
 	}
