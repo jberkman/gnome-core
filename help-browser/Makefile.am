@@ -19,8 +19,6 @@ gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 
 gnome_help_browser_LDADD = $(LDADD) $(GTKXMHTML_LIBS)
 
-help_DATA = sample-help.html sample-topic.dat
-
 EXTRA_DIST = sample-hello.html
 
 #
@@ -28,4 +26,5 @@ EXTRA_DIST = sample-hello.html
 #
 helpdir = $(datadir)/gnome/help/sample-help/C
 
-help_DATA = sample-help.html sample-topic.dat
+help_DATA = sample-help.html topic.dat
+
