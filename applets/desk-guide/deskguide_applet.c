@@ -334,11 +334,13 @@ gp_save_session (gpointer     func_data,
   for (i = 0; i < gp_n_config_items; i++)
     {
       ConfigItem *item = gp_config_items + i;
-      gchar *path = g_strconcat (section, "/", item->path, NULL);
-      
+      gchar *path;
+
       if (!item->path)					/* page */
 	continue;
-      else if (item->min == -2 && item->max == -2)	/* section */
+
+      path = g_strconcat (section, "/", item->path, NULL);
+      if (item->min == -2 && item->max == -2)		/* section */
 	section = item->path;
       else if (item->min == -1 && item->max == -1)	/* boolean */
 	gnome_config_set_bool (path, GPOINTER_TO_INT (item->value));

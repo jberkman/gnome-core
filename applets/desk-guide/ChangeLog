@@ -1,3 +1,8 @@
+Sat Feb 12 14:50:52 2000  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_save_session): plugged a leak, based
+	on a patch by Peter Hawkins <peterhawkins@ozemail.com.au>.
+
 Wed Feb  9 03:27:40 2000  Tim Janik  <timj@gtk.org>
 
 	* gwmh.c (get_typed_property_data): removed noisy warning
