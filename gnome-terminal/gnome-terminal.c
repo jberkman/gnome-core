@@ -1123,6 +1123,8 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	GtkWidget * menu_item;
 	GnomeUIInfo * item;
 	struct terminal_config * cfg;
+	char label[50];
+	char * src, * dst;
 
 	cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
 
@@ -1134,12 +1136,19 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 		     item++) {
 			if (item->type != GNOME_APP_UI_ITEM) continue;
 
-			if (!strcmp(item->label, "Hide menubar") && cfg->menubar_hidden) {
-				menu_item = gtk_menu_item_new_with_label("Show menubar");
+			src = item->label, dst = label;
+			while (*src) {
+			    if (*src != '_') *dst++ = *src;
+			    src++;
+			}
+			*dst = '\0';
+
+			if (!strcmp(label, "Hide menubar") && cfg->menubar_hidden) {
+				menu_item = gtk_menu_item_new_with_label(_("Show menubar"));
 				gtk_signal_connect (GTK_OBJECT (menu_item), "activate", 
 						    show_menu_cmd, term);
 			} else {
-				menu_item = gtk_menu_item_new_with_label(item->label);
+				menu_item = gtk_menu_item_new_with_label(label);
 				gtk_signal_connect (GTK_OBJECT (menu_item), "activate", 
 						    item->moreinfo, term);
 			}

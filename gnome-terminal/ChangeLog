@@ -1,3 +1,8 @@
+1998-45-05  Erik Troan  <ewt@redhat.com>
+
+	* gnome-terminal (button_press): got rid of extranous _ chars in
+	popup window (this redisplayed the show menubar item as well)
+
 1998-09-22  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c: Allow for short option --command to be 'e' as well.
