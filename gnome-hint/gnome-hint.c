@@ -13,8 +13,13 @@ static GList *hintlist = NULL;
 static int hintnum = 0;
 
 static GList *curhint = NULL;
+static char *curfortune = NULL;
 
+static GtkWidget *canvas;
 static GnomeCanvasItem *hint_item;
+static GnomeCanvasItem *blue_background;
+static GnomeCanvasItem *white_background;
+static int width = 400,height = 200;
 
 static char *
 default_hint(void)
@@ -159,12 +164,122 @@ pick_random_hint(void)
 	curhint = g_list_nth(hintlist,random()%hintnum);
 }
 
+/*returns a newly allocated expanded string, or the original pointer
+  if there are no tabs*/
+static char *
+expand_str(char *s)
+{
+	int tab_count = 0;
+	char *p,*pp;
+	char *n;
+	int i;
+	p = s;
+	while((p=strchr(p,'\t'))) {
+		tab_count++;
+		p++;
+	}
+	if(tab_count == 0)
+		return s;
+	n = g_new(char,strlen(s)+(tab_count*4)+1);
+	for(i=0,p=s,pp=n;*p;p++,pp++,i++) {
+		if(*p=='\t') {
+			*pp = ' ';
+			while((i+1)%5>0) {
+				*(++pp) = ' ';
+				i++;
+			}
+		} else
+			*pp = *p;
+	}
+	*pp = '\0';
+	return n;
+}
+
+static char *
+get_a_fortune(void)
+{
+	char *fortune_command;
+       
+	fortune_command = g_file_exists("/usr/games/fortune")?
+		g_strdup("/usr/games/fortune"):
+		gnome_is_program_in_path("fortune");
+
+	if(fortune_command) {
+		FILE *fp;
+		fp = popen(fortune_command,"r");
+		g_free(fortune_command);
+		if(fp) {
+			char buf[256];
+			char *ret;
+			GString *gs = g_string_new("");
+			while(fgets(buf,256,fp)) {
+				char *p = expand_str(buf);
+				g_string_append(gs,p);
+				if(p!=buf) g_free(p);
+			}
+			fclose(fp);
+			ret = gs->str;
+			g_string_free(gs,FALSE);
+			return ret;
+		}
+	}
+
+	return g_strdup(_("You do not have fortune installed."));
+
+}
+
 static void
-draw_on_canvas(GtkWidget *canvas, char *hint)
+grow_text_if_necessary(void)
+{
+	double w,h;
+	int changed = FALSE;
+	
+	gtk_object_get(GTK_OBJECT(hint_item),
+		       "text_width",&w,
+		       "text_height",&h,
+		       NULL);
+	/*add border, and 10 pixels around*/
+	w+=75+10;
+	h+=50+10;
+	if(w>width) {
+		width = w;
+		changed = TRUE;
+	}
+	if(h>height) {
+		height = h;
+		changed = TRUE;
+	}
+
+	if(!changed)
+		return;
+	
+	/*here we grow the canvas*/
+	gtk_widget_set_usize(canvas,width,height);
+	gnome_canvas_set_scroll_region(GNOME_CANVAS(canvas),
+				       0.0,0.0,width,height);
+	
+	gnome_canvas_item_set(blue_background,
+			      "x2",(double)width,
+			      "y2",(double)height,
+			      NULL);
+	gnome_canvas_item_set(white_background,
+			      "x2",(double)width,
+			      "y2",(double)height,
+			      NULL);
+	gnome_canvas_item_set(hint_item,
+			      "x",(double)(((width-75)/2)+75),
+			      "y",(double)(((height-50)/2)+50),
+			      "clip_width",(double)(width-75),
+			      "clip_height",(double)(height-50),
+			      NULL);
+}
+
+static void
+draw_on_canvas(GtkWidget *canvas, int is_fortune, char *hint)
 {
 	GnomeCanvasItem *item;
 	
-	item = gnome_canvas_item_new(
+	blue_background = gnome_canvas_item_new(
 		gnome_canvas_root(GNOME_CANVAS(canvas)),
 		gnome_canvas_rect_get_type(),
 		"x1",(double)0.0,
@@ -174,7 +289,7 @@ draw_on_canvas(GtkWidget *canvas, char *hint)
 		"fill_color","blue",
 		NULL);
 
-	item = gnome_canvas_item_new(
+	white_background = gnome_canvas_item_new(
 		gnome_canvas_root(GNOME_CANVAS(canvas)),
 		gnome_canvas_rect_get_type(),
 		"x1",(double)75.0,
@@ -184,18 +299,33 @@ draw_on_canvas(GtkWidget *canvas, char *hint)
 		"fill_color","white",
 		NULL);
 	
-	hint_item = gnome_canvas_item_new(
-		gnome_canvas_root(GNOME_CANVAS(canvas)),
-		gnome_canvas_text_get_type(),
-		"x",(double)237.5,
-		"y",(double)125.0,
-		"fill_color","black",
-		"font_gdk",canvas->style->font,
-		"clip_width",(double)325.0,
-		"clip_height",(double)150.0,
-		"clip",TRUE,
-		"text",hint,
-		NULL);
+	if(is_fortune) {
+		hint_item = gnome_canvas_item_new(
+			gnome_canvas_root(GNOME_CANVAS(canvas)),
+			gnome_canvas_text_get_type(),
+			"x",(double)237.5,
+			"y",(double)125.0,
+			"fill_color","black",
+			"font","fixed",
+			"clip_width",(double)325.0,
+			"clip_height",(double)150.0,
+			"clip",TRUE,
+			"text",hint,
+			NULL);
+	} else {
+		hint_item = gnome_canvas_item_new(
+			gnome_canvas_root(GNOME_CANVAS(canvas)),
+			gnome_canvas_text_get_type(),
+			"x",(double)237.5,
+			"y",(double)125.0,
+			"fill_color","black",
+			"font_gdk",canvas->style->font,
+			"clip_width",(double)325.0,
+			"clip_height",(double)150.0,
+			"clip",TRUE,
+			"text",hint,
+			NULL);
+	}
 
 	item = gnome_canvas_item_new(
 		gnome_canvas_root(GNOME_CANVAS(canvas)),
@@ -204,8 +334,27 @@ draw_on_canvas(GtkWidget *canvas, char *hint)
 		"y",(double)25.0,
 		"fill_color","white",
 		"font","-*-helvetica-bold-r-normal-*-*-180-*-*-p-*-*-*",
-		"text","Gnome Hints",
+		"text",is_fortune?"Fortune":"Gnome Hints",
 		NULL);
+
+	grow_text_if_necessary();
+}
+
+static void
+fortune_clicked(GtkWidget *w, int button, gpointer data)
+{
+	switch(button) {
+	case 0:
+		g_free(curfortune);
+		curfortune = get_a_fortune();
+		gnome_canvas_item_set(hint_item,
+				      "text",curfortune,
+				      NULL);
+		grow_text_if_necessary();
+		break;
+	default:
+		gtk_main_quit();
+	}
 }
 
 static void
@@ -219,6 +368,7 @@ hints_clicked(GtkWidget *w, int button, gpointer data)
 		gnome_canvas_item_set(hint_item,
 				      "text",(char *)curhint->data,
 				      NULL);
+		grow_text_if_necessary();
 		break;
 	case 1:
 		if(!curhint) return;
@@ -227,6 +377,7 @@ hints_clicked(GtkWidget *w, int button, gpointer data)
 		gnome_canvas_item_set(hint_item,
 				      "text",(char *)curhint->data,
 				      NULL);
+		grow_text_if_necessary();
 		break;
 	default:
 		gtk_main_quit();
@@ -243,42 +394,70 @@ int
 main(int argc, char *argv[])
 {
 	GtkWidget *win;
-	GtkWidget *canvas;
 	char *hint;
 	GnomeClient *client;
+        GnomeClientFlags flags;
+	int token;
+	gboolean is_fortune;
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
 
 	gnome_init("gnome-hint", VERSION, argc, argv);
 	
-	client = gnome_master_client ();
+	client = gnome_master_client();
+	flags = gnome_client_get_flags(client);
 
-	if(client) {
-		char *session_args[2];
+	if (flags & GNOME_CLIENT_IS_CONNECTED) {
+		token = gnome_startup_acquire_token("GNOME_HINT",
+						    gnome_client_get_id(client));
 
-		session_args[0] = argv[0];
-		session_args[1] = NULL;
-		gnome_client_set_priority(client, 20);
-		gnome_client_set_restart_style(client, 
-						GNOME_RESTART_ANYWAY);
-		gnome_client_set_restart_command(client, 1, 
+		if (token) {
+			char *session_args[2];
+
+			session_args[0] = argv[0];
+			session_args[1] = NULL;
+			gnome_client_set_priority(client, 20);
+			gnome_client_set_restart_style(client, 
+						       GNOME_RESTART_ANYWAY);
+			gnome_client_set_restart_command(client, 1, 
 						  session_args);
 
-		gnome_client_flush(client);
-	}
-	
+		} else 
+			gnome_client_set_restart_style (client, 
+							GNOME_RESTART_NEVER);
+
+                gnome_client_flush (client);
+        }
+
 	/* if we are turned off */
-	if(!gnome_config_get_bool("/Gnome/Login/RunHints=TRUE"))
+	if(!gnome_config_get_bool("/Gnome/Login/RunHints=true"))
 		return 0;
 
-	win = gnome_dialog_new(_("Gnome hint"),
-			       GNOME_STOCK_BUTTON_PREV,
-			       GNOME_STOCK_BUTTON_NEXT,
-			       GNOME_STOCK_BUTTON_CLOSE,
-			       NULL);
-	gtk_signal_connect(GTK_OBJECT(win),"clicked",
-			   GTK_SIGNAL_FUNC(hints_clicked),
+	/* we can give fortune instead of hints in fact */
+	is_fortune =
+		gnome_config_get_bool("/Gnome/Login/HintsAreFortune=false");
+
+	if(is_fortune) {
+		win = gnome_dialog_new(_("Fortune"),
+				       GNOME_STOCK_BUTTON_NEXT,
+				       GNOME_STOCK_BUTTON_CLOSE,
+				       NULL);
+		gtk_signal_connect(GTK_OBJECT(win),"clicked",
+				   GTK_SIGNAL_FUNC(fortune_clicked),
+				   NULL);
+	} else {
+		win = gnome_dialog_new(_("Gnome hint"),
+				       GNOME_STOCK_BUTTON_PREV,
+				       GNOME_STOCK_BUTTON_NEXT,
+				       GNOME_STOCK_BUTTON_CLOSE,
+				       NULL);
+		gtk_signal_connect(GTK_OBJECT(win),"clicked",
+				   GTK_SIGNAL_FUNC(hints_clicked),
+				   NULL);
+	}
+	gtk_signal_connect(GTK_OBJECT(win),"delete_event",
+			   GTK_SIGNAL_FUNC(gtk_main_quit),
 			   NULL);
 	gtk_window_set_position(GTK_WINDOW(win),GTK_WIN_POS_CENTER);
 	gtk_signal_connect_after(GTK_OBJECT(win),"realize",
@@ -286,22 +465,26 @@ main(int argc, char *argv[])
 
 	canvas = gnome_canvas_new();
 	gnome_canvas_set_scroll_region(GNOME_CANVAS(canvas),
-				       0.0,0.0,400.0,200.0);
-	gtk_widget_set_usize(canvas,400,200);
+				       0.0,0.0,width,height);
+	gtk_widget_set_usize(canvas,width,height);
 	gtk_box_pack_start(GTK_BOX(GNOME_DIALOG(win)->vbox),canvas,TRUE,TRUE,0);
 	
-	read_in_hints();
-	if(gnome_config_get_bool("/gnome-hint/stuff/first_run=TRUE")) {
-		curhint = hintlist;
+	if(is_fortune) {
+		curfortune = hint = get_a_fortune();
 	} else {
-		pick_random_hint();
+		read_in_hints();
+		if(gnome_config_get_bool("/gnome-hint/stuff/first_run=TRUE")) {
+			curhint = hintlist;
+		} else {
+			pick_random_hint();
+		}
+		hint = curhint->data;
+
+		gnome_config_set_bool("/gnome-hint/stuff/first_run",FALSE);
+		gnome_config_sync();
 	}
-	hint = curhint->data;
 
-	gnome_config_set_bool("/gnome-hint/stuff/first_run",FALSE);
-	gnome_config_sync();
-
-	draw_on_canvas(canvas, hint);
+	draw_on_canvas(canvas, is_fortune, hint);
 	
 	gtk_widget_show_all(win);
 
