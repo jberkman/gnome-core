@@ -67,7 +67,7 @@ GList *newManTable(struct _toc_config *conf)
 	}
 	p = man_sections;
 	while (p->ch) {
-	    snprintf(dirname, sizeof(dirname), "%s/man%c", conf->path, p->ch);
+	    g_snprintf(dirname, sizeof(dirname), "%s/man%c", conf->path, p->ch);
 	    d = opendir(dirname);
 	    if (d) {
 	        while (d && (dirp = readdir(d))) {
@@ -77,7 +77,7 @@ GList *newManTable(struct _toc_config *conf)
 		    }
 		    /* Add to table */
 		    entry = g_malloc(sizeof(*entry));
-		    snprintf(filename, sizeof(filename),
+		    g_snprintf(filename, sizeof(filename),
 			     "%s/%s", dirname, dirp->d_name);
 		    entry->filename = g_strdup(filename);
 

@@ -63,7 +63,7 @@ GList *newInfoTable(struct _toc_config *conf)
 
 		p = g_malloc(sizeof(*p));
 		p->basename = makeBaseName(dirp->d_name);
-		snprintf(fullname, sizeof(fullname),
+		g_snprintf(fullname, sizeof(fullname),
 			 "%s/%s", conf->path, dirp->d_name);
 		p->filename = g_strdup(fullname);
 		p->len = strlen(fullname);

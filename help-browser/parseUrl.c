@@ -28,7 +28,7 @@ DecomposedUrl decomposeUrl(gchar *url)
     } else {
 	res->path = COPY_OR_EMPTY(parts.absolute);
     }
-    snprintf(buf, sizeof(buf), "/%s", res->path);
+    g_snprintf(buf, sizeof(buf), "/%s", res->path);
     g_free(res->path);
     res->path = g_strdup(buf);
     res->anchor = COPY_OR_EMPTY(parts.fragment);
