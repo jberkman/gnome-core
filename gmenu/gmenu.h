@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gqmenu (GNOME menu editor) 0.2.2        ##*/
+/*##                       gqmenu (GNOME menu editor) 0.2.4        ##*/
 /*###################################################################*/
 
 #include <dirent.h>
@@ -16,7 +16,7 @@
 	/* definitions */
 #define GMENU_VERSION_MAJOR 0
 #define GMENU_VERSION_MINOR 2
-#define GMENU_VERSION_REV 2
+#define GMENU_VERSION_REV 4
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data

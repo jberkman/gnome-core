@@ -1,3 +1,12 @@
+Mon Jun 15 23:02:32 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c: Root detection is forced on until someone adds user menus
+	to the panel. Empty folders are now deletable. The entire menu tree
+	is now loaded at startup.
+	(tree_item_selected): Any button selects the row, button one double
+	click or button 3 (middle mouse button) single click copies a menu's
+	data to the edit area.
+
 Sun Jun 14 10:48:26 1998  John Ellis  <johne@bellatlantic.net>
 
 	* iconsel.c (sort_filenames): Changed const gpointer to gconstpointer.
