@@ -78,6 +78,7 @@ struct terminal_config {
 	int background_pixmap;
 	char * pixmap_file;
         char * window_title;                    /* the window title */
+	char * wordclass;			/* select-by-word character class */
 } ;
 
 /* Initial command */
@@ -96,6 +97,7 @@ typedef struct {
 	GtkWidget *scroll_kbd_checkbox;
 	GtkWidget *scroll_out_checkbox;
 	GtkWidget *swapkeys_checkbox;
+	GtkWidget *wordclass_entry;
 	GtkWidget *pixmap_checkbox;
 	GtkWidget *pixmap_file_entry;
 	GtkWidget *transparent_checkbox;
@@ -340,6 +342,7 @@ load_config (char *class)
 
 	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
 	cfg->font    = gnome_config_get_string ("font=" DEFAULT_FONT);
+	cfg->wordclass  = gnome_config_get_string ("wordclass=-A-Za-z0-9,./?%&#");
 	p = gnome_config_get_string ("scrollpos=left");
 	if (strcasecmp (p, "left") == 0)
 		cfg->scrollbar_position = SCROLLBAR_LEFT;
@@ -443,6 +446,7 @@ terminal_config_dup (struct terminal_config *cfg)
 	*n = *cfg;
 	n->class = g_strdup (cfg->class);
 	n->font = g_strdup  (cfg->font);
+	n->wordclass = g_strdup  (cfg->wordclass);
 
 	return n;
 }
@@ -452,6 +456,7 @@ terminal_config_free (struct terminal_config *cfg)
 {
 	g_free (cfg->class);
 	g_free (cfg->font);
+	g_free (cfg->wordclass);
 	g_free (cfg);
 }
 
@@ -472,6 +477,7 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 
 	/*zvt_term_set_font_name (term, cfg->font);*/
 	gnome_term_set_font (term, cfg->font);
+	zvt_term_set_wordclass (term, cfg->wordclass);
 	zvt_term_set_bell(term, !cfg->bell);
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
@@ -773,6 +779,7 @@ enum {
 	MENUBAR_ROW     = 4,
 	BELL_ROW        = 5,
 	SWAPKEYS_ROW    = 6,
+	WORDCLASS_ROW	= 7,
 	PIXMAP_ROW	= 1,
 	PIXMAP_FILE_ROW	= 2,
 	TRANSPARENT_ROW = 3,
@@ -804,6 +811,8 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 {
 	if (cfg->font)
 		gnome_config_set_string ("font", cfg->font);
+	if (cfg->wordclass)
+		gnome_config_set_string ("wordclass", cfg->wordclass);
 	gnome_config_set_string ("scrollpos",
 				 cfg->scrollbar_position == SCROLLBAR_LEFT ? "left" :
 				 cfg->scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
@@ -968,6 +977,18 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->swapkeys_checkbox,
 			  2, 3, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	
+	/* Word selection class */
+	l = aligned_label (_("Select-by-word characters"));
+	gtk_table_attach (GTK_TABLE (table), l,
+                          1, 2, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->wordclass_entry = gtk_entry_new();
+	gtk_entry_set_text (GTK_ENTRY (prefs->wordclass_entry),
+			    cfg->wordclass);
+	gtk_signal_connect (GTK_OBJECT (prefs->wordclass_entry), "changed",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->wordclass_entry,
+			  2, 3, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	
 	/* Image page */
 	/* if pixmap support isn't in zvt, we still create the widgets for
@@ -1558,6 +1579,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	gnome_term_set_font (term, cfg->font);
+	zvt_term_set_wordclass  (term, cfg->wordclass);
 	zvt_term_set_bell  (term, !cfg->bell);
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);

@@ -1,3 +1,10 @@
+1999-02-09  Michael Zucchi  <zucchi@zzedzone.mmc.com.au>
+
+	* gnome-terminal.c (preferences_cmd): Added a "select by word
+	characterclass" option, and added it to the config, and update
+	functions also.  This might need re-wording, or placing on a
+	different preferences pane.
+
 1999-02-07  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (button_press): Add support for popping up the
