@@ -1,6 +1,7 @@
 [Desktop Entry]
+Name=Keyboard Properties
+Comment=Keyboard Properties
 Exec=keyboard-properties
 Icon=
-Info=Keyboard Properties
 Terminal=0
 Type=Application

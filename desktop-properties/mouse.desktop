@@ -1,6 +1,7 @@
 [Desktop Entry]
+Name=Mouse Properties
+Comment=Mouse Properties
 Exec=mouse-properties
 Icon=
-Info=Mouse Properties
 Terminal=0
 Type=Application
