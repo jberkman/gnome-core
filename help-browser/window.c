@@ -213,6 +213,54 @@ GnomeUIInfo toolbar[] = {
 /**********************************************************************/
 
 
+/* stupid function to handle fact XmHTML doesn't un-escape & strings */
+/* in URL we get passed back!                                        */
+static gchar *
+unescape_url ( gchar *ref ) {
+    gchar *s, *ns;
+    gchar *newref;
+
+
+    /* go through and replace any of following with unescaped equivs */
+
+    if (!ref)
+	return NULL;
+
+    newref = g_strdup (ref);
+    for (s=ref, ns=newref; *s; ) {
+
+	if (*s != '&') {
+	    *ns = *s;
+	    ns++;
+	    s++;
+	    continue;
+	} else {
+
+	    if (!g_strncasecmp (s, "&gt;", 4)) {
+		*ns = '>';
+		s+=4;
+	    } else if (!g_strncasecmp (s, "&lt;", 4)) {
+		*ns = '<';
+		s+=4;
+	    } else if (!g_strncasecmp (s, "&amp;", 5)) {
+		*ns = '&';
+		s+=5;
+	    } else {
+		*ns = *s;
+		s++;
+	    }
+
+	    ns++;
+	    continue;
+	}
+    }
+
+    *ns = '\0';
+
+    return newref;
+}
+
+
 /**********************************************************************/
 
 /* Callbacks */
@@ -281,9 +329,19 @@ quit_cb (void)
 static void
 xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
-        g_message("TAG CLICKED: %s", cbs->href);
 
-	helpWindowShowURL(win, cbs->href, TRUE, TRUE);
+
+    g_message("TAG CLICKED: %s", cbs->href);
+    
+    if (cbs->href) {
+	gchar *s;
+
+	s = unescape_url(cbs->href);
+	
+	helpWindowShowURL(win, s, TRUE, TRUE);
+	
+	g_free(s);
+    }
 }
 
 static void
@@ -291,7 +349,11 @@ anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
 	gnome_appbar_pop(GNOME_APPBAR(win->appBar));
 	if (cbs->href) {
-		gnome_appbar_push(GNOME_APPBAR(win->appBar), cbs->href);
+	    gchar *s;
+
+	    s = unescape_url(cbs->href);
+	    gnome_appbar_push(GNOME_APPBAR(win->appBar), s);
+	    g_free (s);
 	}
 }
 
