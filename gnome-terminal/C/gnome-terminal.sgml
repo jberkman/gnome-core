@@ -583,20 +583,20 @@
 	  held, whole lines are selected as you drag the mouse up and
 	  down.
 	</para>
-	<para>FIXME:
-	  The middle mouse button can be used to extend the
+	<para>
+	  The right mouse button can be used to extend the
 	  selection.  Simply scroll to where you wish to extend the
-	  selection to, and click the right mouse button while the
-          mouse is still in the scrollbar.  Again, single, double and 
-          triple click-drags will result in by-character, by-word, or 
+	  selection to, and click the right mouse button in the
+	  desired place.   Again, single, double and 
+          triple clicks will result in by-character, by-word, or 
           by-line selection.
 	</para>
 	<para>
 	  For all cases, releasing the mouse button automatically
-	  copies the selected text into the clipboard, and may be
-	  pasted to other applications.  Note that any screen output
-	  will clear the highlighting of the selection, but it will
-	  still be kept in the clipboard. 
+	  copies the selected text into the clipboard, so that it may
+	  be pasted to other applications.  Note that any screen
+	  output will clear the highlighting of the selection, but it
+	  will still be kept in the clipboard.
 	</para>
       </sect2>
 
@@ -683,7 +683,7 @@
 		A colour can be dragged from another gnome
 		application, or from the
 		<link linkend="menu-settings">colour selector</link> into the
-		display.  If they land on a character, it sets the
+		display.  If it lands on a character, it sets the
 		foreground colour, otherwise it sets the background
 		colour.  Refer to the
 		<link linkend="config-colour">colour
