@@ -1,3 +1,8 @@
+Wed Jan 10 11:02:01 2001  George Lebl <jirka@5z.com>
+
+	* gnome-hint.c: Mark more strings for translation, and use
+	  g_strcasecmp instead of strcmp for checking the xml tags
+
 Sun Dec 17 15:28:29 2000  George Lebl <jirka@5z.com>
 
 	* gnome-hint.c: plug a leak based on a patch from "Juan Pablo Mendoza

@@ -89,8 +89,10 @@ get_i18n_string (xmlDocPtr doc, xmlNodePtr child, const char *name)
 	/*find C the locale string*/
 	for(cur = child->childs; cur; cur = cur->next) {
 		char *lang;
-		if(!cur->name || strcmp(cur->name, name)!=0)
+		if (cur->name == NULL ||
+		    g_strcasecmp (cur->name, name) != 0)
 			continue;
+
 		lang = xmlGetProp (cur, "xml:lang");
 		if (lang == NULL ||
 		    lang[0] == '\0') {
@@ -128,7 +130,7 @@ read_hints_from_file (const char *file)
 	
 	if (doc->root == NULL ||
 	    doc->root->name == NULL ||
-	    strcmp (doc->root->name, "GnomeHints") != 0) {
+	    g_strcasecmp (doc->root->name, "GnomeHints") != 0) {
 		xmlFreeDoc (doc);
 		return;
 	}
@@ -136,7 +138,7 @@ read_hints_from_file (const char *file)
 	for (cur = doc->root->childs; cur; cur = cur->next) {
 		char *str;
 		if (cur->name == NULL ||
-		    strcmp (cur->name, "Hint") != 0)
+		    g_strcasecmp (cur->name, "Hint") != 0)
 			continue;
 		str = get_i18n_string (doc, cur, "Content");
 		if (str != NULL) {
@@ -397,7 +399,7 @@ draw_on_canvas(GtkWidget *canvas, gboolean is_fortune, gboolean is_motd, const c
 		"y",(double)25.0,
 		"fill_color","white",
 		"font",_("-*-helvetica-bold-r-normal-*-*-180-*-*-p-*-*-*"),
-		"text",is_fortune?"Fortune":is_motd?"Message of The Day":"Gnome Hints",
+		"text",is_fortune?_("Fortune"):is_motd?_("Message of The Day"):_("GNOME Hints"),
 		NULL);
 
 	grow_text_if_necessary();
