@@ -326,7 +326,7 @@ set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg)
 }
 
 static struct terminal_config * 
-load_config (char *class, gchar *prefix)
+load_config (char *class)
 {
 	char *p;
 	char *fore_color = NULL;
@@ -337,8 +337,6 @@ load_config (char *class, gchar *prefix)
 	cfg->font = NULL;
 	cfg->invoke_as_login_shell = 0;
 	cfg->class = g_strdup (class);
-
-	gnome_config_push_prefix (prefix);
 
 	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
 	cfg->font    = gnome_config_get_string ("font=" DEFAULT_FONT);
@@ -383,8 +381,6 @@ load_config (char *class, gchar *prefix)
 			cfg->color_set = 0;
 		}
 	}
-
-	gnome_config_pop_prefix ();
 
 	return cfg;
 }
@@ -544,11 +540,12 @@ switch_terminal_cb (GnomeMessageBox *mbox, gint button, void *term)
 
 	if (button == 0){
 		/* yes */
-         	char *prefix = alloca (strlen (newcfg->class) + 20);
-	        sprintf (prefix, "/Terminal/%s/", newcfg->class);
-		loaded_cfg = load_config (newcfg->class,prefix);
+         	char *prefix = g_strdup_printf("/Terminal/%s/", newcfg->class);
+		gnome_config_push_prefix (prefix);
+		loaded_cfg = load_config (newcfg->class);
 		apply_changes (term, loaded_cfg);
 		terminal_config_free (loaded_cfg);
+		gnome_config_pop_prefix ();
 	} else if (button == 1){
 		/* no */
 		apply_changes (term, newcfg);
@@ -806,10 +803,9 @@ get_color_string (GdkColor c)
 }
 
 static void
-save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg, gchar *prefix)
+save_preferences (GtkWidget *widget, ZvtTerm *term, 
+		  struct terminal_config *cfg)
 {
-	gnome_config_push_prefix (prefix);
-
 	if (cfg->font)
 		gnome_config_set_string ("font", cfg->font);
 	gnome_config_set_string ("scrollpos",
@@ -821,9 +817,12 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg,
 	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
 	gnome_config_set_int    ("color_set", cfg->color_set);
 	gnome_config_set_string ("color_scheme",
-		     cfg->color_type == 0 ? "linux" : (cfg->color_type == 1 ? "xterm" : "rxvt"));
-	gnome_config_set_string ("foreground", get_color_string (cfg->user_fore));
-	gnome_config_set_string ("background", get_color_string (cfg->user_back));
+				 cfg->color_type == 0 ? "linux" : 
+				 (cfg->color_type == 1 ? "xterm" : "rxvt"));
+	gnome_config_set_string ("foreground", 
+				 get_color_string (cfg->user_fore));
+	gnome_config_set_string ("background", 
+				 get_color_string (cfg->user_back));
 	gnome_config_set_bool   ("menubar", !cfg->menubar_hidden);
 	gnome_config_set_bool   ("scrollonkey", cfg->scroll_key);
 	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
@@ -831,19 +830,18 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg,
 	gnome_config_set_bool   ("shaded", cfg->shaded);
 	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
 	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
-	gnome_config_sync ();
-
-	gnome_config_pop_prefix ();
 }
 
 static void
 save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
- 	char *prefix = alloca (strlen (cfg->class) + 20);
+	struct terminal_config *cfg = 
+		gtk_object_get_data (GTK_OBJECT (term), "config");
+	char *prefix = g_strdup_printf ("/Terminal/%s/", cfg->class);
 
-	sprintf (prefix, "/Terminal/%s/", cfg->class);
-	save_preferences (widget, term, cfg, prefix);
+	gnome_config_push_prefix (prefix);
+	save_preferences (widget, term, cfg);
+	gnome_config_pop_prefix ();
 }
 
 static void
@@ -1605,50 +1603,48 @@ new_terminal (GtkWidget *widget, ZvtTerm *term)
 }
 
 static gboolean
-load_session (GnomeClient *client)
+load_session ()
 {
 	int num_terms, i;
 	gboolean def;
-	gchar *section;
+	gchar *file;
 
-	section=gnome_client_get_config_prefix (client);
-	gnome_config_push_prefix (section);
-	num_terms = gnome_config_get_int_with_default ("dummy/num_terms", &def);
+	file = gnome_client_get_config_prefix (gnome_master_client());
+
+	fprintf(stderr, "%s\n", file);
+
+	gnome_config_push_prefix (file);
+	num_terms = gnome_config_get_int_with_default ("dummy/num_terms", 
+						       &def);
+	gnome_config_pop_prefix ();
 	if (def || ! num_terms)
 		return FALSE;
 
 	for (i = 0; i < num_terms; ++i){
-		char buffer[50], *geom, **argv;
+		char *geom, **argv;
 		struct terminal_config *cfg;
 		char *class;
 		int argc;
-		gchar *prefix;
+		char *prefix = g_strdup_printf ("%s%d/", file, i);
+	  
+		gnome_config_push_prefix (prefix);
 
-		sprintf (buffer, "%d/geometry", i);
-		geom = gnome_config_get_string (buffer);
+		/* NAUGHTY: The ICCCM requires that the WM stores
+		   all session data on geometry! */
+		geom = gnome_config_get_string ("geometry");
+		gnome_config_get_vector ("command", &argc, &argv);
+		class = gnome_config_get_string("class=Default");
 
-		sprintf (buffer, "%d/command", i);
-		gnome_config_get_vector (buffer, &argc, &argv);
-
-		sprintf (buffer, "%d/class=Default", i);
-		class=gnome_config_get_string(buffer);
-
-		sprintf (buffer, "%d/",i);
-		prefix=alloca(strlen(section) + strlen(buffer) + 1);
-		strcpy(prefix,section);
-		strcat(prefix,buffer);
-		printf("loading configuration from %s\n",prefix);
-		cfg=load_config(class,prefix);
-		new_terminal_cmd (argv, cfg,geom);
-		g_free(cfg);
+		cfg = load_config (class);
 		g_free(class);
+		gnome_config_pop_prefix();
 
+		new_terminal_cmd (argv, cfg, geom);
+
+		g_free(cfg);
 		g_free (geom);
 		g_strfreev (argv);
-		gnome_config_push_prefix(section);
 	}
-
-	gnome_config_pop_prefix();
 	return TRUE;
 }
 
@@ -1659,88 +1655,72 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	      gint is_shutdown, GnomeInteractStyle interact_style,
 	      gint is_fast, gpointer client_data)
 {
-	if (gnome_client_get_id (client)){
-		char *section = gnome_client_get_config_prefix (client);
-		char *args[11];
-		int argc = 0, i;
-		GList *list;
+	char *file = gnome_client_get_config_prefix (client);
+	char *args[8];
+	int i;
+	GList *list;
+	
+	i = 0;
+	for (list = terminals; list != NULL; list = list->next){
+	  
+		char *geom;
+		struct terminal_config *cfg;			
+		ZvtTerm *term;
+		GtkWidget *top = 
+			gtk_widget_get_toplevel (GTK_WIDGET (list->data));
+		char *prefix = g_strdup_printf ("%s%d/", file, i);
+	  
+		gnome_config_push_prefix (prefix);
 
-		gnome_config_clean_file (section);
-
-		i = 0;
-		for (list = terminals; list != NULL; list = list->next){
-		  
-		        char buffer [50], *geom;
-			char *prefix;
-			struct terminal_config *cfg;			
-			ZvtTerm *term;
-
-			GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (list->data));
-			
-			gnome_config_push_prefix (section);
-			sprintf (buffer, "%d/geometry", i);
-			geom = gnome_geometry_string (top->window);
-			gnome_config_set_string (buffer, geom);
-			g_free (geom);
-
-			sprintf (buffer, "%d/", i);
-			prefix = alloca(strlen(section) + strlen(buffer) + 1);
-			strcpy(prefix,section);
-			strcat(prefix,buffer);
-			term=ZVT_TERM(gtk_object_get_data(GTK_OBJECT(list->data), "term"));
-			cfg=gtk_object_get_data (GTK_OBJECT (term), "config");
-
-			sprintf(buffer, "%d/class", i);
-			gnome_config_set_string(buffer,cfg->class);
-
-			if (top == initial_term){
-				int n;
-				for (n = 0; initial_command[n]; ++n);
-				sprintf (buffer, "%d/command", i);
-				gnome_config_set_vector (buffer, n,
-							 initial_command);
-			}
-
-			save_preferences(list->data,term,cfg,prefix);
-			++i;
+		/* NAUGHTY: The ICCCM requires that the WM stores
+		   all session data on geometry! */
+		geom = gnome_geometry_string (top->window);
+		gnome_config_set_string ("geometry", geom);
+		g_free (geom);
+		
+		term = ZVT_TERM (gtk_object_get_data (GTK_OBJECT(list->data), 
+						      "term"));
+		cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
+		gnome_config_set_string("class", cfg->class);
+		
+		if (top == initial_term){
+			int n;
+			for (n = 0; initial_command[n]; ++n);
+			gnome_config_set_vector ("command", n,
+						 (const char * const*) initial_command);
 		}
-		gnome_config_set_int ("dummy/num_terms", i);
 
-#if 0 /* save_prefences above implicitly pops the prefix.  
-	 This is broken, but oh well */
+		save_preferences(list->data, term, cfg);
+
 		gnome_config_pop_prefix ();
-#endif
-		gnome_config_sync ();
-
-
-		args[argc++] = (char *) client_data;
-		/*		args[argc++] = "/arsenic/u1/mvachhar/bin/myterm";*/
-/* FIXME */
-#if 0
-		args[argc++] = "--font";
-		args[argc++] = cfg.font;
-		args[argc++] = cfg.invoke_as_login_shell ? "--login" : "--nologin";
-		args[argc++] = "--foreground";
-		args[d1 = argc++] = g_strdup (get_color_string (cfg.user_fore));
-		args[argc++] = "--background";
-		args[d2 = argc++] = g_strdup (get_color_string (cfg.user_back));
-
-		args[argc] = NULL;
-#endif
-
-		gnome_client_set_restart_command (client, argc, args);
-/* Remember to put me in when above is fixed :) */
-#if 0 
-		g_free (args[d1]);
-		g_free (args[d2]);
-#endif
-		args[0] = (char*)client_data;
-		args[1] = "--discard";
-		args[2] = section;
-		args[3] = NULL;
-
-		gnome_client_set_discard_command (client, 3, args);
+		g_free (prefix);
+		
+		++i;
 	}
+	gnome_config_push_prefix (file);
+	gnome_config_set_int ("dummy/num_terms", i);
+#if 0
+	/* What was the cfg variable ? */
+	args[0] = gnome_master_client()->restart_command[0];
+	args[1] = "--font";
+	args[2] = cfg.font;
+	args[3] = cfg.invoke_as_login_shell ? "--login" : "--nologin";
+	args[4] = "--foreground";
+	args[5] = g_strdup (get_color_string (cfg.user_fore));
+	args[6] = "--background";
+	args[7] = g_strdup (get_color_string (cfg.user_back));
+	args[8] = NULL;
+
+	g_free (args[5]);
+	g_free (args[7]);
+	gnome_client_set_restart_command (client, 8, args);
+#endif
+	gnome_config_sync ();
+
+	args[0] = "rm";
+	args[1] = gnome_config_get_real_path (file);
+	args[2] = NULL;
+	gnome_client_set_discard_command (client, 2, args);
 
 	return TRUE;
 }
@@ -1754,10 +1734,9 @@ enum {
 	COMMAND_KEY  = 'e',
 	FORE_KEY     = -6,
 	BACK_KEY     = -7,
-	DISCARD_KEY  = -8,
-	CLASS_KEY    = -9,
-	DOUTMP_KEY   = -10,
-	DONOUTMP_KEY = -11
+	CLASS_KEY    = -8,
+	DOUTMP_KEY   = -9,
+	DONOUTMP_KEY = -10
 };
 
 static struct poptOption cb_options [] = {
@@ -1786,9 +1765,6 @@ static struct poptOption cb_options [] = {
 
 	{ "background", '\0', POPT_ARG_STRING, NULL, BACK_KEY,
 	  N_("Background color"), N_("COLOR")},
-
-	{ "discard", '\0', POPT_ARG_STRING, NULL, DISCARD_KEY,
-	  NULL, N_("ID")},
 
 	{ "utmp", '\0', POPT_ARG_NONE, NULL, DOUTMP_KEY,
 	  N_("Update utmp/wtmp entries"), N_("UTMP") },
@@ -1842,15 +1818,13 @@ parse_an_arg (poptContext state,
 		  }
 	case FORE_KEY:
 	        cfg->user_fore_str = arg;
+		//		gdk_color_parse(cfg->user_fore_str, &cfg->user_fore);
 		cfg->have_user_colors = 1;
 		break;
 	case BACK_KEY:
 	        cfg->user_back_str = arg;
+		//gdk_color_parse(cfg->user_back_str, &cfg->user_back);
 		cfg->have_user_colors = 1;
-		break;
-	case DISCARD_KEY:
-		gnome_client_disable_master_connection ();
-		discard_section = (char *)arg;
 		break;
 	case DOUTMP_KEY:
 		update_utmp = TRUE;
@@ -1872,7 +1846,7 @@ session_die (gpointer client_data)
 static int
 main_terminal_program (int argc, char *argv [], char **environ)
 {
-	GnomeClient *client, *clone;
+	GnomeClient *client;
 	char *program_name;
 	char *class;
 	struct terminal_config *default_config, *cmdline_config;
@@ -1883,20 +1857,6 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 
-	program_name = strrchr (argv[0], '/');
-	if (!program_name) 
-		program_name = argv[0];
-	else
-		program_name++;
-
-	if (getenv ("GNOME_TERMINAL_CLASS"))
-		class = g_strconcat ("Class-", getenv ("GNOME_TERMINAL_CLASS"), 
-				     NULL);
-	else if (strcmp (program_name, "gnome-terminal"))
-		class = g_strconcat ("Class-", program_name, NULL);
-	else
-		class = g_strdup ("Config");
-	
 	cmdline_config = g_new0 (struct terminal_config, 1);
 	
 	cb_options[0].descrip = (char *)cmdline_config;
@@ -1904,11 +1864,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
 				   cb_options, 0, &ctx);
 
-	if (discard_section){
-		gnome_config_clean_file (discard_section);
-		return 0;
-	}
-	
+#if 1
 	if(cmdline_config->user_back_str)
 		gdk_color_parse(cmdline_config->user_back_str,
 				&cmdline_config->user_back);
@@ -1916,22 +1872,41 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	if(cmdline_config->user_fore_str)
 		gdk_color_parse(cmdline_config->user_fore_str,
 				&cmdline_config->user_fore);
-	
+#endif
 	if (cmdline_config->class){
-		free (class);
 		class = g_strdup (cmdline_config->class);
+	}
+	else
+	{
+#if 0 /* program_invoation_short_name is broken on non-glibc machines at the moment */	
+		program = program_invocation_short_name;
+#else
+		program_name = strrchr (argv[0], '/');
+		if (!program_name) 
+			program_name = argv[0];
+		else
+			program_name++;
+#endif
+		if (getenv ("GNOME_TERMINAL_CLASS"))
+			class = g_strconcat ("Class-", getenv ("GNOME_TERMINAL_CLASS"), 
+					     NULL);
+		else if (strcmp (program_name, "gnome-terminal"))
+			class = g_strconcat ("Class-", program_name, NULL);
+		else
+			class = g_strdup ("Config");
 	}
 	
 	client = gnome_master_client ();
 	gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
-			    GTK_SIGNAL_FUNC (save_session), argv[0]);
+			    GTK_SIGNAL_FUNC (save_session), NULL);
 	gtk_signal_connect (GTK_OBJECT (client), "die",
 			    GTK_SIGNAL_FUNC (session_die), NULL);
 	
 	{
-		char *prefix = g_malloc (strlen (class) + 20);
-		sprintf (prefix, "/Terminal/%s/", class);
-		default_config = load_config (class,prefix);
+		char *prefix = g_strdup_printf ("Terminal/%s/", class);
+		gnome_config_push_prefix (prefix);
+		default_config = load_config (class);
+		gnome_config_pop_prefix();
 		g_free (class);
 		g_free (prefix);
 	}
@@ -1954,8 +1929,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	
 	terminal_config_free (cmdline_config);
 	
-	clone = gnome_cloned_client ();
-	if (! clone || ! load_session (clone))
+	if (!load_session ())
 		new_terminal_cmd (initial_command, default_config, geometry);
 
 	terminal_config_free (default_config);
