@@ -1,0 +1,214 @@
+<!DOCTYPE BOOK PUBLIC "-//Davenport//DTD DocBook V3.0//EN" [
+<!ENTITY GNOME-APPS SYSTEM "gnome-terminal.sgml">] >
+
+
+<Book id="index">
+   <title>GNOME Terminal User's Guide</title>
+    <bookinfo>
+       <authorgroup>
+    	 <author>
+    	   <firstname>Miguel</firstname>
+    	   <surname>de Icaza</surname>
+    	 </author>
+       </authorgroup>
+     <releaseinfo>documentation in progress</releaseinfo>
+     <legalnotice>
+     <para>
+  	 This document can be freely redistributed according to the
+  	 terms of the GNU General Public License.</para>
+    </legalnotice>
+   </bookinfo>
+  <toc></toc>
+   
+  <chapter id="terminal">
+   <title>The GNOME terminal users guide.</title>
+   
+   <sect1 id="Description">
+    <title>Description</title>
+     <para>
+     gnome-terminal is a terminal emulator program that is part of the
+     GNOME project.  It provides access to the Unix shell on the GNOME
+     environment. 
+     </para>
+   </sect1>
+  
+   <sect1 id="Emulation">
+    <title>Emulation</title>
+     <para>   The emulation supported by GNOME terminal is the same as
+     the xterm program as provided by the X consortiums xterm program
+     (which is in turn an almost complete emulation of the VT102 DEC
+     terminal).</para>
+  
+     <para>The GNOME terminal supports the same extensions to the VT102
+     that the xterms provide (trough special escape sequences, see the
+     technical guide for the details).
+     </para>
+   </sect1>
+  
+   <sect1 id="config">
+    <title>Configurable options</title>
+     <para>
+       
+     </para>
+   </sect1>
+  
+   <sect1 id="classes">
+    <title>Terminal classes</title>
+     <para>The GNOME terminal allows you to have different configuration
+       profiles to suit different uses.  To do this you only need to
+       provide a name for your new configuration class by entering the
+       new name in the property configuration dialog box.</para>
+       
+     <para>To activate a specific class at program startup you can use
+     the --class command line option. </para>
+  
+   </sect1>
+  
+   <sect1 id="Options">
+    <title>Command line options</title>
+     <para>
+       <itemizedlist>
+         <listitem>
+  	 <screen>--background COLOR</screen>
+  
+  	 <para>Used to specify the 
+  	 background color for the terminal at startup.  The COLOR can be
+  	 any form accepted by your windowing system.
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--class CLASSNAME</screen>
+  	 <para>
+  	 CLASSNAME Specifies the terminal class used to configure the
+  	 terminal at startup.
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--command CMD, -e CMD</screen>
+  	 <para>
+  	 Runs the CMD command at startup time
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--font FONT</screen>
+  	 <para>
+  	 Sets the font of the terminal to FONT
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--foreground COLOR</screen>
+  	 <para>
+  	 Sets the foreground of the terminal to COLOR.
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--geometry GEOMETRY</screen>
+  	 <para>
+  	 Specifies the startup geometry for this terminal. 
+  	 FIXME:  LInk to gnome-libs document on GEOMETRY specifications
+  	 when it is written
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--login</screen>
+  	 <para>
+  	 Make gnome-terminal launch the shell in login mode (it will run
+  	 all of your login initialization scripts in this mode). 
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--nologin</screen>
+  	 <para>
+  	 Make gnome-terminal only launch a shell.
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--noutmp</screen>
+  	 <para>
+  	 Indicates that this and the associated shell should not be
+  	 registered in the system database of users logged into the
+  	 computer. 
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--utmp</screen>
+  	 <para>
+  	 Indicates that the user wants this terminal to be registered in
+  	 the system database of users logged into the computer (the utmp
+  	 database).  This is the default.
+  	 </para>
+	 </listitem>
+  
+         <listitem>
+  	 <screen>--title TITLE, -t TITLE</screen>
+  	 <para>
+  	 Makes GNOME terminal use TITLE for the window caption.
+  	 </para>
+	 </listitem>
+       </itemizedlist>
+
+     </para>
+   </sect1>
+  
+   <sect1 id="pointerusage">
+    <title>Pointer usage</title>
+     <para>
+     </para>
+   </sect1>
+  
+   <sect1 id="menus">
+    <title>Menus</title>
+     <para>
+     </para>
+   </sect1>
+  
+   <sect1 id="enviroment">
+    <title>Enviroment</title>
+     <para>
+     The following variables are set by gnome-terminal: COLOR,
+     COLORTERM, WINDOWID
+     </para>
+   </sect1>
+  
+   <sect1 id="Authors">
+    <title>Authors</title>
+     <para>
+     </para>
+   </sect1>
+   
+  </chapter>
+  
+  <chapter id="termtech">
+   <title>The GNOME terminal technical guide.</title>
+   <sect1 id="test">
+    <title>Test</title>
+     <para>test
+     </para>
+   </sect1>
+  
+  </chapter>
+</book>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->

@@ -1,5 +1,8 @@
 ## Process this file with automake to produce Makefile.in.
 
+# Documentation
+SUBDIRS = C
+
 INCLUDES = 			\
 	-I$(includedir)		\
 	-I$(top_srcdir)/intl	\
