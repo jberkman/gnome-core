@@ -1,4 +1,4 @@
-gnome_terminal_helpdir = $(datadir)/gnome/help/gnome-terminal/C
+gnome_terminal_helpdir = $(datadir)/gnome/help/gnome-terminal/de
 
 gnome_terminal_help_DATA = 	\
 	index.html		\
