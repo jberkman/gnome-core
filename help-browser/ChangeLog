@@ -1,3 +1,8 @@
+1998-11-19  Havoc Pennington <hp@pobox.com>
+
+	* gnome-help-browser.c (main): Reflect renaming of gnorba calls
+	(server_register and server_unregister).
+
 Thu Nov 12 Felix Bellaby <felix@pooh.u-net.com>
 	* gnome-help-browser.c: tidy up warnings and mapping.
 	* window.c (init_accel): fix accelerators. 
