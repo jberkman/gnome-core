@@ -89,8 +89,8 @@ transportFile( docObj obj )
 	mime = docObjGetMimeType(obj);
 	if (mime && !strcmp(mime, "application/x-troff-man")) {
 	    if (!strncmp(buf, ".so ", 4)) {
-		strncpy(filename, docObjGetDecomposedUrl(obj)->path,
-		       sizeof(filename));
+		g_snprintf (filename, sizeof (filename), "%s",
+			    docObjGetDecomposedUrl(obj)->path);
 		if ((s = strrchr(filename, '/'))) {
 		    *s = '\0';
 		    if ((s = strrchr(filename, '/'))) {
@@ -182,7 +182,8 @@ loadSock( docObj obj, int sock )
     outbuflen = 0;
     while ((bytes = read(sock, buf, sizeof(buf))) > 0) {
         char printbuf[1024];
-	sprintf(printbuf, "Downloading: %d bytes", outbuflen);
+	g_snprintf(printbuf, sizeof (printbuf),
+		   "Downloading: %d bytes", outbuflen);
 	statusMsg(printbuf);
 
 	outbuf = g_realloc(outbuf, outbuflen + bytes);

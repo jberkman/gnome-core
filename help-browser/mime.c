@@ -168,7 +168,7 @@ convertMan( docObj obj )
 	gint len;
 	gchar *argv[6];
 	guchar *outbuf;
-	gchar s[256], *p;
+	gchar s[BUFSIZ], *p;
 	gint outbuflen;
 	gint i;
 
@@ -180,7 +180,7 @@ convertMan( docObj obj )
 	i=0;
 	argv[i++] = "gnome-man2html";
 	argv[i++] = "-n";
-	strncpy(s,docObjGetHumanRef(obj),255);
+	g_snprintf (s, sizeof (s), docObjGetHumanRef(obj));
 	p = strrchr(s, '#');
 	if (p)
 		*p = '\0';

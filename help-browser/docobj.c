@@ -33,7 +33,7 @@ struct _docObj {
 };
 
 docObj
-docObjNew(gchar *ref, gboolean useCache)
+docObjNew(const gchar *ref, gboolean useCache)
 {
 	docObj p;
 

@@ -1,3 +1,13 @@
+Mon Jun 11 21:59:25 2001  George Lebl <jirka@5z.com>
+
+	* *.[ch]: fix uses of strncpy, set some buffer sizes correctly,
+	  get rid of some useless buffer copying allocation, fix all
+	  warnings, teeeny bit of constcorrectness, fix strftime usage,
+	  mark strftime strings for translation, apply fix from Kjartan
+	  Maraas, use g_new0 instead of g_new, and generally deal with buffer
+	  issues where it could cause trouble.  Still some places are just
+	  evil and bad, and there are still possible overruns.
+
 2001-06-11  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* misc.c: Apply patch from markd@Kermodei.com> to close

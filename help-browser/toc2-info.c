@@ -44,8 +44,8 @@ GList *newInfoTable(struct _toc_config *conf)
     struct _info_node *p;
     char last[BUFSIZ];
     int tmp_array_size = 256, tmp_array_elems = 0;
-    struct _info_node **tmp_array = g_new(struct _info_node *,
-                                          tmp_array_size);
+    struct _info_node **tmp_array = g_new0 (struct _info_node *,
+					    tmp_array_size);
 
     while (conf->path) {
 	if (conf->type != TOC_INFO_TYPE) {
@@ -140,7 +140,7 @@ static gchar *makeBaseName(gchar *name)
     gchar buf[BUFSIZ];
     gchar *end, *s, *ss;
 
-    strncpy(buf, name, sizeof(buf));
+    g_snprintf (buf, sizeof(buf), "%s", name);
     end = buf + strlen(buf);
 
     /* Strip off any trailing `.gz' */
@@ -321,7 +321,7 @@ static gchar *findInfoFile(gchar *rootFile, gchar *name)
     gchar buf[BUFSIZ];
     gchar *s;
 
-    strncpy(buf, rootFile, sizeof(buf));
+    g_snprintf (buf, sizeof(buf), "%s", rootFile);
     s = strrchr(buf, '/');
     s++;
     *s = '\0';
