@@ -154,22 +154,26 @@ property_main (int argc, char *argv [])
 		if (!strcmp (argv [i], "-init"))
 			init = 1;
 
-	/* FIXME: actually save state.  */
+	/* FIXME: actually save state.
+	   FIXME: does it make sense to contact the session manager in
+	   -init mode?  */
 	session_id = gnome_session_init (NULL, NULL,
 					 NULL, NULL,
 					 previous_id);
 
-	/* FIXME: for now, fake out the session manager and have it
-	   restart us in -init mode.  This is pretty bogus.  But it
-	   does point out a deficiency in the session manager.  */
+	/* Tell session manager to run us in init mode next time the
+	   session starts up.  */
 	new_argv[0] = argv[0];
 	new_argv[1] = "-init";
-	new_argv[2] = "-previous-id";
-	new_argv[3] = session_id;
-	gnome_session_set_restart_style (GNOME_RESTART_ANYWAY);
-	gnome_session_set_restart_command (4, new_argv);
-	gnome_session_set_clone_command (2, new_argv);
+	gnome_session_set_initialization_command (2, new_argv);
+
+	new_argv[1] = "-previous-id";
+	new_argv[2] = session_id;
+	gnome_session_set_restart_command (3, new_argv);
+	gnome_session_set_clone_command (1, new_argv);
 	gnome_session_set_program (argv[0]);
+
+	/* FIXME: set session's notion of pwd.  */
 
 	gnome_property_configurator_request_foreach (display_config,
 						     GNOME_PROPERTY_READ);
