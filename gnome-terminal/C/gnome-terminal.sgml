@@ -596,7 +596,10 @@
 	Michael Zucchi coded the Zvt widget engine; Miguel de Icaza
 	and Jay Painter improved it and did further debugging and
 	maintenance.   George Lebl added transparency and backing
-	pixmap support to the widget.</para>
+	pixmap support to the widget.  Michael Zucchi later
+	significantly improved the transparency and pixmap support,
+	adding smoother/faster display and an optional scrolling mode.
+	</para>
 
       <para>
 	Miguel did the main gnome terminal program, and Erik Troan

@@ -73,6 +73,9 @@ struct terminal_config {
 	int scroll_out       :1;       		/* Scroll on output? */
 	int swap_keys        :1;       		/* Swap DEL/Backspace? */
 	int login_by_default :1;                /* do --login as default */
+#ifdef ZVT_BACKGROUND_SCROLL
+	int scroll_background:1; 		/* background will scroll */
+#endif
 	int color_type; 			/* The color mode */
 	enum color_set_enum color_set;
 	char *font; 				/* Font used by the terminals */
@@ -116,6 +119,9 @@ typedef struct {
 	GtkWidget *pixmap_entry;
 	GtkWidget *transparent_checkbox;
 	GtkWidget *shaded_checkbox;
+#ifdef ZVT_BACKGROUND_SCROLL
+	GtkWidget *pixmap_scrollable_checkbox;
+#endif
 	GtkWidget *menubar_checkbox;
         GtkWidget *bell_checkbox;
 	GtkWidget *font_entry;
@@ -222,14 +228,15 @@ gnome_term_set_font (ZvtTerm *term, char *font_name)
 	GdkFont *font;
 
 	font = gdk_font_load (font_name);
-	if (font)
+	if (font) {
 #ifdef ZVT_TERM_EMBOLDEN_SUPPORT
 		if (zvt_term_get_capabilities(term) & ZVT_TERM_EMBOLDEN_SUPPORT)
 			zvt_term_set_fonts  (term, font, 0);
 		else
 #endif
 			zvt_term_set_fonts  (term, font, font);
-	
+	}
+
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
 		g_free (s);
@@ -415,6 +422,9 @@ load_config (char *class)
 
 	cfg->login_by_default = gnome_config_get_bool ("login_by_default=0");
 
+#ifdef ZVT_BACKGROUND_SCROLL
+	cfg->scroll_background = gnome_config_get_bool ("scroll_background=0");
+#endif
 	/* Default colors in the case the color set is the custom one */
 	fore_color = gnome_config_get_string ("foreground=gray");
 	back_color = gnome_config_get_string ("background=black");
@@ -467,6 +477,11 @@ gather_changes (ZvtTerm *term)
 	newcfg->pixmap_file  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->pixmap_entry)));
 	newcfg->wordclass = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->wordclass_entry)));
 	newcfg->scrollbar_position = option_menu_get_history (GTK_OPTION_MENU (prefs->scrollbar));
+
+#ifdef ZVT_BACKGROUND_SCROLL
+	newcfg->scroll_background = GTK_TOGGLE_BUTTON (prefs->pixmap_scrollable_checkbox)->active
+		&& newcfg->background_pixmap;
+#endif
 
 	g_free (newcfg->font);
 	newcfg->font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
@@ -539,11 +554,18 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	zvt_term_set_del_key_swap (term, cfg->swap_keys);
 
-	if (zvt_pixmap_support && cfg->background_pixmap)
+	if (zvt_pixmap_support && cfg->background_pixmap) {
+		int flags;
+#ifdef ZVT_BACKGROUND_SCROLL
+		flags = cfg->shaded?ZVT_BACKGROUND_SHADED:0;
+		flags |= cfg->scroll_background?ZVT_BACKGROUND_SCROLL:0;
+#else
+		flags = cfg->shaded;
+#endif
 		zvt_term_set_background (term,
 					 cfg->pixmap_file,
-					 cfg->transparent, cfg->shaded);
-	else if (zvt_pixmap_support && cfg->transparent)
+					 cfg->transparent, flags);
+	} else if (zvt_pixmap_support && cfg->transparent)
 		zvt_term_set_background (term,
 					 NULL,
 					 cfg->transparent, cfg->shaded);
@@ -684,6 +706,10 @@ check_image_options_sensitivity (preferences_t *prefs)
 	gtk_widget_set_sensitive (prefs->pixmap_file_entry, has_background);
 	gtk_widget_set_sensitive (prefs->shaded_checkbox,
 				  has_background || has_transparency);
+#ifdef ZVT_BACKGROUND_SCROLL
+	gtk_widget_set_sensitive (prefs->pixmap_scrollable_checkbox,
+				  has_background);
+#endif
 }
 
 /*
@@ -893,6 +919,9 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
 	gnome_config_set_bool   ("transparent", cfg->transparent);
 	gnome_config_set_bool   ("shaded", cfg->shaded);
+#ifdef ZVT_BACKGROUND_SCROLL
+	gnome_config_set_bool   ("scroll_background", cfg->scroll_background);
+#endif
 	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
 	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
 	gnome_config_sync ();
@@ -1098,7 +1127,6 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_set_row_spacing (GTK_TABLE (subtable), 1, GNOME_PAD_SMALL);
 	
 	/* Background pixmap filename */
-
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 	gtk_table_attach (GTK_TABLE (subtable), hbox,
 			  0, 2, 2, 3,
@@ -1117,6 +1145,18 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_box_pack_start (GTK_BOX (hbox), prefs->pixmap_file_entry, TRUE, TRUE, 0);
 
+	/* Scrollable pixmap */
+#ifdef ZVT_BACKGROUND_SCROLL
+	prefs->pixmap_scrollable_checkbox = gtk_check_button_new_with_label (_("Background pixmap scrolls"));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_scrollable_checkbox),
+				     cfg->scroll_background ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_scrollable_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (subtable), prefs->pixmap_scrollable_checkbox,
+			  0, 1, 3, 4,
+			  GTK_FILL, 0, 0, 0);
+#endif
+
 	/* Transparency */
 	r = prefs->transparent_checkbox =
 		gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (r),
@@ -1126,7 +1166,11 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->transparent_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (subtable), r,
+#ifdef ZVT_BACKGROUND_SCROLL
+			  0, 1, 4, 5,
+#else
 			  0, 1, 3, 4,
+#endif
 			  GTK_FILL, 0, 0, 0);
 
 	/* We pack this box into the the table so the second column
@@ -1135,11 +1179,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	 */
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
 	gtk_table_attach (GTK_TABLE (subtable), hbox,
+#ifdef ZVT_BACKGROUND_SCROLL
+			  1, 2, 5, 6,
+#else
 			  1, 2, 4, 5,
+#endif
 			  GTK_FILL | GTK_EXPAND, 0, 0, 0);
 
 	/* Shaded */
-	prefs->shaded_checkbox = gtk_check_button_new_with_label (_("Background should be shaded (slow)"));
+	prefs->shaded_checkbox = gtk_check_button_new_with_label (_("Background should be shaded"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->shaded_checkbox),
 				     term->shaded ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->shaded_checkbox), "toggled",
@@ -1603,13 +1651,11 @@ size_allocate (GtkWidget *widget)
 	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	g_assert (app != NULL);
 
-	/* this is required because of the PADDING in the term widget resize */
 #define PADDING 2
 	sizehints.base_width = 
 	  (GTK_WIDGET (app)->allocation.width) +
-	  (GTK_WIDGET (term)->style->klass->xthickness * 4) -
-	  (GTK_WIDGET (term)->allocation.width) +
-		PADDING;
+	  (GTK_WIDGET (term)->style->klass->xthickness * 2) -
+	  (GTK_WIDGET (term)->allocation.width) + PADDING;
 
 	sizehints.base_height =
 	  (GTK_WIDGET (app)->allocation.height) +
@@ -1825,10 +1871,18 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	configure_term_dnd (term);
 
-	if (zvt_pixmap_support && cfg->background_pixmap)
-		zvt_term_set_background (term, cfg->pixmap_file,
-					 cfg->transparent, cfg->shaded);
-	else if (zvt_pixmap_support && cfg->transparent)
+	if (zvt_pixmap_support && cfg->background_pixmap) {
+		int flags;
+#ifdef ZVT_BACKGROUND_SCROLL
+		flags = cfg->shaded?ZVT_BACKGROUND_SHADED:0;
+		flags |= cfg->scroll_background?ZVT_BACKGROUND_SCROLL:0;
+#else
+		flags = cfg->shaded;
+#endif
+		zvt_term_set_background (term,
+					 cfg->pixmap_file,
+					 cfg->transparent, flags);
+	} else if (zvt_pixmap_support && cfg->transparent)
 		zvt_term_set_background (term, NULL,
 					 cfg->transparent, cfg->shaded);
 	else
@@ -1849,6 +1903,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	gdk_window_set_hints (((GtkWidget *)app)->window,
 			      0, 0, 50, 50, 0, 0, GDK_HINT_MIN_SIZE);
+
+	XSync(GDK_DISPLAY(), False);
+
 	errno = 0;
 	switch (zvt_term_forkpty (term, update_records)){
 	case -1:
@@ -1862,7 +1919,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		for (i = 3; i < open_max; i++)
 			fcntl (i, F_SETFD, 1);
 		
-		sprintf (buffer, "WINDOWID=%d",(int) ((GdkWindowPrivate *)app->window)->xwindow);
+		sprintf (buffer, "WINDOWID=%d",(int) GDK_WINDOW_XWINDOW(GTK_WIDGET(term)->window));
 		env_copy [winid_pos] = buffer;
 		if (cmd){
 			environ = env_copy;

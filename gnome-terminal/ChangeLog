@@ -1,3 +1,13 @@
+1999-05-31  Michael Zucchi  <mzucchi@denr.sa.gov.au>
+
+	* gnome-terminal.c
+	(gnome_term_set_font): Removed warning about ambiguous else.
+	(new_terminal_cmd): use GDK_WINDOW_XWINDOW to get the X window
+	id, from the _correct_ window.
+	added scroll_background option to terminal_config, and all other
+	option windows, based on its availability in the source and
+	installed library.
+
 1999-05-28  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* gnome-terminal.c (show_pty_error_dialog): couple changes to
