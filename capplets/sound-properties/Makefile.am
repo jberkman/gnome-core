@@ -2,7 +2,8 @@ INCLUDES = -I. -I$(srcdir) 				\
 	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 	-I$(srcdir)/../../control-center		\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"	\
-	-I$(includedir) $(GNOME_INCLUDEDIR)
+	-I$(includedir) $(GNOME_INCLUDEDIR)		\
+	-DGNOMESYSCONFDIR=\""$(sysconfdir)"\"
 
 bin_PROGRAMS = sound-properties
 
