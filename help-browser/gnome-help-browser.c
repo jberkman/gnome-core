@@ -132,9 +132,13 @@ main(gint argc, gchar *argv[])
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
-/* uncomment line below to have session manager support */
+/* enable session management here */
+#if 1
     smClient = NULL;
-/*    smClient = newGnomeClient(); */
+    g_message("Session management was disabled at compile-time");
+#else
+    smClient = newGnomeClient();
+#endif
 
     gnome_init(NAME, &parser, argc, argv, 0, NULL);
 

@@ -31,7 +31,6 @@ static struct _toc_config *addToConfig(struct _toc_config *index,
 static gint countChars(gchar *s, gchar ch);
 static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath);
 static int hideTocInt(GtkWidget *window);
-static GString *generateHTML(Toc res);
 static void tocClicked(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, Toc toc);
 static GList *findFirstEntryByName(GList *table, gchar *name);
 
@@ -93,7 +92,7 @@ static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
     gint count;
     struct _toc_config *index;
 
-    count = 3;
+    count = 4;
     count += countChars(manPath, ':');
     count += countChars(infoPath, ':');
     count += countChars(ghelpPath, ':');
@@ -134,7 +133,7 @@ Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
 		       GTK_SIGNAL_FUNC(tocClicked), res);
 
     gtk_container_add(GTK_CONTAINER(res->window), res->htmlWidget);
-    
+
     gtk_signal_connect(GTK_OBJECT (res->window), "destroy",
 		       GTK_SIGNAL_FUNC(hideTocInt), NULL);
     gtk_signal_connect(GTK_OBJECT (res->window), "delete_event",
@@ -142,7 +141,7 @@ Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
 
     gtk_xmhtml_source(GTK_XMHTML(res->htmlWidget), s->str);
     
-    g_string_free(s, TRUE);
+    g_string_free(s, TRUE); 
 
     return res;
 }
@@ -156,7 +155,7 @@ tocClicked(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, Toc toc)
 	}
 }
 
-static GString *generateHTML(Toc toc)
+GString *generateHTML(Toc toc)
 {
     GString *res, *s;
     GList *l;
@@ -169,6 +168,7 @@ static GString *generateHTML(Toc toc)
     /* Man Pages */
     
     g_string_append(res, "<h2>Man Pages</h2>\n");
+
 
     last_ext = ' ';
     last_initial = ' ';

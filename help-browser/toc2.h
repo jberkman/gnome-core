@@ -32,6 +32,8 @@ Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
 void showToc(Toc toc);
 void hideToc(Toc toc);
 
+GString *generateHTML(Toc res);
+
 gchar *tocLookupInfo(Toc toc, gchar *name, gchar *anchor);
 gchar *tocLookupMan(Toc toc, gchar *name, gchar ext);
 gchar *tocLookupGhelp(Toc toc, gchar *name);

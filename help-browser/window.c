@@ -245,9 +245,6 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
         g_message("TAG CLICKED: %s", cbs->href);
 
 	helpWindowShowURL(win, cbs->href, TRUE);
-
-	update_toolbar(win);
-	setCurrent(win);
 }
 
 static void
@@ -310,8 +307,6 @@ help_onhelp(GtkWidget *w, HelpWindow win)
 	strcat(q, p);
 	g_free(p);
 	helpWindowShowURL(win, q, TRUE);
-
-	setCurrent(win);
 }
 
 static void
@@ -334,7 +329,6 @@ reload_page(GtkWidget *w, HelpWindow win)
     /* make html widget believe we want to reload */
     gtk_xmhtml_source(GTK_XMHTML(win->helpWidget), "");
     helpWindowShowURL(win, buf, FALSE);
-    setCurrent(win);
 }	
 
 static void
@@ -354,7 +348,6 @@ entryChanged(GtkWidget *w, HelpWindow win)
     }
     
     helpWindowShowURL(win, buf, TRUE);
-    setCurrent(win);
 }
 
 /**********************************************************************/
@@ -467,12 +460,14 @@ helpWindowHistoryAdd(HelpWindow w, gchar *ref)
     addToHistory(w->history, ref);
 }
 
+static gchar *buf2;
+
 void
 helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
 		     gchar *ref, gchar *humanRef)
 {
-    gchar *buf;
-    
+    gchar *buf=NULL;
+
     /* First set the current ref (it may be used to load images) */
     if (w->currentRef) {
 	g_free(w->currentRef);
@@ -482,10 +477,10 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
     /* resolve relative refs for images.                      */
     w->currentRef = g_strdup(ref);
     
-    gtk_entry_set_text(GTK_ENTRY(w->entryBox), humanRef);
     if (w->humanRef) {
 	g_free(w->humanRef);
     }
+
     w->humanRef = g_strdup(humanRef);
 
     /* Load it up */
@@ -493,6 +488,8 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
     memcpy(buf, s, len);
     buf[len] = '\0';
     gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), buf);
+    g_free(buf);
+    gtk_entry_set_text(GTK_ENTRY(w->entryBox), humanRef);
 }
 
 void

@@ -8,6 +8,8 @@
 #include "mime.h"
 #include "transport.h"
 #include "visit.h"
+#include "toc2.h"
+#include "gtk-xmhtml/gtk-xmhtml.h"
 
 static gint visitDocument( HelpWindow win, docObj obj );
 static void displayHTML( HelpWindow win, docObj obj );
@@ -34,23 +36,47 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save, gboolean useCache )
 	docObj obj;
 
 	/* !!! This is the entire lifespan of all the docObjs */
-	
-	obj = docObjNew(ref, useCache);
 
-	helpWindowQueueMark(win);
-	
-	if (visitDocument(win, obj)) {
+	/* trap 'toc:' urls here for now */
+	/* paranoid exists because of unknown memory problems */
+	if (!strncmp(ref, "toc:", 4)) {
+		gchar *p=ref+4;
+		gchar *paranoid = g_strdup(ref);
+		GString *s;
+
+		g_message("TOC requested for section %s",p);
+
+		helpWindowQueueMark(win);
+		s = generateHTML(helpWindowGetToc(win));
+		helpWindowHTMLSource(win, s->str, strlen(s->str),
+				     paranoid, paranoid);
+		helpWindowJumpToLine(win, 1);
+		g_string_free(s, TRUE);
+		
+		if (save) {
+			helpWindowQueueAdd(win, paranoid);
+			helpWindowHistoryAdd(win, paranoid);
+		}
+		g_free(paranoid);
+	} else {
+
+		obj = docObjNew(ref, useCache);
+		
+		helpWindowQueueMark(win);
+		
+		if (visitDocument(win, obj)) {
+			docObjFree(obj);
+			return -1;
+		}
+
+		/* obj was 'cleaned up' by visitDocuemnt()/resolveURL() */
+		if (save) {
+			helpWindowQueueAdd(win, docObjGetHumanRef(obj));
+			helpWindowHistoryAdd(win, docObjGetHumanRef(obj));
+		}
+		
 		docObjFree(obj);
-		return -1;
 	}
-
-	/* obj was 'cleaned up' by visitDocuemnt()/resolveURL() */
-	if (save) {
-	        helpWindowQueueAdd(win, docObjGetHumanRef(obj));
-		helpWindowHistoryAdd(win, docObjGetHumanRef(obj));
-	}
-	
-	docObjFree(obj);
 
 	/* !!! This is the entire lifespan of all the docObjs */
 	return 0;
