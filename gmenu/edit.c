@@ -171,7 +171,7 @@ static void edit_area_sync_to(Desktop_Data *dd, Edit_Area *ea)
 	ea->path = g_strdup(path);
 
 	/* same hack as above */
-	if (ea->revert)
+	if (ea->revert) {
 	  if (dentry->type && ea->revert->location) {
 	    gnome_desktop_entry_destroy(ea->revert);
 	  } else {
@@ -180,7 +180,8 @@ static void edit_area_sync_to(Desktop_Data *dd, Edit_Area *ea)
 	    if (ea->revert->type) g_free(ea->revert->type);
 	    g_free(ea->revert);
 	  }	  
-	  
+	}
+
 	ea->revert = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(ea->dee));
 
 	if (dd->isfolder)
@@ -321,6 +322,7 @@ static Edit_Area *edit_area_new()
 	ea->revert_button = gtk_button_new();
 	gtk_signal_connect(GTK_OBJECT(ea->revert_button),"clicked",GTK_SIGNAL_FUNC(edit_area_revert_cb), ea);
 	gtk_box_pack_start(GTK_BOX(hbox1), ea->revert_button, FALSE, FALSE, 0);
+	GTK_WIDGET_SET_FLAGS (ea->revert_button, GTK_CAN_DEFAULT);
 	gtk_widget_show(ea->revert_button);
 
 	hbox = gtk_hbox_new(FALSE, 0);

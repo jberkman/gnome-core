@@ -75,7 +75,7 @@ static void menu_tree_set_dnd_data_cb(GtkWidget *widget, GdkDragContext *context
 				break;
 			}
 		gtk_selection_data_set (selection_data, selection_data->target,
-					8, text, strlen(text));
+					8, (guchar *)text, strlen(text));
 		g_free(text);
 		}
 	else

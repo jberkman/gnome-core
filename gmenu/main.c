@@ -145,11 +145,11 @@ GnomeUIInfo tree_popup[] = {
 	GNOMEUIINFO_SEPARATOR,
 
 	{ GNOME_APP_UI_ITEM, N_("_Sort"), NULL,
-	  sort_single_pressed_cb, NULL, NULL,
+	  (gpointer)sort_single_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SPELLCHECK,
 	  'S', GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_ITEM, N_("Sort _Recursive"), NULL,
-	  sort_recursive_pressed_cb, NULL, NULL,
+	  (gpointer)sort_recursive_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SPELLCHECK,
 	  'R', GDK_CONTROL_MASK, NULL },
 
