@@ -43,16 +43,17 @@
     
     <sect1 id="Emulation">
       <title>Emulation</title>
-      <para>   The emulation supported by GNOME terminal is the same as
-	the xterm program as provided by the X consortiums xterm program
-	(which is in turn an almost complete emulation of the DEC VT102
-	terminal).</para>
+
+      <para>The GNOME terminal program (gnome-terminal) is designed
+      to emulate the 'xterm' program provided by the X Consortium.
+      The 'xterm' program in turn is an almost-complete emulation of 
+      the DEC VT102 terminal.</para>
       
-      <para>The GNOME terminal supports the same extensions to the VT102
-	that the xterms provide (trough special escape sequences.
-	More recent changes to xterm have also been incorporated into
-	gnome-terminal as they have been discovered.  This includes
-	emulation of the newer DEC VT220 escape sequences.
+      <para>The GNOME terminal program supports the same extensions to 
+      the VT102 that the xterm program provides, through special escape 
+      sequences. The xterm program is an evolving program. Recent changes 
+      to xterm have been been incorporated into gnome-terminal. This 
+      includes emulation of the newer DEC VT220 escape sequences.
       </para>
 
     </sect1>
@@ -60,9 +61,10 @@
     <sect1 id="config">
       <title>Configurable options</title>
       <para>
-	These options are configurable via the preferences dialogue,
+	Configurable options are configurable via the preferences dialogue,
 	which can be invoked from the <link
-	linkend="menu-settings">preferences menu item</link>.
+	linkend="menu-settings">preferences menu item</link>, found under
+	"Settings" in the gnome-terminal menubar.
       </para>
 
       <sect2 id="config-general">
@@ -131,15 +133,15 @@
 	      <para>The following options are available: white on black, black
 		on white, green on black, black on light yellow, and
 		custom.  How these actually appear depends on the
-		pallete selected (for the white on black and black on
+		palette selected (for the white on black and black on
 		white options).
 		Custom allows you to select the default foreground and
 		background colours individually and separate to the palette.</para>
 
 	      <para>Additionally, the user can drag a colour from the
-		rectangular box beneath the color wheel from any GNOME
+		rectangular box beneath the colour wheel from any GNOME
 		colour selector or colour source and drop it into the
-		terminal.  If the user drops the colour on a white space, it
+		terminal.  If the user drops the colour on a blank space, it
 		will set the background, if the user drops the colour on a
 		cell that contains a character, it will change the
 		foreground.  This will also automatically change to
@@ -156,12 +158,18 @@
     <sect1 id="classes">
       <title>Terminal classes</title>
       <para>The GNOME terminal allows you to have different configuration
-	profiles to suit different uses.  To do this you only need to
-	provide a name for your new configuration class by entering the
-	new name in the property configuration dialog box.</para>
+	profiles to suit different uses (different background colours, 
+        presence, absence or position of scrollbars, and so on).  To set
+        these up, you invoke the preferences dialogue box from the settings
+        menu of gnome-terminal. Select the options you prefer (these changes
+        will be made to your currently-open terminal, so you can see what
+        they look like), and before closing the preferences box, make sure 
+        you have put a new name in the space marked "Terminal Class". 
+       </para>
       
       <para>To activate a specific class at program startup you can use
-	the --class command line option. </para>
+	the --tclass command line option
+      </para>
     </sect1>
     
     <sect1 id="Options">
@@ -178,9 +186,9 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <para><symbol>--class CLASSNAME</symbol></para>
+	    <para><symbol>--tclass CLASSNAME</symbol></para>
 	    <para>
-	      CLASSNAME Specifies the terminal class used to configure the
+	      Specifies the terminal class used to configure the
 	      terminal at startup.
 	    </para>
 	  </listitem>
@@ -197,7 +205,7 @@
 	    <para>
 	      Executes the command CMD with its arguments ARGS on
 	      startup.  No arguments beyond this one will be processed
-	      by the terminal, this behaviour mimicks the xterm -e
+	      by the terminal.  This behaviour mimics the xterm -e
 	      behaviour.
 	    </para>
 	  </listitem>
@@ -222,7 +230,7 @@
 	      Specifies the startup geometry for this terminal.   The
 	      geometry specifies the desired width and height in
 	      terminal characters.  For example: --geometry=80x40 will
-	      create an eighty column by fourty line terminal.</para>
+	      create an eighty-column by forty-line terminal.</para>
 	      <para>FIXME:  LInk to gnome-libs document on GEOMETRY specifications
 	      when it is written
 	    </para>
@@ -239,7 +247,8 @@
 	  <listitem>
 	    <para><symbol>--nologin</symbol></para>
 	    <para>
-	      Make gnome-terminal only launch a shell.
+	      Make gnome-terminal only launch a shell, without running any
+              login initialization scripts.
 	    </para>
 	  </listitem>
 	  
@@ -278,6 +287,13 @@
 	</itemizedlist>
 	
       </para>
+      <para>You can use more than one option at once: for example, on
+            a machine with the text-based web browser Lynx installed,
+            'gnome-terminal --title Web --command lynx' will open a
+            gnome-terminal which starts up Lynx and has a titlebar 
+            which says "Web". 
+      </para>
+
     </sect1>
     
     <sect1 id="pointerusage">
@@ -289,6 +305,12 @@
       </para>
       <sect2 id="pointer-select">
 	<title>Selection</title>
+        <para>
+          The following assumes a standard three-button mouse that
+          has not been made left-handed via the control center. Left-handed 
+          mice will of course work, but with the right button instead of
+          the left one, and so on.
+        </para>
 	<para>
 	  The left mouse button can be used to initiate a selection.
 	  If the mouse button is clicked once, and dragged, then
@@ -305,16 +327,17 @@
 	  dialogue</link> under the word class option.
 	</para>
 	<para>
-	  Finally, if the left mouse button is tripple-clicked and
+	  Finally, if the left mouse button is triple-clicked and
 	  held, whole lines are selected as you drag the mouse up and
 	  down.
 	</para>
 	<para>
 	  The middle mouse button can be used to extend the
 	  selection.  Simply scroll to where you wish to extend the
-	  selection to, and click the right mouse button.  Again,
-	  single, double and triple click-drags will result in
-	  by-character, by-word, or by-line selection.
+	  selection to, and click the right mouse button whilst the
+          mouse is still in the scrollbar.  Again, single, double and 
+          triple click-drags will result in by-character, by-word, or 
+          by-line selection.
 	</para>
 	<para>
 	  For all cases, releasing the mouse button automatically
@@ -331,7 +354,7 @@
 	  transfer text from other applications.
 	</para>
 	<para>
-	  If you only have a 2-button mouse, then your X server
+	  If you only have a two-button mouse, then your X server
 	  probably has a method of emulating the middle mouse button.
 	  Refer to your X server documentation for further
 	  information.
@@ -386,7 +409,9 @@
       <para>
 	Gnome-terminal provides a number of control features via the
 	main menu, and a pop-up menu available by pressing the right
-	mouse button while holding the CTRL key.
+	mouse button while holding the CTRL key. (It is sometimes not
+        necessary to hold down the CTRL key to get the pop-up menu, but 
+        do not assume this is always so.)
       </para>
       <sect2 id="menu-file">
 	<title>File menu</title>
@@ -397,7 +422,7 @@
 	      <para>
 		Create a new terminal.  This is an efficient way to
 		create multiple terminals, as they are all processed
-		using the same process.  Each starts its own sub-shell
+		by the same program and PID.  Each starts its own sub-shell
 		process however.
 	      </para>
 	    </listitem>
@@ -418,9 +443,10 @@
 	    <term>Close terminal</term>
 	    <listitem>
 	      <para>
-		Closes the current terminal.  If this is the last
-		terminal to be closed, then the gnome-terminal program
-		exits.
+		Closes the current terminal. It also closes any other 
+                terminals opened via the command line in that terminal.
+                If this is the last terminal to be closed, then the 
+                gnome-terminal program exits. 
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -462,7 +488,7 @@
 	    <listitem>
 	      <para>
 		Resets the terminal parameters.  This will not clear
-		the screen or move the cursor, but any following
+		the screen or move the cursor, but any subsequent
 		terminal output will be reset to the default font and
 		attributes.
 	      </para>
@@ -571,7 +597,7 @@
     </sect1>
     
     <sect1 id="environment">
-      <title>Enviroment</title>
+      <title>Environment</title>
       <para>
 	The following variables are set by gnome-terminal: 
 	<itemizedlist>
@@ -581,7 +607,7 @@
 	    <para>
 	      This variable is set to "xterm" by default.  Some curses
 	      implementations and applications based on curses might want
-	      the value to be xterm-colour, colour-xterm or xterm-debian to
+	      the value to be xterm-color, color-xterm or xterm-debian to
 	      support colour.  You might need to change this setting if
 	      your application does not display in colour to one of those
 	      values.  This can now be set via the
@@ -595,9 +621,9 @@
 
 	    <para>
 	      This variable is set to "gnome-terminal".
-	      Various applications (specially the
-	      Slang-based applications) use this setting to determine if
-	      the terminal supports colour.
+	      Various applications (especially the
+	      Slang-based applications) use this setting to determine 
+	      whether the terminal supports colour.
 	    </para>
 	  </listitem>
 
@@ -633,7 +659,7 @@
       <para>
 	Miguel did the main gnome terminal program, and Erik Troan
 	provided the terminal class support along with various other
-	features.  Jeff Garzik, Jay, Christopher Blizzart, Michael,
+	features.  Jeff Garzik, Jay, Christopher Blizzard, Michael,
 	Jens Lautenbacher, Tom Tromey, Tristan Tarrant, Jonathan
 	Blandford and Michael Zucchi provided extra bug fixes and
 	minor enhancements.  Nat Friedman review the user interface to
