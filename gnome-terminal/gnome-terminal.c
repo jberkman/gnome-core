@@ -467,7 +467,7 @@ new_terminal (void)
 		
 		for (p = env; *p; p++)
 			;
-		i = env - p;
+		i = p - env;
 		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
 			if (strncmp (*p, "TERM", 4) == 0)

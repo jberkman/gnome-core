@@ -1,3 +1,9 @@
+1998-05-01  Michael Fulbright  <msf@redhat.com>
+
+	* gnome-terminal.c: we want to count from 0 up when counting # of env var,
+	not down :) Should fix the problem with the font being loading properly
+	from previous preferences.
+
 1998-05-01  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c: First time I check the ChangeLog for the
