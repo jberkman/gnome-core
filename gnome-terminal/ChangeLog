@@ -1,3 +1,9 @@
+2001-04-02  Stanislav Brabec  <utx@penguin.cz> 
+
+        * gnome-terminal.c: Allow i18n for default window title when
+        saving session. Otherwise terminal is restored with english
+        title. Also caused problems with restoring session.
+
 Mon Mar 12 15:31:03 2001  George Lebl <jirka@5z.com>
 
 	* gnome-terminal.desktop:  Add DocPath

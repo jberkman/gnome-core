@@ -2515,7 +2515,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 
 		gnome_config_set_string ("window_title",
 					 cfg->window_title != NULL ?
-					   cfg->window_title : "Terminal");
+					   cfg->window_title : _("Terminal"));
 		gnome_config_set_string ("window_icon",
 					 cfg->window_icon != NULL ?
 					   cfg->window_icon : GNOME_ICONDIR"/gnome-terminal.png");
