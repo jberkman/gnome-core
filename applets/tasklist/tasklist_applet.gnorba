@@ -2,4 +2,4 @@
 type=shlib
 repo_id=IDL:GNOME/Applet:1.0
 description=GNOME Tasklist
-location_info=libtasklist_applet.so
+location_info=tasklist_applet

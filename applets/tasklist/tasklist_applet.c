@@ -20,6 +20,7 @@
 /* define to x for debugging output */
 #define d(x)
 
+#define APPLET_COMPILE_AS_PROCESS
 /* sorting the list... */
 static gint
 tlsort (gconstpointer data1, gconstpointer data2)
@@ -1421,7 +1422,9 @@ tasklist_destroy (GtkObject *applet_widget, Tasklist *tasklist)
 	g_slist_free (tasklist->vtasks);
 	tasklist->vtasks = NULL;
 
-#warning Here we save peoples memory by making this a shlib applet and leaking whatever we possibly can!
+#ifndef APPLET_COMPILE_AS_PROCESS
+        #warning Here we save peoples memory by making this a shlib applet and leaking whatever we possibly can!
+#endif
 
 	if (tasklist->groups != NULL) {
 		/* FIXME: we leak EVERYTHING here */
@@ -1586,11 +1589,9 @@ main (gint argc, gchar *argv[])
 
 	tasklist_init ();
 	
-	tasklist = create_applet ();
+	tasklist = tasklist_new ();
 
-	tasklist_change_size (tasklist, TRUE, -1);
-
-	gtk_widget_show (applet);
+	gtk_widget_show_all (tasklist->applet);
 
 	applet_widget_gtk_main ();
 

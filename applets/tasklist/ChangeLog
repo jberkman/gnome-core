@@ -1,3 +1,15 @@
+2001-03-12  Anders Carlsson  <andersca@codefactory.se>
+
+	* tasklist_applet.gnorba: change location_info to point to
+	  the process instead of the shlib.
+
+	* tasklist_applet.c: define APPLET_COMPILE_AS_PROCESS and make
+	  it actually compile.
+	  (tasklist_destroy): "Fix" a warning.
+
+	* Makefile.am: Make the tasklist a process again, since the
+	  shlib version currently leaks and is weird.
+
 Mon Mar 12 01:27:24 2001  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.[ch], tasklist_properties.c, tasklist_icon.c:
