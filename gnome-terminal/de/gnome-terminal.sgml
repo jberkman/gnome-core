@@ -1000,6 +1000,11 @@
       können Sie auch den Befehl <command>bug-buddy</command> verwenden,
       um Fehler zu berichten.
     </para>
+
+    <para>
+      Die deutsche Übersetzung dieses Handbuchs stammt von
+      Martin Baulig (<email>baulig@suse.de</email>).
+    </para>
   </sect1>
   
   
