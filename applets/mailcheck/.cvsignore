@@ -6,3 +6,4 @@ _libs
 .libs
 libpanel_mailcheck.la
 so_locations
+mailcheck_applet
