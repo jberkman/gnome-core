@@ -20,7 +20,6 @@ gboolean desk_notifier (gpointer func_data, GwmhDesk *desk, GwmhDeskInfoMask cha
 gboolean task_notifier (gpointer func_data, GwmhTask *gwmh_task, GwmhTaskNotifyType ntype, GwmhTaskInfoMask imask);
 gboolean cb_button_press_event (GtkWidget *widget, GdkEventButton *event);
 gboolean cb_expose_event (GtkWidget *widget, GdkEventExpose *event);
-void cb_realize (GtkWidget *widget);
 void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
@@ -678,7 +677,6 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 		       area->allocation.width,
 		       area->allocation.height);
 
-
 	while (temp_tasks) {
 		task = (TasklistTask *)temp_tasks->data;
 		draw_task (task);
@@ -688,13 +686,6 @@ cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 	g_list_free (temp_tasks);
 
 	return FALSE;
-}
-
-/* This routine gets called when the tasklist is realized */
-void
-cb_realize (GtkWidget *widget)
-{
-	cb_expose_event(widget, NULL);
 }
 
 /* This routine gets called when the user selects "properties" */
@@ -752,6 +743,10 @@ change_size (gboolean layout)
 	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
 	case ORIENT_UP:
 	case ORIENT_DOWN:
+		if (Config.horz_fixed)
+			horz_width = Config.horz_width;
+		else
+			horz_width = 4;
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
 		gtk_widget_set_usize (handle, 
 				      DRAG_HANDLE_SIZE + horz_width,
@@ -762,6 +757,10 @@ change_size (gboolean layout)
 		break;
 	case ORIENT_LEFT:
 	case ORIENT_RIGHT:
+		if (Config.vert_fixed)
+			vert_height = Config.vert_height;
+		else
+			vert_height = 4;
 		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
 		gtk_widget_set_usize (handle, 
 				      (Config.follow_panel_size?
@@ -827,8 +826,6 @@ create_applet (void)
 			       GDK_BUTTON_RELEASE_MASK);
 	gtk_signal_connect (GTK_OBJECT (area), "expose_event",
 			    GTK_SIGNAL_FUNC (cb_expose_event), NULL);
-	gtk_signal_connect (GTK_OBJECT (area), "realize",
-			    GTK_SIGNAL_FUNC (cb_realize), NULL);
 	gtk_signal_connect (GTK_OBJECT (area), "button_press_event",
 			    GTK_SIGNAL_FUNC (cb_button_press_event), NULL);
 
@@ -851,8 +848,6 @@ create_applet (void)
 					       _("Properties..."),
 					       (AppletCallbackFunc) cb_properties,
 					       NULL);
-	change_size (TRUE);
-	gtk_widget_show (applet);
 }
 
 gint
@@ -879,6 +874,12 @@ main (gint argc, gchar *argv[])
 	create_applet ();
 
 	read_config ();
+	panel_size = applet_widget_get_panel_pixel_size(APPLET_WIDGET(applet));
+	tasklist_orient = applet_widget_get_panel_orient(APPLET_WIDGET(applet));
+
+	change_size (TRUE);
+
+	gtk_widget_show (applet);
 
 	unknown_icon = g_new (TasklistIcon, 1);
 	/* XXX: why do we need to cast unknown_xpm here,

@@ -1,3 +1,10 @@
+Sun Feb 20 01:27:12 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c: ok, the previous commit was bogus.  After
+	  some investigation I found out the initial sizing was very
+	  confused.  Some reordering made the area correctly size before
+	  being exposed and thus killing the initial redraw bug
+
 Sun Feb 20 00:33:49 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.c: draw ourselves on "realize" to avoid the bug
