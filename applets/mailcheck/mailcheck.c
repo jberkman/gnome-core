@@ -299,7 +299,7 @@ create_mail_widgets ()
 }
 
 static void
-create_instance (Panel *panel, char *params, int pos)
+create_instance (PanelWidget *panel, char *params, int pos)
 {
 	PanelCommand cmd;
 	GtkWidget *mailcheck;
@@ -315,7 +315,7 @@ create_instance (Panel *panel, char *params, int pos)
 	/* default: use animations */
 	report_mail_mode = REPORT_MAIL_USE_ANIMATION;
 
-	panel_window = panel->window;
+	panel_window = GTK_WIDGET(panel);
 	mailcheck = create_mail_widgets ();
 	cmd.cmd = PANEL_CMD_REGISTER_TOY;
 	cmd.params.register_toy.applet = mailcheck;
