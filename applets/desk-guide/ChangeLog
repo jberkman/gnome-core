@@ -1,3 +1,8 @@
+Mon Oct 9 John Fleck <jfleck@inkstain.net> 
+
+	* updating desk-guide.sgml desk-guide-applet.sgml for Nautilus 
+	compatibility
+
 Mon Aug 14 17:38:07 2000  Tim Janik  <timj@gtk.org>
 
 	* gwmthumbnail.c (gdk_image_new_shared_with_pixmap): check whether we
