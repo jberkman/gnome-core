@@ -1,3 +1,8 @@
+1998-09-07    <jrb@redhat.com>
+
+	* mouse-properties.c (mouse_revert) : modified to properly set the 
+	widgets correctly after a revert.
+
 1998-09-06  Raja R Harinath  <harinath@debian>
 
 	* Makefile.am: Remove CXXLINK hack.

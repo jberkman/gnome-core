@@ -37,8 +37,11 @@ static int mouse_acceleration;
 /* Acceleration threshold.  */
 static int mouse_thresh;
 
+/* Adjustments. */
+GtkObject *thresh_adjust;
+GtkObject *accel_adjust;
 static GtkWidget *capplet;
-
+static GtkWidget *lbutton, *rbutton;
 static void
 mouse_read (void)
 {
@@ -92,6 +95,7 @@ mouse_read (void)
                                 mouse_acceleration = MAX_ACCEL - acc_den;
                 }
         }
+        g_print ("rtol=%d\naccel=%d\nthresh=%d\n",mouse_rtol,mouse_acceleration,mouse_thresh);
 }
 
 static void
@@ -132,7 +136,14 @@ static void
 mouse_revert (void)
 {
         mouse_read();
-        mouse_apply();           
+        mouse_apply();
+        GTK_ADJUSTMENT (thresh_adjust)->value = mouse_thresh;
+        GTK_ADJUSTMENT (accel_adjust)->value = mouse_acceleration;
+        gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON ((mouse_rtol
+                                                         ? lbutton
+                                                         : rbutton)), TRUE);
+        gtk_adjustment_changed (GTK_ADJUSTMENT (thresh_adjust));
+        gtk_adjustment_changed (GTK_ADJUSTMENT (accel_adjust));
 }
 
 /* Run when the left- or right-handed radiobutton is clicked.  */
@@ -151,7 +162,6 @@ scale_moved (GtkAdjustment *adj, gpointer data)
         *value = adj->value;
         capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
-
 static void
 make_scale (char *title, char *max_title, char *min_title,
 	    GtkObject *adjust, int *update_var, GtkWidget *table, int row)
@@ -159,7 +169,6 @@ make_scale (char *title, char *max_title, char *min_title,
         GtkWidget *scale, *low, *high, *ttl;
 
         ttl = gtk_label_new (title);
-        g_print ("rtol=%d\naccel=%d\nthresh=%d\n",mouse_rtol,mouse_acceleration,mouse_thresh);
 
         gtk_misc_set_alignment (GTK_MISC (ttl), 0.0, 0.5);
         gtk_table_attach (GTK_TABLE (table), ttl,
@@ -206,8 +215,7 @@ make_scale (char *title, char *max_title, char *min_title,
 static void
 mouse_setup (void)
 {
-        GtkWidget *vbox, *frame, *hbox, *lbutton, *rbutton, *table, *sep;
-        GtkObject *adjust;
+        GtkWidget *vbox, *frame, *hbox, *table, *sep;
 
         hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
         gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
@@ -229,6 +237,7 @@ mouse_setup (void)
         gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON ((mouse_rtol
                                                          ? lbutton
                                                          : rbutton)), TRUE);
+
         gtk_signal_connect (GTK_OBJECT (capplet), "try",
                             GTK_SIGNAL_FUNC (mouse_apply), NULL);
         gtk_signal_connect (GTK_OBJECT (capplet), "revert",
@@ -259,9 +268,9 @@ mouse_setup (void)
         gtk_container_add (GTK_CONTAINER (frame), table);
         gtk_widget_show (table);
 
-        adjust = gtk_adjustment_new (mouse_acceleration, 0, 2 * MAX_ACCEL + 1, 1, 1, 1);
+        accel_adjust = gtk_adjustment_new (mouse_acceleration, 0, 2 * MAX_ACCEL + 1, 1, 1, 1);
         make_scale (_("Acceleration"), _("Fast"), _("Slow"),
-                    adjust, &mouse_acceleration, table, 0);
+                    accel_adjust, &mouse_acceleration, table, 0);
 
         sep = gtk_hseparator_new ();
         gtk_table_attach (GTK_TABLE (table), sep,
@@ -271,9 +280,9 @@ mouse_setup (void)
                           0, 0);
         gtk_widget_show (sep);
 
-        adjust = gtk_adjustment_new (mouse_thresh, 0, MAX_THRESH, 1, 1, 1);
+        thresh_adjust = gtk_adjustment_new (mouse_thresh, 0, MAX_THRESH, 1, 1, 1);
         make_scale (_("Threshold"), _("Large"), _("Small"),
-                    adjust, &mouse_thresh, table, 3);
+                    thresh_adjust, &mouse_thresh, table, 3);
 
         /* Done */
   
