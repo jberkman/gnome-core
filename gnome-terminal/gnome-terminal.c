@@ -77,6 +77,7 @@ struct terminal_config {
 	int shaded;
 	int background_pixmap;
 	char * pixmap_file;
+        char * window_title;                    /* the window title */
 } ;
 
 /* Initial command */
@@ -371,6 +372,7 @@ load_config (char *class)
 	cfg->shaded = gnome_config_get_bool ("shaded=false");
 	cfg->background_pixmap = gnome_config_get_bool ("background_pixmap=false");
 	cfg->pixmap_file = gnome_config_get_string ("pixmap_file");
+	cfg->window_title = NULL;
 
 	if (strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
@@ -1502,6 +1504,10 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	}
 
 	app = gnome_app_new ("Terminal", "Terminal");
+	/* override the title if it was in the config */
+	if (cfg->window_title) {
+	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
+ 	}
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
 	if (cmd != NULL)
 		initial_term = app;
@@ -1795,7 +1801,8 @@ enum {
 	BACK_KEY     = -7,
 	CLASS_KEY    = -8,
 	DOUTMP_KEY   = -9,
-	DONOUTMP_KEY = -10
+	DONOUTMP_KEY = -10,
+        TITLE_KEY    = -11
 };
 
 static struct poptOption cb_options [] = {
@@ -1831,6 +1838,9 @@ static struct poptOption cb_options [] = {
 	{ "noutmp", '\0', POPT_ARG_NONE, NULL, DONOUTMP_KEY,
 	  N_("Do not update utmp/wtmp entries"), N_("NOUTMP") },
 	
+	{ "title", 't', POPT_ARG_STRING, NULL, TITLE_KEY,
+          N_("Set the window title"), N_("TITLE") },
+
 	{ NULL, '\0', 0, NULL, 0}
 };
 
@@ -1891,6 +1901,9 @@ parse_an_arg (poptContext state,
 	case DONOUTMP_KEY:
 		update_utmp = FALSE;
 		break;
+	case TITLE_KEY:
+	        cfg->window_title = g_strdup(arg);
+                break;
 	default:
 	}
 }
@@ -1974,6 +1987,11 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	if (cmdline_config->font){
 		free (default_config->font);
 		default_config->font = g_strdup (cmdline_config->font);
+	}
+
+	/* override the title*/
+	if (cmdline_config->window_title) {
+	  default_config->window_title = cmdline_config->window_title;
 	}
 	
 	if (cmdline_config->have_user_colors){
