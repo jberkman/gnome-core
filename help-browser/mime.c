@@ -116,12 +116,11 @@ convertMan( docObj obj )
 	    return;
 
 	argv[0] = "gnome-man2html";
-	argv[1] = docObjGetDecomposedUrl(obj)->path;
-	argv[2] = NULL;
+	argv[1] = NULL;
 	    
-	g_message("filter: %s %s", argv[0], argv[1]);
+	g_message("filter: %s", argv[0]);
 	
-	docObjSetConvData(obj, getOutputFrom(argv, "", 0), TRUE);
+	docObjSetConvData(obj, getOutputFrom(argv, s, strlen(s)), TRUE);
 }
 
 
