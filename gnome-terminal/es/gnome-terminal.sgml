@@ -1002,7 +1002,7 @@ no tendra efecto alguno.
     <para>
       Por favor envíe todos sus comentarios, sugerencias, y informes de errores
       a la 
-      <ulink url="http://bugs.gnome.org" type="http">
+      <ulink url="http://bugs.gnome.org/" type="http">
 	base de datos de seguimiento de errores de Gnome</ulink>. Podrá encontrar 
       instrucciones para enviar informes de errores directamente accesibles en
       <ulink

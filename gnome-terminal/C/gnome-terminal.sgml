@@ -20,7 +20,9 @@
     </authorgroup> -->
     <copyright>
       <year>2000</year>
-      <holder>Miguel de Icaza, Michael Zucchi, Alexander Kirillov</holder>
+      <holder>Miguel de Icaza</holder>
+      <holder>Michael Zucchi</holder>
+      <holder>Alexander Kirillov</holder>
     </copyright>
  
     <legalnotice id="legalnotice"> 

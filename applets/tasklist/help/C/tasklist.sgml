@@ -233,7 +233,7 @@
    </sect2>
   
 
-<sect2>
+<sect2 id="basicPropertiesOptions">
       <title>Basic Properties Options</title>
     <para>All <interface>Properties</interface> dialogs have the following
      buttons at the bottom of the dialog:
