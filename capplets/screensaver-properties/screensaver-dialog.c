@@ -8,7 +8,7 @@
 
 extern GtkWidget *capplet;
 
-void
+GtkWidget *
 make_dialog (screensaver_data *sd)
 {
         GtkWidget *dialog;
@@ -32,7 +32,6 @@ make_dialog (screensaver_data *sd)
                 icon = gnome_pixmap_new_from_file (sd->icon);
 
         if (icon) {
-                g_print ("%s\n", sd->icon);
                 iconframe = gtk_frame_new (NULL);
 
                 gtk_frame_set_shadow_type (GTK_FRAME (iconframe), GTK_SHADOW_IN);
@@ -79,7 +78,7 @@ make_dialog (screensaver_data *sd)
         gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox), hbox, TRUE, TRUE, GNOME_PAD_SMALL);
 
-        gtk_signal_connect (GTK_OBJECT (dialog), "clicked", (GtkSignalFunc) dialog_callback, NULL);
-
+        gtk_signal_connect (GTK_OBJECT (dialog), "clicked", (GtkSignalFunc) dialog_callback, sd);
         gtk_widget_show_all (dialog);
+        return dialog;
 }

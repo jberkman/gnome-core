@@ -7,6 +7,6 @@
 
 #include "parser.h"
 
-void make_dialog (screensaver_data *sd);
+GtkWidget *make_dialog (screensaver_data *sd);
 
 #endif

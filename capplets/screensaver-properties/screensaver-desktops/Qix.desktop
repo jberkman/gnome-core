@@ -7,12 +7,12 @@ Terminal=0
 Type=Application
 
 [Screensaver Data]
-WindowIdCommand=-window-id 
+WindowIdCommand=-window-id
 Icon=qix.png
 Author=Jamie Zawinski <jwz@jwz.org>
 ExtendedComment=Qix bounces a series\nof line segments around its window.  This\nis truly the swiss army chainsaw of qix programs.
-DefaultFlags=-color-shift 16 -linear
-
+DefaultFlags=-linear
+Demo=qix -linear
 
 [Arg0]
 Name=Speed
@@ -35,20 +35,21 @@ Comment=Sets the number of Qix you have running at once.
 
 [Arg1]
 Name=Segments
-Type=Entry
+Type=LRange
+Label=Length of the Trail:
 ValType=I[1-1000]=50
 Flag=-segments
-LeftLabel=Segments per Qix:
-RightLabel=[1-1000]
+LeftLabel=Small
+RightLabel=Large
 Comment=Sets the number of line segments to be drawn.
 
 [Arg3]
 Name=Spread
-Type=Entry
-ValType=I[1-400]=8
+Type=LRange
+ValType=I[1-400]=50
 Flag=-spread
-LeftLabel=Width of segment:
-RightLabel=[1-400]
+LeftLabel=Width of segment: Small
+RightLabel=Large
 Comment=Sets the distance between each line segment.
 
 [Arg4]

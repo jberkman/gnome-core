@@ -4,6 +4,10 @@
  */
 #include "parser.h"
 #include "gnome.h"
+
+#define get_lrange(ssd) (get_range (ssd, 0)) 
+#define get_nrange(ssd) (get_range (ssd, 1)) 
+
 typedef enum
 {
         UNSET,
@@ -17,6 +21,7 @@ struct _setup_data
 {
         gchar *name;
         W_TYPES widget_type;
+        GtkWidget *widget;
         gchar *val_type;
         gchar *flag1;
         gchar *flag2; /* optional */
@@ -26,7 +31,19 @@ struct _setup_data
         gchar *comment;
         gchar *arg;
 };
-setup_data *
+
+
+/* Callback prototypes for the generated widgets */
+static void entry_callback (GtkEditable *editable, const gchar *text, gint length, gint *position, setup_data *ssd);
+static void entry_delete_callback (GtkEditable *editable, gint length, gint *position, setup_data *ssd);
+static void check_callback (GtkWidget *cbox, setup_data *ssd);
+static void range_callback (GtkAdjustment *adj, setup_data *ssd);
+static void set_entry (setup_data *ssd);
+static void set_range (setup_data *ssd);
+static void set_check (setup_data *ssd);
+
+
+static setup_data *
 new_arg_vals ()
 {
         setup_data *retval = g_malloc (sizeof (setup_data));
@@ -43,7 +60,7 @@ new_arg_vals ()
         retval->arg = NULL;
         return retval;
 }
-void
+static void
 free_setup_data (setup_data *dat)
 {
         if (dat->name)
@@ -66,7 +83,7 @@ free_setup_data (setup_data *dat)
                 g_free (dat->arg);
         g_free (dat);
 }
-void
+static void
 print_data (setup_data *dat)
 {
         g_print ("Name: %s\n", dat->name);
@@ -107,7 +124,7 @@ print_data (setup_data *dat)
         g_print ("Arg: %s\n", dat->arg);
         g_print ("\n\n");
 }
-gboolean
+static gboolean
 validate_setup_data (setup_data *dat)
 {
         /* We make sure that the entry is sane, and set up the arg field. */
@@ -146,7 +163,7 @@ validate_setup_data (setup_data *dat)
                 return FALSE;
         }
 }
-void
+static void
 parse_key (setup_data *arg_vals, gchar *key, gchar *value)
 {
         if (strcmp (key, "Name") == 0)
@@ -175,116 +192,275 @@ parse_key (setup_data *arg_vals, gchar *key, gchar *value)
         else if (strcmp (key, "RightLabel") == 0)
                 arg_vals->right_label = g_strdup (value);
 }
-GtkWidget *
+static
+void set_entry (setup_data *ssd)
+{
+        gnome_config_set_string (ssd->name, gtk_entry_get_text (GTK_ENTRY (ssd->widget)));
+}
+static
+void set_range (setup_data *ssd)
+{
+        if (ssd->val_type[0] == 'I')
+                gnome_config_set_int (ssd->name, (gint) (GTK_RANGE (ssd->widget))->adjustment->value);
+        else
+                gnome_config_set_float (ssd->name, (GTK_RANGE (ssd->widget))->adjustment->value);
+}
+static
+void set_check (setup_data *ssd)
+{
+        gnome_config_set_bool (ssd->name,(GTK_TOGGLE_BUTTON (ssd->widget)->active));
+}
+static GtkAdjustment *
+get_adjustment (gchar *type)
+{
+        GtkObject *retval;
+        gchar *temp;
+        gchar *temp2;
+        gchar **temp3; /*sheesh, i should be more creative in my names */
+        gint low;
+        gint high;
+        gint val;
+
+        if (strlen (type) < 2)
+                return GTK_ADJUSTMENT (gtk_adjustment_new (0.5, 0.0, 1.0, 0.1, 0.1, 0.1));
+
+        if (type[0] == 'I') {
+                if (type[1] == '[') {
+                        temp = strdup (type + 2);
+                        temp2 = strstr (temp, "]");
+                        temp2[0] = '\000';
+                        temp3 = gnome_string_split (temp, "-", -1);
+                        /* FIXME: This will segv if incorrectly entered. */
+                        low = atoi (temp3[0]);
+                        high = atoi (temp3[1]);
+                        if (temp2[1]=='=') 
+                                val = atoi (temp2+2);
+                        else 
+                                val = low;
+                        
+                        gnome_string_array_free (temp3);
+                        g_free (temp);
+                        /* we add a little to the high value, b/c otherwise the adjustment
+                         * won't display the higher value
+                         */
+                        return GTK_ADJUSTMENT (gtk_adjustment_new (val, low, high + 1, 1, 1, 1));
+                }
+                else
+                        return GTK_ADJUSTMENT (gtk_adjustment_new (5, 0, 10, 1, 1, 1));
+        }
+        return GTK_ADJUSTMENT (gtk_adjustment_new (5, 0, 10, 1, 1, 1));
+}
+static GtkWidget *
 get_entry (setup_data *ssd)
 {
         GtkWidget *frame = NULL;
         GtkWidget *entry;
         GtkWidget *box;
-        
+        gchar *prefix;
+        gchar *val;
+                
         if (ssd->label)
                 frame = gtk_frame_new (ssd->label);
         box = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-
         gtk_container_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
+
+        /* make the entry */
         entry = gtk_entry_new ();
+        ssd->widget = entry;
+        
+        prefix = g_copy_strings (ssd->name, "=", ssd->val_type, NULL);
+        val = gnome_config_get_string_with_default (prefix, NULL);
+        //        g_print ("\tprefix:%s:\n",prefix);
+
+        g_free (prefix);
+        
+        if (val)
+                gtk_entry_set_text (GTK_ENTRY (entry), val);
+        gtk_signal_connect_after (GTK_OBJECT (entry), "insert_text", GTK_SIGNAL_FUNC (entry_callback), ssd);
+        gtk_signal_connect_after (GTK_OBJECT (entry), "delete_text", GTK_SIGNAL_FUNC (entry_delete_callback), ssd);
         if (ssd->left_label)
                 gtk_box_pack_start (GTK_BOX (box), gtk_label_new (ssd->left_label), FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (box), entry, TRUE, TRUE, 0);
         if (ssd->right_label)
                 gtk_box_pack_start (GTK_BOX (box), gtk_label_new (ssd->right_label), FALSE, FALSE, 0);
-        gtk_container_add (GTK_CONTAINER (frame), box);
-        if (frame) {
-                gtk_container_add (GTK_CONTAINER (frame), box);
-                return frame;
-        } else
-                return box;
-}
-GtkWidget *
-get_lrange (setup_data *ssd)
-{
-        GtkAdjustment *adj;
-        GtkWidget *frame = NULL;
-        GtkWidget *box;
-        GtkWidget *range;
 
-        if (ssd->label)
-                frame = gtk_frame_new (ssd->label);
-        adj = gtk_adjustment_new (1.0, 0.0, 2.0, 1.0, 1.0, 1.0);
-        box = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
-        range = gtk_hscale_new (adj);
-        gtk_scale_set_draw_value (GTK_SCALE (range), FALSE);
-        gtk_box_pack_start (GTK_BOX (box), gtk_label_new (ssd->left_label), FALSE, FALSE, 0);
-        gtk_box_pack_start (GTK_BOX (box), range, TRUE, TRUE, 0);
-        gtk_box_pack_start (GTK_BOX (box), gtk_label_new (ssd->right_label), FALSE, FALSE, 0);
+        /* set up the args */
+        if (ssd->val_type)
+                ssd->arg = g_copy_strings (ssd->flag1, " \"", ssd->val_type, "\"", NULL);
+        else
+                ssd->arg = g_copy_strings (ssd->flag1, " \"\"", NULL);
+
         if (frame) {
                 gtk_container_add (GTK_CONTAINER (frame), box);
                 return frame;
         } else
                 return box;
 }
-GtkWidget *
-get_nrange (setup_data *ssd)
+static GtkWidget *
+get_range (setup_data *ssd, gint type)
 {
         GtkAdjustment *adj;
         GtkWidget *label;
         GtkWidget *align;
         GtkWidget *frame = NULL;
         GtkWidget *box;
+        gchar *prefix;
+        gchar temp[25];
         GtkWidget *range;
 
         if (ssd->label)
                 frame = gtk_frame_new (ssd->label);
-        adj = gtk_adjustment_new (1.0, 0.0, 2.0, 1.0, 1.0, 1.0);
         box = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
         gtk_container_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
+
+        /* set up the adjustment */
+        adj = get_adjustment (ssd->val_type);
+        if (ssd->val_type[0] == 'I')
+                snprintf (temp, 24, "%d", (gint) adj->value);
+        else
+                snprintf (temp, 24, "%f", adj->value);
+        
+        prefix = g_copy_strings (ssd->name, "=", temp, NULL);
+        //        g_print ("\tprefix:%s:\n",prefix);
+        
+        adj->value = gnome_config_get_int_with_default (prefix, NULL);
+        gtk_signal_connect (GTK_OBJECT (adj), "value_changed", (GtkSignalFunc) range_callback, ssd);
+        g_free (prefix);
+
+        /* set up the range */
         range = gtk_hscale_new (adj);
+        ssd->widget = range;
+        
+        if (ssd->val_type[0] == 'I')
+                gtk_scale_set_digits (GTK_SCALE (range), 0);
+        
+        if (type == 0)
+                gtk_scale_set_draw_value (GTK_SCALE (range), FALSE);
         if (ssd->left_label) {
                 label = gtk_label_new (ssd->left_label);
                 align = gtk_alignment_new (0.5, 1.0, 0.0, 0.0);
-                gtk_container_add (GTK_ALIGNMENT (align), label);
+                gtk_container_add (GTK_CONTAINER (align), label);
                 gtk_box_pack_start (GTK_BOX (box), align, FALSE, FALSE, 0); 
         }
         gtk_box_pack_start (GTK_BOX (box), range, TRUE, TRUE, 0);
         if (ssd->right_label) {
                 label = gtk_label_new (ssd->right_label);
                 align = gtk_alignment_new (0.5, 1.0, 0.0, 0.0);
-                gtk_container_add (GTK_ALIGNMENT (align), label);
+                gtk_container_add (GTK_CONTAINER (align), label);
                 gtk_box_pack_start (GTK_BOX (box), align, FALSE, FALSE, 0); 
         }
+
+        /* finally, we set the arg */
+        ssd->arg = g_copy_strings (ssd->flag1, " ", temp, NULL);
+
+        /* and return the widget */
         if (frame) {
                 gtk_container_add (GTK_CONTAINER (frame), box);
                 return frame;
         } else
                 return box;
 }
-GtkWidget *
+static GtkWidget *
 get_check (setup_data *ssd)
 {
         GtkWidget *frame = NULL;
         GtkWidget *check;
         GtkWidget *box;
+        gchar *prefix;
+        gboolean set;
         
         if (ssd->label)
                 frame = gtk_frame_new (ssd->label);
+        prefix = g_copy_strings (ssd->name, "=FALSE", NULL);
         box = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
         gtk_container_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
         check = gtk_check_button_new_with_label (ssd->left_label);
+        ssd->widget = check;
         
+        set = gnome_config_get_bool_with_default (prefix, NULL);
+        //        g_print ("\tprefix:%s:\n",prefix);
+
+        g_free (prefix);
+
+        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON (check), set);
+        gtk_signal_connect (GTK_OBJECT (check), "toggled", (GtkSignalFunc) check_callback, ssd);
         gtk_box_pack_start (GTK_BOX (box), check, TRUE, TRUE, 0);
+        if (set)
+                ssd->arg = g_strdup (ssd->flag1);
+        else
+                ssd->arg = g_strdup (ssd->flag2);
         if (frame) {
                 gtk_container_add (GTK_CONTAINER (frame), box);
                 return frame;
         } else
                 return box;
 }
+static void
+write_field (setup_data *ssd)
+{
+        switch (ssd->widget_type) {
+        case ENTRY:
+                set_entry (ssd);
+                break;
+        case LRANGE:
+        case NRANGE:
+                set_range (ssd);
+                break;
+        case CHECK:
+                set_check (ssd);
+                break;
+        default:
+        }
+}
+static void
+entry_callback (GtkEditable *editable, const gchar *text, gint length, gint *position, setup_data *ssd)
+{
+        if (ssd->arg)
+                g_free (ssd->arg);
+        
+        ssd->arg = g_copy_strings (ssd->flag1, " \"", gtk_entry_get_text (GTK_ENTRY (editable)),"\"", NULL);
+}
+static void
+entry_delete_callback (GtkEditable *editable, gint length, gint *position, setup_data *ssd)
+{
+        if (ssd->arg)
+                g_free (ssd->arg);
+        
+        if (strlen (gtk_entry_get_text (GTK_ENTRY (editable))) > 0)
+                ssd->arg = g_copy_strings (ssd->flag1, " \"", gtk_entry_get_text (GTK_ENTRY (editable)),"\"", NULL);
+        else
+                ssd->arg = g_copy_strings (ssd->flag1, " \"\"", NULL);
+}
+static void
+check_callback (GtkWidget *cbox, setup_data *ssd)
+{
+        if (ssd->arg)
+                g_free (ssd->arg);
+
+        if (GTK_TOGGLE_BUTTON (cbox)->active)
+                ssd->arg = g_strdup (ssd->flag1);
+        else 
+                ssd->arg = g_strdup (ssd->flag2);
+}
+static void
+range_callback (GtkAdjustment *adj, setup_data *ssd)
+{
+        gchar val[100];
+        if (ssd->arg)
+                g_free (ssd->arg);
+        if (ssd->val_type[0] == 'I')
+                snprintf (val, 100, " %d", (gint) adj->value);
+        else
+                snprintf (val, 100, " %f", adj->value);
+        ssd->arg = g_copy_strings (ssd->flag1, val, NULL);
+}
 
 /* public functions */
-
 void
 init_screensaver_data (screensaver_data *sd)
 {
+        /* this gets the stuff that's not part of the desktop-entry */
+        /* it will look in the .gnome dir for some of this stuff */
         gchar *prefix;
         gchar *tempstring;
         gchar *tempstring2;
@@ -340,8 +516,13 @@ get_screensaver_widget (screensaver_data *sd)
         GtkWidget *vbox;
         setup_data *ssd;
         GList *list;
-
+        gchar *prefix;
+        
         vbox = gtk_vbox_new (FALSE, GNOME_PAD);
+        prefix = g_copy_strings ("/Screensaver/", sd->name, "/");
+        gnome_config_push_prefix (prefix);
+        g_free (prefix);
+        
         for (list = sd->setup_data; list; list = list->next) {
                 ssd = ((setup_data *)list->data);
                 switch (ssd->widget_type) {
@@ -362,10 +543,47 @@ get_screensaver_widget (screensaver_data *sd)
                 }
                 
         }
+        gnome_config_pop_prefix ();
         gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
         return vbox;
 }
+/* we go through the arg list and generate our arg field */
+void
+store_screensaver_data (screensaver_data *sd)
+{
+        gchar *temp;
+        GList *list;
+        GString *arg;
+        gchar *prefix;
+
+        if (sd == NULL)
+                return;
+
+        prefix = g_copy_strings ("/Screensaver/", sd->name, "/", NULL);
+        gnome_config_push_prefix (prefix);
+        g_free (prefix);
+        if (sd->args)
+                g_free (sd->args);
+        arg = g_string_new (sd->tryexec);
+        
+        for (list = sd->setup_data; list; list=list->next) {
+                write_field ((setup_data *)list->data);
+                /* we do this b/c if there is no flag (ie. a default setting) 
+                 * we don't want to add an extra space
+                 */
+                if (strlen (((setup_data *)list->data)->arg) > 0) {
+                        g_string_append_c (arg, ' ');
+                        g_string_append (arg, ((setup_data *)list->data)->arg);
+                }
+        }
+        gnome_config_set_string ("ARGS", arg->str);
+        sd->args = arg->str;
+        g_string_free (arg, FALSE);
+        gnome_config_pop_prefix ();
+}
+        
 void
 free_screensaver_data (screensaver_data *sd)
 {
+        /* hmmm... I should write this (: */
 }

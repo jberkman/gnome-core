@@ -22,11 +22,12 @@ void screensaver_setup ();
 GtkWidget *capplet;
 GtkWidget *setup_button;
 GtkWidget *monitor;
-
+GList *sdlist = NULL;
 gshort priority;
 gshort waitmins;
 gshort dpmsmins;
 gboolean dpms;
+gboolean usessaver;
 gboolean password;
 gchar *screensaver;
 screensaver_data *sd;
@@ -75,6 +76,7 @@ create_list (GtkList *list, gchar *directory)
                         sdnew = g_malloc (sizeof (screensaver_data));
                         sdnew->desktop_filename = g_copy_strings (directory, child->d_name, NULL);
                         sdnew->name = gnome_config_get_translated_string ("Name");
+                        sdnew->tryexec = gnome_config_get_string ("TryExec");
                         gnome_config_pop_prefix ();
                         sdnew->args = NULL;
 
@@ -84,6 +86,7 @@ create_list (GtkList *list, gchar *directory)
                         sdnew->windowid = gnome_config_get_string ("WindowIdCommand");
                         sdnew->author = gnome_config_get_string ("Author");
                         sdnew->comment = gnome_config_get_translated_string ("ExtendedComment");
+                        sdnew->demo = gnome_config_get_string ("Demo");
                         prefix =  gnome_config_get_string ("Icon");
                         if (prefix) {
                                 if (prefix[0] == '/')
@@ -96,6 +99,7 @@ create_list (GtkList *list, gchar *directory)
                                 sdnew->icon = NULL;
                         
                         gnome_config_pop_prefix ();
+                        sdnew->dialog = NULL;
                         sdnew->setup_data = NULL;
                         if (!sdnew->name) {
                                 /* bah -- useless file... */
@@ -158,7 +162,7 @@ get_saver_frame ()
 
         temphbox = gtk_hbox_new (FALSE, 0);
         alignment = gtk_alignment_new (0.0, 0.5, 0, 0);
-        label = gtk_label_new (_("Wait For "));
+        label = gtk_label_new (_("Start After "));
         entry = gtk_entry_new ();
         snprintf (tempmin, 5, "%d",waitmins);
         gtk_entry_set_text (GTK_ENTRY (entry), tempmin);
@@ -194,8 +198,8 @@ get_saver_frame ()
         gtk_box_pack_start (GTK_BOX (vbox), tempvbox, FALSE, FALSE, 0);
         
 
-        setup_button = gtk_button_new_with_label (_("Setup..."));
-        gtk_signal_connect (GTK_OBJECT (setup_button), "pressed", (GtkSignalFunc) setup_callback, NULL);
+        setup_button = gtk_button_new_with_label (_("Settings..."));
+        gtk_signal_connect (GTK_OBJECT (setup_button), "clicked", (GtkSignalFunc) setup_callback, NULL);
         temphbox = gtk_hbox_new (FALSE, 0);
         gtk_box_pack_end (GTK_BOX (temphbox), setup_button, FALSE, FALSE, 0);
         gtk_box_pack_start (GTK_BOX (vbox), temphbox, FALSE, FALSE, 0);
@@ -226,6 +230,7 @@ get_power_frame()
         gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (dpmscheck), dpms);
         gtk_box_pack_start (GTK_BOX (vbox), dpmscheck, FALSE, FALSE, 0);
         
+
         hbox = gtk_hbox_new (FALSE, 0);
         tempvbox = gtk_vbox_new (FALSE, 0);
         gtk_box_pack_start (GTK_BOX (hbox), gtk_label_new (_("Shutdown Monitor ")), FALSE, FALSE, 0);
@@ -299,6 +304,9 @@ main (int argc, char **argv)
 	screensaver_setup();
         signal (SIGCHLD, sig_child);
         gtk_signal_connect(GTK_OBJECT(capplet), "destroy", GTK_SIGNAL_FUNC(destroy_callback), NULL);
+        gtk_signal_connect (GTK_OBJECT (capplet), "try", GTK_SIGNAL_FUNC (try_callback), NULL);
+        gtk_signal_connect (GTK_OBJECT (capplet), "revert", GTK_SIGNAL_FUNC (revert_callback), NULL);
+        gtk_signal_connect (GTK_OBJECT (capplet), "ok", GTK_SIGNAL_FUNC (ok_callback), NULL);
+
         capplet_gtk_main ();
-        gnome_config_sync ();
 }

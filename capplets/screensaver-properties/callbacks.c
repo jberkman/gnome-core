@@ -6,6 +6,7 @@
 #include "capplet-widget.h"
 #include "gnome.h"
 #include "screensaver-dialog.h"
+#include <X11/Xlib.h>
 #include <gdk/gdkx.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -27,27 +28,46 @@ extern gboolean dpms;
 extern gboolean password;
 extern gchar *screensaver;
 extern screensaver_data *sd;
+extern GList *sdlist;
 static pid_t pid = 0;
+static pid_t pid_big = 0;
 
 void
 launch_miniview (screensaver_data *sd)
 {
-        gchar test[1000];
+        gchar xid[11];
+        gchar *temp;
+        gchar **argv;
         int p[2];
 
-        if (pid)
+        if (pid) {
                 kill (pid, SIGTERM);
+                pid = 0;
+        }
 
+        if (sd->demo == NULL)
+                /* FIXME: um, we _should_ do something.  Maybe steal the icon field.  */
+                /* Maybe come up with a default demo.  dunno... */
+                return;
+        
+
+        /* we fork and launch a spankin' new screensaver demo!!! */
         if (pipe (p) == -1)
                 return;
+
         pid = fork ();
-        if (pid == (pid_t) -1)
+        if (pid == (pid_t) -1) {
+                pid = 0;
                 return;
+        }
         if (pid == 0) {
                 close (p[0]);
-                
-                snprintf (test, 1000,"0x%x", GDK_WINDOW_XWINDOW (monitor->window));
-                execlp ("/usr/local/bin/deco", "deco", "-window-id", test, NULL);
+                snprintf (xid, 11,"0x%x", GDK_WINDOW_XWINDOW (monitor->window));
+                temp = g_copy_strings (sd->demo, " ", sd->windowid, " ", xid, NULL);
+                argv = gnome_string_split (temp, " ", -1);
+                g_free (temp);
+                temp = gnome_is_program_in_path (argv[0]);
+                execvp (temp, argv);
                 /* This call should never return */
         }
         close (p[1]);
@@ -57,7 +77,10 @@ launch_miniview (screensaver_data *sd)
 void
 setup_callback (GtkWidget *widget, gpointer data)
 {
-        make_dialog (sd);
+        if (sd->dialog == NULL) {
+                gtk_widget_set_sensitive (setup_button, FALSE);
+                sd->dialog = make_dialog (sd);
+        }
 }
 void
 list_click_callback (GtkWidget *list, GdkEventButton *event, void *data)
@@ -72,7 +95,7 @@ list_click_callback (GtkWidget *list, GdkEventButton *event, void *data)
         sd = (screensaver_data *) data;
         if (sd->args == NULL)
                 init_screensaver_data (sd);
-        if (sd->setup_data == NULL)
+        if ((sd->setup_data == NULL) || (sd->dialog != NULL))
                 gtk_widget_set_sensitive (setup_button, FALSE);
         else
                 gtk_widget_set_sensitive (setup_button, TRUE);
@@ -133,15 +156,70 @@ nice_callback (GtkWidget *nice, void *data)
         priority = GTK_ADJUSTMENT(nice)->value;
         capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
-void
-dialog_callback (GtkWidget *dialog, gint button, void *data)
+static void
+ssaver_callback (GtkWidget *dialog, GdkEventKey *event, GdkWindow *sswin)
 {
+        
+        if (pid_big){
+                kill (pid_big, SIGTERM);
+                pid_big = 0;
+        }
+        /*gtk_signal_emit_stop_by_name (GTK_OBJECT (dialog),"key_press_event");
+          gtk_signal_emit_stop_by_name (GTK_OBJECT (dialog),"button_press_event");*/
+        gdk_window_hide (sswin);
+}
+void
+dialog_callback (GtkWidget *dialog, gint button, screensaver_data *newsd)
+{
+        gchar *temp;
+        static GdkWindow *sswin = NULL;
+        GdkWindowAttr attributes;
+        gchar xid[11];
+        gchar **argv;
+
+
+        store_screensaver_data (newsd);
         switch (button) {
         case 0:
+                if (sswin == NULL) {
+                        attributes.title = NULL;
+                        attributes.x = 0;
+                        attributes.y = 0;
+                        attributes.width = gdk_screen_width ();
+                        attributes.height = gdk_screen_height ();
+                        attributes.wclass = GDK_INPUT_OUTPUT;
+                        attributes.window_type = GDK_WINDOW_TOPLEVEL;
+                        attributes.override_redirect = TRUE;
+                        sswin = gdk_window_new (NULL, &attributes, GDK_WA_X|GDK_WA_Y|GDK_WA_NOREDIR);
+                }
 
+                gtk_signal_connect (GTK_OBJECT (dialog), "key_press_event", (GtkSignalFunc) ssaver_callback, sswin);
+                gtk_signal_connect (GTK_OBJECT (dialog), "button_press_event", (GtkSignalFunc) ssaver_callback, sswin);
+                XSelectInput (GDK_WINDOW_XDISPLAY (sswin), GDK_WINDOW_XWINDOW (sswin), ButtonPressMask | KeyPressMask);
+                gdk_window_show (sswin);
+                gdk_window_set_user_data (sswin, dialog);
+                
+
+                pid_big = fork ();
+                if (pid_big == (pid_t) -1)
+                        return;
+                if (pid_big == 0) {
+                        snprintf (xid, 11,"0x%x", GDK_WINDOW_XWINDOW (sswin));
+                        temp = g_copy_strings (newsd->args, " ", newsd->windowid, " ", xid, NULL);
+                        
+                        argv = gnome_string_split (temp, " ", -1);
+                        g_free (temp);
+                        temp = gnome_is_program_in_path (argv[0]);
+                        execvp (temp, argv);
+                        /* This call should never return */
+                }
                 break;
         case 1:
                 gnome_dialog_close (GNOME_DIALOG (dialog));
+                newsd->dialog = NULL;
+                newsd->dialog = NULL;
+                if (sd == newsd)
+                        gtk_widget_set_sensitive (setup_button, TRUE);
                 break;
         }
 }
@@ -151,7 +229,27 @@ destroy_callback (GtkWidget *widget, void *data)
         if (pid)
                 kill (pid, SIGTERM);
 }
-
+void
+ok_callback ()
+{
+        /* we want to commit our changes to disk. */
+        gchar *command;
+        if (sd->dialog)
+                store_screensaver_data (sd);
+        gnome_config_sync ();
+        system ("xscreensaver-command -exit");
+        
+}
+void
+try_callback ()
+{
+        g_print ("try clicked\n");
+}
+void
+revert_callback ()
+{
+        g_print ("revert clicked\n");
+}
 void
 sig_child(int sig)
 {
