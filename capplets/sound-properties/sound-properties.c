@@ -3,7 +3,7 @@
  * Author: Elliot Lee <sopwith@redhat.com>
  */
 
-#define TESTING
+/* #define TESTING */
 
 #include <config.h>
 #include <stdio.h>
@@ -53,6 +53,9 @@ static void sound_properties_set_sensitivity(GtkToggleButton *btn,
                                              SoundProps *props);
 static void sound_properties_event_apply(GtkCTreeNode *node, SoundProps *props); 
 static void sound_properties_apply(SoundProps *props); 
+static void ui_do_revert(GtkWidget *w, SoundProps *props);
+static void ui_do_ok(GtkWidget *w, SoundProps *props);
+static void ui_do_cancel(GtkWidget *w, SoundProps *props);
 
 int
 main(int argc,
@@ -102,6 +105,13 @@ sound_properties_create(void)
 #else
     retval->capplet = capplet_widget_new();
 #endif
+
+    gtk_signal_connect(GTK_OBJECT(retval->capplet), "revert",
+                       ui_do_revert, retval);
+    gtk_signal_connect(GTK_OBJECT(retval->capplet), "ok",
+                       ui_do_ok, retval);
+    gtk_signal_connect(GTK_OBJECT(retval->capplet), "cancel",
+                       ui_do_cancel, retval);
 
     notebook = gtk_notebook_new();
 
@@ -296,6 +306,8 @@ sound_properties_event_change_file(GtkEditable *entry, SoundProps *props)
 
     g_return_if_fail(GTK_CLIST(props->ctree)->selection);
 
+    capplet_widget_state_changed(CAPPLET_WIDGET(props->capplet), TRUE);
+
     gtk_ctree_node_set_text(GTK_CTREE(props->ctree),
                             GTK_CLIST(props->ctree)->selection->data,
                             2,
@@ -360,4 +372,31 @@ sound_properties_set_sensitivity(GtkToggleButton *btn,
     gtk_widget_set_sensitive(props->table,
                              GTK_TOGGLE_BUTTON(props->enable_esd_startup)->active
                              && GTK_TOGGLE_BUTTON(props->enable_sound_events)->active);
+
+    capplet_widget_state_changed(CAPPLET_WIDGET(props->capplet), TRUE);
+}
+
+static void
+ui_do_revert(GtkWidget *w, SoundProps *props)
+{
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(props->enable_esd_startup),
+                                gnome_config_get_bool("/sound/system/settings/start_esd"));
+
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(props->enable_sound_events),
+                                gnome_config_get_bool("/sound/system/settings/event_sounds"));
+
+    sound_properties_regenerate_ctree(props);
+}
+
+static void
+ui_do_ok(GtkWidget *w, SoundProps *props)
+{
+    sound_properties_apply(props);
+    gtk_main_quit();
+}
+
+static void
+ui_do_cancel(GtkWidget *w, SoundProps *props)
+{
+    gtk_main_quit();
 }
