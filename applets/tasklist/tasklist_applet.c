@@ -1,5 +1,6 @@
 #include <config.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gdk-pixbuf/gdk-pixbuf-drawable.h>
 #include "tasklist_applet.h"
 #include "unknown.xpm"
 
@@ -252,7 +253,7 @@ draw_task (TasklistTask *task)
 	}
 
 	if (Config.show_mini_icons) {
-		icon = unknown_icon;
+		icon = task->icon;
 		
 		if (GWMH_TASK_ICONIFIED (task->gwmh_task))
 			pixbuf = icon->minimized;
@@ -496,6 +497,8 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	       GwmhTaskInfoMask imask)
 {
 	TasklistTask *task;
+	GdkPixmap *pixmap = NULL;
+	GdkBitmap *mask = NULL;
 	
 	switch (ntype)
 	{
@@ -520,9 +523,22 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	case GWMH_NOTIFY_NEW:
 		task = g_malloc0 (sizeof (TasklistTask));
 		task->gwmh_task = gwmh_task;
+		task->icon = g_new (TasklistIcon, 1);
 		gwmh_task_get_mini_icon (task->gwmh_task, 
-					 &task->pixmap, &task->mask);
-
+					 &pixmap, &mask);
+		if (pixmap) {
+			task->icon->mask = mask;
+			task->icon->normal = gdk_pixbuf_rgb_from_drawable (pixmap,
+									   0, 0,
+									   16, 16);
+			task->icon->minimized = create_minimized_icon (task->icon->normal);
+		}
+		else {
+			task->icon->mask = unknown_icon->mask;
+			task->icon->normal = unknown_icon->normal;
+			task->icon->minimized = unknown_icon->minimized;
+		}
+		
 		tasks = g_list_append (tasks, task);
 	        layout_tasklist ();
 		break;

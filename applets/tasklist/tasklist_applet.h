@@ -30,8 +30,7 @@ typedef enum
 struct _TasklistTask {
 	gint x, y;
 	gint width, height;
-	GdkPixmap *pixmap;
-	GdkBitmap *mask;
+	TasklistIcon *icon;
 	GwmhTask *gwmh_task;
 };
 
