@@ -184,9 +184,15 @@ gnome_helpwin_jump_to_line(GnomeHelpWin *w, gint line)
 {
 	g_return_if_fail( w != NULL );
 
-        XmHTMLTextScrollToLine(GTK_WIDGET(w), line);
+	/*        XmHTMLTextScrollToLine(GTK_WIDGET(w), line); */
+	gtk_xmhtml_set_topline(GTK_XMHTML(w), line);
 }
 
+gint
+gnome_helpwin_get_line(GnomeHelpWin *w)
+{
+        return gtk_xmhtml_get_topline(GTK_XMHTML(w));
+}
 
 /*
  * gnome_helpwin_goto()

@@ -59,7 +59,7 @@ void gnome_helpwin_goto(GnomeHelpWin *help,  const char *filename);
 
 void gnome_helpwin_jump_to_anchor( GnomeHelpWin *w, gchar *a );
 void gnome_helpwin_jump_to_line( GnomeHelpWin *w, gint line );
-
+gint gnome_helpwin_get_line( GnomeHelpWin *w );
 END_GNOME_DECLS
 
 
