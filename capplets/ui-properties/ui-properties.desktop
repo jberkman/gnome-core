@@ -1,0 +1,17 @@
+[Desktop Entry]
+Name=Look and Feel Properties
+Name[es]=Propriedades de la Interface
+Name[fr]=Propriétés "Look&Feel"
+Name[ko]=°Ñ¸ð½À ¼³Á¤
+Name[no]=Egenskaper for utseende
+Name[pt]=Propriedades da Interface
+Comment=Look and Feel Properties
+Comment[es]=Modifica las propiedades de la interface con el usuario
+Comment[ko]=°Ñ¸ð½À ¼³Á¤
+Comment[fr]=Propriétés "Look&Feel"
+Comment[no]=Egenskaper for utseende
+Comment[pt]=Modifica as propriedades da Interface Homem-Máquina
+Exec=ui-properties
+Icon=
+Terminal=0
+Type=Application
