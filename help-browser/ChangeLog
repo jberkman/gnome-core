@@ -1,3 +1,12 @@
+1998-03-26  Michael Fulbright  <msf@redhat.com>
+
+	* Added 'whatis:' magic URL. You just type something like
+	  'whatis:ls', and it does a case-insensitive search of all
+	  document titles of matching "^ls.*"
+
+	* Added callback for forms from html widget, doesn't seem to
+	  quite be fully implemented yet.
+	
 1998-03-25  Michael Fulbright  <msf@redhat.com>
 
 	* Added support in bookmarks for document titles

@@ -90,6 +90,8 @@ static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
+static void formActivate(GtkWidget *w, XmHTMLFormCallbackStruct *cbs,
+			    HelpWindow win);
 static void reload_page(GtkWidget *w, HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowBookmarks (GtkWidget *w, HelpWindow win);
@@ -245,6 +247,22 @@ anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 	}
 }
 
+static void
+formActivate(GtkWidget *w, XmHTMLFormCallbackStruct *cbs, HelpWindow win)
+{
+	gint i;
+
+	g_message("Recvieved a GTK_XMHTML_FORM event, enctype = %s",
+		  cbs->enctype);
+
+	g_message("There are %d components.", cbs->ncomponents);
+	for (i=0; i<cbs->ncomponents; i++) {
+		g_message("Component %d: name = %s, value = %s",
+			  i,
+			  cbs->components[i].name,
+			  cbs->components[i].value);
+	}
+}
 static void
 help_forward(GtkWidget *w, HelpWindow win)
 {
@@ -576,6 +594,9 @@ helpWindowNew(gchar *name,
 
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "anchor_track",
 					     GTK_SIGNAL_FUNC(anchorTrack), w);
+
+	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "form",
+					     GTK_SIGNAL_FUNC(formActivate), w);
 
 	gtk_box_pack_start(GTK_BOX(vbox), w->helpWidget, TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), w->statusBar, FALSE, FALSE, 0);

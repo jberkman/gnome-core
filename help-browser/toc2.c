@@ -28,7 +28,8 @@ static gint countChars(gchar *s, gchar ch);
 static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath);
 static GList *findFirstEntryByName(GList *table, gchar *name);
 
-static gint countChars(gchar *s, gchar ch)
+static
+gint countChars(gchar *s, gchar ch)
 {
     gint count = 0;
     
@@ -41,7 +42,8 @@ static gint countChars(gchar *s, gchar ch)
     return count;
 }
 
-static struct _toc_config *addToConfig(struct _toc_config *index,
+static
+struct _toc_config *addToConfig(struct _toc_config *index,
 				       gchar *paths, gint type)
 {
     gchar buf[BUFSIZ];
@@ -64,7 +66,8 @@ static struct _toc_config *addToConfig(struct _toc_config *index,
     return index;
 }
 
-static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
+static
+void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
 {
     gint count;
     struct _toc_config *index;
@@ -83,7 +86,8 @@ static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
     index->type = 0;
 }
 
-Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
+Toc
+newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
 {
     Toc res;
 
@@ -97,7 +101,8 @@ Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
     return res;
 }
 
-GString *genManTocHTML(Toc toc)
+GString
+*genManTocHTML(Toc toc)
 {
     GString *res, *s;
     GList *l;
@@ -140,7 +145,8 @@ GString *genManTocHTML(Toc toc)
     return res;
 }
 
-GString *genInfoTocHTML(Toc toc)
+GString
+*genInfoTocHTML(Toc toc)
 {
     GString *res, *s;
     GList *l;
@@ -171,7 +177,8 @@ GString *genInfoTocHTML(Toc toc)
     return res;
 }
 
-GString *genGhelpTocHTML(Toc toc)
+GString
+*genGhelpTocHTML(Toc toc)
 {
     GString *res, *s;
     GList *l;
@@ -199,7 +206,8 @@ GString *genGhelpTocHTML(Toc toc)
     return res;
 }
 
-gchar *tocLookupMan(Toc toc, gchar *name, gchar ext)
+gchar
+*tocLookupMan(Toc toc, gchar *name, gchar ext)
 {
     GList *p;
 
@@ -229,7 +237,8 @@ gchar *tocLookupMan(Toc toc, gchar *name, gchar ext)
     return NULL;
 }
 
-gchar *tocLookupGhelp(Toc toc, gchar *name)
+gchar
+*tocLookupGhelp(Toc toc, gchar *name)
 {
     GList *p;
     
@@ -241,7 +250,8 @@ gchar *tocLookupGhelp(Toc toc, gchar *name)
     return ((struct _big_table_entry *)p->data)->filename;
 }
 
-gchar *tocLookupInfo(Toc toc, gchar *name, gchar *anchor)
+gchar
+*tocLookupInfo(Toc toc, gchar *name, gchar *anchor)
 {
     GList *p;
     
@@ -276,7 +286,8 @@ gchar *tocLookupInfo(Toc toc, gchar *name, gchar *anchor)
     return NULL;
 }
 
-static GList *findFirstEntryByName(GList *table, gchar *name)
+static
+GList *findFirstEntryByName(GList *table, gchar *name)
 {
     while (table) {
 	if (!strcmp(((struct _big_table_entry *)table->data)->name, name)) {
@@ -286,4 +297,103 @@ static GList *findFirstEntryByName(GList *table, gchar *name)
     }
 
     return NULL;
+}
+
+/* returns HTML of matches to substr search */
+GString
+*findMatchesBySubstr(Toc toc, gchar *substr)
+{
+    GString *out;
+    GString *tmp;
+    GList   *p;
+    gboolean foundman, foundinfo, foundghelp;
+
+    out = g_string_new("<HTML>\n<BODY>\n<H2>Results of the substring search "
+		       "for the string ");
+    g_string_sprintfa(out, "&quot;%s&quot;</H2>\n", substr);
+
+    /* first do Manual Pages */
+    foundman = FALSE;
+    tmp = g_string_new("<p>\n<br>\n<H3>Manual Pages</H3>\n<p>\n<UL>\n");
+    p = toc->manTable;
+    /* if substr = "" then dont search */
+    while (p && *substr) {
+	gchar *name=((struct _big_table_entry *)p->data)->name;
+        gchar ext=((struct _big_table_entry *)p->data)->ext;
+        if (!strncasecmp(name, substr, strlen(substr))) {
+            g_string_sprintfa(tmp,"<LI><A HREF=\"man:%s(%c)\">%s(%c)</A>\n",
+			     name, ext, name, ext);
+            foundman = TRUE;
+        }
+        p = p->next;
+    }
+
+    g_string_append(tmp, "</UL>\n");
+
+    if (foundman) 
+	g_string_append(out, tmp->str);
+
+    g_string_free(tmp, TRUE);
+
+    /* info pages */
+    foundinfo = FALSE;
+    tmp = g_string_new("\n<p>\n<br>\n<H3>GNU Info Pages</H3>\n<p>\n<UL>\n");
+    p = toc->infoTable;
+    while (p && *substr) {
+	gchar *name=((struct _big_table_entry *)p->data)->name;
+
+	/* only one entry per info file (avoids problem with expanded info) */
+	if  (!((struct _big_table_entry *)p->data)->section &&
+	     !strncasecmp(name, substr, strlen(substr))) {
+            g_string_sprintfa(tmp,"<LI><A HREF=\"info:%s\">%s</A>\n",
+			     name, name);
+            foundinfo = TRUE;
+        }
+        p = p->next;
+    }
+
+    g_string_append(tmp, "</UL>\n");
+
+    if (foundinfo) 
+	g_string_append(out, tmp->str);
+
+    g_string_free(tmp, TRUE);
+
+    /* ghelp pages */
+    foundghelp = FALSE;
+    tmp = g_string_new("\n<p>\n<br>\n<H3>GNOME Help Pages</H3>\n<p>\n<UL>\n");
+    p = toc->ghelpTable;
+    while (p && *substr) {
+	gchar *name=((struct _big_table_entry *)p->data)->name;
+
+	/* only one entry per info file (avoids problem with expanded info) */
+	if  (!strncasecmp(name, substr, strlen(substr))) {
+            g_string_sprintfa(tmp,"<LI><A HREF=\"ghelp:%s\">%s</A>\n",
+			     name, name);
+            foundghelp = TRUE;
+        }
+        p = p->next;
+    }
+
+    g_string_append(tmp, "</UL>\n");
+
+    if (foundghelp) 
+	g_string_append(out, tmp->str);
+
+    g_string_free(tmp, TRUE);
+
+    if (!foundman && !foundinfo && !foundghelp)
+	g_string_append(out, "<br><B>No matches found</B>\n");
+
+    g_string_append(out, "</BODY>\n</HTML>\n");
+
+#if 0
+    if (1) {
+	FILE *f=fopen("/tmp/test.html", "w");
+        fprintf(f, "%s", out->str);
+        fclose(f);
+    }
+#endif
+
+    return out;
 }

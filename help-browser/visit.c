@@ -23,9 +23,32 @@ visitURL( HelpWindow win, gchar *ref,
 
 	/* !!! This is the entire lifespan of all the docObjs */
 
-	/* trap 'toc:' urls here for now */
+	/* trap 'toc:', 'whatis:' urls here for now */
 	/* paranoid exists because of unknown memory problems */
-	if (!strncmp(ref, "toc:", 4)) {
+	if (!strncmp(ref, "whatis:", 4)) {
+		gchar *p=ref+7;
+		gchar *paranoid = g_strdup(ref);
+		GString *s;
+
+		g_message("WHATIS requested for substr %s",p);
+
+		helpWindowQueueMark(win);
+
+		s = findMatchesBySubstr(helpWindowGetToc(win), p);
+		if (s) {
+			helpWindowHTMLSource(win, s->str, strlen(s->str),
+					     paranoid, paranoid);
+			helpWindowJumpToLine(win, 1);
+			g_string_free(s, TRUE);
+		}
+		
+		if (addToQueue) 
+			helpWindowQueueAdd(win, paranoid);
+		if (addToHistory)
+			helpWindowHistoryAdd(win, paranoid);
+
+		g_free(paranoid);
+	} else if (!strncmp(ref, "toc:", 4)) {
 		gchar *p=ref+4;
 		gchar *paranoid = g_strdup(ref);
 		GString *s;
