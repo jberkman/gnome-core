@@ -105,7 +105,9 @@ static void pageUp(GtkWidget *w, HelpWindow win);
 static void pageDown(GtkWidget *w, HelpWindow win);
 static void focusEnter(GtkWidget *w, HelpWindow win);
 
-static void dndDrop(GtkWidget *widget, GdkEvent *event, HelpWindow win);
+static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
+		    GtkSelectionData *data, guint info,
+		    guint time, HelpWindow win);
 
 static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
@@ -644,22 +646,20 @@ static void focusEnter(GtkWidget *w, HelpWindow win)
     gtk_widget_grab_focus(GTK_WIDGET(win->entryBox));
 }
 
-static void dndDrop(GtkWidget *widget, GdkEvent *event, HelpWindow win)
+static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
+		    GtkSelectionData *data, guint info,
+		    guint time, HelpWindow win)
 {
-    gchar buf[BUFSIZ];
-    gchar *s;
+    GList *urls;
     
-    s = (gchar *)event->dropdataavailable.data;
-    g_message("DROP: %s", s);
+    if (data->data) {
+	GList *urls = gnome_uri_list_extract_uris (data->data);
 
-    /* Do a little shorthand processing */
-    if (*s == '/') {
-	snprintf(buf, sizeof(buf), "file:%s", s);
-    } else {
-	strncpy(buf, s, sizeof(buf));
+	if (urls)
+	    helpWindowShowURL(win, (char *)urls->data, TRUE, TRUE);
+	
+	gnome_uri_list_free_strings (urls);
     }
-    
-    helpWindowShowURL(win, buf, TRUE, TRUE);
 }
 
 HelpWindow
@@ -674,7 +674,9 @@ helpWindowNew(gchar *name,
         HelpWindow w;
 	GtkWidget *entryArea;
 	GtkWidget *vbox;
-	char *acceptedDropTypes[] = { "url:ALL" };
+	static GtkTargetEntry target_table[] = {
+		{ "text/uri-list", 0, 0 },
+	};
 
 	w = (HelpWindow)g_malloc(sizeof(*w));
 
@@ -757,10 +759,15 @@ helpWindowNew(gchar *name,
 
 	gtk_widget_realize(w->helpWidget);
 	gtk_signal_connect(GTK_OBJECT(GTK_XMHTML(w->helpWidget)->html.work_area),
-			   "drop_data_available_event",
+			   "drag_data_received",
 			   GTK_SIGNAL_FUNC(dndDrop), w);
-	gtk_widget_dnd_drop_set(GTK_XMHTML(w->helpWidget)->html.work_area,
-				TRUE, acceptedDropTypes, 1, FALSE);
+
+	gtk_drag_dest_set (GTK_XMHTML(w->helpWidget)->html.work_area,
+			   GTK_DEST_DEFAULT_MOTION |
+			   GTK_DEST_DEFAULT_HIGHLIGHT |
+			   GTK_DEST_DEFAULT_DROP,
+			   target_table, 1,
+			   GDK_ACTION_COPY | GDK_ACTION_MOVE);
 
 	return w;
 }

@@ -45,6 +45,11 @@ enum scrollbar_position_enum {
 	SCROLLBAR_HIDDEN = 2
 };
 
+enum targets_enum {
+        TARGET_STRING,
+	TARGET_COLOR
+};
+
 struct terminal_config {
 	int blink       :1; 			/* Do we want blinking cursor? */
 	int scroll_key  :1;			/* Scroll on input? */
@@ -1054,19 +1059,25 @@ terminal_kill (GtkWidget *widget, void *data)
 	close_terminal_cmd (widget, app);
 }
 
-static void
-drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer data)
+
+static void  
+drag_data_received  (GtkWidget *widget, GdkDragContext *context, 
+		     gint x, gint y,
+		     GtkSelectionData *selection_data, guint info,
+		     guint time)
 {
 	ZvtTerm *term = ZVT_TERM (widget);
-	char *p = event->data;
-	int count = event->data_numbytes;
 	int len, col, row, the_char;
 	struct terminal_config *cfg;
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	if (strcmp (event->data_type, "text/plain") == 0 ||
-	    strcmp (event->data_type, "url:ALL") == 0){
+	switch (info) {
+	case TARGET_STRING:
+	{
+		char *p = selection_data->data;
+		int count = selection_data->length;
+		
 		do {
 			len = 1 + strlen (p);
 			count -= len;
@@ -1075,20 +1086,17 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 			vt_writechild (&term->vx->vt, " ", 1);
 			p += len;
 		} while (count > 0);
-
-		return;
+		break;
 	}
+	case TARGET_COLOR:
+	{
+		guint16 *data = (guint16 *)selection_data->data;
 
-	/* Color dropped */
-	if (strcmp (event->data_type, "application/x-color") == 0){
-		gdouble *data = event->data;
-		int x, y;
+		if (selection_data->length != 8)
+			return;
+
+		g_print ("%d %d\n", position->x, position->y);
 		
-		/* Get drop site, and make the coordinates local to our window */
-		gdk_window_get_origin (GTK_WIDGET (term)->window, &x, &y);
-		x = event->coords.x - x;
-		y = event->coords.y - y;
-
 		col = x / term->charwidth;
 		row = y / term->charheight;
 
@@ -1103,9 +1111,9 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 			cfg->user_fore.blue  = blue [16];
 
 			/* Accept the dropped colors */
-			cfg->user_back.red   = data [1] * 65535;
-			cfg->user_back.green = data [2] * 65535;
-			cfg->user_back.blue  = data [3] * 65535;
+			cfg->user_back.red   = data [0];
+			cfg->user_back.green = data [1];
+			cfg->user_back.blue  = data [2];
 		} else {
 			/* copy the current background color */
 			cfg->user_back.red   = red [17];
@@ -1113,22 +1121,33 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 			cfg->user_back.blue  = blue [17];
 			
 			/* Accept the dropped colors */
-			cfg->user_fore.red   = data [1] * 65535;
-			cfg->user_fore.green = data [2] * 65535;
-			cfg->user_fore.blue  = data [3] * 65535;
+			cfg->user_fore.red   = data [0];
+			cfg->user_fore.green = data [1];
+			cfg->user_fore.blue  = data [2];
 		}
 		set_color_scheme (term, cfg);
+	}
 	}
 }
 
 static void
 configure_term_dnd (ZvtTerm *term)
 {
-	char *drop_types []= { "url:ALL", "text/plain", "application/x-color" };
-	
-	gtk_widget_dnd_drop_set (GTK_WIDGET (term), TRUE, drop_types, 3, FALSE);
-	gtk_signal_connect (GTK_OBJECT (term), "drop_data_available_event",
-			    GTK_SIGNAL_FUNC (drop_data_available), term);
+	static GtkTargetEntry target_table[] = {
+		{ "STRING",     0, TARGET_STRING },
+		{ "text/plain", 0, TARGET_STRING },
+		{ "application/x-color", 0, TARGET_COLOR }
+	};
+
+	gtk_signal_connect (GTK_OBJECT (term), "drag_data_received",
+			    GTK_SIGNAL_FUNC(drag_data_received), NULL);
+
+	gtk_drag_dest_set (GTK_WIDGET (term),
+			   GTK_DEST_DEFAULT_MOTION |
+			   GTK_DEST_DEFAULT_HIGHLIGHT |
+			   GTK_DEST_DEFAULT_DROP,
+			   target_table, 3,
+			   GDK_ACTION_COPY);
 }
 
 /*

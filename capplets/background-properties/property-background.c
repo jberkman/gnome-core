@@ -45,6 +45,9 @@ enum {
 	BACKGROUND_WALLPAPER,
 };
 
+enum {
+  TARGET_URI_LIST,
+};
 
 struct bgState {
     GdkColor   bgColor1, bgColor2;
@@ -1130,30 +1133,23 @@ background_properties_init() {
  * Invoked when a filename is dropped on the monitor widget
  */
 static void
-image_dnd_drop(GtkWidget *widget, GdkEventDropDataAvailable *event, gpointer data)
+img_dnd_drop (GtkWidget *widget, GdkDragContext *context, gint x, gint y,
+	      GtkSelectionData *selection_data, guint info,
+	      guint time, gpointer data)
 {
-	/* Test for the type that was dropped */
-	if (strcmp (event->data_type, "url:ALL") != 0)
-		return;
-	set_monitor_filename (event->data);
+	switch (info) {
+	case TARGET_URI_LIST: 
+	{
+		GList *names = 
+			gnome_uri_list_extract_filenames (selection_data->data);
+		if (names) {
+			set_monitor_filename ((gchar *)names->data);
+			gnome_uri_list_free_strings (names);
+		}
+		break;
+	}
+
 	return;
-}
-
-static int
-connect_dnd (void)
-{
-	char *image_drop_types[] = {"url:ALL"};
-
-	/* Configure drag and drop on the monitor image */
-	gtk_signal_connect (GTK_OBJECT (monitor),
-			    "drop_data_available_event",
-			    GTK_SIGNAL_FUNC (image_dnd_drop),
-			    NULL);
-	
-	gtk_widget_dnd_drop_set (GTK_WIDGET(monitor), TRUE,
-				 image_drop_types, 1, FALSE);
-	
-	return TRUE;
 }
 
 /*
@@ -1164,6 +1160,11 @@ connect_dnd (void)
 void
 background_setup (struct bgState *state)
 {
+     static GtkTargetEntry drop_types [] = { 
+	     { "text/uri-list", 0, TARGET_URI_LIST },
+     };
+     static gint n_drop_types = sizeof (drop_types) / sizeof(drop_types[0]);
+
     GtkWidget *settings;
     GtkWidget *vbox, *hbox;
     GtkWidget *fill, *wallp;
@@ -1178,10 +1179,17 @@ background_setup (struct bgState *state)
     align = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
 
     monitor = get_monitor_preview_widget ();
-    gtk_signal_connect (GTK_OBJECT (monitor),
-			"realize",
-			GTK_SIGNAL_FUNC (connect_dnd),
-			NULL);
+
+    gtk_drag_dest_set (GTK_WIDGET (monitor),
+		       GTK_DEST_DEFAULT_MOTION |
+		       GTK_DEST_DEFAULT_HIGHLIGHT |
+		       GTK_DEST_DEFAULT_DROP,
+		       drop_types, n_drop_types,
+		       GDK_ACTION_COPY);
+
+    gtk_signal_connect (GTK_OBJECT (monitor), "drag_data_received",
+			GTK_SIGNAL_FUNC (img_dnd_drop), NULL);
+			    
     gdk_null_window_warnings = 0;
 #if 0
     preview = gtk_preview_new(GTK_PREVIEW_COLOR);
