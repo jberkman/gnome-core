@@ -1,3 +1,13 @@
+2001-11-28  Seth Nickell  <snickell@stanford.edu>
+
+	* Makefile.am:
+
+	install .desktop file into datadir/applications
+	
+	* gnome-terminal.desktop:
+
+	Add Categories field
+
 2001-11-27  Gediminas Paulauskas <menesis@delfi.lt>
 
 	* gnome-terminal.c (preferences_cmd): pass NULL instead of PACKAGE

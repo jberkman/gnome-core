@@ -72,3 +72,4 @@ Icon=gnome-terminal.png
 Terminal=0
 Type=Application
 DocPath=gnome-terminal/index.html
+Categories=Application;System;
