@@ -653,6 +653,8 @@ load_config_from_widgets (struct _config_entry *p)
 static void
 configApply(GtkWidget *w, int page, GtkWidget *window)
 {
+    if (page != -1)
+        return;
     load_config_from_widgets (config_paths);
     load_config_from_widgets (config_sizes);
 
