@@ -1,4 +1,9 @@
-2000-05-20  Jacob Berkman  <jacob@helixcode.com>
+2000-07-19  Alexander Kirillov  <kirillov@math.sunysb.edu>
+
+	* C/gnome-terminal.sgml: minor changes; moved authors' names to
+	<copyright> and added my name to it 
+
+a2000-05-20  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-terminal.c (main): ignore SIGHUP.  This fixes bug #11322
 

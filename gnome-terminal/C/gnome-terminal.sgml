@@ -8,7 +8,7 @@
  
   <artheader> 
   <title>GNOME Terminal User's Guide</title>
-    <authorgroup>
+<!--    <authorgroup>
       <author>
 	<firstname>Miguel</firstname>
 	<surname>de Icaza</surname>
@@ -17,7 +17,12 @@
 	<firstname>Michael</firstname>
 	<surname>Zucchi</surname>
       </author>
-    </authorgroup>
+    </authorgroup> -->
+    <copyright>
+      <year>2000</year>
+      <holder>Miguel de Icaza, Michael Zucchi, Alexander Kirillov</holder>
+    </copyright>
+ 
      <legalnotice>
       <para>
 	Permission is granted to copy, distribute and/or modify this
@@ -381,6 +386,18 @@
 	      configuration or terminal.  Refer to the section on
 	      <link linkend="classes">classes</link> for further
 	      information.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term><guilabel>Use --login by default</guilabel></term>
+	    <listitem>
+	      <para>If this option is selected, &term; will launch the
+	       shell in login mode (it will run all of your login
+	       initialization scripts in this mode). See also
+	       information about <option>--login</option> and
+	       <option>--nologin</option> <link
+	       linkend="options">command line options</link>.  
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -783,7 +800,15 @@
 	    geometry specifies the desired width and height in
 	    terminal characters.  For example:
 	    <option>--geometry=80x40</option> will create an
-	    eighty-column by forty-line terminal.</para>
+	    eighty-column by forty-line terminal. You can also specify
+	    the location of the terminal window on the screen; for
+	    example, <option>--geometry=80x40+100+200</option> will
+	    create a window whose top left corner is 100 pixels to the
+	    right and 200 pixels down from the top left corner of the
+	    screen, while <option>--geometry=80x40+100-200</option>
+	    will give a window whose bottom left corner is 100 pixels to the
+	    right and 200 pixels up from the bootm left corner of the
+	    screen.   </para>
             <!--
 	      <para>FIXME: LInk to gnome-libs document on GEOMETRY
 	      specifications when it is written
@@ -803,7 +828,10 @@
 	  </para>
 	  <para>
 	    Make &term; only launch a shell, without running any
-	    login initialization scripts.
+	    login initialization scripts. This is the default, unless
+	    you have selected <guilabel>Use --login by
+	    default</guilabel> in the <link
+	    linkend="config-general">preferences</link> dialog. 
 	  </para>
 	  </listitem>
 	  
@@ -833,7 +861,7 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <para><option>--lastlog</option></para>
+	    <para><option>--nolastlog</option></para>
 	    <para>
 	      Do not create a lastlog entry for each terminal login.
 	    </para>
@@ -971,17 +999,16 @@
 	management code.
       </para>
 
-    <para> 
-      Please send all comments, suggestions, and bug reports to
+    <para> Please send all comments, suggestions, and bug reports to
       the <ulink url="http://bugs.gnome.org" type="http">GNOME bug
       tracking database</ulink>. Instructions for submitting bug
       reports can be found on-line at <ulink
       url="http://bugs.gnome.org/Reporting.html" type="http">
-      http://bugs.gnome.org/Reporting.html</ulink>. If you are using
-      GNOME 1.1 or later, you can also use <application>Bug Report
-      Tool</application> (<command>bug-buddy</command>), available in
-      the <guisubmenu>Utilities</guisubmenu> submenu of <guimenu>Main
-	Menu</guimenu>, for submitting bug reports.
+      http://bugs.gnome.org/Reporting.html</ulink>. You can also use
+      <application>Bug Report Tool</application>
+      (<command>bug-buddy</command>), available in the
+      <guisubmenu>Utilities</guisubmenu> submenu of <guimenu>Main
+      Menu</guimenu>, for submitting bug reports.
       </para>
     <para>
       This manual was written by Miguel de Icaza and Michael Zucchi
