@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Help system
+Name[sl]=Sistem pomoèi
 Name[ca]=Sistema d'ajuda
 Name[cs]=Systém nápovìdy
 Name[da]=Hjælp
@@ -32,6 +33,7 @@ Name[wa]=Aidance di Gnome
 Name[zh_CN.GB2312]=¸¨ÖúËµÃ÷
 Name[zh_TW.Big5]=»²§U»¡©ú
 Comment=Integrated help system (Info, man, HTML)
+Comment[sl]=Integriran sistem pomoèi (Info, man, HTML)
 Comment[ca]=Sistema integrat d'ajuda (Info, man, HTML)
 Comment[cs]=Integorvaný systém nápovìdy Gnome (Info, man, HTML)
 Comment[da]=Integreret hjælpesystem (Info, man, HTML)

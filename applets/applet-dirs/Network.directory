@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Network
+Name[sl]=Mre¾a
 Name[ca]=Xarxa
 Name[cs]=Sí»
 Name[da]=Netværk
@@ -30,6 +31,7 @@ Name[wa]=Rantoele
 Name[zh_CN.GB2312]=ÍøÂ·
 Name[zh_TW.Big5]=ºô¸ô
 Comment=Network menu
+Comment[sl]=Menu mre¾e
 Comment[ca]=Applets tocant a xarxes
 Comment[cs]=Aplety se vztahem k síti
 Comment[da]=Netværksmenu

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Startup Hint
+Name[sl]=Zaèetni namig
 Name[cs]=Pøíhla¹ovací rady
 Name[da]=Opstartstips
 Name[de]=Tipps beim Start
@@ -21,6 +22,7 @@ Name[tr]=Başlangıç yardımları
 Name[uk]=óÔÁÒÔÏ×¦ ĞÏÒÁÄÉ
 Name[zh_TW.Big5]=±Ò°Ê´£¥Ü
 Comment=Browse the startup hints
+Comment[sl]=Brskaj zaèetne namige
 Comment[cs]=Prohlí¾ení pøihla¹ovacích rad
 Comment[de]=Die beim Start angezeigten Tipps durchblättern
 Comment[el]=Öõëëïìİôñçóç ôùí âïçèçìÜôùí åêêßíçóçò

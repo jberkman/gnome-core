@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Multimedia
+Name[sl]=Veèpredstavnost
 Name[ca]=Multimèdia
 Name[cs]=Multimédia
 Name[da]=Multimedia
@@ -31,6 +32,7 @@ Name[uk]=íÕÌØÔÉÍÅÄ¦Á
 Name[zh_CN.GB2312]=¶àÃ½Ìå
 Name[zh_TW.Big5]=¦h´CÅé
 Comment=Multimedia applets
+Comment[sl]=Veèpredstavni vstavki
 Comment[ca]=Applets multimèdia
 Comment[cs]=Multimediální aplety
 Comment[da]=Multimedia-appletter

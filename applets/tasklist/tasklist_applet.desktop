@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Tasklist
+Name[sl]=Seznam poslov
 Name[cs]=Seznam úloh
 Name[da]=Opgaveliste
 Name[de]=Taskliste
@@ -25,6 +26,7 @@ Name[wa]=Djîveye des bouyes
 Name[zh_CN.GB2312]=¹¤×÷ÁÐ±í
 Name[zh_TW.Big5]=¤u§@¦Cªí
 Comment=GNOME Tasklist
+Comment[sl]=Seznam poslov GNOME
 Comment[cs]=Seznam úloh/procesù pro Gnome
 Comment[da]=Oversigt over kørende programmer
 Comment[de]=GNOMEs Taskliste

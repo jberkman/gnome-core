@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Clocks
+Name[sl]=Ure
 Name[cs]=Hodiny
 Name[da]=Ure
 Name[de]=Uhren
@@ -26,6 +27,7 @@ Name[wa]=Ôrlodjes
 Name[zh_CN.GB2312]=Ê±ÖÓ
 Name[zh_TW.Big5]=®ÉÄÁ
 Comment=Clock applets
+Comment[sl]=Vstavki ur
 Comment[cs]=Varianty programù ukazujících èas
 Comment[da]=Ur-appletter
 Comment[de]=Uhrenapplets

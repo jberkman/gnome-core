@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Utility
+Name[sl]=Pripomoèki
 Name[ca]=Utilitats
 Name[cs]=U¾iteèné aplety
 Name[da]=Værktøj
@@ -30,6 +31,7 @@ Name[wa]=Usteyes
 Name[zh_CN.GB2312]=¹«ÓÃ³ÌÊ½
 Name[zh_TW.Big5]=¤½¥Îµ{¦¡
 Comment=Utility applets
+Comment[sl]=Pripomoèki
 Comment[ca]=Utilitats de GNOME en format applet
 Comment[cs]=Aplety u¾iteèné pro rùzné èinnosti
 Comment[da]=Værktøjs-appletter

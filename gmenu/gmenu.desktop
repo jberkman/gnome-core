@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Menu editor
+Name[sl]=Urejevalnik menujev
 Name[ca]=Editor de menús
 Name[cs]=Editor menu
 Name[da]=Menuredigering
@@ -33,6 +34,7 @@ Name[wa]=Aspougneu di menus
 Name[zh_CN.GB2312]=Ñ¡µ¥±à¼­Æ÷
 Name[zh_TW.Big5]=¿ï³æ½s¿è¾¹
 Comment=the GNOME menu editor
+Comment[sl]=Urejevalnik menujev GNOME
 Comment[ca]=L'editor de menús de GNOME
 Comment[cs]=Editor menu v Gnome
 Comment[da]=Gnome menuredigering

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Desk Guide
+Name[sl]=Vodnik po namizju
 Name[cs]=Prùvodce plochou
 Name[da]=Skrivebordsoversigt
 Name[de]=Desktop-Übersicht
@@ -20,6 +21,7 @@ Name[sk]=Sprievodca plochy
 Name[sv]=Skrivbordsguide
 Name[uk]=ç¦Ä ÒÏÂÏŞÏÇÏ ÓÔÏÌÕ
 Comment=GNOME Desktop Guide (Pager)
+Comment[sl]=GNOME Vodnik po namizju (pager)
 Comment[cs]=Apletu pro práci s virtuálními plochami
 Comment[da]=GNOME skrivebordsoversigt (pager)
 Comment[de]=Überblick über die Desktops (Pager)
