@@ -327,7 +327,6 @@ int main (int argc, char *argv[])
 	
 	gtk_clist_set_row_height(GTK_CLIST(tree),22);
 	gtk_ctree_set_indent (GTK_CTREE (tree), 10);
-        gtk_ctree_set_line_style (GTK_CTREE (tree), GTK_CTREE_LINES_DOTTED);
 
 	gtk_clist_set_selection_mode(GTK_CLIST(tree),
 				     GTK_SELECTION_BROWSE);

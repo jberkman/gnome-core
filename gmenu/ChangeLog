@@ -1,3 +1,7 @@
+2000-05-10  Jacob Berkman  <jacob@helixcode.com>
+
+	* main.c (main): done explicitely specify the line style
+
 2000-04-03  Alastair McKinstry  <mckinstry@computer.org>
 
 	* gmenu.desktop: Added Irish translation.
