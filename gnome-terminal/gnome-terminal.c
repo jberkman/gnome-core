@@ -1,6 +1,9 @@
 /*
  * The GNOME terminal, using Michael Zucchi's zvt widget.
- * (C) 1998 Miguel de Icaza, Michael Zucchi.
+ * (C) 1998 The Free Software Foundation
+ *
+ * Authors: Miguel de Icaza (GNOME terminal)
+ *          Michael Zucchi (zvt widget, font code).
  */
 #include <config.h>
 #include <unistd.h>
@@ -23,6 +26,9 @@ char *font = NULL;
 /* Number of scrollbacklines */
 int scrollback;
 
+/* Initial geometry */
+char *geometry = 0;
+
 /* Scrollbar position */
 enum {
 	SCROLLBAR_LEFT, SCROLLBAR_RIGHT, SCROLLBAR_HIDDEN
@@ -37,8 +43,11 @@ int blink;
 /* A list of all the open terminals */
 GList *terminals = 0;
 
-/* The property window  and the font window */
-GtkWidget *prop_win = 0, *font_button;
+typedef struct {
+	GtkWidget *prop_win;
+	GtkWidget *blink_checkbox;
+	GtkWidget *font_entry;
+} preferences_t;
 
 void new_terminal (void);
 
@@ -77,6 +86,21 @@ close_all_cmd (void)
 		close_terminal_cmd (0, terminals->data);
 }
 
+/*
+ * Keep a copy of the current font name
+ */
+void
+gnome_term_set_font (ZvtTerm *term, char *font)
+{
+	char *s;
+
+	zvt_term_set_font_name  (term, font);
+	s = gtk_object_get_user_data (GTK_OBJECT (term));
+	if (s)
+		g_free (s);
+	gtk_object_set_user_data (GTK_OBJECT (term), g_strdup (font));
+}
+
 static GtkWidget *
 aligned_label (char *str)
 {
@@ -90,79 +114,168 @@ aligned_label (char *str)
 static void
 apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 {
-	zvt_term_set_font_name (term, GTK_LABEL (GTK_BUTTON (font_button)->child)->label);
+	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+
+	zvt_term_set_font_name (term, gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
+	zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
+}
+
+static void
+window_closed (GtkWidget *w, void *data)
+{
+	ZvtTerm *term = ZVT_TERM (data);
+	preferences_t *prefs;
+
+	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+	g_free (prefs);
+	
+	gtk_object_set_data (GTK_OBJECT (term), "prefs", NULL);
 }
 
 static int
-window_closed (void)
+window_closed_event (GtkWidget *w, GdkEvent *event, void *data)
 {
-	prop_win = 0;
+	ZvtTerm *term = ZVT_TERM (data);
+	
+	window_closed (w, term);
 	return FALSE;
 }
 
+/*
+ * Called when something has changed on the properybox
+ */
 static void
-choose_font (void)
+prop_changed (GtkWidget *w, preferences_t *prefs)
 {
-	char *font;
-	GtkWidget *l;
-	
-	font = gnome_font_select ();
-	if (strcmp (font, GTK_LABEL(GTK_BUTTON (font_button)->child)->label) == 0)
-		return;
-	
-	gtk_container_remove (GTK_CONTAINER (font_button), GTK_BUTTON (font_button)->child);
-	l = gtk_label_new (font);
-	gtk_widget_show (l);
-	gtk_container_add (GTK_CONTAINER (font_button), l);
-	gnome_property_box_changed (GNOME_PROPERTY_BOX (prop_win));
+	gnome_property_box_changed (GNOME_PROPERTY_BOX (prefs->prop_win));
 }
 
 static void
+prop_changed_zvt (void *data, char *font_name)
+{
+	ZvtTerm *term = ZVT_TERM (data);
+	preferences_t *prefs;
+	
+	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+	gtk_entry_set_text (GTK_ENTRY (prefs->font_entry), font_name);
+	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
+}
+
+static GtkWidget *
+create_option_menu (char **menu_list, int item)
+{
+	GtkWidget *omenu;
+	GtkWidget *menu;
+
+	omenu = gtk_option_menu_new ();
+	menu = gtk_menu_new ();
+	while (*menu_list){
+		GtkWidget *entry;
+
+		entry = gtk_menu_item_new_with_label (_(*menu_list));
+		gtk_widget_show (entry);
+		gtk_menu_append (GTK_MENU (menu), entry);
+		menu_list++;
+	}
+	gtk_option_menu_set_menu (GTK_OPTION_MENU (omenu), menu);
+	gtk_option_menu_set_history (GTK_OPTION_MENU (omenu), item);
+	gtk_widget_show (omenu);
+	return omenu;
+}
+
+char *color_scheme [] = {
+	N_("Linux console"),
+	N_("Color Xterm"),
+	N_("rxvt"),
+	NULL
+};
+
+char *scrollbar_position_list [] = {
+	N_("Left"),
+	N_("Right"),
+	N_("Hidden"),
+	NULL
+};
+       
+static void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GtkWidget *l, *e, *table, *c;
-	
-	if (prop_win)
+	GtkWidget *l, *table, *o, *m;
+	preferences_t *prefs;
+
+	/* Is a property window for this terminal already running? */
+	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+	if (prefs)
 		return;
 
-	prop_win = gnome_property_box_new ();
+	prefs = g_new0 (preferences_t, 1);
+	prefs->prop_win = gnome_property_box_new ();
+	gtk_object_set_data (GTK_OBJECT (term), "prefs", prefs);
 
 	/* Look page */
 	table = gtk_table_new (0, 0, 0);
-	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop_win),
+	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("Look")));
 	l = aligned_label (_("Color scheme:"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, 1, 2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	o = create_option_menu (color_scheme, 0);
+	gtk_table_attach (GTK_TABLE (table), o,
+			  2, 3, 1, 2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	
+	/* Font */
 	l = aligned_label (_("Font:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	font_button = gtk_button_new_with_label (font);
-	gtk_signal_connect (GTK_OBJECT (font_button), "clicked", GTK_SIGNAL_FUNC(choose_font), NULL);
-	gtk_table_attach (GTK_TABLE (table), font_button,
-			  2, 3, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, 3, 4, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->font_entry = gtk_entry_new ();
+	gtk_entry_set_text (GTK_ENTRY (prefs->font_entry),
+			    gtk_object_get_user_data (GTK_OBJECT (term)));
+	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->font_entry), "changed",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
+			  2, 3, 3, 4, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	o = gtk_option_menu_new ();
+	m = create_font_menu (term, GTK_SIGNAL_FUNC (prop_changed_zvt));
+	gtk_option_menu_set_menu (GTK_OPTION_MENU (o), m);
+	gtk_table_attach (GTK_TABLE (table), o,
+			  3, 4, 3, 4, 0, 0, 0, 0);
+	
+	/* Scrollbar position */
 	l = aligned_label (_("Scrollbar position"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, 3, 4, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	o = create_option_menu (scrollbar_position_list, scrollbar_position);
+	gtk_table_attach (GTK_TABLE (table), o,
+			  2, 3, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
-	c = gtk_check_button_new_with_label (_("Blinking cursor"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (c),
-				     blink ? 1 : 0);
-	gtk_table_attach (GTK_TABLE (table), c,
+	/* Blinking status */
+	prefs->blink_checkbox = gtk_check_button_new_with_label (_("Blinking cursor"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->blink_checkbox),
+				     term->blink_enabled ? 1 : 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->blink_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->blink_checkbox,
 			  2, 3, 5, 6, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Connect the property box signals */
-	gtk_signal_connect (GTK_OBJECT (prop_win), "apply",
+	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
 			    GTK_SIGNAL_FUNC (apply_changes), term);
-	gtk_signal_connect (GTK_OBJECT (prop_win), "delete_event",
+	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "delete_event",
+			    GTK_SIGNAL_FUNC (window_closed_event), term);
+	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
 			    GTK_SIGNAL_FUNC (window_closed), term);
-	gtk_signal_connect (GTK_OBJECT (prop_win), "destroy",
-			    GTK_SIGNAL_FUNC (window_closed), term);
-	gtk_widget_show_all (prop_win);
+	gtk_widget_show_all (prefs->prop_win);
+}
+
+static void
+save_preferences (GtkWidget *widget, ZvtTerm *term)
+{
 }
 
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
 	{ GNOME_APP_UI_ITEM, N_("New terminal"),    NULL, new_terminal },
+	{ GNOME_APP_UI_ITEM, N_("Save preferences"),NULL, save_preferences },
 	{ GNOME_APP_UI_ITEM, N_("Close terminal"),  NULL, close_terminal_cmd },
 	{ GNOME_APP_UI_ITEM, N_("Properties..."),   NULL, preferences_cmd, 0, 0,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PROP },
@@ -269,7 +382,8 @@ new_terminal (void)
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
 	zvt_term_set_scrollback (term, scrollback);
-	zvt_term_set_font_name  (term, font);
+	gnome_term_set_font (term, font);
+
 	zvt_term_set_blink (term, blink);
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
@@ -291,6 +405,24 @@ new_terminal (void)
 	}			
 	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 0);
 	gnome_app_set_contents (GNOME_APP (app), hbox);
+
+	/*
+	 * Handle geometry specification, this is not quite ok, as the
+	 * geometry for terminals is usually specified in terms of
+	 * lines/columns
+	 */
+	if (geometry){
+		int xpos, ypos, width, height;
+		
+		gnome_parse_geometry (geometry, &xpos, &ypos, &width, &height);
+		if (xpos != -1 && ypos != -1)
+			gtk_widget_set_uposition (GTK_WIDGET (app), xpos, ypos);
+		if (width != -1 && height != -1)
+			gtk_widget_set_usize (GTK_WIDGET (app), width, height);
+		
+		/* Only the first window gets --geometry treatment for now */
+		geometry = NULL;
+	}
 	gtk_widget_show_all (app);
 
 	switch (zvt_term_forkpty (term)){
@@ -332,10 +464,11 @@ enum {
 	LOGIN_KEY   = -3
 };
 
-static struct argp_option argp_options [] = {
-	{ "font",    FONT_KEY,    N_("FONT"), 0, N_("Specifies font name"),                    0 },
-	{ "nologin", NOLOGIN_KEY, NULL,       0, N_("Do not start up shells as login shells"), 0 },
-	{ "login",   LOGIN_KEY,   NULL,       0, N_("Start up shells as login shells"), 0 },
+Static struct argp_option argp_options [] = {
+	{ "font",     FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"),                    0 },
+	{ "nologin",  NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
+	{ "login",    LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
+	{ "geometry", GEOMETRY_KEY, N_("GEOMETRY"),0,N_("Specifies the geometry for the main window"), 0 },
 	{ NULL, 0, NULL, 0, NULL, 0 },
 };
 
@@ -352,6 +485,9 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 	case NOLOGIN_KEY:
 	        invoke_as_login_shell = 0;
 	        break;
+	case GEOMETRY_KEY:
+		geometry = arg;
+		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}
