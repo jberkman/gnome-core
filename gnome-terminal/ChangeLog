@@ -1,3 +1,8 @@
+2000-10-15 John Fleck <jfleck@inkstain.net>
+
+	* C/gnome-terminal.sgml: update for Nautilus compatibility, patch
+	from Greg Leblanc
+	
 2000-07-19  Alexander Kirillov  <kirillov@math.sunysb.edu>
 
 	* C/gnome-terminal.sgml: minor changes; moved authors' names to
