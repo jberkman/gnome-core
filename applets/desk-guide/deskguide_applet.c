@@ -92,15 +92,19 @@ static ConfigItem gp_config_items[] = {
   
   CONFIG_PAGE (N_ ("Geometry")),
   CONFIG_SECTION (horizontal,                        	     	N_ ("Horizontal Layout")),
-  CONFIG_RANGE (area_height,	44,	4,	256,
+  CONFIG_RANGE (area_height,	44,	4,	1024,
 		N_ ("Desktop Height [pixels]")),
   CONFIG_BOOL (div_by_vareas,		TRUE,
 	       N_ ("Divide Height By Number Of Vertical Areas")),
+  CONFIG_RANGE (row_stackup,	1,	1,	64,
+		N_ ("Number of Rows to pack Desktops in")),
   CONFIG_SECTION (vertical,                        	     	N_ ("Vertical Layout")),
-  CONFIG_RANGE (area_width,	44,	4,	256,
+  CONFIG_RANGE (area_width,	44,	4,	1024,
 		N_ ("Desktop width [pixels]")),
   CONFIG_BOOL (div_by_hareas,		TRUE,
 	       N_ ("Divide Width By Number Of Horizontal Areas")),
+  CONFIG_RANGE (col_stackup,	1,	1,	64,
+		N_ ("Number of Columns to pack Desktops in")),
 
   CONFIG_PAGE (N_ ("Advanced Options")),
   CONFIG_BOOL (double_buffer,	TRUE,
@@ -379,8 +383,6 @@ gp_desk_notifier (gpointer	   func_data,
 		  GwmhDesk	  *desk,
 		  GwmhDeskInfoMask change_mask)
 {
-  guint i;
-
   if (change_mask & GWMH_DESK_INFO_BOOTUP)
     {
       gp_destroy_gui ();
@@ -389,8 +391,6 @@ gp_desk_notifier (gpointer	   func_data,
   else
     {
       /* keep number of desktop widgets in sync with desk */
-      for (i = desk->n_desktops; i < gp_n_desk_widgets; i++)
-	gtk_widget_destroy (gp_desk_widget[i]);
       gp_create_desk_widgets ();
       
       if (gp_n_desk_widgets && BOOL_CONFIG (current_only))
@@ -452,22 +452,47 @@ gp_create_desk_widgets (void)
 			    BOOL_CONFIG (skip_movement_offset));
 
   gp_n_desk_widgets = 0;
+  gtk_container_forall (GTK_CONTAINER (gp_desk_box), (GtkCallback) gtk_widget_destroy, NULL);
   if (BOOL_CONFIG (show_pager))
     {
+      GtkWidget *desk_column = NULL;
+      guint n_desks_per_column;
       guint i, max = BOOL_CONFIG (current_only) ? 1 : N_DESKTOPS;
       
+      if (gp_orientation == GTK_ORIENTATION_HORIZONTAL)
+	{
+	  n_desks_per_column = RANGE_CONFIG (row_stackup);
+	  n_desks_per_column = (N_DESKTOPS + n_desks_per_column - 1) / n_desks_per_column;
+	}
+      else
+	n_desks_per_column = RANGE_CONFIG (col_stackup);
+      
       for (i = 0; i < max; i++)
-	if (!gp_desk_widget[i])
-	  {
-	    gp_desk_widget[i] = gwm_desktop_new (max > 1 ? i : CURRENT_DESKTOP,
-						 gp_desktips);
-	    gtk_widget_set (gp_desk_widget[i],
-			    "parent", gp_desk_box,
-			    "visible", TRUE,
-			    "signal::check-task", gp_check_task_visible, NULL,
-			    "signal::destroy", gtk_widget_destroyed, &gp_desk_widget[i],
-			    NULL);
-	  }
+	{
+	  GtkWidget *alignment;
+	  
+	  if (!desk_column)
+	    desk_column = gtk_widget_new (GTK_TYPE_HBOX,
+					  "visible", TRUE,
+					  "spacing", 0,
+					  "parent", gp_desk_box,
+					  NULL);
+	  gp_desk_widget[i] = gwm_desktop_new (max > 1 ? i : CURRENT_DESKTOP, gp_desktips);
+	  alignment = gtk_widget_new (GTK_TYPE_ALIGNMENT,
+				      "visible", TRUE,
+				      "xscale", 0.0,
+				      "yscale", 0.0,
+				      NULL);
+	  gtk_widget_set (gp_desk_widget[i],
+			  "parent", alignment,
+			  "visible", TRUE,
+			  "signal::check-task", gp_check_task_visible, NULL,
+			  "signal::destroy", gtk_widget_destroyed, &gp_desk_widget[i],
+			  NULL);
+	  gtk_box_pack_start (GTK_BOX (desk_column), alignment, FALSE, FALSE, 0);
+	  if ((i + 1) % n_desks_per_column == 0)
+	    desk_column = NULL;
+	}
       gp_n_desk_widgets = i;
     }
 }
@@ -618,7 +643,7 @@ gp_init_gui (void)
 
   /* provide desktop widget container
    */
-  gp_desk_box = gtk_widget_new (GP_TYPE_HBOX,
+  gp_desk_box = gtk_widget_new (GTK_TYPE_VBOX,
 				"visible", TRUE,
 				"spacing", 0,
 				"signal::destroy", gtk_widget_destroyed, &gp_desk_box,

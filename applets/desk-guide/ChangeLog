@@ -1,3 +1,17 @@
+Thu Oct  7 02:46:20 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_create_desk_widgets): feature stacking of
+	desktops into a specified number of columns (rows) and wrap them
+	around upon packing. this allowes for the much requested "grid"
+	layout of desktops (as opposed to the normal grid layout of areas
+	which works fine out of the box already).
+	the number of rows/columns can be configured through the geometry
+	page in the properties dialog.
+
+	i'm wondering what else people will request from desktop to fit
+	their needs, someone's probably still hiding, wanting to request
+	INBOX folder browsing support ;)
+
 Thu Sep 23 22:27:34 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmh.c (gwmh_task_set_area): 
