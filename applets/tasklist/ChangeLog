@@ -1,3 +1,8 @@
+2000-10-22  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c: Add patch from Eric Brayeur that gives
+	 tasks focus on drag-and-drop.
+
 Wed Sep 27 21:10:23 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.c: fix leaks from the get_visible_tasks.  Fix

@@ -20,17 +20,25 @@ TasklistTask *find_gwmh_task (GwmhTask *gwmh_task);
 gboolean desk_notifier (gpointer func_data, GwmhDesk *desk, GwmhDeskInfoMask change_mask);
 gboolean task_notifier (gpointer func_data, GwmhTask *gwmh_task, GwmhTaskNotifyType ntype, GwmhTaskInfoMask imask);
 gboolean cb_button_press_event (GtkWidget *widget, GdkEventButton *event);
+gboolean cb_drag_motion (GtkWidget *widget, GdkDragContext *context, int x, int y, guint time);
+void cb_drag_leave (GtkWidget *widget, GdkDragContext *context, guint time);
+gboolean cb_motion_timeout (gpointer data);
 gboolean cb_expose_event (GtkWidget *widget, GdkEventExpose *event);
 void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
 gint get_horz_rows(void);
+gboolean show_task (TasklistTask *task);
 
 GNOME_Panel_OrientType tasklist_orient; /* Tasklist orient */
 GtkWidget *handle; /* The handle box */
 GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
 GList *tasks = NULL; /* The list of tasks used */
+
+#define MOTION_TIMEOUT 500 /* Show task motion_task if cursor over task for ... msec */
+int motion_timeout = 0; /* Show task motion_task after MOTION_TIMEOUT in drag_motion */
+TasklistTask *motion_task = NULL; /* Task to show after motion_timeout */
 
 TasklistIcon *unknown_icon = NULL; /* The unknown icon */
 
@@ -523,6 +531,9 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 		task = find_gwmh_task (gwmh_task);
 		if(task) {
 			tasks = g_list_remove (tasks, task);
+			if (task == motion_task) {
+				motion_task = NULL;
+			}
 			tasklist_icon_destroy (task);
 			if(task->menu)
 				gtk_widget_destroy(task->menu);
@@ -537,6 +548,38 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	return TRUE;
 }
 
+/* Show the task if need. Return TRUE if so */
+gboolean
+show_task (TasklistTask *task)
+{
+	if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task)) {
+	
+		if (!(Config.move_to_current && GWMH_TASK_ICONIFIED (task->gwmh_task))) {
+			GwmhDesk *desk_info;
+			desk_info = gwmh_desk_get_config ();
+					
+			if (task->gwmh_task->desktop != desk_info->current_desktop ||
+			    task->gwmh_task->harea != desk_info->current_harea ||
+			    task->gwmh_task->varea != desk_info->current_varea) {
+				gwmh_desk_set_current_area (task->gwmh_task->desktop,
+							    task->gwmh_task->harea,
+							    task->gwmh_task->varea);
+			}
+		}
+	
+		gwmh_task_show (task->gwmh_task);
+		/* Why is a focus needed here?
+		   gwmh_task_show is supposed to give focus */
+		gwmh_task_focus (task->gwmh_task);
+		gwmh_task_focus (task->gwmh_task);
+		
+		
+		return TRUE;
+	}
+	
+	return FALSE;
+}
+
 /* This routine gets called when the mouse is pressed */
 gboolean
 cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
@@ -549,27 +592,10 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 		return FALSE;
 
 	if (event->button == 1) {
-		if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task)) {
-			
-			if (!(Config.move_to_current && GWMH_TASK_ICONIFIED (task->gwmh_task))) {
-				GwmhDesk *desk_info;
-				desk_info = gwmh_desk_get_config ();
-				
-				if (task->gwmh_task->desktop != desk_info->current_desktop ||
-				    task->gwmh_task->harea != desk_info->current_harea ||
-				    task->gwmh_task->varea != desk_info->current_varea) {
-					gwmh_desk_set_current_area (task->gwmh_task->desktop,
-								    task->gwmh_task->harea,
-								    task->gwmh_task->varea);
-				}
-			}
-			gwmh_task_show (task->gwmh_task);
-			/* Why is a focus needed here?
-			   gwmh_task_show is supposed to give focus */
-			gwmh_task_focus (task->gwmh_task);
+
+		if (! show_task (task)) {
+			gwmh_task_iconify (task->gwmh_task);
 		}
-		else
-		  gwmh_task_iconify (task->gwmh_task);
 
 		return TRUE;
 	}
@@ -582,6 +608,57 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 	}
 
 	return FALSE;
+}
+
+void
+cb_drag_leave (GtkWidget *widget, GdkDragContext *context, guint time)
+{
+	if (motion_timeout) {
+		gtk_timeout_remove (motion_timeout);
+		motion_timeout = 0;
+		motion_task = NULL;
+	}
+}
+
+/* This routine gets called when user drag something over the tasklist */
+gboolean 
+cb_drag_motion (GtkWidget *widget, GdkDragContext *context, int x, int y, guint time)
+{
+	TasklistTask *task;
+	
+	gdk_drag_status (context, 0, time);
+	
+	task = task_get_xy (x, y);
+	
+	if (task != motion_task) {
+	
+		if (motion_timeout) {
+			gtk_timeout_remove (motion_timeout);
+		}
+	
+		motion_task = task;
+
+		if (task) {	
+			motion_timeout = gtk_timeout_add (MOTION_TIMEOUT, cb_motion_timeout, widget);		
+		} else {
+			motion_timeout = 0;
+		}
+	}
+	
+	return TRUE;
+}
+
+gboolean 
+cb_motion_timeout (gpointer data)
+{
+	if (motion_task) {
+		show_task (motion_task);
+	}
+
+	motion_timeout = 0;
+	motion_task = NULL;
+	
+	return FALSE;	
 }
 
 /* This routine gets called when the tasklist is exposed */
@@ -776,6 +853,14 @@ create_applet (void)
 			    GTK_SIGNAL_FUNC (cb_expose_event), NULL);
 	gtk_signal_connect (GTK_OBJECT (area), "button_press_event",
 			    GTK_SIGNAL_FUNC (cb_button_press_event), NULL);
+	gtk_signal_connect (GTK_OBJECT (area), "drag_motion",
+			    GTK_SIGNAL_FUNC (cb_drag_motion), NULL);
+	gtk_signal_connect (GTK_OBJECT (area), "drag_leave",
+			    GTK_SIGNAL_FUNC (cb_drag_leave), NULL);			    
+			    
+			    
+	gtk_drag_dest_set (GTK_WIDGET (area), 0,
+	 		   NULL, 0, GDK_ACTION_COPY);  
 
 	gtk_signal_connect (GTK_OBJECT (applet), "change-orient",
 			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
