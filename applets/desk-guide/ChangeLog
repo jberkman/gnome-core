@@ -8,7 +8,7 @@ Thu Oct  7 02:46:20 1999  Tim Janik  <timj@gtk.org>
 	the number of rows/columns can be configured through the geometry
 	page in the properties dialog.
 
-	i'm wondering what else people will request from desktop to fit
+	i'm wondering what else people will request from deskguide to fit
 	their needs, someone's probably still hiding, wanting to request
 	INBOX folder browsing support ;)
 
@@ -16,8 +16,8 @@ Thu Sep 23 22:27:34 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmh.c (gwmh_task_set_area): 
 	* gwmh.c (gwmh_task_set_desktop): since most window managers didn't
-	actually follow the spec to honour a client message for workspace and
-	are changes, we have to violate the spec here as well, and modify the
+	actually follow the spec to honour a client message for desktop and
+	area changes, we have to violate the spec here as well, and modify the
 	properties directly (besides sending the client message) ;(
 
 Thu Sep 23 21:06:50 1999  Tim Janik  <timj@gtk.org>
@@ -29,12 +29,13 @@ Thu Sep 23 21:06:50 1999  Tim Janik  <timj@gtk.org>
 	window managers. it performs all neccessary tasks, such as fetching
 	client list etc... itself. deep magic ;)
 	as a neat side effect, desk-guide can actually manage the desk solely
-	now if no window manager is at all present.
+	now, if no window manager is at all present.
 	probably the first and only pager that capable ;)
-	window manager switching works fine in general, i.e. between comlpiant
+	window manager switching works fine in general, i.e. between compliant
 	window managers as well as non-compliant ones, back and forth. there
 	are just a few very old twm-based cripples that cause gdk to crash by
-	destroying windows immediatedly after a ConfigureEvent arrived.
+	destroying windows immediatedly after a ConfigureEvent arrived (fixed
+	in Gtk+-1.2.5).
 	i changed the intial error dialog to an alert dialog that strongly
 	recommends compliant wms, but we may actually remove this dialog now.
 
