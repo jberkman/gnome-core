@@ -1,3 +1,9 @@
+Wed Sep 22 01:08:36 1999  Tim Janik  <timj@gtk.org>
+
+	* tasklist_applet.c (cb_button_press_event): unconditionally change
+	the current area to the one the activated task is on. we don't need
+	any special casing for inconified tasks btw.
+
 Wed Sep 22 00:40:41 1999  Tim Janik  <timj@gtk.org>
 
 	* tasklist_menu.c (cb_menu): make it compile (s/task/current_task/).
