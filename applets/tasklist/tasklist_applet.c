@@ -1,232 +1,207 @@
-/* GNOME Tasklist Applet
- * Copyright (C) Anders Carlsson
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
- */
-
+#include <config.h>
 #include "tasklist_applet.h"
-
-Config config;
-GtkWidget *applet;
-GtkWidget *area;
-GList *tasklist_tasks;
+#include "unknown.xpm"
 
 /* Prototypes */
-gboolean task_is_visible(TasklistTask * temp_task);
-gint tasklist_get_num_rows(PanelSizeType o);
-static void tasklist_cb_change_size(GtkWidget * widget,
-				    PanelSizeType o, gpointer data);
-TasklistTask *task_get_xy(gint x, gint y);
-void task_draw(TasklistTask * temp_task, gboolean flat);
-gchar *task_get_label(TasklistTask * temp_task);
-void tasklist_layout(void);
-gboolean tasklist_cb_button_press(GtkWidget * widget,
-				  GdkEventButton * event);
-gboolean tasklist_cb_expose(GtkWidget * widget,
-			    GdkEventExpose * event);
-gboolean tasklist_cb_button_release(GtkWidget * widget,
-				    GdkEventButton * event);
-void tasklist_create_applet(void);
-TasklistTask *tasklist_find_tasklist_task(GwmhTask * task);
-GList *tasklist_get_visible_tasks(void);
+gchar *fixup_task_label (TasklistTask *task);
+gboolean is_task_visible (TasklistTask *task);
+void draw_task (TasklistTask *task);
+void layout_tasklist (void);
+TasklistTask *find_gwmh_task (GwmhTask *gwmh_task);
+gboolean desk_notifier (gpointer func_data, GwmhDesk *desk, GwmhDeskInfoMask change_mask);
+gboolean task_notifier (gpointer func_data, GwmhTask *gwmh_task, GwmhTaskNotifyType ntype, GwmhTaskInfoMask imask);
+gboolean cb_button_press_event (GtkWidget *widget, GdkEventButton *event);
+gboolean cb_expose_event (GtkWidget *widget, GdkEventExpose *event);
+void create_applet (void);
+TasklistTask *task_get_xy (gint x, gint y);
+GList *get_visible_tasks (void);
 
-TasklistTask *task_get_xy(gint x, gint y)
+GtkWidget *applet; /* The applet */
+GtkWidget *area; /* The drawing area used to display tasks */
+GList *tasks; /* The list of tasks used */
+GdkPixmap *unknown_icon; /* Unknown icon */
+GdkBitmap *unknown_mask; /* Unknown mask */
+
+
+/* Shorten a label that is too long */
+gchar *
+fixup_task_label (TasklistTask *task)
+{
+	gchar *str;
+	gint len, label_len;
+
+	label_len = gdk_string_width (area->style->font,
+				      task->gwmh_task->name);
+
+	if (label_len > task->width - 24) {
+		len = strlen (task->gwmh_task->name);
+		len--;
+		str = g_malloc (len + 4);
+		strcpy (str, task->gwmh_task->name);
+		strcat (str, "..");
+		for (; len > 0; len--) {
+			str[len] = '.';
+			str[len + 3] = '\0';
+			
+			label_len = gdk_string_width (area->style->font, str);
+			
+			if (label_len <= task->width - 24)
+				break;
+		}
+	}
+	else
+		str = g_strdup (task->gwmh_task->name);
+
+	return str;
+}
+
+/* Check what task (if any) that is at position x,y on the tasklist */
+TasklistTask *
+task_get_xy (gint x, gint y)
 {
 	GList *temp_tasks;
-	TasklistTask *temp_task;
+	TasklistTask *task;
 
-	temp_tasks = tasklist_get_visible_tasks();
+	temp_tasks = get_visible_tasks ();
 
 	while (temp_tasks) {
-		temp_task = (TasklistTask *) temp_tasks->data;
-		if (x > temp_task->x &&
-		    x < temp_task->x + temp_task->width &&
-		    y > temp_task->y &&
-		    y < temp_task->y + temp_task->height) {
-			g_list_free(temp_tasks);
-			return temp_task;
+		task = (TasklistTask *)temp_tasks->data;
+		if (x > task->x &&
+		    x < task->x + task->width &&
+		    y > task->y &&
+		    y < task->y + task->height) {
+			g_list_free (temp_tasks);
+			return task;
 		}
 		temp_tasks = temp_tasks->next;
 	}
 
-	g_list_free(temp_tasks);
 	return NULL;
 }
 
-gint tasklist_get_num_rows(PanelSizeType o)
+/* Check which tasks are "visible", if they should be drawn onto the tasklist */
+GList *
+get_visible_tasks (void)
 {
-	/* FIXME: Should look at applet configuration aswell */
-	switch (o) {
-	case SIZE_TINY:
-		return 1;
-	case SIZE_STANDARD:
-		return 2;
-	case SIZE_LARGE:
-		return 3;
-	case SIZE_HUGE:
-		return 4;
+	GList *temp_tasks;
+	GList *visible_tasks = NULL;
+
+	temp_tasks = tasks;
+	while (temp_tasks) {
+		if (is_task_visible ((TasklistTask *) temp_tasks->data))
+			visible_tasks = g_list_append (visible_tasks, temp_tasks->data);
+		temp_tasks = temp_tasks->next;
 	}
-
-	/* Standard value */
-	return 2;
+	return visible_tasks;
 }
 
-static void tasklist_cb_change_size(GtkWidget * widget,
-				    PanelSizeType o, gpointer data)
-{
-
-	gtk_drawing_area_size(GTK_DRAWING_AREA(area), config.tasklist_width,
-			    CONFIG_ROWHEIGHT * tasklist_get_num_rows(o));
-	tasklist_layout();
-}
-
-gboolean task_is_visible(TasklistTask * temp_task)
+/* Check if a task is "visible", if it should be drawn onto the tasklist */
+gboolean
+is_task_visible (TasklistTask *task)
 {
 	GwmhDesk *desk_info;
 
 	desk_info = gwmh_desk_get_config ();
 
-	if (GWMH_TASK_SKIP_TASKBAR (temp_task->task))
+	if (GWMH_TASK_SKIP_TASKBAR (task->gwmh_task))
 		return FALSE;
-
-	if ((!config.all_tasks) && (!config.minimized_tasks)) {
-		if (temp_task->task->desktop != desk_info->current_desktop)
-			return FALSE;
-	}
-	if (config.minimized_tasks) {
-		if (!(GWMH_TASK_ICONIFIED(temp_task->task)))
-			if (temp_task->task->desktop != desk_info->current_desktop)
-				return FALSE;
-	}
-
-	/* Check whether to show normal/iconified windows */
-	if (config.show_normal & (GWMH_TASK_ICONIFIED(temp_task->task)))
-		return FALSE;
-
-	if (config.show_minimized & (!(GWMH_TASK_ICONIFIED(temp_task->task))))
+	
+	if (task->gwmh_task->desktop != desk_info->current_desktop)
 		return FALSE;
 
 	return TRUE;
 }
 
-GList *tasklist_get_visible_tasks(void)
+/* Draw a single task */
+void
+draw_task (TasklistTask *task)
 {
-	GList *temp_tasks;
-	GList *visible_tasks = NULL;
-
-	temp_tasks = tasklist_tasks;
-	while (temp_tasks) {
-		if (task_is_visible((TasklistTask *) temp_tasks->data))
-			visible_tasks = g_list_append(visible_tasks, temp_tasks->data);
-		temp_tasks = temp_tasks->next;
-	}
-	return visible_tasks;
-
-}
-
-gchar *task_get_label(TasklistTask * temp_task)
-{
-	gchar *str;
-	gint len, label_len;
-
-	label_len = gdk_string_width(area->style->font, temp_task->task->name);
-
-	if (label_len > temp_task->width - CONFIG_PIXMAP - 2) {
-		len = strlen(temp_task->task->name);
-		len--;
-		str = g_malloc(len + 4);
-		strcpy(str, temp_task->task->name);
-		strcat(str, "..");
-		for (; len > 0; len--) {
-			str[len] = '.';
-			str[len + 3] = '\0';
-
-			label_len = gdk_string_width(area->style->font, str);
-
-			/* FIXME: pixmap */
-			if (label_len <= temp_task->width - CONFIG_PIXMAP - 4)
-				break;
-		}
-	} else
-		str = g_strdup(temp_task->task->name);
-
-	return str;
-}
-
-void task_draw(TasklistTask * temp_task, gboolean flat)
-{
-	/*  GdkGC *temp_gc; */
 	gchar *tempstr;
 	gint text_height, text_width;
-
-	if (!task_is_visible(temp_task))
-		return;
 	
-	if (flat)
-	{
-		gtk_draw_flat_box (area->style, area->window,
-			   GTK_STATE_NORMAL,
-			   GTK_SHADOW_NONE,
-			   temp_task->x, temp_task->y,
-			   temp_task->width, temp_task->height);
+	if (!is_task_visible (task))
+		return;
+
+	gtk_paint_box (area->style, area->window,
+		       GTK_STATE_NORMAL,
+		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
+		       GTK_SHADOW_IN: GTK_SHADOW_OUT,
+		       NULL, area, "button",
+		       task->x, task->y,
+		       task->width, task->height);
+
+	if (task->gwmh_task->name) {
+		tempstr = fixup_task_label (task);
+		text_height = gdk_string_height (area->style->font, "1");
+		text_width = gdk_string_width (area->style->font, tempstr);
+		gdk_draw_string (area->window,
+				 area->style->font, area->style->black_gc,
+				 task->x + 8 + ((task->width - text_width) / 2),
+				 task->y + ((task->height - text_height) / 2) + text_height,
+				 tempstr);
+		gdk_draw_rectangle (area->window,
+				    area->style->black_gc,
+				    FALSE,
+				    task->x + 8 + ((task->width - text_width) / 2),
+				    task->y + ((task->height - text_height) / 2),
+				    text_width,
+				    text_height);
+
+		g_free (tempstr);
 	}
-	else
-	{
-		gtk_paint_box(area->style, area->window,
-			      GTK_STATE_NORMAL,
-			      GWMH_TASK_FOCUSED(temp_task->task) ?
-			      GTK_SHADOW_IN : GTK_SHADOW_OUT,
-			      NULL, area, "button",
-			      temp_task->x, temp_task->y,
-			      temp_task->width, temp_task->height);
+
+	if (task->pixmap) {
+		if (task->mask) {
+			gdk_gc_set_clip_mask (area->style->black_gc, task->mask);
+			gdk_gc_set_clip_origin (area->style->black_gc,
+						task->x + 3,
+						task->y + (task->height - 16) / 2);
+		}
+
+		gdk_draw_pixmap (area->window,
+				 area->style->black_gc,
+				 task->pixmap,
+				 0, 0,
+				 task->x + 3, task->y + (task->height - 16) / 2,
+				 16, 16);
+		if (task->mask)
+			gdk_gc_set_clip_mask (area->style->black_gc, NULL);
 	}
-
-	if (temp_task->task->name) {
-		text_height = gdk_string_height(area->style->font, "1");
-
-		tempstr = task_get_label(temp_task);
-		text_width = gdk_string_width(area->style->font, tempstr);
-
-		gdk_draw_string(area->window,
-				area->style->font, area->style->black_gc,
-				temp_task->x + CONFIG_PIXMAP / 2 + ((temp_task->width - (text_width)) / 2),
-				temp_task->y + ((temp_task->height - text_height) / 2) + text_height,
-				tempstr);
-
-		g_free(tempstr);
+	else {
+		gdk_gc_set_clip_mask (area->style->black_gc, unknown_mask);
+		gdk_gc_set_clip_origin (area->style->black_gc,
+					task->x + 3,
+					task->y + (task->height - 16) / 2);
+		
+		gdk_draw_pixmap (area->window,
+				 area->style->black_gc,
+				 unknown_icon,
+				 0, 0,
+				 task->x + 3, task->y + (task->height - 16) / 2,
+				 16, 16);
+		gdk_gc_set_clip_mask (area->style->black_gc, NULL);
 	}
 }
 
-void tasklist_layout(void)
+/* Layout the tasklist */
+void
+layout_tasklist (void)
 {
-	gint j = 0, k = 0, num, p = 0;
+	gint j = 0, k = 0, num = 0, p = 0;
 	GList *temp_tasks;
-
-	TasklistTask *temp_task;
+	TasklistTask *task;
+	gint extra_space;
 	gint config_rows;
 	gint num_rows = 0, num_cols = 0;
 	gint curx, cury, curwidth, curheight;
-
-	config_rows = tasklist_get_num_rows(applet_widget_get_panel_size(APPLET_WIDGET(applet)));
-
-	temp_tasks = tasklist_get_visible_tasks();
-	num = g_list_length(temp_tasks);
-
-
+	
+	config_rows = 2;
+	
+	temp_tasks = get_visible_tasks ();
+	num = g_list_length (temp_tasks);
+	
 	if (num == 0) {
-		gtk_widget_draw(area, NULL);
+		gtk_widget_draw (area, NULL);
 		return;
 	}
 	while (p < num) {
@@ -238,7 +213,7 @@ void tasklist_layout(void)
 			num_cols = j;
 		if (num_rows < k + 1)
 			num_rows = k + 1;
-
+		
 		if (j >= ((num + config_rows - 1) / config_rows)) {
 			j = 0;
 			k++;
@@ -246,277 +221,236 @@ void tasklist_layout(void)
 		p++;
 	}
 
-	curheight = (CONFIG_ROWHEIGHT * config_rows - 4) / num_rows;
-	curwidth = (config.tasklist_width - 4) / num_cols;
+	curheight = (24 * config_rows - 4) / num_rows;
+	curwidth = (450 - 4) / num_cols;
 
 	curx = 2;
 	cury = 2;
+	extra_space = 450 - 4 - (curwidth * num_cols);
+	/* FIXME: Do something with extra_space */
 
 	while (temp_tasks) {
-		temp_task = (TasklistTask *) temp_tasks->data;
-
-		temp_task->x = curx;
-		temp_task->y = cury;
-		temp_task->width = curwidth;
-		temp_task->height = curheight;
+		task = (TasklistTask *) temp_tasks->data;
+		
+		task->x = curx;
+		task->y = cury;
+		task->width = curwidth;
+		task->height = curheight;
 
 		curx += curwidth;
-		if (curx >= config.tasklist_width || 
-		    curx + curwidth > config.tasklist_width) {
+		if (curx >= 450 ||
+		    curx + curwidth > 450) {
 			cury += curheight;
 			curx = 2;
 		}
-
+		
 		if (temp_tasks->next)
 			temp_tasks = temp_tasks->next;
 		else
 		{
-			g_list_free (temp_tasks);
-			break; 
+			/* FIXME: Free list */
+			break;
 		}
 	}
 	
-	gtk_widget_draw(area, NULL);
+	gtk_widget_draw (area, NULL);
 }
 
-gboolean tasklist_cb_button_press(GtkWidget * widget, GdkEventButton * event)
-{
-	TasklistTask *temp_task;
-
-	temp_task = task_get_xy((gint) event->x, (gint) event->y);
-	if (!temp_task)
-		return FALSE;
-
-	if (event->button == 1)
-	{
-		task_draw (temp_task, TRUE);
-		return FALSE;
-	}
-
-	if (!config.show_winops)
-		return FALSE;
-
-	if (event->button == 3) {
-		gtk_signal_emit_stop_by_name(GTK_OBJECT(widget),
-					     "button_press_event");
-		menu_popup(temp_task, event->button, event->time);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-gboolean tasklist_cb_button_release(GtkWidget * widget, GdkEventButton * event)
-{
-	TasklistTask *temp_task;
-
-	temp_task = task_get_xy((gint) event->x, (gint) event->y);
-
-	if (!temp_task)
-		return FALSE;
-
-	if (event->button == 1) {
-		if (GWMH_TASK_ICONIFIED(temp_task->task))
-			gwmh_task_show(temp_task->task);
-		gwmh_task_show(temp_task->task);
-	}
-	return FALSE;
-}
-
-gboolean tasklist_cb_expose(GtkWidget * widget, GdkEventExpose * event)
+/* Get a task from the list that has got the given gwmh_task */
+TasklistTask *
+find_gwmh_task (GwmhTask *gwmh_task)
 {
 	GList *temp_tasks;
-	TasklistTask *temp_task;
+	TasklistTask *task;
 
-	gtk_paint_box(area->style, area->window,
-		      GTK_STATE_NORMAL, GTK_SHADOW_IN,
-		      NULL, area, "button",
-		      0, 0,
-		      area->allocation.width,
-		      area->allocation.height);
-
-	temp_tasks = tasklist_get_visible_tasks();
+	temp_tasks = tasks;
 
 	while (temp_tasks) {
-		temp_task = (TasklistTask *) temp_tasks->data;
-		task_draw(temp_task, FALSE);
+		task = (TasklistTask *)temp_tasks->data;
+		if (task->gwmh_task == gwmh_task)
+			return task;
 		temp_tasks = temp_tasks->next;
 	}
-
-	g_list_free(temp_tasks);
-
-	return FALSE;
-}
-
-void tasklist_create_applet(void)
-{
-	GtkWidget *hbox;
-
-	applet = applet_widget_new("tasklist_applet");
-
-	config_load(APPLET_WIDGET(applet)->privcfgpath);
-
-	hbox = gtk_hbox_new(TRUE, 0);
-	gtk_widget_show(hbox);
-	applet_widget_add(APPLET_WIDGET(applet), hbox);
-
-	area = gtk_drawing_area_new();
-	gtk_widget_show(area);
-	gtk_box_pack_start_defaults(GTK_BOX(hbox), area);
-
-	gtk_drawing_area_size(GTK_DRAWING_AREA(area), config.tasklist_width,
-			      CONFIG_ROWHEIGHT * tasklist_get_num_rows(applet_widget_get_panel_size(APPLET_WIDGET(applet))));
-	gtk_widget_set_events(area, GDK_EXPOSURE_MASK | GDK_BUTTON_RELEASE_MASK |
-			      GDK_BUTTON_PRESS_MASK);
-	gtk_signal_connect(GTK_OBJECT(area), "expose_event",
-			   GTK_SIGNAL_FUNC(tasklist_cb_expose), NULL);
-	gtk_signal_connect(GTK_OBJECT(area), "button_press_event",
-			GTK_SIGNAL_FUNC(tasklist_cb_button_press), NULL);
-	gtk_signal_connect(GTK_OBJECT(area), "button_release_event",
-		      GTK_SIGNAL_FUNC(tasklist_cb_button_release), NULL);
-
-	gtk_widget_show(applet);
-}
-
-TasklistTask *tasklist_find_tasklist_task(GwmhTask * task)
-{
-	GList *temp_tasks;
-	TasklistTask *temp_task;
-
-	temp_tasks = tasklist_tasks;
-
-	while (temp_tasks) {
-		temp_task = (TasklistTask *) temp_tasks->data;
-		if (temp_task->task == task)
-			return temp_task;
-		temp_tasks = temp_tasks->next;
-	}
+	
 	return NULL;
 }
 
-static gboolean tasklist_task_notifier(gpointer func_data, GwmhTask * task,
-				       GwmhTaskNotifyType ntype,
-				       GwmhTaskInfoMask imask)
+/* This routine gets called when desktops are switched etc */
+gboolean
+desk_notifier (gpointer func_data, GwmhDesk *desk,
+	       GwmhDeskInfoMask change_mask)
 {
-	TasklistTask *temp_task;
+	layout_tasklist ();
 
-	if (ntype == GWMH_NOTIFY_INFO_CHANGED) {
-		if (imask & GWMH_TASK_INFO_FOCUSED)
-			task_draw(tasklist_find_tasklist_task(task), FALSE);
-		if (imask & GWMH_TASK_INFO_MISC)
-			task_draw(tasklist_find_tasklist_task(task), FALSE);
-	}
-	if (ntype == GWMH_NOTIFY_NEW) {
-		temp_task = g_malloc(sizeof(TasklistTask));
-		temp_task->task = task;
-		tasklist_tasks = g_list_append(tasklist_tasks, temp_task);
-		tasklist_layout();
-	}
-	if (ntype == GWMH_NOTIFY_DESTROY) {
-		tasklist_tasks = g_list_remove(tasklist_tasks, tasklist_find_tasklist_task(task));
-		tasklist_layout();
-	}
 	return TRUE;
 }
 
-static void tasklist_cb_properties(void)
+/* This routine gets called when tasks are created/destroyed etc */
+gboolean
+task_notifier (gpointer func_data, GwmhTask *gwmh_task,
+	       GwmhTaskNotifyType ntype,
+	       GwmhTaskInfoMask imask)
 {
-	properties_show();
-}
+	TasklistTask *task;
 
-static void tasklist_cb_about(void)
-{
-	GtkWidget *dialog;
-
-	const char *authors[] =
+	switch (ntype)
 	{
-		"Anders Carlsson (anders.carlsson@tordata.se)",
-		NULL
-	};
+	case GWMH_NOTIFY_INFO_CHANGED:
+		if (imask & GWMH_TASK_INFO_FOCUSED)
+			draw_task (find_gwmh_task (gwmh_task));
+		else if (imask & GWMH_TASK_INFO_MISC)
+			draw_task (find_gwmh_task (gwmh_task));
+		else
+			g_print ("Unknown imask: %d\n", imask);
+		break;
+	case GWMH_NOTIFY_NEW:
+		task = g_malloc0 (sizeof (TasklistTask));
+		task->gwmh_task = gwmh_task;
+		gwmh_task_get_mini_icon (task->gwmh_task, 
+					 &task->pixmap, &task->mask);
 
-	dialog = gnome_about_new("Gnome Tasklist",
-				 "0.1",
-				 "Copyright (C) 1999 Anders Carlsson",
-				 authors,
-			  "A tasklist for the GNOME desktop environment",
-				 NULL);
-	gtk_widget_show(dialog);
-	gdk_window_raise(dialog->window);
-
-}
-
-static gboolean tasklist_desk_notifier(gpointer func_data, GwmhDesk * desk,
-				       GwmhDeskInfoMask change_mask)
-{
-	tasklist_layout();
+		tasks = g_list_append (tasks, task);
+		g_print ("Added %s\n", gwmh_task->name);
+	        layout_tasklist ();
+		break;
+	case GWMH_NOTIFY_DESTROY:
+		g_print ("Destroyed: %s\n", gwmh_task->name);
+		tasks = g_list_remove (tasks, find_gwmh_task (gwmh_task));
+		layout_tasklist ();
+		break;
+	default:
+		g_print ("Unknown ntype: %d\n", ntype);
+	}
 
 	return TRUE;
 }
 
-static gboolean tasklist_save_session(gpointer func_data,
-				      const gchar * privcfgpath,
-				      const gchar * globcfgpath)
+/* This routine gets called when the mouse is pressed */
+gboolean
+cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
-	config_save(privcfgpath);
+	TasklistTask *task;
+
+	task = task_get_xy ((gint)event->x, (gint)event->y);
+
+	if (!task)
+		return FALSE;
+
+	g_print ("Task: %s\n", task->gwmh_task->name);
+	if (event->button == 1) {
+		if (GWMH_TASK_ICONIFIED (task->gwmh_task))
+			gwmh_task_show (task->gwmh_task);
+		gwmh_task_show (task->gwmh_task);
+	}
+
+	if (event->button == 3) {
+		gtk_signal_emit_stop_by_name (GTK_OBJECT (widget),
+					      "button_press_event");
+		menu_popup (task, event->button, event->time);
+		return TRUE;
+	}
 
 	return FALSE;
 }
 
-gint main(gint argc, gchar * argv[])
+/* This routine gets called when the tasklist is exposed */
+gboolean
+cb_expose_event (GtkWidget *widget, GdkEventExpose *event)
 {
-	/* FIXME: i18n and config.h */
-	applet_widget_init("tasklist_applet",
-			   "1.0",
-			   argc, argv,
-			   NULL, 0, NULL);
+	GList *temp_tasks;
+	TasklistTask *task;
 
-	/* FIXME: check for gnome wm */
-	gwmh_init();
+	temp_tasks = get_visible_tasks ();
 
-	gwmh_desk_notifier_add(tasklist_desk_notifier, NULL);
-	gwmh_task_notifier_add(tasklist_task_notifier, NULL);
+	gtk_paint_box (area->style, area->window,
+		       GTK_STATE_NORMAL, GTK_SHADOW_IN,
+		       NULL, area, "button",
+		       0, 0,
+		       area->allocation.width,
+		       area->allocation.height);
 
-	tasklist_create_applet();
 
-	gtk_signal_connect(GTK_OBJECT(applet), "save-session",
-		       (AppletCallbackFunc) tasklist_save_session, NULL);
-	gtk_signal_connect(GTK_OBJECT(applet), "change_size",
-			   tasklist_cb_change_size, NULL);
+	while (temp_tasks) {
+		task = (TasklistTask *)temp_tasks->data;
+		draw_task (task);
+		temp_tasks = temp_tasks->next;
+	}
 
-	applet_widget_register_stock_callback(APPLET_WIDGET(applet),
-					      "about",
-					      GNOME_STOCK_MENU_ABOUT,
-					      "About...",
-				  (AppletCallbackFunc) tasklist_cb_about,
-					      NULL);
+	g_list_free (temp_tasks);
 
-	applet_widget_register_stock_callback(APPLET_WIDGET(applet),
-					      "properties",
-					      GNOME_STOCK_MENU_PROP,
-					      "Properties...",
-			     (AppletCallbackFunc) tasklist_cb_properties,
-					      NULL);
+	return FALSE;
+}
 
-	applet_widget_gtk_main();
+/* Create the applet */
+void
+create_applet (void)
+{
+	GtkWidget *hbox;
+
+	applet = applet_widget_new ("tasklist_applet");
+	
+	hbox = gtk_hbox_new (FALSE, 0);
+	gtk_widget_show (hbox);
+	applet_widget_add (APPLET_WIDGET (applet), hbox);
+
+	area = gtk_drawing_area_new ();
+	gtk_widget_show (area);
+	gtk_box_pack_start_defaults (GTK_BOX (hbox), area);
+	gtk_drawing_area_size (GTK_DRAWING_AREA (area), 450, 48);
+
+	gtk_widget_set_events (area, GDK_EXPOSURE_MASK | 
+			       GDK_BUTTON_PRESS_MASK |
+			       GDK_BUTTON_RELEASE_MASK);
+	gtk_signal_connect (GTK_OBJECT (area), "expose_event",
+			    GTK_SIGNAL_FUNC (cb_expose_event), NULL);
+	gtk_signal_connect (GTK_OBJECT (area), "button_press_event",
+			    GTK_SIGNAL_FUNC (cb_button_press_event), NULL);
+
+	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
+					       "about",
+					       GNOME_STOCK_MENU_ABOUT,
+					       _("About..."),
+					       NULL,
+					       NULL);
+	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
+					       "properties",
+					       GNOME_STOCK_MENU_PROP,
+					       _("Properties..."),
+					       NULL,
+					       NULL);
+	gtk_widget_show (applet);
+}
+
+gint
+main (gint argc, gchar *argv[])
+{
+	/* Initialize i18n */
+	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
+	textdomain (PACKAGE);
+	
+	g_print ("Testar: %s\n", _("Close"));
+	applet_widget_init ("tasklist_applet",
+			    VERSION,
+			    argc, argv,
+			    NULL, 0, NULL);
+	
+	gwmh_init ();
+	gwmh_task_notifier_add (task_notifier, NULL);
+	gwmh_desk_notifier_add (desk_notifier, NULL);
+	
+	create_applet ();
+
+	/* FIXME: Move this elsewhere */
+	unknown_icon = gdk_pixmap_create_from_xpm_d (area->window, &unknown_mask,
+						     NULL, unknown_xpm);
+
+	applet_widget_gtk_main ();
+
 	return 0;
 }
 
 #include "gwmh.c"
 #include "gstc.c"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

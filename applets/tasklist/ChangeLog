@@ -1,25 +1,6 @@
-1999-07-17  Anders Carlsson  <anders.carlsson@tordata.se>
-
-	* tasklist_applet.c: Added flat style
-
-1999-07-11  Anders Carlsson  <anders.carlsson@tordata.se>
-
-	* menu.c 
-	  tasklist_applet.c
-	  tasklist_applet.h
-	  tasklist_config.c
-	  tasklist_properties.c: Use K&R indentation, misc cleanups
-
-1999-07-10  Tomas Ogren  <stric@ing.umu.se>
+1999-08-04  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* menu.c
-	  tasklist_properties.c
-	  tasklist_applet.h
-	  tasklist_applet.c: Misc compiler warning fixes.
+	  tasklist_applet.c
+	  tasklist_applet.h: Redo the applet from scratch (almost).
 
-1999-07-06  Anders Carlsson  <anders.carlsson@tordata.se>
-
-	* tasklist_applet.c
-	  tasklist_applet.h
-	  tasklist_config.c
-	  tasklist_properties.c: Added tasklist width change support.

@@ -1,3 +1,4 @@
+#include "X11/Xatom.h"
 #include <applet-widget.h>
 #include "gwmh.h"
 
@@ -5,15 +6,16 @@
 #define CONFIG_ROWHEIGHT 24
 #define CONFIG_ROWS 2
 #define CONFIG_PIXMAP 0
+
 typedef struct _TasklistTask TasklistTask;
 typedef struct _Config Config;
 
 struct _TasklistTask {
 	gint x, y;
 	gint width, height;
-	GdkPixmap pixmap;
-	GdkBitmap bitmap;
-	GwmhTask *task;
+	GdkPixmap *pixmap;
+	GdkBitmap *mask;
+	GwmhTask *gwmh_task;
 };
 
 struct _Config {
@@ -28,9 +30,5 @@ struct _Config {
 	gint tasklist_width;
 };
 
-void menu_popup(TasklistTask * temp_task, guint button, guint32 activate_time);
-void config_load(const gchar * privcfgpath);
-void config_save(const gchar * privcfgpath);
-void properties_show(void);
-void tasklist_layout(void);
-gint tasklist_get_num_rows(PanelSizeType o);
+void menu_popup (TasklistTask *task, guint button, guint32 activate_time);
+

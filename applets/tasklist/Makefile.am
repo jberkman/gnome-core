@@ -9,7 +9,8 @@ INCLUDES = -I. -I$(srcdir) 				\
 
 bin_PROGRAMS = tasklist_applet
 
-tasklist_applet_SOURCES = tasklist_applet.c tasklist_config.c tasklist_properties.c menu.c
+tasklist_applet_SOURCES = menu.c \
+			  tasklist_applet.c
 
 tasklist_applet_LDADD = ../../panel/libpanel_applet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS)         \
