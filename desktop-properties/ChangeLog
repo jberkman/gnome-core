@@ -1,3 +1,7 @@
+1998-02-17  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* main.c (property_main): Removed un-needed gtk_init().
+
 Mon Feb 16 00:47:03 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* main.c (property_main): Pass actual argc, argv to

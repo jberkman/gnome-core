@@ -147,7 +147,6 @@ property_main (int argc, char *argv [])
 	char *previous_id = NULL;
 	char *new_argv[4];
 
-	gtk_init (&argc, &argv);
 	gnome_init (&argc, &argv);
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
