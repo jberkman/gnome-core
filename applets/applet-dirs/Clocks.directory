@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Clocks
+Name[cs]=Hodiny
 Name[de]=Uhren
 Name[es]=Relojes
 Name[et]=Kellad
@@ -9,6 +10,7 @@ Name[no]=Klokker
 Name[pl]=Zegary
 Name[wa]=Ôrlodjes
 Comment=Clock applets
+Comment[cs]=Varianty programù ukazujících èas
 Comment[de]=Uhrenapplets
 Comment[es]=Applets de relojes
 Comment[et]=Ajanäitajad paneelile

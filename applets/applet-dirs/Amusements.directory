@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Amusements
 Name[ca]=Entreteniments
+Name[cs]=Zábavné
 Name[da]=Underholdning
 Name[de]=Unterhaltsames
 Name[es]=Divertimientos
@@ -17,6 +18,7 @@ Name[pt]=Curiosidades
 Name[ru]=ğÒÉËÏÌÙ
 Comment=Amusements
 Comment[ca]=Entreteniments de GNOME en format applet
+Comment[cs]=Aplety Gnome pro zábavu
 Comment[da]=Underholdende Gnome applets
 Comment[de]=Unterhaltsame GNOME-Applets
 Comment[es]=Applets de divertimientos de GNOME

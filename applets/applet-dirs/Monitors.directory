@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Monitors
 Name[ca]=Monitors
+Name[cs]=Konitory
 Name[da]=Monitorer
 Name[de]=Statusanzeigen
 Name[es]=Monitores
@@ -17,6 +18,7 @@ Name[pt]=Monitores
 Name[ru]=éÎÄÉËÁÔÏÒÙ
 Comment=System Monitors, etc ...
 Comment[ca]=Monitors diversos del sistema
+Comment[cs]=Aplety zobrazujicí stav rùznıch velièin v systému
 Comment[da]=Systemmonitorer, etc ...
 Comment[de]=GNOME-Statusanzeigen
 Comment[es]=Monitores del sistema, etc ...

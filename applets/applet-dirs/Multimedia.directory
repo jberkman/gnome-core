@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=Multimedia
 Name[ca]=Multimèdia
-Name[da]=Multimedia
 Name[cs]=Multimédia
+Name[da]=Multimedia
 Name[de]=Multimedia
 Name[es]=Multimedios
 Name[es_ES]=Multimedia
@@ -20,6 +20,7 @@ Name[ru]=íÕÌØÔÉÍÅÄÉÁ
 Name[sk]=Multimédiá
 Comment=Multimedia applets
 Comment[ca]=Applets multimèdia
+Comment[cs]=Multimediální aplety
 Comment[da]=Multimedia applets
 Comment[de]=Multimedia-Applets
 Comment[es]=Applets multimedios
