@@ -743,9 +743,9 @@ helpWindowNew(gchar *name,
 
 	/* size should be auto-determined, or read from gnomeconfig() */
 	if (width && height)
-		gtk_widget_set_usize(GTK_WIDGET(w->app), width, height); 
+		gtk_window_set_default_size(GTK_WINDOW(w->app), width, height); 
 	else
-		gtk_widget_set_usize(GTK_WIDGET(w->app), 
+		gtk_window_set_default_size(GTK_WINDOW(w->app), 
 				     DEFAULT_WIDTH, DEFAULT_HEIGHT); 
 
 	if (x != y)
