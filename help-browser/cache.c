@@ -15,6 +15,8 @@ struct _data_cache {
     GList *queue;
 
     GCacheDestroyFunc destroyFunc;
+
+    gchar *file;
 };
 
 struct _data_cache_entry {
@@ -27,7 +29,7 @@ static void freeEntry(struct _data_cache_entry *entry, DataCache cache);
 static void removeElement(DataCache cache);
 
 DataCache newDataCache(guint maxDataSize, guint maxEntryCount,
-		       GCacheDestroyFunc destroyFunc)
+		       GCacheDestroyFunc destroyFunc, gchar *file)
 {
     DataCache res;
 
@@ -35,6 +37,7 @@ DataCache newDataCache(guint maxDataSize, guint maxEntryCount,
     res->maxDataSize = maxDataSize;
     res->maxEntryCount = maxEntryCount;
     res->destroyFunc = destroyFunc;
+    res->file = file;
 
     res->dataSize = 0;
     res->entryCount = 0;
@@ -43,6 +46,10 @@ DataCache newDataCache(guint maxDataSize, guint maxEntryCount,
     res->queue = NULL;
 
     return res;
+}
+
+void saveCache(DataCache cache)
+{
 }
 
 static void freeEntry(struct _data_cache_entry *entry, DataCache cache)

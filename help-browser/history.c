@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 #include <gtk/gtk.h>
@@ -13,6 +15,7 @@ struct _history_struct {
     gpointer data;
     gint length;
     gint internalSelectSkipThis;
+    gchar *file;
 };
 
 struct _history_entry {
@@ -27,9 +30,13 @@ static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
 			     gint button, History h);
 static void freeEntry(gchar *key, struct _history_entry *val, gpointer bar);
 static int hideHistoryInt(GtkWidget *window);
+static void loadHistory(History h);
+static void appendEntry(History h, gchar *ref, gint date, guint count);
 
-History newHistory(gint length, GSearchFunc callback, gpointer data)
+History newHistory(gint length, GSearchFunc callback, gpointer data,
+		   gchar *file)
 {
+    gchar filename[BUFSIZ];
     History res;
 
     res = g_new(struct _history_struct, 1);
@@ -38,10 +45,101 @@ History newHistory(gint length, GSearchFunc callback, gpointer data)
     res->callback = callback;
     res->data = data;
     res->internalSelectSkipThis = 0;
+    if (file) {
+	if (*(file) != '/') {
+	    g_snprintf(filename, sizeof(filename), "%s/%s",
+		       getenv("HOME"), file);
+	} else {
+	    strncpy(filename, file, sizeof(filename));
+	}
+	res->file = g_strdup(filename);
+    } else {
+	res->file = NULL;
+    }
 
     createHistoryWindow(res, &res->window, &res->clist);
 
+    loadHistory(res);
+
     return res;
+}
+
+static void loadHistory(History h)
+{
+    gchar buf[BUFSIZ];
+    gchar ref[BUFSIZ];
+    gint date;
+    guint count;
+    FILE *f;
+    
+    if (! h->file) {
+	return;
+    }
+
+    if (!(f = fopen(h->file, "r"))) {
+	return;
+    }
+
+    while (fgets(buf, sizeof(buf), f)) {
+	sscanf(buf, "%s %d %d", ref, &date, &count);
+	appendEntry(h, ref, date, count);
+    }
+
+    fclose(f);
+}
+
+void saveHistory(History h)
+{
+    struct _history_entry *entry;
+    gint x;
+    FILE *f;
+    
+    if (! h->file) {
+	return;
+    }
+
+    if (!(f = fopen(h->file, "w"))) {
+	return;
+    }
+
+    x = 0;
+    while (x < GTK_CLIST(h->clist)->rows) {
+	entry = gtk_clist_get_row_data(GTK_CLIST(h->clist), x);
+	fprintf(f, "%s %d %d\n", entry->ref, entry->timestamp, entry->count);
+	x++;
+    }
+
+    fclose(f);
+}
+
+static void appendEntry(History h, gchar *ref, gint date, guint count)
+{
+    struct _history_entry *entry;
+    gchar *text[3];
+    gchar buf0[BUFSIZ];
+    gchar buf1[BUFSIZ];
+    gchar buf2[BUFSIZ];
+    struct tm *tstruct;
+    time_t timet;
+    gint x;
+    
+    entry = g_new(struct _history_entry, 1);
+    entry->ref = g_strdup(ref);
+    entry->count = count;
+    entry->timestamp = (time_t)date;
+    g_hash_table_insert(h->table, entry->ref, entry);
+
+    sprintf(buf0, "%s", ref);
+    timet = (time_t)entry->timestamp;
+    tstruct = localtime(& timet);
+    strftime(buf1, sizeof(buf1), "%b %d, %Y %H:%M", tstruct);
+    sprintf(buf2, "%d", entry->count);
+
+    text[0] = buf0;
+    text[1] = buf1;
+    text[2] = buf2;
+    x = gtk_clist_append(GTK_CLIST(h->clist), text);
+    gtk_clist_set_row_data(GTK_CLIST(h->clist), x, entry);
 }
 
 static void freeEntry(gchar *key, struct _history_entry *val, gpointer bar)
@@ -52,11 +150,12 @@ static void freeEntry(gchar *key, struct _history_entry *val, gpointer bar)
 
 void destroyHistory(History h)
 {
-    /* XXX Save the history? */
-
     /* Destroy the window */
     g_hash_table_foreach(h->table, (GHFunc)freeEntry, NULL);
     g_hash_table_destroy(h->table);
+    if (h->file) {
+	g_free(h->file);
+    }
     g_free(h);
 }
 

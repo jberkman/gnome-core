@@ -50,11 +50,23 @@ static void saveConfig(void);
                           "/usr/local/share/gnome/help:" \
 			  "/usr/local/gnome/share/gnome/help:" \
 			  "/usr/share/gnome/help"
+#define DEFAULT_MEMCACHESIZE "1000000"
+#define DEFAULT_HISTORYLENGTH "1000"
+#define DEFAULT_HISTORYFILE ".gnome-help-browser/history"
+#define DEFAULT_CACHEFILE ".gnome-help-browser/cache"
+#define DEFAULT_BOOKMARKFILE ".gnome-help-browser/bookmarks"
 
+/* Config data */			  
 static gchar *manPath;			  
 static gchar *infoPath;			  
-static gchar *ghelpPath;			  
+static gchar *ghelpPath;
+static gint memCacheSize;
+static gint historyLength;
+static gchar *historyFile;
+static gchar *cacheFile;
+static gchar *bookmarkFile;
 
+/* A few globals */
 static Toc tocWindow;
 static History historyWindow;
 static DataCache cache;
@@ -72,8 +84,10 @@ main(int argc, char *argv[])
     
     setErrorHandlers();
 	
-    historyWindow = newHistory(0, (GSearchFunc)historyCallback, NULL); 
-    cache = newDataCache(10000000, 0, (GCacheDestroyFunc)g_free);
+    historyWindow = newHistory(historyLength, (GSearchFunc)historyCallback,
+			       NULL, historyFile);
+    cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free,
+			 cacheFile);
     tocWindow = newToc(manPath, infoPath, ghelpPath,
 		       (GtkSignalFunc)tocCallback);
 
@@ -83,6 +97,9 @@ main(int argc, char *argv[])
 	helpWindowShowURL(window, argv[1]);
 	
     gtk_main();
+
+    saveHistory(historyWindow);
+    saveCache(cache);
 	
     return 0;
 }
@@ -210,6 +227,17 @@ static void initConfig(void)
     ghelpPath = gnome_config_get_string("/" NAME "/paths/ghelppath="
 					DEFAULT_GHELPPATH);
 
+    memCacheSize = gnome_config_get_int("/" NAME "/cache/memsize="
+					DEFAULT_MEMCACHESIZE);
+    cacheFile = gnome_config_get_string("/" NAME "/cache/file="
+					DEFAULT_CACHEFILE);
+    historyLength = gnome_config_get_int("/" NAME "/history/length="
+					 DEFAULT_HISTORYLENGTH);
+    historyFile = gnome_config_get_string("/" NAME "/history/file="
+					  DEFAULT_HISTORYFILE);
+    bookmarkFile = gnome_config_get_string("/" NAME "/bookmarks/file="
+					   DEFAULT_BOOKMARKFILE);
+
     saveConfig();
 }
 
@@ -218,5 +246,11 @@ static void saveConfig(void)
     gnome_config_set_string("/" NAME "/paths/manpath", manPath);
     gnome_config_set_string("/" NAME "/paths/infopath", infoPath);
     gnome_config_set_string("/" NAME "/paths/ghelppath", ghelpPath);
+    gnome_config_set_int("/" NAME "/cache/memsize", memCacheSize);
+    gnome_config_set_string("/" NAME "/cache/file", cacheFile);
+    gnome_config_set_int("/" NAME "/history/length", historyLength);
+    gnome_config_set_string("/" NAME "/history/file", historyFile);
+    gnome_config_set_string("/" NAME "/bookmarks/file", bookmarkFile);
+    
     gnome_config_sync();
 }

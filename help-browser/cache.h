@@ -6,7 +6,7 @@
 typedef struct _data_cache *DataCache;
 
 DataCache newDataCache(guint maxDataSize, guint maxEntryCount,
-		       GCacheDestroyFunc destroyFunc);
+		       GCacheDestroyFunc destroyFunc, gchar *file);
 
 void destroyDataCache(DataCache cache);
 
@@ -17,5 +17,7 @@ gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len);
 /* it if you need to.  The value is *not* copied, but it *is* */
 /* passed to destroyFunc() when it falls off the stack.       */
 void addToDataCache(DataCache cache, gchar *key, gpointer value, guint size);
+
+void saveCache(DataCache cache);
 
 #endif

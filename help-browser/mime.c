@@ -44,8 +44,7 @@ resolveMIME( docObj obj )
 		docObjSetMimeType(obj, "text/plain");
 	}
 
-	g_message("resolved mime type: %s is %s",
-		  ref, docObjGetMimeType(obj));
+	g_message("resolved mime type: %s", docObjGetMimeType(obj));
 
 }
 
