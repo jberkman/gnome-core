@@ -1,3 +1,7 @@
+1998-09-06  Raja R Harinath  <harinath@debian>
+
+	* Makefile.am: Remove CXXLINK hack.
+
 1998-08-31    <jrb@redhat.com>
 
 	* capplets/mouse-properties/mouse-properties.c: undoing the

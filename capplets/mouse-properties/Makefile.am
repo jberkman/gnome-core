@@ -1,11 +1,3 @@
-# trick Automake into defining $(CXXLINK)
-if FALSE
-BUILT_SOURCES = dummy.cc
-
-dummy.cc:
-	@touch dummy.cc
-endif
-
 INCLUDES = -I. -I$(srcdir) 				\
 	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 	-I$(srcdir)/../../control-center		\
@@ -20,13 +12,8 @@ mouse_properties_LDADD = ../../control-center/libcapplet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS) \
 		     $(GNOMEUI_LIBS) $(INTLLIBS) 
 
-mouse_properties_LINK = $(CXXLINK)
-
-
 EXTRA_DIST = \
 	mouse-properties.desktop
 
-
 sysdir = $(datadir)/control-center/Peripherals
 sys_DATA = mouse-properties.desktop
-
