@@ -1,0 +1,7 @@
+[help-browser]
+type=exe
+repo_id=help-browser
+description=Gnome Help Browser
+location_info=gnome-help-browser
+
+

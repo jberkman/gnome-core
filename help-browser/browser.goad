@@ -1,7 +1,0 @@
-[help-browser]
-type=exe
-repo_id=help-browser
-description=Gnome Help Browser
-location_info=/disk/compiles/gnome-cvs/gnome-core/help-browser/gnome-help-browser
-
-
