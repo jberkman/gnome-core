@@ -134,7 +134,7 @@ main(gint argc, gchar *argv[])
     textdomain (PACKAGE);
 
 /* enable session management here */
-#if 1
+#if 0
     smClient = NULL;
     g_message("Session management was disabled at compile-time");
 #else
