@@ -1187,7 +1187,7 @@ e_setup_desktops (GtkWidget *c)
 	}
       gtk_list_append_items(GTK_LIST(list), items);
     }
-  
+
   align = gtk_alignment_new(0.5, 0.5, 1.0, 1.0);
   gtk_widget_set_usize(win, 270, 140);
   gtk_widget_show(align);
