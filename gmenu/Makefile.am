@@ -38,7 +38,9 @@ gmenu_LDADD = \
 
 BUILT_SOURCES = $(ICON_ENTRY_HACK_SRCLIST)
 
-EXTRA_DIST = gmenu.desktop top.xpm unknown.xpm
+EXTRA_DIST = gmenu.desktop.in top.xpm unknown.xpm
 
 sysdir = $(datadir)/gnome/apps/Settings
-sys_DATA = gmenu.desktop
+sys_in_files = gmenu.desktop.in
+sys_DATA = $(sys_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@

@@ -44,7 +44,7 @@ tasklist_applet_LDADD = 			\
 
 EXTRA_DIST = 			\
 	tasklist_applet.gnorba 	\
-	tasklist_applet.desktop	\
+	tasklist_applet.desktop.in	\
 	unknown.xpm		\
 	gnome-tasklist.png
 
@@ -52,7 +52,9 @@ pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = gnome-tasklist.png
 
 sysdir = $(datadir)/applets/Utility
-sys_DATA = tasklist_applet.desktop 
+sys_in_files = tasklist_applet.desktop.in 
+sys_DATA = $(sys_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
 gnorbadir  = $(sysconfdir)/CORBA/servers
 gnorba_DATA = tasklist_applet.gnorba 

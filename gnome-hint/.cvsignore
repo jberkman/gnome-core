@@ -4,3 +4,5 @@ Makefile
 .libs
 gnome-hint
 gnome-hint-properties-capplet
+gnome-hint.desktop
+gnome-hint-properties.desktop

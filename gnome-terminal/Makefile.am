@@ -45,7 +45,9 @@ gnome_terminal_SOURCES = \
 #$(gnome_terminal_OBJECTS): GNOME_Terminal.h
 
 utildir = $(datadir)/applications
-util_DATA = gnome-terminal.desktop
+util_in_files = gnome-terminal.desktop.in
+util_DATA = $(util_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
 uidir = $(datadir)/gnome-2.0/ui
 ui_DATA = gnome-terminal.xml

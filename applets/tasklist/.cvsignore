@@ -7,3 +7,4 @@ gstc.c
 gwmh.c
 *.lo
 libtasklist_applet.la
+tasklist_applet.desktop

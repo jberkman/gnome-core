@@ -1,3 +1,11 @@
+2002-02-10  Gediminas Paulauskas <menesis@delfi.lt>
+
+	* Makefile.am: use intltool for .desktop files.
+	* gnome-hint.desktop.in, gnome-hint-properties.desktop.in:
+	add files without translations.
+	* gnome-hint.desktop, gnome-hint-properties.desktop:
+	removed, they are generated.
+
 2002-01-17  Jakub Steiner <jimmac@ximian.com>
 
 	* gnome-hint.png: gnome2 look

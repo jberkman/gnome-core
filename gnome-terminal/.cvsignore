@@ -10,3 +10,4 @@ Terminal-common.c
 Terminal-skels.c
 Terminal-stubs.c
 gnome-terminal.glade2
+gnome-terminal.desktop

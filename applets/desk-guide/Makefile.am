@@ -25,12 +25,14 @@ EXTRA_DIST = \
 	gwmthumbnail.h \
 	deskguide_applet.h \
 	deskguide_applet.gnorba \
-	deskguide_applet.desktop \
+	deskguide_applet.desktop.in \
 	gnome-deskguide-splash.png \
 	gnome-deskguide.png
 
 sysdir = $(datadir)/applets/Utility
-sys_DATA = deskguide_applet.desktop
+sys_in_files = deskguide_applet.desktop.in
+sys_DATA = $(sys_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
 pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = gnome-deskguide-splash.png gnome-deskguide.png

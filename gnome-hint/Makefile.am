@@ -20,15 +20,18 @@ gnome_hint_properties_capplet_LDADD = \
 	$(GNOME_CAPPLET_LIBS)
 
 utildir = $(datadir)/gnome/apps/Utilities
-util_DATA = gnome-hint.desktop
+util_in_files = gnome-hint.desktop.in
+util_DATA = $(util_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
 EXTRA_DIST = \
-	gnome-hint-properties.desktop \
+	gnome-hint-properties.desktop.in \
 	gnome-hint.png \
-	gnome-hint.desktop
+	gnome-hint.desktop.in
 
 sysdir = $(datadir)/control-center/capplets
-sys_DATA = gnome-hint-properties.desktop
+sys_in_files = gnome-hint-properties.desktop.in
+sys_DATA = $(sys_in_files:.desktop.in=.desktop)
 
 pixmapsdir = $(datadir)/pixmaps
 pixmaps_DATA = gnome-hint.png
