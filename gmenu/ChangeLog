@@ -1,3 +1,10 @@
+2000-11-02  Jacob "Ulysses" Berkman  <jacob@helixcode.com>
+
+	* edit.c, save.c, treedel.c, treednd.c: fix the merge menus
+	crashing stuff.
+
+	Bad George.  No beer for you.
+	
 Wed Oct 18 17:37:58 2000  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.h, main.c(about_dialog): Use right VERSION in about dialog.

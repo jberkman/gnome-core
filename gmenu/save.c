@@ -93,7 +93,7 @@ void save_desktop_entry(GnomeDesktopEntry *dentry, const gchar *old_path, gboole
 		{
 		if (strcmp(old_path, user_apps_dir) == 0 ||
 		    strcmp(old_path, system_apps_dir) == 0 ||
-		    strcmp(old_path, system_apps_merge_dir) == 0 ||
+		    (system_apps_merge_dir && strcmp(old_path, system_apps_merge_dir) == 0) ||
 		    strcmp(old_path, system_applets_dir) == 0 )
 			new_path = g_strdup(old_path);
 		else

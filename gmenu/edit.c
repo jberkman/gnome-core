@@ -355,6 +355,9 @@ void edit_area_set_to(const Desktop_Data *dd)
 {
 	edit_area_sync_to(dd, edit);
 
+	if (!dd)
+		return;
+
 	/* do not allow user to change the USER/SYSTEM menu name/comment, since
 	 * the panel does not seem to honor them, only the icon.
          */
@@ -364,7 +367,8 @@ void edit_area_set_to(const Desktop_Data *dd)
 		edit_area_set_as_top_menu(_("Programs (system menus)"), edit);
 	} else if (dd->editable && strcmp(dd->path, system_applets_dir) == 0) {
 		edit_area_set_as_top_menu(_("Applets (system menus)"), edit);
-	} else if (dd->editable && strcmp(dd->path, system_apps_merge_dir) == 0) {
+	} else if (dd->editable && system_apps_merge_dir &&
+		   strcmp(dd->path, system_apps_merge_dir) == 0) {
 		edit_area_set_as_top_menu(_("Programs to be merged in (system menus)"), edit);
 	}
 }
