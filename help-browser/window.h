@@ -34,7 +34,8 @@ void helpWindowHistoryAdd(HelpWindow w, gchar *ref);
 
 gchar *helpWindowCurrentRef(HelpWindow w);
 
-void helpWindowHTMLSource(HelpWindow w, gchar *s, gint len, char *ref);
+void helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
+			  gchar *ref, gchar *humanRef);
 void helpWindowJumpToAnchor(HelpWindow w, gchar *s);
 void helpWindowJumpToLine(HelpWindow w, gint n);
 

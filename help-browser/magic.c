@@ -40,6 +40,7 @@ resolveMagicURL( docObj obj, Toc toc )
 	
 	g_message("magic url: %s -> %s", ref, buf);
 
+	docObjSetHumanRef(obj, ref);
 	docObjSetRef(obj, buf);
 	docObjSetMimeType(obj, "application/x-info");
 
@@ -73,6 +74,7 @@ resolveMagicURL( docObj obj, Toc toc )
 	
 	g_message("magic url: %s -> %s", ref, buf);
 
+	docObjSetHumanRef(obj, ref);
 	docObjSetRef(obj, buf);
 	docObjSetMimeType(obj, "application/x-troff-man");
 	
@@ -99,6 +101,7 @@ resolveMagicURL( docObj obj, Toc toc )
 	
 	g_message("magic url: %s -> %s", ref, buf);
 
+	docObjSetHumanRef(obj, ref);
 	docObjSetRef(obj, buf);
 	docObjSetMimeType(obj, "text/html");
 

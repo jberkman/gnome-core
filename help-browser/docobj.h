@@ -14,6 +14,8 @@ void docObjResolveURL(docObj obj, gchar *currentRef);
 
 void   docObjSetRef(docObj obj, gchar *ref);
 gchar *docObjGetRef(docObj obj);
+void   docObjSetHumanRef(docObj obj, gchar *ref);
+gchar *docObjGetHumanRef(docObj obj);
 gchar *docObjGetAbsoluteRef(docObj obj);
 gchar *docObjGetMimeType(docObj obj);
 DecomposedUrl docObjGetDecomposedUrl(docObj obj);

@@ -425,7 +425,8 @@ helpWindowHistoryAdd(HelpWindow w, gchar *ref)
 }
 
 void
-helpWindowHTMLSource(HelpWindow w, gchar *s, gint len, gchar *ref)
+helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
+		     gchar *ref, gchar *humanRef)
 {
     gchar *buf;
     
@@ -437,7 +438,8 @@ helpWindowHTMLSource(HelpWindow w, gchar *s, gint len, gchar *ref)
     /* It's important to set this first because it used is to */
     /* resolve relative refs for images.                      */
     w->currentRef = g_strdup(ref);
-    gtk_entry_set_text(GTK_ENTRY(w->entryBox), ref);
+    
+    gtk_entry_set_text(GTK_ENTRY(w->entryBox), humanRef);
 
     /* Load it up */
     buf = g_malloc(len + 1);

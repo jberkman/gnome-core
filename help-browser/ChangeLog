@@ -1,3 +1,7 @@
+1998-03-10  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Use "humanRef" when rewriting the entry box.
+
 1998-03-09  Marc Ewing  <marc@redhat.com>
 
 	* Add ghelp: magic URL.

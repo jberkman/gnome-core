@@ -12,6 +12,7 @@ struct _docObj {
     /* URL information */
     gchar *ref;
     gchar *absoluteRef;
+    gchar *humanRef;
     gchar *mimeType;
     DecomposedUrl decomposedUrl;
     
@@ -36,6 +37,7 @@ docObjNew(gchar *ref)
 	p = g_malloc(sizeof(*p));
 	p->ref = g_strdup(ref);
 	p->absoluteRef = NULL;
+	p->humanRef = NULL;
 	p->mimeType = NULL;
 	p->decomposedUrl = NULL;
 
@@ -59,6 +61,7 @@ docObjFree(docObj obj)
 
 	g_free(obj->ref);
 	g_free(obj->absoluteRef);
+	g_free(obj->humanRef);
 	g_free(obj->mimeType);
 	
 	if (obj->freeraw && obj->rawData)
@@ -109,6 +112,10 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	    obj->transportFunc   = transportUnknown;
 	}
 
+	if (! obj->humanRef) {
+	    docObjSetHumanRef(obj, obj->absoluteRef);
+	}
+
 	obj->decomposedUrl = decomp;
 }
 
@@ -123,6 +130,19 @@ docObjSetRef(docObj obj, gchar *ref)
 gchar *docObjGetRef(docObj obj)
 {
     return obj->ref;
+}
+
+void
+docObjSetHumanRef(docObj obj, gchar *ref)
+{
+	if (obj->humanRef)
+		g_free(obj->humanRef);
+	obj->humanRef = g_strdup(ref);
+}
+
+gchar *docObjGetHumanRef(docObj obj)
+{
+    return obj->humanRef;
 }
 
 gchar *docObjGetAbsoluteRef(docObj obj)

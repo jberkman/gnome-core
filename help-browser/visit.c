@@ -78,7 +78,9 @@ displayHTML( HelpWindow win, docObj obj )
     
 	/* Load the page */
 	docObjGetConvData(obj, &buf, &buflen);
-	helpWindowHTMLSource(win, buf, buflen, docObjGetAbsoluteRef(obj));
+	helpWindowHTMLSource(win, buf, buflen,
+			     docObjGetAbsoluteRef(obj),
+			     docObjGetHumanRef(obj));
 
 	/* Set position */
 	decomp = docObjGetDecomposedUrl(obj);
