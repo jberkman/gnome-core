@@ -3,198 +3,276 @@
 
 
 <Book id="index">
-   <title>GNOME Terminal User's Guide</title>
-    <bookinfo>
-       <authorgroup>
-    	 <author>
-    	   <firstname>Miguel</firstname>
-    	   <surname>de Icaza</surname>
-    	 </author>
-       </authorgroup>
-     <releaseinfo>documentation in progress</releaseinfo>
+  <title>GNOME Terminal User's Guide</title>
+  <bookinfo>
+    <authorgroup>
+      <author>
+	<firstname>Miguel</firstname>
+	<surname>de Icaza</surname>
+      </author>
+    </authorgroup>
+    <releaseinfo>documentation in progress</releaseinfo>
      <legalnotice>
-     <para>
-  	 This document can be freely redistributed according to the
-  	 terms of the GNU General Public License.</para>
+      <para>
+	This document can be freely redistributed according to the
+	terms of the GNU General Public License.</para>
     </legalnotice>
-   </bookinfo>
+  </bookinfo>
   <toc></toc>
-   
+  
   <chapter id="terminal">
-   <title>The GNOME terminal users guide.</title>
-   
-   <sect1 id="Description">
-    <title>Description</title>
-     <para>
-     gnome-terminal is a terminal emulator program that is part of the
-     GNOME project.  It provides access to the Unix shell on the GNOME
-     environment. 
-     </para>
-   </sect1>
-  
-   <sect1 id="Emulation">
-    <title>Emulation</title>
-     <para>   The emulation supported by GNOME terminal is the same as
-     the xterm program as provided by the X consortiums xterm program
-     (which is in turn an almost complete emulation of the VT102 DEC
-     terminal).</para>
-  
-     <para>The GNOME terminal supports the same extensions to the VT102
-     that the xterms provide (trough special escape sequences, see the
-     technical guide for the details).
-     </para>
-   </sect1>
-  
-   <sect1 id="config">
-    <title>Configurable options</title>
-     <para>
-       
-     </para>
-   </sect1>
-  
-   <sect1 id="classes">
-    <title>Terminal classes</title>
-     <para>The GNOME terminal allows you to have different configuration
-       profiles to suit different uses.  To do this you only need to
-       provide a name for your new configuration class by entering the
-       new name in the property configuration dialog box.</para>
-       
-     <para>To activate a specific class at program startup you can use
-     the --class command line option. </para>
-  
-   </sect1>
-  
-   <sect1 id="Options">
-    <title>Command line options</title>
-     <para>
-       <itemizedlist>
-         <listitem>
-  	 <screen>--background COLOR</screen>
-  
-  	 <para>Used to specify the 
-  	 background color for the terminal at startup.  The COLOR can be
-  	 any form accepted by your windowing system.
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--class CLASSNAME</screen>
-  	 <para>
-  	 CLASSNAME Specifies the terminal class used to configure the
-  	 terminal at startup.
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--command CMD, -e CMD</screen>
-  	 <para>
-  	 Runs the CMD command at startup time
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--font FONT</screen>
-  	 <para>
-  	 Sets the font of the terminal to FONT
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--foreground COLOR</screen>
-  	 <para>
-  	 Sets the foreground of the terminal to COLOR.
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--geometry GEOMETRY</screen>
-  	 <para>
-  	 Specifies the startup geometry for this terminal. 
-  	 FIXME:  LInk to gnome-libs document on GEOMETRY specifications
-  	 when it is written
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--login</screen>
-  	 <para>
-  	 Make gnome-terminal launch the shell in login mode (it will run
-  	 all of your login initialization scripts in this mode). 
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--nologin</screen>
-  	 <para>
-  	 Make gnome-terminal only launch a shell.
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--noutmp</screen>
-  	 <para>
-  	 Indicates that this and the associated shell should not be
-  	 registered in the system database of users logged into the
-  	 computer. 
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--utmp</screen>
-  	 <para>
-  	 Indicates that the user wants this terminal to be registered in
-  	 the system database of users logged into the computer (the utmp
-  	 database).  This is the default.
-  	 </para>
-	 </listitem>
-  
-         <listitem>
-  	 <screen>--title TITLE, -t TITLE</screen>
-  	 <para>
-  	 Makes GNOME terminal use TITLE for the window caption.
-  	 </para>
-	 </listitem>
-       </itemizedlist>
+    <title>The GNOME terminal users guide.</title>
+    
+    <sect1 id="Description">
+      <title>Description</title>
+      <para>
+	gnome-terminal is a terminal emulator program that is part of the
+	GNOME project.  It provides access to the Unix shell on the GNOME
+	environment. </para>
 
-     </para>
+      <para>
+	gnome-terminal supports color display (see the section on
+	environment variables for details) and provides mouse support
+	to applications that are aware of mouse events for xterm-like
+	terminals. </para>
+    </sect1>
+    
+    <sect1 id="Emulation">
+      <title>Emulation</title>
+      <para>   The emulation supported by GNOME terminal is the same as
+	the xterm program as provided by the X consortiums xterm program
+	(which is in turn an almost complete emulation of the VT102 DEC
+	terminal).</para>
+      
+      <para>The GNOME terminal supports the same extensions to the VT102
+	that the xterms provide (trough special escape sequences, see the
+	technical guide for the details).
+      </para>
+    </sect1>
+
+    <sect1 id="config">
+      <title>Configurable options</title>
+      <para>
+	<sect2 id="colorschemes">
+	  <title>Color schemes</title> 
+
+	  <para>gnome-terminal supports three color schemes: the Linux
+	  console scheme, the color Xterm scheme and the rxvt color
+	  scheme.  These define the intensity and colors for the
+	  sixteen ANSI color combinations that are supported by the
+	  terminal.</para>
+	</sect2>
+
+	<sect2 id="colorcombos">
+	  <title>Primary color combination</title>
+
+	  <para>When no colors are specified, the program can use a
+	  number of values for the default foreground and background
+	  colors.  White and black in the following description map to
+	  the colors as defined by the color scheme for white and
+	  black. </para>
+
+	  <para>The stock supported modes are: white on black, black
+	  on white, green on black and black on light yellow.  
+	</sect2>
+
+	<sect2 id="selcolor">
+	  <title>Setting the foreground and background</title>
+	  <para>In addition to the stock color combinations for
+	  foreground and background the user can select its own
+	  foreground and background colors from the property
+	  box.</para> 
+
+	  <para>Additionally, the user can drag a color from any GNOME
+	  color selector or color source and drop it into the
+	  terminal.  If the user drops the color on a white space, it
+	  will set the background, if the user drops the color on a
+	  cell that contains a character, it will change the
+	  foreground. 
+	</sect2>
+      </para>
+    </sect1>
+    
+    <sect1 id="classes">
+      <title>Terminal classes</title>
+      <para>The GNOME terminal allows you to have different configuration
+	profiles to suit different uses.  To do this you only need to
+	provide a name for your new configuration class by entering the
+	new name in the property configuration dialog box.</para>
+      
+      <para>To activate a specific class at program startup you can use
+	the --class command line option. </para>
+    </sect1>
+    
+    <sect1 id="Options">
+      <title>Command line options</title>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <symbol>--background COLOR</symbol>
+	    
+	    <para>Used to specify the 
+	      background color for the terminal at startup.  The COLOR can be
+	      any form accepted by your windowing system.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--class CLASSNAME</symbol>
+	    <para>
+	      CLASSNAME Specifies the terminal class used to configure the
+	      terminal at startup.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--command CMD, -e CMD</symbol>
+	    <para>
+	      Runs the CMD command at startup time
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--font FONT</symbol>
+	    <para>
+	      Sets the font of the terminal to FONT
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--foreground COLOR</symbol>
+	    <para>
+	      Sets the foreground of the terminal to COLOR.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--geometry GEOMETRY</symbol>
+	    <para>
+	      Specifies the startup geometry for this terminal.   The
+	      geometry specifies the desired width and height in
+	      terminal characters.  For example: --geometry=80x40 will
+	      create an eighty column by fourty line terminal.</para>
+	      <para>FIXME:  LInk to gnome-libs document on GEOMETRY specifications
+	      when it is written
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--login</symbol>
+	    <para>
+	      Make gnome-terminal launch the shell in login mode (it will run
+	      all of your login initialization scripts in this mode). 
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--nologin</symbol>
+	    <para>
+	      Make gnome-terminal only launch a shell.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--noutmp</symbol>
+	    <para>
+	      Indicates that this and the associated shell should not be
+	      registered in the system database of users logged into the
+	      computer. 
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--utmp</symbol>
+	    <para>
+	      Indicates that the user wants this terminal to be
+	      registered in the system database of users logged into
+	      the computer (the utmp database).  This is the default.
+	    </para>
+	  </listitem>
+	  
+	  <listitem>
+	    <symbol>--title TITLE, -t TITLE</symbol>
+	    <para>
+	      Makes GNOME terminal use TITLE for the window caption.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+	
+      </para>
+    </sect1>
+    
+    <sect1 id="pointerusage">
+      <title>Pointer usage</title>
+      <para>
+      </para>
    </sect1>
-  
-   <sect1 id="pointerusage">
-    <title>Pointer usage</title>
-     <para>
-     </para>
-   </sect1>
-  
-   <sect1 id="menus">
-    <title>Menus</title>
-     <para>
-     </para>
-   </sect1>
-  
-   <sect1 id="enviroment">
-    <title>Enviroment</title>
-     <para>
-     The following variables are set by gnome-terminal: COLOR,
-     COLORTERM, WINDOWID
-     </para>
-   </sect1>
-  
-   <sect1 id="Authors">
-    <title>Authors</title>
-     <para>
-     </para>
-   </sect1>
-   
+    
+    <sect1 id="menus">
+      <title>Menus</title>
+      <para>
+      </para>
+    </sect1>
+    
+    <sect1 id="enviroment">
+      <title>Enviroment</title>
+      <para>
+	The following variables are set by gnome-terminal: 
+	<itemizedlist>
+	  <listitem><symbol>TERM</symbol></listitem>This
+	  variable is set to "xterm" by default.  Some curses
+	  implementations and applications based on curses might want
+	  the value to be xterm-color, color-xterm or xterm-debian to
+	  support color.  You might need to change this setting if
+	  your application does not display in color to one of those
+	  values. 
+
+	  <listitem><symbol>COLORTERM</symbol></listitem>This variable
+	  is set to "xterm".  Various applications (specially the
+	  Slang-based applications) use this setting to determine if
+	  the terminal supports color.
+
+	  <listitem><symbol>WINDOWID</symbol></listitem>This variable
+	  contains the X11 Window identifier.  This is used sometimes
+	  by applications to modify the contents of this window or
+	  provide special effects.
+	</itemizedlist>
+      </para>
+    </sect1>
+    
+    <sect1 id="Authors">
+      <title>Authors</title>
+      
+      A number of people work together to bring you the
+      gnome-terminal:
+      <para>
+	Michael Zucchi coded the Zvt widget engine; Miguel de Icaza
+	and Jay Painter improved it and did further debugging and
+	maintenance.   George Lebl added transparency and backing
+	pixmap support to the widget.</para>
+
+      <para>
+	Miguel did the main gnome terminal program, and Erik Troan
+	provided the terminal class support along with various other
+	features.  Jeff Garzik, Jay, Christopher Blizzart, Michael,
+	Jens Lautenbacher, Tom Tromey, Tristan Tarrant and Jonathan
+	Blandford provided extra bug fixes.  Nat Friedman review the
+	user interface to conform to the GNOME guidelines.  Felix
+	Bellaby, Tom Tromey and Manish Vachharajani implemented
+	and improved the session management code.
+	</para>
+    </sect1>
+    
   </chapter>
   
   <chapter id="termtech">
-   <title>The GNOME terminal technical guide.</title>
-   <sect1 id="test">
-    <title>Test</title>
-     <para>test
-     </para>
-   </sect1>
-  
+    <title>The GNOME terminal technical guide.</title>
+    <sect1 id="test">
+      <title>Test</title>
+      <para>test
+      </para>
+    </sect1>
+    
   </chapter>
 </book>
 
