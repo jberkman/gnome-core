@@ -65,6 +65,8 @@ void read_config (void)
 	Config.show_minimized = gnome_config_get_bool ("tasklist/show_minimized=true");
 	Config.all_desks_normal = gnome_config_get_bool ("tasklist/all_desks_normal=false");
 	Config.all_desks_minimized = gnome_config_get_bool ("tasklist/all_desks_minimized=false");
+
+	gnome_config_pop_prefix ();
 }
 
 
