@@ -80,7 +80,7 @@ install-data-local:
 	$(mkinstalldirs) $(help_browser_helpdir)
 	$(mkinstalldirs) $(prefix)/etc/CORBA/servers
 	$(INSTALL_DATA)  $(srcdir)/help-browser.gnorba \
-			 $(prefix)/etc/CORBA/servers/help-broswer.gnorba
+			 $(prefix)/etc/CORBA/servers/help-browser.gnorba
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-help.html \
 			 $(help_browser_helpdir)/help-browser.html
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-topic.dat \
