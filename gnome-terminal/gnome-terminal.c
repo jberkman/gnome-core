@@ -1735,7 +1735,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	int i = 0;
 	struct terminal_config *cfg;
 	int width, height;
-
+	gboolean term_found = FALSE;
+		
 	/* FIXME: is seems like a lot of this stuff should be done by apply_changes instead */
 
 	cfg = terminal_config_dup (cfg_in);
@@ -1759,16 +1760,26 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 			if (strncmp (*p, "TERM=", 5) == 0) {
 				if (cfg->termname)
 					env_copy [i++] = cfg->termname;
-				else
-					/* DO NOT change this, its here for a reason */
-					/* this emulator doesn't emulate xterm-color, or xterm-debian, or
-					   xterm-old, it emulates xterm.  Get it?  Doh! */
+				else {
+					/*
+					 * DO NOT change this, its here for a reason
+					 * this emulator doesn't emulate xterm-color, or xterm-debian, or
+					 * xterm-old, it emulates xterm.  
+					 */
 					env_copy [i++] =  "TERM=xterm";
+				}
+				term_found = TRUE;
 			} else if ((strncmp (*p, "COLUMNS=", 8) == 0)
 				 || (strncmp (*p, "LINES=", 6) == 0)){
 				/* nothing: do not copy those */
 			} else
 				env_copy [i++] = *p;
+		}
+		if (!term_found){
+			if (cfg->termname && cfg->termname [0])
+				env_copy [i++] = cfg->termname;
+			else
+				env_copy [i++] = "TERM=xterm";
 		}
 		env_copy [i++] = "COLORTERM=gnome-terminal";
 		winid_pos = i++;
