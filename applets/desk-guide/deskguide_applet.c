@@ -117,7 +117,7 @@ main (gint   argc,
 		      argc, argv,
 		      NULL, 0, NULL);
   
-  DESK_GUIDE_NAME = TRANSL ("GNOME Desktop Guide (Pager)");
+  DESK_GUIDE_NAME = _("GNOME Desktop Guide (Pager)");
   
   /* setup applet widget
    */
@@ -142,13 +142,13 @@ main (gint   argc,
     {
       GtkWidget *dialog;
       gchar *error_msg =
-	TRANSL ( "You are not running a GNOME "
+	      _( "You are not running a GNOME "
 		 "Compliant Window Manager.\n"
 		 "GNOME support by the window\n"
 		 "manager is a requirement for "
 		 "the Desk Guide to work properly." );
       
-      dialog = gnome_error_dialog (TRANSL ("Desk Guide Error"));
+      dialog = gnome_error_dialog (_("Desk Guide Error"));
       gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox),
 			  gtk_widget_new (GTK_TYPE_LABEL,
 					  "visible", TRUE,
@@ -180,13 +180,13 @@ main (gint   argc,
   applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
 					 "about",
 					 GNOME_STOCK_MENU_ABOUT,
-					 TRANSL ("About..."),
+					 _("About..."),
 					 (AppletCallbackFunc) gp_about,
 					 NULL);
   applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
 					 "properties",
 					 GNOME_STOCK_MENU_PROP,
-					 TRANSL ("Properties..."),
+					 _("Properties..."),
 					 (AppletCallbackFunc) gp_config_popup,
 					 NULL);
   
@@ -665,7 +665,7 @@ gp_config_add_boolean (GtkWidget  *vbox,
   
   widget = gtk_widget_new (GTK_TYPE_CHECK_BUTTON,
 			   "visible", TRUE,
-			   "label", TRANSL (item->name),
+			   "label", _(item->name),
 			   "active", GPOINTER_TO_INT (item->value),
 			   "signal::toggled", gp_config_toggled, item,
 			   NULL);
@@ -706,7 +706,7 @@ gp_config_add_range (GtkWidget  *vbox,
   label = gtk_widget_new (GTK_TYPE_LABEL,
 			  "visible", TRUE,
 			  "xalign", 0.0,
-			  "label", TRANSL (item->name),
+			  "label", _(item->name),
 			  "parent", hbox,
 			  NULL);
   // gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
@@ -765,10 +765,10 @@ gp_config_create_page (GSList		*item_slist,
       item_slist = node->next;
       g_slist_free_1 (node);
       
-      page_name = TRANSL (item->name);
+      page_name = _(item->name);
     }
   else
-    page_name = TRANSL ("Global");
+    page_name = _("Global");
   
   page = gtk_widget_new (GTK_TYPE_VBOX,
 			 "visible", TRUE,
@@ -787,7 +787,7 @@ gp_config_create_page (GSList		*item_slist,
       g_slist_free_1 (node);
       
       if (item->min == -2 && item->max == -2)			/* section */
-	vbox = gp_config_add_section (page, TRANSL (item->name));
+	vbox = gp_config_add_section (page, _(item->name));
       else if (item->min == -1 && item->max == -1)		/* boolean */
 	{
 	  if (!vbox)
@@ -802,7 +802,7 @@ gp_config_create_page (GSList		*item_slist,
 	}
     }
   
-  gnome_property_box_append_page (pbox, page, gtk_label_new (TRANSL (page_name)));
+  gnome_property_box_append_page (pbox, page, gtk_label_new (_(page_name)));
   
   return item_slist;
 }
@@ -825,7 +825,7 @@ gp_config_popup (void)
       
       dialog = gnome_property_box_new ();
       gtk_widget_set (dialog,
-		      "title", TRANSL ("Desk Guide Settings"),
+		      "title", _("Desk Guide Settings"),
 		      "signal::apply", gp_destroy_gui, NULL,
 		      "signal::apply", gp_config_apply_tmp_values, NULL,
 		      "signal::apply", gp_init_gui, NULL,

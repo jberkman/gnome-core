@@ -42,7 +42,7 @@ struct _ConfigItem
 };
 
 /* internationalization macro */
-#define TRANSL(stuff)	_ (stuff)
+/* #define TRANSL(stuff)	_ (stuff) - not used anymore -kmaraas */
 
 #define CONFIG_PAGE(name)				{ NULL, 0, -2, -2, name, 0 }
 #define CONFIG_SECTION(path, name)			{ #path, 0, -2, -2, name, 0 }
