@@ -3,8 +3,8 @@ gnome_terminal_helpdir = $(datadir)/gnome/help/gnome-terminal/C
 gnome_terminal_help_DATA = 	\
 	index.html		\
 	topic.dat
-	
-EXTRA_DIST = gnome-terminal.sgml
+
+EXTRA_DIST = gnome-terminal.sgml topic.dat
 
 all: index.html
 
@@ -14,7 +14,7 @@ index.html:gnome-terminal/index.html
 gnome-terminal/index.html: gnome-terminal.sgml
 	-db2html gnome-terminal.sgml
 
-	
+
 dist-hook:
 	mkdir $(distdir)/gnome-terminal
 	cp gnome-terminal/*.html $(distdir)/gnome-terminal
