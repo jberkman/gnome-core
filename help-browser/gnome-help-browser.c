@@ -82,7 +82,7 @@ void destroy_server(HelpWindow win);
 
 /* MANPATH should probably come from somewhere */
 #define DEFAULT_MANPATH   GNOME_PREFIX "/man:/usr/man:/usr/share/man:/usr/local/man:/usr/X11R6/man"
-#define DEFAULT_INFOPATH  GNOME_PREFIX "/info:/usr/info:/usr/share/man:/usr/local/info"
+#define DEFAULT_INFOPATH  GNOME_PREFIX "/info:/usr/info:/usr/share/info:/usr/local/info"
 /* GHELPPATH probably needs some automatic additions inside toc */
 #define DEFAULT_GHELPPATH GNOME_PREFIX "/share/gnome/help:" \
                           "/opt/gnome/share/gnome/help:" \
