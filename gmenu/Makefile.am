@@ -7,7 +7,6 @@ bin_PROGRAMS = gmenu
 gmenu_SOURCES =	\
 	gmenu.c			\
 	gmenu.h			\
-	fileops.c		\
 	iconsel.c		\
 	iconsel.h
 

@@ -1,5 +1,5 @@
 /*###################################################################*/
-/*##                       gqmenu (GNOME menu editor) 0.2.1        ##*/
+/*##                       gqmenu (GNOME menu editor) 0.2.2        ##*/
 /*###################################################################*/
 
 #include "gmenu.h"
@@ -8,10 +8,12 @@
 #include "folder.xpm"
 
 static gchar *PREFIX;
+static gchar *USER_PREFIX;
 
 static GtkWidget *app;
 static GtkWidget *menu_tree_ctree;
 static GtkWidget *infolabel;
+static GtkWidget *infopixmap;
 
 static GtkWidget *filename_entry;
 static GtkWidget *name_entry;
@@ -28,15 +30,20 @@ static GtkWidget *tryexec_entry;
 static GtkWidget *doc_entry;
 
 static GList *topnode;
+static GList *usernode;
+static GList *systemnode;
 static GList *current_node = NULL;
 static Desktop_Data *edit_area_orig_data;
 static gchar *current_path;
 
+static int isfile(char *s);
+static int isdir(char *s);
 static char *filename_from_path(char *t);
 static char *strip_one_file_layer(char *t);
 static int save_desktop_file_info (gchar *path, gchar *name, gchar *comment, gchar *tryexec,
 					gchar *exec, gchar *icon, gint terminal, gchar *type,
 					gchar *doc, gint multiple_args);
+static int is_node_editable(GList *node);
 static void free_desktop_data(Desktop_Data *d);
 static Desktop_Data * get_desktop_file_info (char *file);
 static gint close_folder_dialog_cb(GtkWidget *b, gpointer data);
@@ -85,6 +92,27 @@ GnomeUIInfo main_menu[] = {
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
+
+
+static int isfile(char *s)
+{
+   struct stat st;
+
+   if ((!s)||(!*s)) return 0;
+   if (stat(s,&st)<0) return 0;
+   if (S_ISREG(st.st_mode)) return 1;
+   return 0;
+}
+
+static int isdir(char *s)
+{
+   struct stat st;
+   
+   if ((!s)||(!*s)) return 0;
+   if (stat(s,&st)<0) return 0;
+   if (S_ISDIR(st.st_mode)) return 1;
+   return 0;
+}
 
 static char *filename_from_path(char *t)
 {
@@ -146,6 +174,26 @@ static int save_desktop_file_info (gchar *path, gchar *name, gchar *comment, gch
 	return TRUE;
 }
 
+static int is_node_editable(GList *node)
+{
+	Desktop_Data *d;
+	gboolean leaf;
+	GList *parent;
+
+	gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),node,
+		NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
+	if (leaf)
+		{
+		parent = GTK_CTREE_ROW(current_node)->parent;
+		}
+	else
+		{
+		parent = current_node;
+		}
+	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
+	return d->editable;
+}
+
 static void free_desktop_data(Desktop_Data *d)
 {
 	if (d->path) free (d->path);
@@ -191,6 +239,7 @@ static Desktop_Data * get_desktop_file_info (char *file)
 	d->pixmap = NULL;
 	d->isfolder = FALSE;
 	d->expanded = FALSE;
+	d->editable = TRUE;
 	d->multiple_args = 0;
 
 
@@ -389,6 +438,12 @@ static void create_folder_pressed()
 	Misc_Dialog *dlg;
 	GtkWidget *label;
 
+	if (!is_node_editable(current_node))
+		{
+		gnome_warning_dialog (_("You can't add an entry to that folder!\nTo edit system entries you must be root."));
+		return;
+		}
+
 	dlg = g_new(Misc_Dialog, 1);
 	
 	dlg->dialog = gnome_dialog_new("New Folder", GNOME_STOCK_BUTTON_OK, GNOME_STOCK_BUTTON_CANCEL, NULL);
@@ -444,11 +499,17 @@ static void delete_pressed_cb()
 		return;
 		}
 
+	if (current_node == topnode || current_node == usernode || current_node == systemnode)
+		{
+		gnome_warning_dialog (_("You can not delete a top level Folder!"));
+		return;
+		}
+
 	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
 
-	if (!strcmp(d->comment, _("Top of menu")))
+	if (!d->editable)
 		{
-		gnome_warning_dialog (_("You can not delete the top level Folder!"));
+		gnome_warning_dialog (_("You can't delete that file!\nTo edit system entries you must be root."));
 		return;
 		}
 
@@ -553,6 +614,17 @@ static void save_pressed_cb()
 {
 	gchar *p;
 	p = gtk_entry_get_text(GTK_ENTRY(filename_entry));
+
+	if (!is_node_editable(current_node))
+		{
+		if (isfile(p))
+			gnome_warning_dialog (_("You can't edit an entry in that folder!\nTo edit system entries you must be root."));
+		else
+			gnome_warning_dialog (_("You can't add an entry to that folder!\nTo edit system entries you must be root."));
+		return;
+		}
+
+
 	if (isfile(p))
 		{
 		gnome_question_dialog (_("Overwrite existing file?"),
@@ -699,6 +771,18 @@ static void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer
 	d = gtk_ctree_get_row_data(GTK_CTREE(ctree),node);
 	gtk_label_set(GTK_LABEL(infolabel),d->comment);
 
+	if (d)
+		{
+		if (!d->editable)
+			gnome_stock_pixmap_widget_set_icon(GNOME_STOCK_PIXMAP_WIDGET(infopixmap),
+								GNOME_STOCK_MENU_BOOK_RED );
+		else
+			gnome_stock_pixmap_widget_set_icon(GNOME_STOCK_PIXMAP_WIDGET(infopixmap),
+								GNOME_STOCK_MENU_BLANK );
+		}
+
+	if (node == topnode) return;
+
 	current_node = node;
 
 	if (!d->isfolder)
@@ -756,6 +840,8 @@ static void add_tree_node(GtkCTree *ctree, GList *parent)
 					{
 					gchar *text[2];
 
+					d->editable = parent_data->editable;
+
 					text[0] = d->name;
 					text[1] = NULL;
 					if (d->isfolder)
@@ -780,19 +866,38 @@ static void add_tree_node(GtkCTree *ctree, GList *parent)
 
 static void add_main_tree_node()
 {
+	GList *subnode;
 	gchar *text[2];
 	Desktop_Data *d;
 	gchar *buf;
 	GtkWidget *pixmap;
 
+/*	g_print("adding top node...\n");*/
+
+	/* very top of tree */
 	topnode = NULL;
 	text[0] = "GNOME";
 	text[1] = NULL;
-
-/*	g_print("adding top node...\n");*/
 	
 	pixmap = gnome_pixmap_new_from_xpm_d(top_xpm);
 	topnode = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), NULL, NULL, text, 5,
+		NULL, NULL,
+		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
+		FALSE, TRUE);
+
+	d = g_new(Desktop_Data, 1);
+
+	d->comment = strdup(_("GNOME"));
+	d->expanded = TRUE;
+	d->isfolder = TRUE;
+	d->editable = FALSE;
+
+	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), topnode, d);
+
+	/* system's menu tree */
+	text[0] = _("System Menus");
+	pixmap = gnome_pixmap_new_from_xpm_d(top_xpm);
+	subnode = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), topnode, NULL, text, 5,
 		NULL, NULL,
 		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
 		FALSE, TRUE);
@@ -802,14 +907,48 @@ static void add_main_tree_node()
 	g_free(buf);
 
 	if (d->comment) free(d->comment);
-	d->comment = strdup(_("Top of menu"));
+	d->comment = strdup(_("Top of system menus"));
 	d->expanded = TRUE;
+
+	/* FIXME: are we root? then we can edit the system menu */
+	if (!strcmp("/root",getenv("HOME")) || !strcmp("root",getenv("USER")) ||
+						!strcmp("root",getenv("USERNAME")) )
+		d->editable = TRUE;
+	else
+		d->editable = FALSE;
+
 	current_path = strdup(d->path);
 
-	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), topnode, d);
+	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), subnode, d);
 
-	add_tree_node(GTK_CTREE(menu_tree_ctree), topnode);
-	current_node = topnode;
+	add_tree_node(GTK_CTREE(menu_tree_ctree), subnode);
+	systemnode = subnode;
+
+	/* user's menu tree */
+	text[0] = _("User Menus");
+	pixmap = gnome_pixmap_new_from_xpm_d(top_xpm);
+	subnode = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), topnode, subnode, text, 5,
+		NULL, NULL,
+		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
+		FALSE, TRUE);
+
+	buf = g_copy_strings(USER_PREFIX, NULL);
+	d = get_desktop_file_info (buf);
+	g_free(buf);
+
+	if (d->comment) free(d->comment);
+	d->comment = strdup(_("Top of user menus"));
+	d->expanded = TRUE;
+	d->editable = TRUE;
+
+	current_path = strdup(d->path);
+
+	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), subnode, d);
+
+	add_tree_node(GTK_CTREE(menu_tree_ctree), subnode);
+
+	usernode = subnode;
+	current_node = subnode;
 }
 
 static void about_cb()
@@ -859,6 +998,19 @@ int main (int argc, char *argv[])
 		return 1;
 		}
 
+	/* FIXME: is the user's menu ~/.gnome/apps or ~/.gnome/share/apps ? */
+	USER_PREFIX = gnome_util_home_file("apps");
+	if (!g_file_exists(USER_PREFIX))
+		{
+		g_print(_("make user menu directory: %s\n"), USER_PREFIX);
+		if (mkdir(USER_PREFIX, 0755) < 0)
+			{
+			g_print(_("unable to create user directory: %s\n"), USER_PREFIX);
+			g_free(USER_PREFIX);
+			USER_PREFIX = NULL;
+			}
+		}
+
 	app = gnome_app_new ("gmenu","GNOME menu editor");
 	gtk_widget_set_usize (app, 600,400);
 	gtk_signal_connect(GTK_OBJECT(app), "delete_event", GTK_SIGNAL_FUNC(destroy_cb), NULL);
@@ -881,9 +1033,22 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(vbox),menu_tree_ctree,TRUE,TRUE,0);
 	gtk_widget_show(menu_tree_ctree);
 
+	hbox = gtk_hbox_new (FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,0);
+        gtk_widget_show (hbox);
+
 	frame = gtk_frame_new(NULL);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_IN);
-	gtk_box_pack_end(GTK_BOX(vbox),frame,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(hbox),frame,FALSE,FALSE,0);
+	gtk_widget_show(frame);
+
+	infopixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_MENU_BOOK_RED );
+	gtk_container_add(GTK_CONTAINER(frame),infopixmap);
+	gtk_widget_show(infopixmap);
+
+	frame = gtk_frame_new(NULL);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_IN);
+	gtk_box_pack_end(GTK_BOX(hbox),frame,TRUE,TRUE,0);
 	gtk_widget_show(frame);
 
 	infolabel = gtk_label_new("Edit gnome desktop entries with this app");
