@@ -1,3 +1,12 @@
+1998-03-16  Michael Fulbright  <msf@redhat.com>
+
+	* Added default page, made appropriate Makefile.am changes
+
+	* Started work on a 'Reload' button
+
+	* Session management works, but disabled by default. Just
+	  uncommnet the line invoking newGnomeClient() in gnome-help-browser.c
+
 Sun Mar 15 15:38:24 1998  Owen Taylor  <owt1@cornell.edu>
 
 	* gnome-info2html/Makefile.am: added GNOME_INCLUDEDIR to
