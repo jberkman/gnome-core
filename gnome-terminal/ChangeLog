@@ -1,3 +1,15 @@
+1999-06-14  Michael Zucchi  <mzucchi@zedzone.mmc.com.au>
+
+	* gnome-terminal.c (new_terminal_cmd): Removed size_allocate
+	callback.
+	(new_terminal_cmd): Setup the "realize" signal to set the window
+	hints.
+	(gnome_term_set_font): Set the window hints again if we have set
+	the font (and the window is realised).
+	(set_hints): Function to set the window hints using
+	gtk_window_set_geometry_hints().  Called when window realised or
+	fonts changed.
+
 1999-05-31  Michael Zucchi  <mzucchi@denr.sa.gov.au>
 
 	* gnome-terminal.c

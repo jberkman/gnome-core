@@ -157,6 +157,8 @@ static void parse_an_arg (poptContext state,
 			  const struct poptOption *opt,
 			  const char *arg, void *data);
 
+static void set_hints (GtkWidget *widget);
+
 static void
 about_terminal_cmd (void)
 {
@@ -236,6 +238,9 @@ gnome_term_set_font (ZvtTerm *term, char *font_name)
 #endif
 			zvt_term_set_fonts  (term, font, font);
 	}
+
+	if (GTK_WIDGET_REALIZED (term))
+		set_hints(term);
 
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
@@ -1637,42 +1642,32 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	return TRUE;
 }
 
-
 static void
-size_allocate (GtkWidget *widget)
+set_hints (GtkWidget *widget)
 {
         ZvtTerm *term;
-	GnomeApp *app;
-	XSizeHints sizehints;
+	GdkGeometry hints;
+	GtkWidget *app;
 
 	g_assert (widget != NULL);
 	term = ZVT_TERM (widget);
 
-	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	app = gtk_widget_get_toplevel(widget);
 	g_assert (app != NULL);
 
 #define PADDING 2
-	sizehints.base_width = 
-	  (GTK_WIDGET (app)->allocation.width) +
-	  (GTK_WIDGET (term)->style->klass->xthickness * 2) -
-	  (GTK_WIDGET (term)->allocation.width) + PADDING;
+	hints.base_width = (GTK_WIDGET (term)->style->klass->xthickness * 2) + PADDING;
+	hints.base_height =  (GTK_WIDGET (term)->style->klass->ythickness * 2);
 
-	sizehints.base_height =
-	  (GTK_WIDGET (app)->allocation.height) +
-	  (GTK_WIDGET (term)->style->klass->ythickness * 2) -
-	  (GTK_WIDGET (term)->allocation.height);
+	hints.width_inc = term->charwidth;
+	hints.height_inc = term->charheight;
+	hints.min_width = hints.base_width + hints.width_inc;
+	hints.min_height = hints.base_height + hints.height_inc;
 
-	sizehints.width_inc = term->charwidth;
-	sizehints.height_inc = term->charheight;
-	sizehints.min_width = sizehints.base_width + sizehints.width_inc;
-	sizehints.min_height = sizehints.base_height + sizehints.height_inc;
-
-	sizehints.flags = (PBaseSize|PMinSize|PResizeInc);
-
-	XSetWMNormalHints (GDK_DISPLAY(),
-			   GDK_WINDOW_XWINDOW (GTK_WIDGET (app)->window),
-			   &sizehints);
-	gdk_flush ();
+	gtk_window_set_geometry_hints(GTK_WINDOW(app),
+				      GTK_WIDGET(term),
+				      &hints,
+				      GDK_HINT_RESIZE_INC|GDK_HINT_MIN_SIZE|GDK_HINT_BASE_SIZE);
 }
 
 
@@ -1838,9 +1833,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	gtk_signal_connect (GTK_OBJECT (term), "button_press_event",
 			    GTK_SIGNAL_FUNC (button_press), term);
 
-	gtk_signal_connect_after (GTK_OBJECT (term), "size_allocate",
-				  GTK_SIGNAL_FUNC (size_allocate), term);
-	
+	gtk_signal_connect_after (GTK_OBJECT (term), "realize",
+				  GTK_SIGNAL_FUNC (set_hints), term);
+
 	if (!cfg->menubar_hidden)
 		gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
 	
@@ -1901,10 +1896,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	set_color_scheme (term, cfg);
 
-	gdk_window_set_hints (((GtkWidget *)app)->window,
-			      0, 0, 50, 50, 0, 0, GDK_HINT_MIN_SIZE);
-
 	XSync(GDK_DISPLAY(), False);
+
 
 	errno = 0;
 	switch (zvt_term_forkpty (term, update_records)){
