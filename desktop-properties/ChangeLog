@@ -1,3 +1,11 @@
+1998-04-30  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* property-background.c (image_dnd_drop): Drag and Drop frenezy!
+	I added drop support to the monitor widget, so now you can drag
+	files there. 
+	(fill_monitor): Added error handling.  If we can not load the file
+	that is specified, do not die, but select Pixmap=none instead.
+
 1998-04-30  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* property-background.c (fill_monitor): Use plain Imlib (not

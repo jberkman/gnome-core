@@ -155,7 +155,12 @@ fill_monitor (gpointer gp)
 
 	if (bgType == BACKGROUND_WALLPAPER) {
 		bi = Imlib_load_image (imlib_data, wpFileName);
-		Imlib_render (imlib_data, bi, bi->rgb_width, bi->rgb_height);
+		if (bi)
+			Imlib_render (imlib_data, bi, bi->rgb_width, bi->rgb_height);
+		else {
+			bgType = BACKGROUND_SIMPLE;
+			gtk_option_menu_set_history (wpOMenu, 0);
+		}
 	}
 
 	/* are we working on root window ? */
@@ -577,23 +582,19 @@ wp_selection_cancel (GtkWidget *w, GtkWidget **f)
 }
 
 static void
-wp_selection_ok (GtkWidget *w, GtkWidget **f)
+set_monitor_filename (char *str)
 {
-	GtkWidget *cf = *f;
 	GString *gs;
 	gchar num[32];
 	gint found = -1, i=1;
 	GList *child = GTK_MENU_SHELL (wpMenu)->children;
+	GtkWidget *cf;
 	
-	if (w)
-		delete_browse (w, NULL, f);
-	/* printf ("wp ok\n"); */
-
 	while (child) {
 		if (child->data)
 			if (GTK_BIN (child->data)->child) {
 				/* printf ("%s\n", GTK_LABEL (GTK_BIN (child->data)->child)->label); */
-				if (!strcmp (GTK_LABEL (GTK_BIN (child->data)->child)->label, wpFileSelName)) {
+				if (!strcmp (GTK_LABEL (GTK_BIN (child->data)->child)->label, str)) {
 					found = i;
 					/* printf ("found: %d\n", i); */
 				}
@@ -602,15 +603,13 @@ wp_selection_ok (GtkWidget *w, GtkWidget **f)
 		child = child->next;
 	}
 
-	gtk_widget_destroy (cf);
 
 	if (found < 0) {
-		/* printf ("selected %s\n", wpFileSelName); */
 
-		cf = gtk_menu_item_new_with_label (wpFileSelName);
+		cf = gtk_menu_item_new_with_label (str);
 		gtk_signal_connect (GTK_OBJECT (cf),
 				    "activate",
-				    (GtkSignalFunc) browse_activated, wpFileSelName);
+				    (GtkSignalFunc) browse_activated, str);
 		gtk_menu_append (GTK_MENU (wpMenu), cf);
 		gtk_widget_show (cf);
 		wpNum++;
@@ -618,24 +617,37 @@ wp_selection_ok (GtkWidget *w, GtkWidget **f)
 		gs = g_string_new ("/Desktop/Background/wallpaper");
 		sprintf (num, "%d", wpNum);
 		g_string_append (gs, num);
-		gnome_config_set_string (gs->str, wpFileSelName);
+		gnome_config_set_string (gs->str, str);
 		g_string_free (gs, TRUE);
 
 		gnome_config_set_int ("/Desktop/Background/wallpapers", wpNum);
 		gnome_config_set_string ("/Desktop/Background/wallpapers_dir",
-					 wpFileSelName);
+					 str);
 
 
 		found = wpNum;
 		gnome_config_sync ();
 	}
 
-	wpFileName = wpFileSelName;
+	wpFileName = str;
 	bgType = BACKGROUND_WALLPAPER;
 
 	gtk_option_menu_set_history (GTK_OPTION_MENU (wpOMenu), found);
 
 	fill_monitor ((gpointer)TRUE);
+}
+
+static void
+wp_selection_ok (GtkWidget *w, GtkWidget **f)
+{
+	GtkWidget *cf = *f;
+	
+	if (w)
+		delete_browse (w, NULL, f);
+	/* printf ("wp ok\n"); */
+
+	gtk_widget_destroy (cf);
+	set_monitor_filename (wpFileSelName);
 }
 
 static void
@@ -858,6 +870,36 @@ background_read ()
 }
 
 /*
+ * Invoked when a filename is dropped on the monitor widget
+ */
+static void
+image_dnd_drop(GtkWidget *widget, GdkEventDropDataAvailable *event, gpointer data)
+{
+	/* Test for the type that was dropped */
+	if (strcmp (event->data_type, "url:ALL") != 0)
+		return;
+	set_monitor_filename (event->data);
+	return;
+}
+
+static int
+connect_dnd (void)
+{
+	char *image_drop_types[] = {"url:ALL"};
+
+	/* Configure drag and drop on the monitor image */
+	gtk_signal_connect (GTK_OBJECT (monitor),
+			    "drop_data_available_event",
+			    GTK_SIGNAL_FUNC (image_dnd_drop),
+			    NULL);
+	
+	gtk_widget_dnd_drop_set (GTK_WIDGET(monitor), TRUE,
+				 image_drop_types, 1, FALSE);
+	
+	return TRUE;
+}
+
+/*
  * background_setup: creates the dialog box for configuring the
  * display background and registers it with the display property
  * configurator
@@ -875,7 +917,12 @@ background_setup ()
 	gtk_container_border_width (GTK_CONTAINER(hbox), GNOME_PAD);
 
 	monitor = get_monitor_preview_widget ();
-
+	gtk_signal_connect (GTK_OBJECT (monitor),
+			    "realize",
+			    GTK_SIGNAL_FUNC (connect_dnd),
+			    NULL);
+	gdk_null_window_warnings = 0;
+	
 	preview = gtk_preview_new(GTK_PREVIEW_COLOR);
 	gtk_preview_size(GTK_PREVIEW(preview),
 			 MONITOR_CONTENTS_WIDTH,
