@@ -170,15 +170,18 @@ GnomeUIInfo mainmenu[] = {
     GNOMEUIINFO_END
 };
 
+
+
 GnomeUIInfo toolbar[] = {
-    GNOMEUIINFO_ITEM(N_("Back"), 
-		     N_("Go to the previous location in the history list"),
-		     help_backward, right_arrow_xpm),
-    GNOMEUIINFO_ITEM(N_("Forward"),
-		     N_("Go to the next location in the history list"),
-		     help_forward, left_arrow_xpm),
+    GNOMEUIINFO_ITEM_STOCK(N_("Back"), 
+			   N_("Go to the previous location in the history list"),
+			   help_backward, GNOME_STOCK_PIXMAP_BACK),
+    GNOMEUIINFO_ITEM_STOCK(N_("Forward"),
+			   N_("Go to the next location in the history list"),
+			   help_forward, GNOME_STOCK_PIXMAP_FORWARD),
     GNOMEUIINFO_SEPARATOR,
-    GNOMEUIINFO_ITEM(N_("Reload"), N_("Reload"), reload_page, reload_xpm),
+    GNOMEUIINFO_ITEM_STOCK(N_("Reload"), N_("Reload"), reload_page,
+			   GNOME_STOCK_PIXMAP_REFRESH),
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_ITEM(N_("Index"), N_("Show Documentation Index"), 
 		     help_gotoindex, contents_xpm),
@@ -188,7 +191,7 @@ GnomeUIInfo toolbar[] = {
     GNOMEUIINFO_ITEM(N_("BMarks"), N_("Show Bookmarks Window"),
 		     ghelpShowBookmarks, contents_xpm),
     GNOMEUIINFO_SEPARATOR,
-    GNOMEUIINFO_ITEM(N_("Help"), N_("Help on Help"), help_onhelp, help_xpm),
+    GNOMEUIINFO_ITEM_STOCK(N_("Help"), N_("Help on Help"), help_onhelp, GNOME_STOCK_PIXMAP_HELP),
     GNOMEUIINFO_END
 };
 
