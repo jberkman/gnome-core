@@ -10,7 +10,8 @@ gmenu_SOURCES =	\
 	tree.c			\
 	edit.c			\
 	order.c			\
-	dialogs.c
+	dialogs.c		\
+	wait-feet.h
 
 gmenu_LDADD = \
 	$(GNOME_LIBDIR)					\

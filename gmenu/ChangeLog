@@ -1,3 +1,7 @@
+Fri Aug 14 15:15:29 1998  John Ellis  <johne@bellatlantic.net>
+
+	* Makefile.am (gmenu_SOURCES): Added wait-feet.h
+
 Wed Aug 12 06:10:04 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch], tree.c (menu_item_selected): Reworked the tree selection
