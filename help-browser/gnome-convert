@@ -78,17 +78,54 @@ if (/^internal.lynx-news/) {
     goto done;
 }
 
-print "<h1>Unknown data type</h1>\n";
+if (/^internal.hexdump/) {
+    print "<h1>Hexdump</h1>\n";
+    print "<pre>\n";
+    open( INPUT, 'od -A x -t xC |' );
+    while ( <INPUT> ) {
+	print $_;
+    }
+    goto done;
+}
+
+
 $filename = $ARGV[2];
 $filename =~ s#.*/##;
 $tmpname = `mktemp /tmp/$filename.conv.XXXXXX`;
-print "<p>File with uknown type <TT>$_</TT> was encountered. If it can reasonably be converted to text/html, add conversion routine to <CODE>gnome-convert</CODE> script.\n";
-print "<p>File has been saved into <TT>$tmpname</TT>, delete it if you don't need it.\n";
+$filetype = $_;
 
 open( INPUT, "cat > $tmpname |" );
 while ( <INPUT> ) {
     print $_;
 }
+
+$_ = $filetype;
+if (/^application.postscript/) {
+    print "<h1>Postscript</h1>\n";
+    print "<p>External application <tt>gv $tmpname</tt> was called for you. Press <i>back</i> when you are done.\n";
+
+    system( "gv $tmpname &" );
+    goto done;
+}
+
+if (/^application.pdf/) {
+    print "<h1>Pdf</h1>\n";
+    print "<p>External application <tt>gv $tmpname</tt> was called for you. Press <i>back</i> when you are done.\n";
+
+    system( "gv $tmpname &" );
+    goto done;
+}
+
+print "<h1>Unknown data type</h1>\n";
+print "<p>File with uknown type <TT>$_</TT> was encountered. If it can reasonably be converted to text/html, add conversion routine to <CODE>gnome-convert</CODE> script.\n";
+print "<p>File has been saved into <TT>$tmpname</TT>, delete it if you don't need it.\n";
+
+print "<p>Additionaly, you may\n<ul>\n";
+print "<li><A HREF=\"(text/plain)file:$tmpname\">View it as text</A>\n";
+print "<li><A HREF=\"(text/html)file:$tmpname\">View it as html</A>\n";
+print "<li><A HREF=\"(internal/hexdump)file:$tmpname\">View it as hexdump</A>\n";
+print "</ul>";
+
 $type = `file $tmpname`;
 print "<p>PS: file's type seems to be: <pre>$type</pre>\n";
 

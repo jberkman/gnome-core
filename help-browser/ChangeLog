@@ -1,3 +1,8 @@
+1999-12-17  Pavel Machek  <pavel@artax.karlin.mff.cuni.cz>
+
+	* gnome-convert: add better handling for unknown data types, start
+	gv for postscript and pdf
+
 1999-12-11  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
 	* toc2-*.c (new*Table): don't go and sort if there aren't
