@@ -1,3 +1,10 @@
+Thu Nov 30 11:40:59 2000  George Lebl <jirka@5z.com>
+
+	* gnome-terminal.[ch], corba.c:  Warning fixes.  Support bgimage
+	  drops so that this works with nautilus and support the incredible
+	  reset hack of nautilus while adding a comment about how ugly
+	  that hack is.  Oh well, we need to work with nautilus.
+
 2000-10-27  John B Tunison <jtunison@andrew.cmu.edu>
 
 	* gnome-terminal.c: Make the dingus url accept %NN characters

@@ -81,8 +81,13 @@ enum scrollbar_position_enum {
 
 enum targets_enum {
         TARGET_STRING,
-	TARGET_COLOR
+	TARGET_COLOR,
+	TARGET_BGIMAGE
 };
+
+/* nautilus uses this UTTER HACK to reset backgrounds, ugly ugly ugly,
+ * broken, ugly ugly, but whatever */
+#define RESET_IMAGE_NAME "/nautilus/backgrounds/reset.png"
 
 
 struct terminal_config {
@@ -200,7 +205,7 @@ void paste_cmd            (GtkWidget *widget, ZvtTerm *term);
 void preferences_cmd      (GtkWidget *widget, ZvtTerm *term);
 void toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term);
 
-GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, int termid);
+GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geometry, int termid);
 GtkWidget *new_terminal     (GtkWidget *widget, ZvtTerm *term);
 
 static void parse_an_arg (poptContext state,
@@ -1731,7 +1736,7 @@ get_shell_name (char **shell, char **name, int isLogin)
 static void
 terminal_kill (GtkWidget *widget, void *data)
 {
-	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (data)));
+	GtkWidget *app = gtk_widget_get_toplevel (GTK_WIDGET (data));
 
 	close_app (app);
 }
@@ -1854,6 +1859,72 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 			check_color_sensitivity (prefs);
 		}
 	}
+	case TARGET_BGIMAGE:
+	{
+		char *filename = (char *)selection_data->data;
+		preferences_t *prefs;
+		gboolean back_set;
+		gboolean back_reset;
+
+		if (selection_data->length != 8)
+			return;
+
+		if (filename != NULL &&
+		    strstr (filename, RESET_IMAGE_NAME) == NULL) {
+			zvt_term_set_background (term, NULL, 0, 0);
+
+			cfg->background_pixmap = FALSE;
+
+			/* Switch to white on black colors */
+			cfg->color_set = COLORS_WHITE_ON_BLACK;
+		
+			set_color_scheme (term, cfg);
+			save_preferences_cmd (widget, term);
+
+			back_set = FALSE;
+			back_reset = TRUE;
+		} else if (zvt_pixmap_support &&
+			   filename != NULL) {
+			int flags;
+
+			cfg->background_pixmap = TRUE;
+			g_free (cfg->pixmap_file);
+			cfg->pixmap_file = g_strdup (filename);
+
+#ifdef ZVT_BACKGROUND_SCROLL
+			flags = cfg->shaded?ZVT_BACKGROUND_SHADED:0;
+			flags |= cfg->scroll_background?ZVT_BACKGROUND_SCROLL:0;
+#else
+			flags = cfg->shaded;
+#endif
+			zvt_term_set_background (term,
+						 cfg->pixmap_file,
+						 cfg->transparent, flags);
+			back_set = TRUE;
+			back_reset = FALSE;
+		} else {
+			zvt_term_set_background (term, NULL, 0, 0);
+			cfg->background_pixmap = FALSE;
+
+			back_set = FALSE;
+			back_reset = FALSE;
+		}
+
+		prefs  = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+		if (prefs) {
+			if (back_reset) {
+				gtk_option_menu_set_history (GTK_OPTION_MENU (prefs->def_fore_back),
+							     cfg->color_set);
+				check_color_sensitivity (prefs);
+			} else if (back_set) {
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox), TRUE);
+				gtk_entry_set_text (GTK_ENTRY (prefs->pixmap_entry),
+						    cfg->pixmap_file ? cfg->pixmap_file : "");
+			} else {
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox), FALSE);
+			}
+		}
+	}
 	}
 }
 
@@ -1863,7 +1934,8 @@ configure_term_dnd (ZvtTerm *term)
 	static GtkTargetEntry target_table[] = {
 		{ "STRING",     0, TARGET_STRING },
 		{ "text/plain", 0, TARGET_STRING },
-		{ "application/x-color", 0, TARGET_COLOR }
+		{ "application/x-color", 0, TARGET_COLOR },
+		{ "property/bgimage",    0, TARGET_BGIMAGE }
 	};
 
 	gtk_signal_connect (GTK_OBJECT (term), "drag_data_received",
@@ -1873,7 +1945,7 @@ configure_term_dnd (ZvtTerm *term)
 			   GTK_DEST_DEFAULT_MOTION |
 			   GTK_DEST_DEFAULT_HIGHLIGHT |
 			   GTK_DEST_DEFAULT_DROP,
-			   target_table, 3,
+			   target_table, 4,
 			   GDK_ACTION_COPY);
 }
 
@@ -2039,7 +2111,7 @@ show_pty_error_dialog (int errcode)
 }
 
 GtkWidget *
-new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry, int termid)
+new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geometry, int termid)
 {
 	GtkWidget *app, *hbox, *scrollbar;
 	ZvtTerm   *term;
@@ -2284,7 +2356,7 @@ new_terminal (GtkWidget *widget, ZvtTerm *term)
 }
 
 GtkWidget *
-new_terminal_for_client (char *geom)
+new_terminal_for_client (const char *geom)
 {
 	if (terminals != 0)
 	{
