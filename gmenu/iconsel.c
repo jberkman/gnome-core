@@ -28,7 +28,7 @@ static void update_list_highlight(GtkWidget *w, gint old, gint new, gint move);
 static gint select_ok_cb(GtkWidget *b, gpointer data);
 static gint select_cancel_cb(GtkWidget *b, gpointer data);
 static void select_icon_cb(GtkWidget *w, gint row, gint column, GdkEventButton *bevent, gpointer data);
-static int sort_filenames( gpointer a, gpointer b);
+static int sort_filenames( gconstpointer a, gconstpointer b);
 static GList * add_icon_directory(GList *list, gchar *path);
 
 static Icon_File_Data * new_file_data( gchar *path, gchar *name )
@@ -119,7 +119,7 @@ static void select_icon_cb(GtkWidget *w, gint row, gint column, GdkEventButton *
 		}
 }
 
-static int sort_filenames( gpointer a, gpointer b)
+static int sort_filenames( gconstpointer a, gconstpointer b)
 {
 	return strcmp(((Icon_File_Data *)a)->name, ((Icon_File_Data *)b)->name);
 }

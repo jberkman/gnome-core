@@ -3,5 +3,8 @@
 #########################################################
 
 You must be root to edit the system menu.
+root users do not have access to their personal icons, so
+that the system menus always have system icons.
 
+.order entries are now supported!
 

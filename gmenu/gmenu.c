@@ -6,14 +6,19 @@
 #include "top.xpm"
 #include "unknown.xpm"
 #include "folder.xpm"
+#include "up.xpm"
+#include "down.xpm"
 
-static gchar *PREFIX;
-static gchar *USER_PREFIX;
+static gchar *SYSTEM_APPS;
+static gchar *SYSTEM_PIXMAPS;
+static gchar *USER_APPS;
+static gchar *USER_PIXMAPS;
 
 static GtkWidget *app;
 static GtkWidget *menu_tree_ctree;
 static GtkWidget *infolabel;
 static GtkWidget *infopixmap;
+static GtkWidget *pathlabel;
 
 static GtkWidget *filename_entry;
 static GtkWidget *name_entry;
@@ -40,6 +45,8 @@ static int isfile(char *s);
 static int isdir(char *s);
 static char *filename_from_path(char *t);
 static char *strip_one_file_layer(char *t);
+static char *check_for_dir(char *d);
+static gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename);
 static int save_desktop_file_info (gchar *path, gchar *name, gchar *comment, gchar *tryexec,
 					gchar *exec, gchar *icon, gint terminal, gchar *type,
 					gchar *doc, gint multiple_args);
@@ -94,6 +101,81 @@ GnomeUIInfo main_menu[] = {
 };
 
 
+static void dnd_data_request(GtkWidget *widget, GdkEventDragRequest *event)
+{
+	Desktop_Data *d;
+
+	d = gtk_ctree_get_row_data(GTK_CTREE(widget),current_node);
+
+	gdk_window_dnd_data_set (widget->window, (GdkEvent *)event, d->path, strlen (d->path) + 1);
+	g_print("drag request %s\n",d->path);
+}
+
+
+static void dnd_data_begin(GtkWidget *widget, GdkEventDragBegin *event)
+{
+	Desktop_Data *d;
+
+	if (!current_node) return;
+
+	d = gtk_ctree_get_row_data(GTK_CTREE(widget),current_node);
+
+	g_print("drag begin %s\n",d->path);
+}
+
+static void dnd_data_dropped(GtkWidget *widget, GdkEventDropDataAvailable *event)
+{
+	int count = event->data_numbytes;
+	char *ptr = event->data;
+	int row, col;
+	int winx, winy;
+	GList *node;
+	Desktop_Data *d;
+
+	g_print("drop");
+
+	if (!current_node) return;
+
+	gdk_window_get_origin (GTK_CLIST (widget)->clist_window, &winx, &winy);
+	gtk_clist_get_selection_info (GTK_CLIST (menu_tree_ctree), event->coords.x - winx, event->coords.y - winy, &row, &col);
+
+	node = g_list_nth (GTK_CLIST (menu_tree_ctree)->row_list, row);
+
+	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+
+	g_print(" on %s\n",d->path);
+}
+
+static void dnd_set_drop(GtkWidget *widget, GdkWindow *window)
+{
+	static char *drop_types[]=
+	{
+	"url:ALL"
+	};
+
+	gdk_window_dnd_drop_set(window,TRUE,drop_types,1,FALSE);
+	gtk_signal_connect(GTK_OBJECT(widget),"drop_data_available_event",
+		GTK_SIGNAL_FUNC (dnd_data_dropped), NULL);
+}
+
+static void dnd_set_drag(GtkWidget *widget, GdkWindow *window)
+{
+	static char *drop_types[]=
+	{
+	"url:all"
+	};
+
+	gdk_window_dnd_drag_set(window,TRUE,drop_types,1);
+	gtk_signal_connect(GTK_OBJECT(widget),"drag_request_event",
+		GTK_SIGNAL_FUNC (dnd_data_request), NULL);
+	gtk_signal_connect(GTK_OBJECT(widget),"drag_begin_event",
+		GTK_SIGNAL_FUNC (dnd_data_begin), NULL);
+
+}
+
+
+/* ------------------ */
+
 static int isfile(char *s)
 {
    struct stat st;
@@ -134,6 +216,192 @@ static char *strip_one_file_layer(char *t)
         while(p > &ret[0] && p[0] != '/') p--;
 	if (strcmp(ret,p) != 0) p[0] = '\0';
         return ret;
+}
+
+static char *check_for_dir(char *d)
+{
+	if (!g_file_exists(d))
+		{
+		g_print(_("creating user directory: %s\n"), d);
+		if (mkdir( d, 0755 ) < 0)
+			{
+			g_print(_("unable to create user directory: %s\n"), d);
+			g_free(d);
+			d = NULL;
+			}
+		}
+	return d;
+}
+
+
+/* this function returns the correct path to a file given multiple paths, it
+   returns null if neither is correct. The returned pointer points to a string
+   that is freed each time this function is called */
+static gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename)
+{
+	static gchar *correct_path = NULL;
+
+	if (correct_path) g_free(correct_path);
+	correct_path = NULL;
+
+	correct_path = g_copy_strings(path1, "/", filename, NULL);
+	if (isfile(correct_path)) return correct_path;
+	g_free(correct_path);
+
+	correct_path = g_copy_strings(path2, "/", filename, NULL);
+	if (isfile(correct_path)) return correct_path;
+	g_free(correct_path);
+
+	correct_path = NULL;
+	return correct_path;
+}
+
+static GList *get_order_of_dir(char *dir)
+{
+	char buf[256];
+	GList *list = NULL;
+	char *order_file = g_copy_strings(dir, "/.order", NULL);
+	FILE *f;
+
+	g_print("reading .order file: %s\n", order_file);
+
+	f = fopen(order_file,"r");
+	if (!f)
+		{
+		g_free(order_file);
+		return NULL;
+		}
+
+	while(fgets(buf, 255, f)!=NULL)
+		{
+		char *buf_ptr;
+		buf_ptr = strchr(buf,'\n');
+		if (buf_ptr) buf_ptr[0] = '\0';
+		g_print("%s,",buf);
+		if (strlen(buf) > 0) list = g_list_append(list,strdup(buf));
+		}
+
+	fclose(f);
+
+	g_print("\n");
+
+	g_free(order_file);
+	return list;
+}
+
+static void save_order_of_dir(GList *node)
+{
+	Desktop_Data *d;
+	gboolean leaf;
+	GList *parent;
+	GList *row;
+	char *row_file;
+	FILE *f;
+
+	gtk_ctree_get_node_info(GTK_CTREE(menu_tree_ctree),node,
+		NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
+	if (leaf)
+		parent = GTK_CTREE_ROW(node)->parent;
+	else
+		parent = node;
+
+	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
+	row_file = g_copy_strings(d->path, "/.order", NULL);
+
+	g_print("saving .order file: %s\n", row_file);
+
+	row = GTK_CTREE_ROW(parent)->children;
+
+	if (row)
+		{
+		f = fopen(row_file, "w");
+		if (!f)
+			{
+			g_print(_("Unable to create file: %s"),row_file);
+			g_free(row_file);
+			return;
+			}
+
+		while (row)
+			{
+			d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), row);
+			fprintf(f, "%s\n", d->path + g_filename_index(d->path));
+			row = GTK_CTREE_ROW(row)->sibling;
+			}
+		fclose(f);
+		}
+	else
+		{
+		/* the folder is empty, so delete the .order file */
+		if (g_file_exists(row_file))
+			{
+			g_print(_("removing .order file: %s"),row_file);
+			if (unlink (row_file) < 0)
+				g_print(_("unable to remove .order file: %s"),row_file);
+			}
+		}
+
+	g_free(row_file);
+}
+
+static void update_list_highlight(GtkWidget *w, GList *old, GList *new, gint move)
+{
+        if (old)
+                {
+                gtk_ctree_set_background(GTK_CTREE(w), old,
+                        &GTK_WIDGET (w)->style->bg[GTK_STATE_PRELIGHT]);
+                gtk_ctree_set_foreground(GTK_CTREE(w), old,
+                        &GTK_WIDGET (w)->style->fg[GTK_STATE_PRELIGHT]);
+                }
+        if (new)
+                {
+                gtk_ctree_set_background(GTK_CTREE(w), new,
+                        &GTK_WIDGET (w)->style->bg[GTK_STATE_SELECTED]);
+                gtk_ctree_set_foreground(GTK_CTREE(w), new,
+                        &GTK_WIDGET (w)->style->fg[GTK_STATE_SELECTED]);
+                }
+        if (move)
+                gtk_ctree_scroll_to (GTK_CTREE(w), new, 0, 0.5, 0.0);
+}
+
+static void move_item_down(GList *node)
+{
+	GList *parent = GTK_CTREE_ROW(node)->parent;
+	GList *sibling = GTK_CTREE_ROW(node)->sibling;
+
+	if (!sibling) return;
+
+	gtk_ctree_move(GTK_CTREE(menu_tree_ctree), sibling, parent, node);
+	save_order_of_dir(parent);
+}
+
+static void move_item_up(GList *node)
+{
+	GList *parent = GTK_CTREE_ROW(node)->parent;
+	GList *sibling = node;
+
+	node = GTK_CTREE_ROW(parent)->children;
+
+	if (node == sibling) return;
+
+	while(GTK_CTREE_ROW(node)->sibling != sibling) node = GTK_CTREE_ROW(node)->sibling;
+
+	gtk_ctree_move(GTK_CTREE(menu_tree_ctree), sibling, parent, node);
+	save_order_of_dir(parent);
+}
+
+static void move_down_cb(GtkWidget *w, gpointer data)
+{
+	if (!is_node_editable(current_node)) return;
+	if (current_node == systemnode || current_node == usernode) return;
+	move_item_down(current_node);
+}
+
+static void move_up_cb(GtkWidget *w, gpointer data)
+{
+	if (!is_node_editable(current_node)) return;
+	if (current_node == systemnode || current_node == usernode) return;
+	move_item_up(current_node);
 }
 
 static int save_desktop_file_info (gchar *path, gchar *name, gchar *comment, gchar *tryexec,
@@ -184,11 +452,11 @@ static int is_node_editable(GList *node)
 		NULL,NULL,NULL,NULL,NULL,NULL,&leaf,NULL);
 	if (leaf)
 		{
-		parent = GTK_CTREE_ROW(current_node)->parent;
+		parent = GTK_CTREE_ROW(node)->parent;
 		}
 	else
 		{
-		parent = current_node;
+		parent = node;
 		}
 	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
 	return d->editable;
@@ -331,12 +599,11 @@ static Desktop_Data * get_desktop_file_info (char *file)
 	if (d->icon)
 		{
 		gchar *icon_path;
-		icon_path = g_copy_strings(PREFIX, "pixmaps/", d->icon, NULL);
-		if (isfile (icon_path))
+		icon_path = correct_path_to_file(SYSTEM_PIXMAPS, USER_PIXMAPS, d->icon);
+		if (icon_path)
 			d->pixmap = gnome_pixmap_new_from_file_at_size (icon_path, 20, 20);
 		else
 			d->pixmap = gnome_pixmap_new_from_xpm_d (unknown_xpm);
-		g_free(icon_path);
 		}
 	else
 		{
@@ -365,7 +632,7 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 	if (current_path)
 		full_path = g_copy_strings(current_path, "/", new_folder, NULL);
 	else
-		full_path = g_copy_strings(PREFIX, "apps/", new_folder, NULL);
+		full_path = g_copy_strings(USER_APPS, "/", new_folder, NULL);
 
 /*	g_print("creating folder: %s\n",full_path);*/
 
@@ -421,10 +688,12 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 						GNOME_PIXMAP(d->pixmap)->pixmap,
 						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
 				gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
+				save_order_of_dir(parent);
 				}
 
 			if (current_path) free(current_path);
 			current_path = strdup(full_path);
+			gtk_label_set(GTK_LABEL(pathlabel),current_path);
 			}
 		}
 
@@ -471,6 +740,7 @@ static void delete_dialog_cb( gint button, gpointer data)
 	if (!button)
 		{
 		Desktop_Data *d;
+		GList *node;
 		d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
 
 		if ( (unlink (d->path) < 0) )
@@ -481,10 +751,12 @@ static void delete_dialog_cb( gint button, gpointer data)
 
 /*		g_print("deleted file: %s\n",d->path);*/
 
+		node = GTK_CTREE_ROW(current_node)->parent;
 		gtk_ctree_remove(GTK_CTREE(menu_tree_ctree),current_node);
-		current_node = NULL;
+		current_node = node;
 		free_desktop_data(d);
 
+		save_order_of_dir(node);
 		edit_area_orig_data = NULL;
 		new_edit_area();
 		}
@@ -535,10 +807,13 @@ static void save_dialog_cb( gint button, gpointer data)
 		GList *node;
 		GList *parent;
 		gint overwrite;
+		char *path;
 
-		overwrite = isfile(gtk_entry_get_text(GTK_ENTRY(filename_entry)));
+		path = g_copy_strings(current_path, "/", gtk_entry_get_text(GTK_ENTRY(filename_entry)), NULL);
 
-		save_desktop_file_info (gtk_entry_get_text(GTK_ENTRY(filename_entry)),
+		overwrite = isfile(path);
+
+		save_desktop_file_info (path,
 					gtk_entry_get_text(GTK_ENTRY(name_entry)),
 					gtk_entry_get_text(GTK_ENTRY(comment_entry)),
 					gtk_entry_get_text(GTK_ENTRY(tryexec_entry)),
@@ -548,7 +823,6 @@ static void save_dialog_cb( gint button, gpointer data)
 					gtk_entry_get_text(GTK_ENTRY(type_entry)),
 					gtk_entry_get_text(GTK_ENTRY(doc_entry)),
 					GTK_TOGGLE_BUTTON (multi_args_button)->active);
-
 		if (overwrite)
 			{
 			gint8 spacing;
@@ -557,7 +831,7 @@ static void save_dialog_cb( gint button, gpointer data)
 			d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), current_node);
 			free_desktop_data(d);
 
-			d = get_desktop_file_info (gtk_entry_get_text(GTK_ENTRY(filename_entry)));
+			d = get_desktop_file_info (path);
 
 			gtk_ctree_set_row_data(GTK_CTREE(menu_tree_ctree), current_node, d);
 
@@ -566,11 +840,11 @@ static void save_dialog_cb( gint button, gpointer data)
 			gtk_ctree_set_node_info (GTK_CTREE(menu_tree_ctree), current_node, d->name, spacing,
 						GNOME_PIXMAP(d->pixmap)->pixmap, GNOME_PIXMAP(d->pixmap)->mask,
 						NULL, NULL, leaf, expanded);
-
+			save_order_of_dir(current_node);
 			}
 		else
 			{
-			d = get_desktop_file_info (gtk_entry_get_text(GTK_ENTRY(filename_entry)));
+			d = get_desktop_file_info (path);
 			if (d)
 				{
 				gchar *text[2];
@@ -605,19 +879,22 @@ static void save_dialog_cb( gint button, gpointer data)
 						GNOME_PIXMAP(d->pixmap)->pixmap,
 						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
 				gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
+				save_order_of_dir(node);
 				}
 			}
+		g_free(path);
 		}
 } 
 
 static void save_pressed_cb()
 {
-	gchar *p;
-	p = gtk_entry_get_text(GTK_ENTRY(filename_entry));
+	char *path;
+
+	path = g_copy_strings(current_path, "/", gtk_entry_get_text(GTK_ENTRY(filename_entry)), NULL);
 
 	if (!is_node_editable(current_node))
 		{
-		if (isfile(p))
+		if (isfile(path))
 			gnome_warning_dialog (_("You can't edit an entry in that folder!\nTo edit system entries you must be root."));
 		else
 			gnome_warning_dialog (_("You can't add an entry to that folder!\nTo edit system entries you must be root."));
@@ -625,7 +902,7 @@ static void save_pressed_cb()
 		}
 
 
-	if (isfile(p))
+	if (isfile(path))
 		{
 		gnome_question_dialog (_("Overwrite existing file?"),
 			(GnomeReplyCallback) save_dialog_cb, NULL);
@@ -634,33 +911,35 @@ static void save_pressed_cb()
 
 	gnome_question_dialog (_("Save file?"),
 		(GnomeReplyCallback) save_dialog_cb, NULL);
+	g_free(path);
 }
 
 static void icon_cb(void *data)
 {
 	gchar *icon = data;
-	gchar *buf;
 /*	g_print("icon = %s\n",icon);*/
 	gtk_entry_set_text(GTK_ENTRY(icon_entry), icon);
 
-	buf = g_copy_strings(PREFIX , "pixmaps/", icon, NULL);
-	gnome_pixmap_load_file(GNOME_PIXMAP(desktop_icon), buf);
-	g_free(buf);
+	gnome_pixmap_load_file(GNOME_PIXMAP(desktop_icon),
+		correct_path_to_file(SYSTEM_PIXMAPS, USER_PIXMAPS, icon));
 
 	g_free(icon);
 }
 
 static void icon_button_pressed()
 {
-	gchar *buf1 = g_copy_strings( PREFIX, "pixmaps", NULL);
-	gchar *buf2 = g_copy_strings( USER_PREFIX, "pixmaps", NULL);
+	char *extra_pixmaps;
+	Desktop_Data *d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), systemnode);
 
-	/* the second path (buf2) doesn't get used until multiple icon paths are
-	   supported in gmenu, for now only NULL is passed */
-	icon_selection_dialog( buf1 , NULL , gtk_entry_get_text(GTK_ENTRY(icon_entry)), FALSE, icon_cb );
-
-	g_free(buf1);
-	g_free(buf2);
+	/* check if the user is root (systemnode is editable), and if so do not show
+	   the root user's pixmaps, since other users cannot access the root's icons.
+	   (this is so that the system menus always have system icons) */
+	if (!d->editable)
+		extra_pixmaps = USER_PIXMAPS;
+	else
+		extra_pixmaps = NULL;
+	icon_selection_dialog(SYSTEM_PIXMAPS, extra_pixmaps,
+		gtk_entry_get_text(GTK_ENTRY(icon_entry)), FALSE, icon_cb );
 }
 
 static void update_edit_area(Desktop_Data *d)
@@ -678,7 +957,7 @@ static void update_edit_area(Desktop_Data *d)
 		gtk_entry_set_text(GTK_ENTRY(comment_entry), "");
 
 	if (d->path)
-		gtk_entry_set_text(GTK_ENTRY(filename_entry), d->path);
+		gtk_entry_set_text(GTK_ENTRY(filename_entry), d->path + g_filename_index (d->path));
 	else
 		gtk_entry_set_text(GTK_ENTRY(filename_entry), "");
 
@@ -696,12 +975,11 @@ static void update_edit_area(Desktop_Data *d)
 		{
 		gchar *buf;
 		gtk_entry_set_text(GTK_ENTRY(icon_entry), d->icon);
-		buf = g_copy_strings(PREFIX , "pixmaps/", d->icon, NULL);
-		if (isfile(buf))
+		buf = correct_path_to_file(SYSTEM_PIXMAPS, USER_PIXMAPS, d->icon);
+		if (buf)
 			gnome_pixmap_load_file(GNOME_PIXMAP(desktop_icon), buf);
 		else
 			gnome_pixmap_load_xpm_d(GNOME_PIXMAP(desktop_icon), unknown_xpm);
-		g_free(buf);
 		}
 	else
 		{
@@ -732,18 +1010,12 @@ static void revert_edit_area()
 
 static void new_edit_area()
 {
-	gchar *buf;
-
 	edit_area_orig_data = NULL;
 	gtk_entry_set_text(GTK_ENTRY(name_entry), "");
 	gtk_entry_set_text(GTK_ENTRY(comment_entry), "");
 
 	if (current_path)
-		{
-		buf = g_copy_strings(current_path, _("/untitled.desktop"), NULL);
-		gtk_entry_set_text(GTK_ENTRY(filename_entry), buf);
-		g_free (buf);
-		}
+		gtk_entry_set_text(GTK_ENTRY(filename_entry), "untitled.desktop");
 	else
 		gtk_entry_set_text(GTK_ENTRY(filename_entry), "");
 
@@ -807,8 +1079,51 @@ static void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer
 			}
 		if (current_path) free(current_path);
 		current_path = strdup (d->path);
+
 		}
-	
+	gtk_label_set(GTK_LABEL(pathlabel),current_path);
+}
+
+/* if node is null it is appended, if it is a sibling, it is inserted */
+static GList *add_leaf_node(GtkCTree *ctree, GList *parent, GList *node, char *file)
+{
+	Desktop_Data *d;
+	Desktop_Data *parent_data;
+	char *path_buf;
+
+/*	g_print("%s\n",file);*/
+
+	parent_data = gtk_ctree_get_row_data(GTK_CTREE(ctree), parent);
+
+	path_buf = g_copy_strings (parent_data->path, "/", file, NULL);
+				
+	if (!g_file_exists(path_buf))
+		{
+		g_free(path_buf);
+		return node;
+		}
+
+	d = get_desktop_file_info (path_buf);
+	if (d)
+		{
+		gchar *text[2];
+
+		d->editable = parent_data->editable;
+
+		text[0] = d->name;
+		text[1] = NULL;
+		if (d->isfolder)
+			node = gtk_ctree_insert (GTK_CTREE(ctree), parent, node, text, 5,
+				GNOME_PIXMAP(d->pixmap)->pixmap,
+				GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
+		else
+			node = gtk_ctree_insert (GTK_CTREE(ctree), parent, node, text, 5,
+				GNOME_PIXMAP(d->pixmap)->pixmap,
+				GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
+		gtk_ctree_set_row_data (GTK_CTREE(ctree), node, d);
+		}
+	g_free(path_buf);
+	return node;
 }
 
 static void add_tree_node(GtkCTree *ctree, GList *parent)
@@ -817,56 +1132,74 @@ static void add_tree_node(GtkCTree *ctree, GList *parent)
 	struct dirent *dir;
 
 	GList *node = NULL;
+	GList *orderlist = NULL;
 	Desktop_Data *parent_data;
 
 	parent_data = gtk_ctree_get_row_data(GTK_CTREE(ctree), parent);
 
 /*	g_print("reading node: %s\n", parent_data->path);*/
 
+	orderlist = get_order_of_dir(parent_data->path);
+	if (orderlist)
+		{
+		int i;
+		int l = g_list_length(orderlist);
+		for (i=0;i<l;i++)
+			{
+			GList *list = g_list_nth(orderlist, i);
+			node = add_leaf_node(ctree, parent, NULL, list->data);
+			}
+		}
+
 	if((dp = opendir(parent_data->path))==NULL) 
 		{ 
 		/* dir not found */ 
 		return; 
-		} 
+		}
 
 	while ((dir = readdir(dp)) != NULL) 
-	{ 
+		{ 
 		/* skips removed files */
 		if (dir->d_ino > 0)
 			{
-			if (strncmp(dir->d_name, ".", 1) != 0)
+			int ordered = FALSE;
+			if (orderlist)
 				{
-				Desktop_Data *d;
-				char *path_buf;
-
-				path_buf = g_copy_strings (parent_data->path, "/", dir->d_name, NULL);
-				
-				d = get_desktop_file_info (path_buf);
-				if (d)
+				int i;
+				int l = g_list_length(orderlist);
+				for (i=0;i<l;i++)
 					{
-					gchar *text[2];
-
-					d->editable = parent_data->editable;
-
-					text[0] = d->name;
-					text[1] = NULL;
-					if (d->isfolder)
-						node = gtk_ctree_insert (GTK_CTREE(ctree), parent, node, text, 5,
-							GNOME_PIXMAP(d->pixmap)->pixmap,
-							GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
-					else
-						node = gtk_ctree_insert (GTK_CTREE(ctree), parent, node, text, 5,
-							GNOME_PIXMAP(d->pixmap)->pixmap,
-							GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-					gtk_ctree_set_row_data (GTK_CTREE(ctree), node, d);
+					GList *list = g_list_nth(orderlist, i);
+					if (strcmp(dir->d_name, list->data) == 0)
+						{
+						ordered = TRUE;
+						}
 					}
-				g_free(path_buf);
+				}
+			if (!ordered)			
+				{
+				if (strncmp(dir->d_name, ".", 1) != 0)
+					{
+					node = add_leaf_node(ctree, parent, NULL, dir->d_name);
+					}
 				}
 			}
-	} 
+		} 
+
+	if (orderlist)
+		{
+		int i;
+		int l = g_list_length(orderlist);
+		for (i=0;i<l;i++)
+			{
+			GList *list = g_list_nth(orderlist, i);
+			g_free(list->data);
+			}
+		g_list_free(orderlist);
+		}
+
  
 	closedir(dp);
-
 }
 
 
@@ -875,7 +1208,6 @@ static void add_main_tree_node()
 	GList *subnode;
 	gchar *text[2];
 	Desktop_Data *d;
-	gchar *buf;
 	GtkWidget *pixmap;
 
 /*	g_print("adding top node...\n");*/
@@ -908,9 +1240,7 @@ static void add_main_tree_node()
 		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
 		FALSE, TRUE);
 
-	buf = g_copy_strings(PREFIX, "apps", NULL);
-	d = get_desktop_file_info (buf);
-	g_free(buf);
+	d = get_desktop_file_info (SYSTEM_APPS);
 
 	if (d->comment) free(d->comment);
 	d->comment = strdup(_("Top of system menus"));
@@ -920,11 +1250,12 @@ static void add_main_tree_node()
 	if (!strcmp("/root",getenv("HOME")) || 
 	    ((getenv("USER"))&&(!strcmp("root",getenv("USER")))) ||
 		((getenv("USERNAME"))&&(!strcmp("root",getenv("USERNAME")))) )
+		{
+		g_print(_("Running with root privileges.\n"));
 		d->editable = TRUE;
+		}
 	else
 		d->editable = FALSE;
-
-	current_path = strdup(d->path);
 
 	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), subnode, d);
 
@@ -939,9 +1270,7 @@ static void add_main_tree_node()
 		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
 		FALSE, TRUE);
 
-	buf = g_copy_strings(USER_PREFIX, NULL);
-	d = get_desktop_file_info (buf);
-	g_free(buf);
+	d = get_desktop_file_info (USER_APPS);
 
 	if (d->comment) free(d->comment);
 	d->comment = strdup(_("Top of user menus"));
@@ -949,6 +1278,7 @@ static void add_main_tree_node()
 	d->editable = TRUE;
 
 	current_path = strdup(d->path);
+	gtk_label_set(GTK_LABEL(pathlabel),current_path);
 
 	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), subnode, d);
 
@@ -956,6 +1286,7 @@ static void add_main_tree_node()
 
 	usernode = subnode;
 	current_node = subnode;
+	gtk_ctree_select(GTK_CTREE(menu_tree_ctree), current_node);
 }
 
 static void about_cb()
@@ -998,25 +1329,17 @@ int main (int argc, char *argv[])
 
 	gnome_init ("GNOME menu editor", NULL, argc, argv, 0, NULL);
 
-	PREFIX = gnome_unconditional_datadir_file(NULL);
-	if (!isdir(PREFIX))
+	SYSTEM_APPS = gnome_unconditional_datadir_file("apps");
+	SYSTEM_PIXMAPS = gnome_unconditional_datadir_file("pixmaps");
+	if (!g_file_exists(SYSTEM_APPS) || !g_file_exists(SYSTEM_PIXMAPS))
 		{
 		g_print(_("unable to retrieve GNOME installation directory\n"));
 		return 1;
 		}
 
 	/* FIXME: is the user's menu ~/.gnome/apps or ~/.gnome/share/apps ? */
-	USER_PREFIX = gnome_util_home_file("apps");
-	if (!g_file_exists(USER_PREFIX))
-		{
-		g_print(_("make user menu directory: %s\n"), USER_PREFIX);
-		if (mkdir(USER_PREFIX, 0755) < 0)
-			{
-			g_print(_("unable to create user directory: %s\n"), USER_PREFIX);
-			g_free(USER_PREFIX);
-			USER_PREFIX = NULL;
-			}
-		}
+	USER_APPS = check_for_dir(gnome_util_home_file("apps"));
+	USER_PIXMAPS = check_for_dir(gnome_util_home_file("pixmaps"));
 
 	app = gnome_app_new ("gmenu","GNOME menu editor");
 	gtk_widget_set_usize (app, 600,400);
@@ -1030,6 +1353,7 @@ int main (int argc, char *argv[])
         gtk_widget_show (mainbox);
 
 	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_container_border_width (GTK_CONTAINER (vbox), 5);
 	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
 	gtk_widget_show(vbox);
 
@@ -1049,7 +1373,7 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(hbox),frame,FALSE,FALSE,0);
 	gtk_widget_show(frame);
 
-	infopixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_MENU_BOOK_RED );
+	infopixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_MENU_BLANK );
 	gtk_container_add(GTK_CONTAINER(frame),infopixmap);
 	gtk_widget_show(infopixmap);
 
@@ -1062,6 +1386,29 @@ int main (int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(frame),infolabel);
 	gtk_widget_show(infolabel);
 
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
+	gtk_widget_show(vbox);
+
+	button = gtk_button_new();
+	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(move_down_cb), NULL);
+	gtk_box_pack_end(GTK_BOX(vbox),button,FALSE,FALSE,0);
+	gtk_widget_show(button);
+
+	pixmap = gnome_pixmap_new_from_xpm_d( down_xpm );
+	gtk_container_add(GTK_CONTAINER(button),pixmap);
+	gtk_widget_show(pixmap);
+
+	button = gtk_button_new();
+	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(move_up_cb), NULL);
+	gtk_box_pack_end(GTK_BOX(vbox),button,FALSE,FALSE,0);
+	gtk_widget_show(button);
+
+	pixmap = gnome_pixmap_new_from_xpm_d( up_xpm );
+	gtk_container_add(GTK_CONTAINER(button),pixmap);
+	gtk_widget_show(pixmap);
+
+	/* edit area */
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_border_width (GTK_CONTAINER (vbox), 5);
 	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
@@ -1236,11 +1583,25 @@ int main (int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(hbox),label,FALSE,FALSE,5);
 	gtk_widget_show(label);
 
+	frame = gtk_frame_new(NULL);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_IN);
+	gtk_box_pack_end(GTK_BOX(vbox),frame,FALSE,FALSE,0);
+	gtk_widget_show(frame);
+
+	pathlabel = gtk_label_new(USER_APPS);
+	gtk_container_add(GTK_CONTAINER(frame),pathlabel);
+	gtk_widget_show(pathlabel);
+
 	gtk_widget_show(app);
 
 	add_main_tree_node();
 	
 	new_edit_area();
+
+/* in progress..
+	dnd_set_drag(menu_tree_ctree, GTK_CLIST(menu_tree_ctree)->clist_window);
+	dnd_set_drop(menu_tree_ctree, GTK_CLIST(menu_tree_ctree)->clist_window);
+*/
 
 	gtk_main();
 	return 0;

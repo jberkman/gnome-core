@@ -1,3 +1,9 @@
+Sun Jun 14 10:48:26 1998  John Ellis  <johne@bellatlantic.net>
+
+	* iconsel.c (sort_filenames): Changed const gpointer to gconstpointer.
+	* gmenu.c: Icon list now includes $HOME/.gnome/pixmaps for non
+	root users. Added support for .order files, and up/down buttons.
+
 1998-06-12  John Ellis  <johne@bellatlantic.net>
 
 	* iconsel.[ch]: added sorting and support for a second path
