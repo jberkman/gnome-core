@@ -15,7 +15,7 @@
  *-----------------------------------------------------------------------------
  */
 
-gboolean save_desktop_entry_file(GnomeDesktopEntry *dentry, gchar *path,
+gboolean save_desktop_entry_file(GnomeDesktopEntry *dentry, const gchar *path,
 			gboolean prompt_first, gboolean prompt_about_overwrite,
 			gboolean error_on_overwrite_conflict)
 {
@@ -66,6 +66,7 @@ gboolean save_desktop_entry_file(GnomeDesktopEntry *dentry, gchar *path,
 			}
 		}
 
+	g_free (dentry->location);
 	dentry->location = g_strdup(path);
 	gnome_desktop_entry_save (dentry);
 
@@ -73,7 +74,7 @@ gboolean save_desktop_entry_file(GnomeDesktopEntry *dentry, gchar *path,
 }
 
 
-void save_desktop_entry(GnomeDesktopEntry *dentry, gchar *old_path, gint isfolder)
+void save_desktop_entry(GnomeDesktopEntry *dentry, const gchar *old_path, gboolean isfolder)
 {
 	gchar *new_path;
 	gchar *save_path;

@@ -1,3 +1,12 @@
+Wed Sep 27 17:04:25 2000  George Lebl <jirka@5z.com>
+
+	* desktop.c, edit.c, gmenu.h, order.c, save.c, tree.c, treenew.c,
+	  utils.c:  Use gnome_desktop_entry_free and NOT
+	  gnome_desktop_entry_destroy which clobbers desktop entries on
+	  disk.  Also don't allow dotfiles to be listed ever.  A bunch of
+	  other cleanups and fixes.  Added const correctness all over the
+	  place and some preconditions.
+
 Fri Aug 11 14:16:43 2000  George Lebl <jirka@5z.com>
 
 	* edit.c, gmenu.h, main.c, save.c, tree.c, treedel.c, treednd.c:

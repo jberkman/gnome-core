@@ -21,6 +21,7 @@
  *-----------------------------------------------------------------------------
  */
 
+/* Yaikes, this function frees the d, if it can't find it or make it*/
 gchar *check_for_dir(char *d)
 {
 	if (!g_file_exists(d))
@@ -36,55 +37,56 @@ gchar *check_for_dir(char *d)
 	return d;
 }
 
-gint isfile(gchar *s)
+gint isfile(const gchar *s)
 {
 	struct stat st;
 
-	if ((!s)||(!*s)) return 0;
-	if (stat(s,&st)<0) return 0;
-	if (S_ISREG(st.st_mode)) return 1;
-	return 0;
+	if ((!s)||(!*s)) return FALSE;
+	if (stat(s,&st)<0) return FALSE;
+	if (S_ISREG(st.st_mode)) return TRUE;
+	return FALSE;
 }
 
-gint isdir(gchar *s)
+gboolean isdir(const gchar *s)
 {
 	struct stat st;
    
-	if ((!s)||(!*s)) return 0;
-	if (stat(s,&st)<0) return 0;
-	if (S_ISDIR(st.st_mode)) return 1;
-	return 0;
+	if ((!s)||(!*s)) return FALSE;
+	if (stat(s,&st)<0) return FALSE;
+	if (S_ISDIR(st.st_mode)) return TRUE;
+	return FALSE;
 }
 
 
 
-gint file_is_editable(gchar *path)
+gboolean
+file_is_editable(const gchar *path)
 {
-	if (!g_file_exists(path)) return FALSE;
+	struct stat st;
 
-	if (isdir(path))
-		{
+	g_return_val_if_fail (path != NULL, FALSE);
+
+	if (stat(path, &st) < 0)
+		return FALSE;
+
+	if (S_ISDIR(st.st_mode)) {
 		gchar *dirpath = g_strconcat (path, ".directory", NULL);
-		if (g_file_exists(dirpath))
-			{
-			if (!access(dirpath, W_OK))
-				{
+		if (g_file_exists(dirpath)) {
+			if (!access(dirpath, W_OK)) {
 				g_free(dirpath);
 				return !access(path, W_OK);
-				}
-			else
-				{
+			} else {
 				g_free(dirpath);
 				return FALSE;
-				}
 			}
-		g_free(dirpath);
 		}
+		g_free(dirpath);
+	}
 
 	return !access(path, W_OK);
 }
 
-gchar *remove_level_from_path(gchar *path)
+gchar *remove_level_from_path(const gchar *path)
 {
 	gint p;
 
@@ -95,7 +97,7 @@ gchar *remove_level_from_path(gchar *path)
 }
 
 /* returns a g_strduped string with filesystem reserved chars replaced */
-gchar *validate_filename(gchar *file)
+gchar *validate_filename(const gchar *file)
 {
 	gchar *ret;
 	gchar *ptr;
@@ -129,7 +131,7 @@ GtkWidget *pixmap_unknown(void)
 	return gnome_pixmap_new_from_xpm_d (unknown_xpm);
 }
 
-GtkWidget *pixmap_load(gchar *path)
+GtkWidget *pixmap_load(const gchar *path)
 {
 	GtkWidget *pixmap;
 

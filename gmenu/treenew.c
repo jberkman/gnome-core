@@ -75,7 +75,7 @@ void menu_tree_new_folder(GtkWidget *ctree)
 		dentry->icon = gnome_unconditional_datadir_file("pixmaps/gnome-folder.png");
 		pixmap = pixmap_load(dentry->icon);
 		save_desktop_entry_file(dentry, dir_file, FALSE, FALSE, FALSE);
-		gnome_desktop_entry_destroy(dentry);
+		gnome_desktop_entry_free(dentry);
 
 		g_free(dir_file);
 
@@ -139,7 +139,7 @@ void menu_tree_new_item(GtkWidget *ctree)
 	dentry->icon = gnome_unconditional_datadir_file("pixmaps/gnome-default.png");
 	pixmap = pixmap_load(dentry->icon);
 	save_desktop_entry_file(dentry, path, FALSE, FALSE, FALSE);
-	gnome_desktop_entry_destroy(dentry);
+	gnome_desktop_entry_free(dentry);
 
 	dd_new = desktop_data_new(path, _("untitled"), "", pixmap);
 	node = menu_tree_insert_node(ctree, parent, sibling, dd_new, TRUE);

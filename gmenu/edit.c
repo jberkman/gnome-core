@@ -32,11 +32,11 @@ static void edit_area_enable_save_button(gint enable, Edit_Area *ea);
 static void edit_area_enable_revert_button(gint enable, Edit_Area *ea);
 static void edit_area_grab_name_entry(Edit_Area *ea);
 
-static void edit_area_set_as_top_menu(gchar *name, Edit_Area *ea);
+static void edit_area_set_as_top_menu(const gchar *name, Edit_Area *ea);
 static GnomeDesktopEntry *edit_area_real_get_dentry(Edit_Area *ea);
-static void edit_area_set_path(gchar *path, Edit_Area *ea);
-static void edit_area_sync_to(Desktop_Data *dd, Edit_Area *ea);
-static void edit_area_real_clear(gchar *path, gchar *name, Edit_Area *ea);
+static void edit_area_set_path(const gchar *path, Edit_Area *ea);
+static void edit_area_sync_to(const Desktop_Data *dd, Edit_Area *ea);
+static void edit_area_real_clear(const gchar *path, const gchar *name, Edit_Area *ea);
 
 static void edit_area_changed_cb(GtkObject *dee, gpointer data);
 static void edit_area_revert_cb(GtkWidget *widget, gpointer data);
@@ -98,16 +98,15 @@ static void edit_area_grab_name_entry(Edit_Area *ea)
  *-----------------------------------------------------------------------------
  */
 
-static void edit_area_set_as_top_menu(gchar *name, Edit_Area *ea)
+static void edit_area_set_as_top_menu(const gchar *name, Edit_Area *ea)
 {
 	edit_area_enable_name_widgets(FALSE, ea);
 	gtk_entry_set_text(GTK_ENTRY(GNOME_DENTRY_EDIT(ea->dee)->name_entry), name);
 	edit_area_enable_revert_button(FALSE, ea);
-	if (ea->revert)
-		{
+	if (ea->revert != NULL) {
 		g_free(ea->revert->name);
 		ea->revert->name = g_strdup(name);
-		}
+	}
 }
 
 static GnomeDesktopEntry *edit_area_real_get_dentry(Edit_Area *ea)
@@ -115,71 +114,51 @@ static GnomeDesktopEntry *edit_area_real_get_dentry(Edit_Area *ea)
 	return gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(ea->dee));
 }
 
-static void edit_area_set_path(gchar *path, Edit_Area *ea)
+static void edit_area_set_path(const gchar *path, Edit_Area *ea)
 {
 	g_free(ea->path);
 	ea->path = g_strdup(path);
 }
 
-static gchar *edit_area_get_path(Edit_Area *ea)
+static const gchar *edit_area_get_path(Edit_Area *ea)
 {
 	return ea->path;
 }
 
-static void edit_area_sync_to(Desktop_Data *dd, Edit_Area *ea)
+static void edit_area_sync_to(const Desktop_Data *dd, Edit_Area *ea)
 {
 	GnomeDesktopEntry *dentry = NULL;
-	gchar *path = dd->path;
+	const gchar *path = dd->path;
 
 	ea->isfolder = dd->isfolder;
-	if (dd->isfolder)
-		{
+	if (dd->isfolder) {
 		gchar *dir_file = g_concat_dir_and_file(path, ".directory");
 		dentry = gnome_desktop_entry_load_unconditional(dir_file);
-		if (!dentry)
-			{
+		if (!dentry) {
 			dentry = g_new0(GnomeDesktopEntry, 1);
 			dentry->name = g_strdup(path + g_filename_index(path));
 			dentry->type = g_strdup("Directory");
-			}
-		g_free(dir_file);
 		}
-	else
-		{
+		g_free(dir_file);
+	} else {
 		dentry = gnome_desktop_entry_load_unconditional(path);
-		if (!dentry)
-			{
+		if (!dentry) {
 			dentry = g_new0(GnomeDesktopEntry, 1);
 			dentry->name = g_strdup(path + g_filename_index(path));
 			dentry->type = g_strdup("Application");
-			}
 		}
+	}
 
 	gnome_dentry_edit_set_dentry(GNOME_DENTRY_EDIT(ea->dee), dentry);
 
-	/* ugly hack - cause warning otherwise because we didnt make a */
-	/*             real dentry above in case of directory          */
-	if (dd->isfolder) {
-	  g_free(dentry->name);
-	  g_free(dentry->type);
-	  g_free(dentry);
-	} else {
-	  gnome_desktop_entry_destroy(dentry);
-	}
+	gnome_desktop_entry_free (dentry);
 
 	g_free(ea->path);
 	ea->path = g_strdup(path);
 
-	/* same hack as above */
-	if (ea->revert) {
-	  if (dentry->type && ea->revert->location) {
-	    gnome_desktop_entry_destroy(ea->revert);
-	  } else {
-	    if (ea->revert->name) g_free(ea->revert->name);
-	    if (ea->revert->icon) g_free(ea->revert->icon);
-	    if (ea->revert->type) g_free(ea->revert->type);
-	    g_free(ea->revert);
-	  }	  
+	if (ea->revert != NULL) {
+		gnome_desktop_entry_free(ea->revert);
+		ea->revert = NULL;
 	}
 
 	ea->revert = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(ea->dee));
@@ -199,35 +178,34 @@ static void edit_area_sync_to(Desktop_Data *dd, Edit_Area *ea)
 	edit_area_enable_revert_button(FALSE, ea);
 }
 
-static void edit_area_real_clear(gchar *path, gchar *name, Edit_Area *ea)
+static void edit_area_real_clear(const gchar *path, const gchar *name, Edit_Area *ea)
 {
+	g_return_if_fail (ea != NULL);
+
 	gnome_dentry_edit_clear(GNOME_DENTRY_EDIT(ea->dee));
 
-	if (name) gtk_entry_set_text(GTK_ENTRY(GNOME_DENTRY_EDIT(ea->dee)->name_entry), name);
+	if (name != NULL)
+		gtk_entry_set_text(GTK_ENTRY(GNOME_DENTRY_EDIT(ea->dee)->name_entry), name);
 
 	g_free(ea->path);
 	ea->path = g_strdup(path);
 
-	if (ea->revert)
-		{
-		gnome_desktop_entry_destroy(ea->revert);
+	if (ea->revert != NULL) {
+		gnome_desktop_entry_free(ea->revert);
 		ea->revert = NULL;
-		}
+	}
 
-	if (isdir(path))
-		{
+	if (isdir(path)) {
 		gtk_label_set(GTK_LABEL(ea->pathlabel), path);
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(GNOME_DENTRY_EDIT(ea->dee)->type_combo)->entry), "Directory");
 		ea->isfolder = TRUE;
-		}
-	else
-		{
+	} else {
 		gchar *buf = remove_level_from_path(path);
 		gtk_label_set(GTK_LABEL(ea->pathlabel), buf);
 		g_free(buf);
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(GNOME_DENTRY_EDIT(ea->dee)->type_combo)->entry), "Application");
 		ea->isfolder = FALSE;
-		}
+	}
 
 	edit_area_enable_basic_widgets(TRUE, ea);
 	edit_area_enable_non_dir_widgets(!ea->isfolder, ea);
@@ -244,16 +222,16 @@ static void edit_area_real_clear(gchar *path, gchar *name, Edit_Area *ea)
 static void edit_area_changed_cb(GtkObject *dee, gpointer data)
 {
 	Edit_Area *ea = data;
-	if (ea->revert) edit_area_enable_revert_button(TRUE, ea);
+	if (ea->revert != NULL)
+		edit_area_enable_revert_button(TRUE, ea);
 }
 
 static void edit_area_revert_cb(GtkWidget *widget, gpointer data)
 {
 	Edit_Area *ea = data;
-	if (ea->revert)
-		{
+	if (ea->revert != NULL) {
 		gnome_dentry_edit_set_dentry(GNOME_DENTRY_EDIT(ea->dee), ea->revert);
-		}
+	}
 	edit_area_enable_revert_button(FALSE, ea);
 }
 
@@ -264,7 +242,7 @@ static void edit_area_save_cb(GtkWidget *widget, gpointer data)
 
 	dentry = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(ea->dee));
 	save_desktop_entry(dentry, ea->path, ea->isfolder);
-	gnome_desktop_entry_destroy(dentry);
+	gnome_desktop_entry_free(dentry);
 }
 
 /*
@@ -273,7 +251,7 @@ static void edit_area_save_cb(GtkWidget *widget, gpointer data)
  *-----------------------------------------------------------------------------
  */
 
-static Edit_Area *edit_area_new()
+static Edit_Area *edit_area_new(void)
 {
 	Edit_Area *ea;
 	GtkWidget *notebook;
@@ -373,42 +351,35 @@ GtkWidget * edit_area_create(void)
 	return edit->vbox;
 }
 
-void edit_area_set_to(Desktop_Data *dd)
+void edit_area_set_to(const Desktop_Data *dd)
 {
 	edit_area_sync_to(dd, edit);
 
 	/* do not allow user to change the USER/SYSTEM menu name/comment, since
 	 * the panel does not seem to honor them, only the icon.
          */
-	if (dd->editable && strcmp(dd->path, user_apps_dir) == 0)
-		{
+	if (dd->editable && strcmp(dd->path, user_apps_dir) == 0) {
 		edit_area_set_as_top_menu(_("Favorites (user menus)"), edit);
-		}
-	else if (dd->editable && strcmp(dd->path, system_apps_dir) == 0)
-		{
+	} else if (dd->editable && strcmp(dd->path, system_apps_dir) == 0) {
 		edit_area_set_as_top_menu(_("Programs (system menus)"), edit);
-		}
-	else if (dd->editable && strcmp(dd->path, system_applets_dir) == 0)
-		{
+	} else if (dd->editable && strcmp(dd->path, system_applets_dir) == 0) {
 		edit_area_set_as_top_menu(_("Applets (system menus)"), edit);
-		}
-	else if (dd->editable && strcmp(dd->path, system_apps_merge_dir) == 0)
-		{
+	} else if (dd->editable && strcmp(dd->path, system_apps_merge_dir) == 0) {
 		edit_area_set_as_top_menu(_("Programs to be merged in (system menus)"), edit);
-		}
+	}
 }
 
-void edit_area_change_path(gchar *path)
+void edit_area_change_path(const gchar *path)
 {
 	edit_area_set_path(path, edit);
 }
 
-gchar *edit_area_path(void)
+const gchar *edit_area_path(void)
 {
 	return edit_area_get_path(edit);
 }
 
-void edit_area_clear(gchar *path, gchar *name)
+void edit_area_clear(const gchar *path, const gchar *name)
 {
 	edit_area_real_clear(path, name, edit);
 }

@@ -15,35 +15,39 @@
  *-----------------------------------------------------------------------------
  */
 
-GList *get_order_of_dir(gchar *dir)
+GList *get_order_of_dir(const gchar *dir)
 {
-	gchar buf[256];
+	gchar buf[PATH_MAX+1];
 	GList *list = NULL;
-	gchar *order_file = g_strconcat(dir, "/.order", NULL);
+	gchar *order_file;
 	FILE *f;
 
-	f = fopen(order_file,"r");
-	if (!f)
-		{
-		g_free(order_file);
-		return NULL;
-		}
+	g_return_val_if_fail (dir != NULL, NULL);
 
-	while(fgets(buf, 255, f)!=NULL)
-		{
+	order_file = g_concat_dir_and_file (dir, ".order");
+
+	f = fopen (order_file, "r");
+	g_free (order_file);
+
+	if (f == NULL) {
+		return NULL;
+	}
+
+	while (fgets(buf, sizeof(buf), f) != NULL) {
 		char *buf_ptr;
-		buf_ptr = strchr(buf,'\n');
-		if (buf_ptr) buf_ptr[0] = '\0';
-		if (strlen(buf) > 0) list = g_list_append(list,g_strdup(buf));
-		}
+		buf_ptr = strchr (buf,'\n');
+		if (buf_ptr)
+			*buf_ptr = '\0';
+		if (buf[0] == '\0' > 0)
+			list = g_list_prepend (list, g_strdup (buf));
+	}
 
 	fclose(f);
 
-	g_free(order_file);
-	return list;
+	return g_list_reverse (list);
 }
 
-void save_order_of_dir(GtkCTree *ctree, GtkCTreeNode *node, gint is_parent)
+void save_order_of_dir(GtkCTree *ctree, GtkCTreeNode *node, gboolean is_parent)
 {
 	GtkCTreeNode *parent;
 	GtkCTreeNode *work;
@@ -51,51 +55,46 @@ void save_order_of_dir(GtkCTree *ctree, GtkCTreeNode *node, gint is_parent)
 	Desktop_Data *dd;
 	FILE *f;
 
-	if (!node) return;
-	if (is_parent)
-		{
+	if (node == NULL)
+		return;
+
+	if (is_parent) {
 		dd = gtk_ctree_node_get_row_data(ctree, node);
 		if (dd->isfolder)
 			parent = node;
 		else
 			parent = GTK_CTREE_ROW(node)->parent;
-		}
-	else
-		{
+	} else {
 		parent = GTK_CTREE_ROW(node)->parent;
-		}
-	if (!parent) return;
+	}
+
+	if (parent == NULL)
+		return;
 
 	dd = gtk_ctree_node_get_row_data(ctree, parent);
         order_file = g_concat_dir_and_file(dd->path, "/.order");
 
 	work = GTK_CTREE_ROW(parent)->children;
-	if (work)
-		{
+	if (work) {
 		f = fopen(order_file, "w");
-		if (!f)
-			{
+		if (f == NULL) {
 			g_print(_("Unable to create file: %s\n"), order_file);
                         g_free(order_file);
                         return;
-			}
-		while(work)
-			{
+		}
+		while (work) {
 			dd = gtk_ctree_node_get_row_data(ctree, work);
 			fprintf(f, "%s\n", dd->path + g_filename_index(dd->path));
-			work = GTK_CTREE_ROW(work)->sibling;
-			}
-		fclose(f);
+			work = GTK_CTREE_ROW (work)->sibling;
 		}
-	else
-		{
+		fclose(f);
+	} else {
 		/* the folder is empty, so delete the .order file */
-		if (g_file_exists(order_file))
-			{
+		if (g_file_exists(order_file)) {
 			if (unlink (order_file) < 0)
 				g_print(_("unable to remove .order file: %s\n"), order_file);
-			}
 		}
+	}
 
 	g_free(order_file);
 }

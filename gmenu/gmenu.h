@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -50,11 +51,14 @@ extern gchar *system_pixmap_dir;
 extern gchar *user_pixmap_dir;
 
 /* tree.c */
-GtkCTreeNode *menu_tree_find_path(GtkCTree *ctree, gchar *path);
+GtkCTreeNode *menu_tree_find_path(GtkCTree *ctree, const gchar *path);
 GtkCTreeNode *menu_tree_get_selection(GtkCTree *ctree);
 gint menu_tree_node_is_editable(GtkWidget *ctree, GtkCTreeNode *node);
 void menu_tree_update_paths(GtkWidget *ctree, GtkCTreeNode *node);
-void menu_tree_path_updated(GtkWidget *ctree, gchar *old_path, gchar *new_path, GnomeDesktopEntry *dentry);
+void menu_tree_path_updated(GtkWidget *ctree,
+			    const gchar *old_path,
+			    const gchar *new_path,
+			    const GnomeDesktopEntry *dentry);
 GtkCTreeNode *menu_tree_insert_node(GtkWidget *ctree, GtkCTreeNode *parent,
 			GtkCTreeNode *sibling, Desktop_Data *dd, gint expanded);
 void menu_tree_populate(GtkWidget *ctree);
@@ -78,36 +82,36 @@ void menu_tree_init_dnd(GtkWidget *ctree);
 
 /* edit.c */
 GtkWidget * edit_area_create(void);
-void edit_area_set_to(Desktop_Data *dd);
-void edit_area_change_path(gchar *path);
-gchar *edit_area_path(void);
-void edit_area_clear(gchar *path, gchar *name);
+void edit_area_set_to(const Desktop_Data *dd);
+void edit_area_change_path(const gchar *path);
+const gchar *edit_area_path(void);
+void edit_area_clear(const gchar *path, const gchar *name);
 GnomeDesktopEntry *edit_area_get_dentry(void);
 void edit_area_grab_name(void);
 
 /* save.c */
-gboolean save_desktop_entry_file(GnomeDesktopEntry *dentry, gchar *path,
+gboolean save_desktop_entry_file(GnomeDesktopEntry *dentry, const gchar *path,
 			gboolean prompt_first, gboolean prompt_about_overwrite,
 			gboolean error_on_overwrite_conflict);
-void save_desktop_entry(GnomeDesktopEntry *dentry, gchar *path, gint isfolder);
+void save_desktop_entry(GnomeDesktopEntry *dentry, const gchar *path, gboolean isfolder);
 
 /* order.c */
-GList *get_order_of_dir(gchar *dir);
-void save_order_of_dir(GtkCTree *ctree, GtkCTreeNode *node, gint is_parent);
+GList *get_order_of_dir(const gchar *dir);
+void save_order_of_dir(GtkCTree *ctree, GtkCTreeNode *node, gboolean is_parent);
 
 /* desktop.c */
-Desktop_Data *desktop_data_new(gchar *path, gchar *name, gchar *comment, GtkWidget *pixmap);
-Desktop_Data *desktop_data_new_from_path(gchar *path);
+Desktop_Data *desktop_data_new(const gchar *path, const gchar *name, const gchar *comment, GtkWidget *pixmap);
+Desktop_Data *desktop_data_new_from_path(const gchar *path);
 void desktop_data_free(Desktop_Data *dd);
 
 /* utils.c */
-gchar *check_for_dir(char *d);
-gint isfile(gchar *s);
-gint isdir(gchar *s);
-gint file_is_editable(gchar *path);
-gchar *remove_level_from_path(gchar *path);
-gchar *validate_filename(gchar *file);
+gchar *check_for_dir(char *d); /* this can free 'd', it usually returns d back */
+gint isfile(const gchar *s);
+gint isdir(const gchar *s);
+gint file_is_editable(const gchar *path);
+gchar *remove_level_from_path(const gchar *path);
+gchar *validate_filename(const gchar *file);
 GtkWidget *pixmap_top(void);
 GtkWidget *pixmap_unknown(void);
-GtkWidget *pixmap_load(gchar *path);
+GtkWidget *pixmap_load(const gchar *path);
 

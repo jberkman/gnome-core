@@ -13,20 +13,20 @@ static gint menu_tree_find_path_cb(gconstpointer a, gconstpointer b);
 
 static void menu_tree_update_paths_cb(GtkCTree *ctree, GtkCTreeNode *node,  gpointer data);
 static void menu_tree_sync_node_to_dentry(GtkWidget *ctree, GtkCTreeNode *node,
-					  GnomeDesktopEntry *dentry);
+					  const GnomeDesktopEntry *dentry);
 static void menu_tree_sync_node_to_dentry_and_path(GtkWidget *ctree, GtkCTreeNode *node,
-					  GnomeDesktopEntry *dentry, gchar *path);
+					  const GnomeDesktopEntry *dentry, const gchar *path);
 
 static void remove_node_cb(gpointer data);
 static void menu_tree_add_folder(GtkWidget *ctree, GtkCTreeNode *parent);
 static GtkCTreeNode *menu_tree_add_node_from_file(GtkWidget *ctree, GtkCTreeNode *parent,
-			GtkCTreeNode *sibling, gchar *file);
+			GtkCTreeNode *sibling, const gchar *file);
 
 static void menu_tree_update_progressbar(GtkWidget *progressbar);
 static void menu_tree_add_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void ctree_node_count_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static gint ctree_node_count(GtkCTree *ctree);
-static GtkWidget *new_top_pixmap_from_dentry_path(gchar *path);
+static GtkWidget *new_top_pixmap_from_dentry_path(const gchar *path);
 
 static void menu_tree_item_select_cb(GtkCTree *ctree, GtkCTreeNode *node, gint column, gpointer data);
 
@@ -42,9 +42,9 @@ static gint menu_tree_find_path_cb(gconstpointer a, gconstpointer b)
 	return strcmp(((Desktop_Data *)(a))->path, (gchar *)b);
 }
 
-GtkCTreeNode *menu_tree_find_path(GtkCTree *ctree, gchar *path)
+GtkCTreeNode *menu_tree_find_path(GtkCTree *ctree, const gchar *path)
 {
-	return gtk_ctree_find_by_row_data_custom (GTK_CTREE(ctree), NULL, path, menu_tree_find_path_cb);
+	return gtk_ctree_find_by_row_data_custom (GTK_CTREE(ctree), NULL, (gpointer)path, menu_tree_find_path_cb);
 }
 
 GtkCTreeNode *menu_tree_get_selection(GtkCTree *ctree)
@@ -99,7 +99,7 @@ void menu_tree_update_paths(GtkWidget *ctree, GtkCTreeNode *node)
 }
 
 static void menu_tree_sync_node_to_dentry(GtkWidget *ctree, GtkCTreeNode *node,
-					  GnomeDesktopEntry *dentry)
+					  const GnomeDesktopEntry *dentry)
 {
 	Desktop_Data *dd;
 	GdkPixmap *nopixmap;
@@ -146,7 +146,7 @@ static void menu_tree_sync_node_to_dentry(GtkWidget *ctree, GtkCTreeNode *node,
 }
 
 static void menu_tree_sync_node_to_dentry_and_path(GtkWidget *ctree, GtkCTreeNode *node,
-					  GnomeDesktopEntry *dentry, gchar *path)
+					  const GnomeDesktopEntry *dentry, const gchar *path)
 {
 	Desktop_Data *dd;
 
@@ -171,7 +171,7 @@ static void menu_tree_sync_node_to_dentry_and_path(GtkWidget *ctree, GtkCTreeNod
 	save_order_of_dir(GTK_CTREE(ctree), node, FALSE);
 }
 
-void menu_tree_path_updated(GtkWidget *ctree, gchar *old_path, gchar *new_path, GnomeDesktopEntry *dentry)
+void menu_tree_path_updated(GtkWidget *ctree, const gchar *old_path, const gchar *new_path, const GnomeDesktopEntry *dentry)
 {
 	GtkCTreeNode *node;
 
@@ -224,19 +224,34 @@ GtkCTreeNode *menu_tree_insert_node(GtkWidget *ctree, GtkCTreeNode *parent,
 }
 
 static GtkCTreeNode *menu_tree_add_node_from_file(GtkWidget *ctree, GtkCTreeNode *parent,
-			GtkCTreeNode *sibling, gchar *file)
+			GtkCTreeNode *sibling, const gchar *file)
 {
 	Desktop_Data *dd_parent;
 	Desktop_Data *dd;
 	gchar *path;
 
 	dd_parent = gtk_ctree_node_get_row_data(GTK_CTREE(ctree), parent);
-	path = g_strconcat(dd_parent->path, "/", file, NULL);
+	path = g_concat_dir_and_file (dd_parent->path, file);
 
 	dd = desktop_data_new_from_path(path);
 	g_free(path);
 
 	return menu_tree_insert_node(ctree, parent, sibling, dd, FALSE);
+}
+
+static gboolean 
+is_file_ordered (const GList *orderlist, const char *file)
+{
+	const GList *li;
+
+	for (li = orderlist; li != NULL; li = li->next) {
+		char *ordered_file = li->data;
+		
+		if (strcmp (file, ordered_file) == 0)
+			return TRUE;
+	}
+
+	return FALSE;
 }
 
 static void menu_tree_add_folder(GtkWidget *ctree, GtkCTreeNode *parent)
@@ -252,59 +267,41 @@ static void menu_tree_add_folder(GtkWidget *ctree, GtkCTreeNode *parent)
 	parent_data->expanded = TRUE;
 
 	orderlist = get_order_of_dir(parent_data->path);
-	if (orderlist)
-		{
+	if (orderlist != NULL) {
 		GList *work = orderlist;
-		while(work)
-			{
+		while(work) {
 			gchar *path;
 			path = g_concat_dir_and_file(parent_data->path, work->data);
-			if (g_file_exists(path))
-				{
+			if (g_file_exists(path)) {
 				node = menu_tree_add_node_from_file(ctree, parent, NULL, work->data);
-				}
+			}
 			g_free(path);
 			work = work->next;
-			}
 		}
+	}
 
-	if((dp = opendir(parent_data->path))==NULL) 
-		{ 
+	dp = opendir (parent_data->path);
+
+	if(dp == NULL) {
 		/* dir not found */ 
-		return; 
-		}
+		goto cleanup;
+	}
 
-	while ((dir = readdir(dp)) != NULL) 
-		{ 
-		if (dir->d_ino > 0) /* skips removed files */
-			{
-			gint ordered = FALSE;
-			if (orderlist)
-				{
-				GList *work = orderlist;
-				while(work)
-					{
-					if (strcmp(dir->d_name, work->data) == 0) ordered = TRUE;
-					work = work->next;
-					}
-				}
-			if (!ordered)                   
-				{
-				if (strncmp(dir->d_name, ".", 1) != 0)
-					{
-					node = menu_tree_add_node_from_file(ctree, parent, NULL, dir->d_name);
-					}
-				}
-			}
-		} 
+	while ((dir = readdir(dp)) != NULL) { 
+		if (dir->d_ino > 0 && /* skips removed files */
+		    strncmp (dir->d_name, ".", 1) != 0 && /* skip hidden files */
+		    ! is_file_ordered (orderlist, dir->d_name) /* file not in ordered */) {
+			node = menu_tree_add_node_from_file(ctree, parent, NULL, dir->d_name);
+		}
+	} 
 
 	closedir(dp);
 
-	if (orderlist)
-		{
+cleanup:
+	if (orderlist != NULL) {
 		g_list_foreach(orderlist,(GFunc)g_free,NULL);
 		g_list_free(orderlist);
-		}
+	}
 }
 
 /*
@@ -349,27 +346,21 @@ static gint ctree_node_count(GtkCTree *ctree)
 	return count;
 }
 
-static GtkWidget *new_top_pixmap_from_dentry_path(gchar *path)
+static GtkWidget *new_top_pixmap_from_dentry_path(const gchar *path)
 {
 	GtkWidget *pixmap = NULL;
+	GnomeDesktopEntry *dentry = NULL;
 
-	if (g_file_exists(path))
-		{
-		GnomeDesktopEntry *dentry = NULL;
-		dentry = gnome_desktop_entry_load_unconditional(path);
-		if (dentry)
-			{
-			if (dentry->icon)
-				pixmap = gnome_stock_pixmap_widget_at_size (NULL, dentry->icon, 20, 20);
-			gnome_desktop_entry_destroy(dentry);
-			}
-		if (!pixmap) pixmap = pixmap_top();
+	dentry = gnome_desktop_entry_load_unconditional (path);
+	if (dentry != NULL) {
+		if (dentry->icon != NULL)
+			pixmap = gnome_stock_pixmap_widget_at_size (NULL, dentry->icon, 20, 20);
+		gnome_desktop_entry_free(dentry);
+	}
 
-		}
-	else
-		{
+	if (pixmap == NULL)
 		pixmap = pixmap_top();
-		}
+
 	return pixmap;
 }
 
