@@ -9,6 +9,5 @@ gnome_edit_SOURCES = 		\
 
 gnome_edit_LDADD =             	\
 	$(GNOME_LIBDIR) 	\
-	$(GNOME_LIBS)		\
-	$(GTK_LIBS)		\
+	$(GNOMEUI_LIBS)		\
 	$(INTLLIBS)
