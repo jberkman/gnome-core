@@ -1,3 +1,7 @@
+1999-08-21 Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* gwmh.c: Fixed error with the KWM_WIN_ICON hint.
+
 Fri Aug 20 12:36:57 1999  Tim Janik  <timj@gtk.org>
 
 	* stripe.xbm: removed

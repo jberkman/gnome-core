@@ -72,7 +72,7 @@ static const struct {
   { &XA_WM_DELETE_WINDOW,		"WM_DELETE_WINDOW", },
   { &XA_WM_TAKE_FOCUS,			"WM_TAKE_FOCUS", },
   { &XA_ENLIGHTENMENT_DESKTOP,		"ENLIGHTENMENT_DESKTOP", },
-  { &XA_KWM_WIN_ICON,                   "XA_KWM_WIN_ICON", },
+  { &XA_KWM_WIN_ICON,                   "KWM_WIN_ICON", },
 };
 
 
@@ -1839,6 +1839,7 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
 				      XA_KWM_WIN_ICON,
 				      &size,
 				      32);
+  g_print ("atomdata: %d\n", atomdata);
 
   if (atomdata)
     {
