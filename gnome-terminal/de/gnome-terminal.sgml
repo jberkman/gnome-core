@@ -2,6 +2,7 @@
 <!ENTITY GNOME-APPS SYSTEM "gnome-terminal.sgml">
 <!ENTITY term "<application>GNOME-Terminal</application>">
 <!ENTITY xterm-prog "<application>xterm</application>-Programm">
+<!ENTITY prefs-dlg "<application>Eigenschaften</application>-Dialog">
  ]>
 
 <!-- Deutsche Übersetzung 3. April 2000 von Martin Baulig gegenüber
@@ -11,7 +12,7 @@
 <article id="index">
   
   <artheader> 
-    <title>GNOME-Terminal Benutzerhandbuch</title>
+    <title>GNOME-Terminal Anwenderhandbuch</title>
     <authorgroup>
       <author>
 	<firstname>Miguel</firstname>
@@ -100,7 +101,7 @@
 	Bildschirmseite paßt. Standardmäßig ist der Rollbalken auf der rechten
 	Seite des Terminalfensters. Sie können seine Position jedoch ändern
 	oder ihn ganz entfernen, indem Sie den
-	<link linkend="config"><interface>Eigenschaften</interface>-Dialog</link>
+	<link linkend="config">&prefs-dlg;</link>
 	verwenden.
       </para>
       <para> 
@@ -198,15 +199,15 @@
     </sect2>
 
     <sect2 id="menu-edit">
-      <title>Edit menu</title>
+      <title>Bearbeiten-Menü</title>
       <variablelist>
 	<varlistentry>
-	  <term><guimenuitem>Paste</guimenuitem></term>
+	  <term><guimenuitem>Einfügen</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Pastes the current selection or clipboard into the
-	      terminal.  This can also be achieved by pressing the
-	      middle mouse button.
+	      Fügt die aktuelle Auswahl bzw. Zwischenablage in das
+	      Terminal ein. Dies kann auch mit der mittleren Maustaste
+	      erreicht werden.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -214,45 +215,45 @@
     </sect2>
 
     <sect2 id="menu-settings">
-      <title>Settings menu</title>
+      <title>Einstellungen-Menü</title>
       <variablelist>
 	<varlistentry>
-	  <term><guimenuitem>Preferences ...</guimenuitem></term>
+	  <term><guimenuitem>Einsteillungen ...</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Displays the <interface>Preferences</interface>
-	      dialogue,  described in <xref
-		linkend="config">.
+	      Zeigt den in <xref linkend="config"> beschriebenen
+	      <interface>Einstellungen</interface>-Dialog an.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Reset Terminal</guimenuitem></term>
+	  <term><guimenuitem>Terminal zurücksetzen</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Resets the terminal parameters.  This will not clear
-	      the screen or move the cursor, but any subsequent
-	      terminal output will be reset to the default font and
-	      attributes.
+	      Setzt die Terminal-Parameter zurück. Dies löst weder den
+	      Bildschirm noch bewegt es den Cursor, aber alle nachfolgende
+	      Terminal-Ausgabe erscheint mit Standard-Schriftart und
+	      Farbe.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Reset and Clear</guimenuitem></term>
+	  <term><guimenuitem>Zurücksetzen und löschen</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Resets the terminal parameters, also clearing the
-	      screen.  All character fonts and attributes are reset.
+	      Setzt die Terminal-Parameter zurück und löscht außerdem den
+	      Bildschirm. Alle Schriftarten und Farben sind auf die
+	      Standardwerte zurückgesetzt.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Colour selector ...</guimenuitem></term>
+	  <term><guimenuitem>Farbwähler ...</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Can be used to drag-and-drop colours into the
-	      terminal.  See <xref
-		linkend="config-colour"> for details.
+	      Kann dazu verwendet werden, Farben aufs Terminal zu ziehen und
+	      dort fallenzulassen. Siehe <xref linkend="config-colour"> für
+	      weitere Informationen.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -260,23 +261,22 @@
     </sect2>
 
     <sect2 id="menu-help">
-      <title>Help menu</title>
+      <title>Hilfe-Menü</title>
       <variablelist>
 	<varlistentry>
-	  <term><guimenuitem>GNOME terminal users guide ...
-	    </guimenuitem></term>
+	  <term><guimenuitem>GNOME-Terminal Anwenderhandbuch</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      How to get to this document from within &term;.
+	      So bekommt man dieses Dokument aus dem &term; heraus.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>About ...</guimenuitem></term>
+	  <term><guimenuitem>Info ...</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      A little bit of kudos for all of the very hard working
-	      guys who made it all possible.
+	      Ein klein wenig Ruhm für all diejenigen, die sehr hart daran
+	      gearbeitet haben, all dies möglich zu machen.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -284,67 +284,67 @@
     </sect2>
 
     <sect2 id="menu-popup">
-      <title>Pop-up menu</title>
+      <title>Kontext-Menü</title>
       <para>
-	The <guimenu>pop-up</guimenu> control menu can be invoked by
-	clicking with the right mouse button anywhere in the
-	terminal window with the <keycap>CTRL</keycap> key
-	depressed. (It is sometimes not necessary to hold down the
-	<keycap>CTRL</keycap> key to get the pop-up menu, but do not
-	assume this is always so.).  It is provided as a simple
-	short-cut to some of the commands of the main menus; this is
-	especailly useful when the menubar is hidden.  The following
-	items are available:
+	Das <guimenu>Kontext-Menü</guimenu> erhalten Sie, indem Sie mit
+	der rechten Maustaste irgendwo in das Terminal-Fenster klicken,
+	während Sie die <keycap>Strg</keycap>-Taste gedrückt halten.
+	(Es ist manchmal nicht notwendig, die <keycap>Strg</keycap>-Taste
+	gedrückt zu halten, aber gehen Sie bitte nicht davon aus, daß dies
+	immer so ist.) Es bietet einen schnelleren Zugang zu einigen Befehlen
+	aus dem Hauptmenü; dies ist besonders nützlich, wenn das Hauptmenü
+	verborgen ist. Folgende Einträge sind vorhanden:
       </para>
       <variablelist>
 	<varlistentry>
-	  <term><guimenuitem>New terminal ...</guimenuitem></term>
+	  <term><guimenuitem>Neues Terminal ...</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Creates a new terminal window.
+	      Erzeugt ein neues Terminal-Fenster.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Preferences ...</guimenuitem></term>
+	  <term><guimenuitem>Einstellungen ...</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Displays the <interface>Preferences</interface>
-	      dialogue,  described in <xref
-		linkend="config">. 
+	      Bringt den in <xref linkend="config"> beschriebenen
+	      &prefs-dlg; zum Vorschein.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Show menubar</guimenuitem></term>
+	  <term><guimenuitem>Menübalken zeigen</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Checking/unchecking this option shows or hides the
-	      menubar at the top of the terminal window.
+	      Ein-/Ausschalten dieser Option zeigt bzw. verbirgt den
+	      Menübalken an der Oberkante des Terminal-Fensters.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Secure keyboard</guimenuitem></term>
+	  <term><guimenuitem>Tastatur sichern</guimenuitem></term>
 	  <listitem>
-	    <para>This option forces all the keyboard input to be sent
-	      directly to the terminal, and bypass anything else. This
-	      is useful in the (rare) situation when the same X server
-	      is used by many users, and the X server is not using
-	      proper authentication methods, thus making it possible
-	      for other users to snoop on what you are typing. In such
-	      a situation, it is advised that you switch to "secure
-	      keyboard" mode before entering any confidential
-	      inforamtion, such as passwords.
+	    <para>
+	      Diese Option stellt sicher, daß alle Tastatur-Eingaben
+	      direkt an das Terminal geschickt werden und alles andere
+	      ignorieren. Dies ist in der (seltenen) Situation hilfreich,
+	      in der derselbe X-Server von mehreren Benutzern verwendet
+	      wird und der X-Server keine ausreichende Authentifizierung
+	      bietet &mdash; so daß es anderen Benutzern möglich ist, alles
+	      was Sie tippen auszuspionieren. In dieser Situation wird
+	      dazu geraten, zum "Tastatur sichern"-Modus zu schalten,
+	      bevor Sie irgendwelche vertrauliche Informationen wie etwa
+	      Paßwörter eingeben.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Reset terminal</guimenuitem></term>
+	  <term><guimenuitem>Terminal zurücksetzen</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Resets the terminal attributes (font and background)
-	      without clearing the screen.
+	      Setzt die Terminal-Parameter (Schriftart und Hintergrund)
+	      auf die Standardwerte zurück, ohne den Bildschirm zu löschen.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -352,20 +352,20 @@
 	  <term><guimenuitem>Reset and Clear</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Resets the terminal attributes and clears the
-	      screen.
+	      Setzt die Terminal-Parameter auf die Standardwerte zurück
+	      und löscht den Bildschirm.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Open in browser</guimenuitem></term>
+	  <term><guimenuitem>In Browser öffnen</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      If the mouse pointer was over a URL (for example, an
-	      Internet address) when the pop-up menu was invoked,
-	      then this option is available to launch a browser to
-	      view the URL.  Using <keycap>CTRL</keycap>-left mouse
-	      button is a shortcut for this menu item.
+	      Wenn sich der Mauszeiger über einer URL (zum Beispiel
+	      eine Internet-Adresse) befinet, wenn dieses Kontextmenü
+	      aufgerufen wird, ist diese Befehl verfügbar, um einen
+	      Browser zu starten, der diese URL anzeigt.
+	      Als Abkürzung dient <keycap>Strg</keycap>-linke Maustaste.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -377,81 +377,78 @@
 
 
   <sect1 id="config">
-    <title>Configurable options</title>
+    <title>Konfigurierbare Optionen</title>
     <para>
-      Configurable options are configurable via the preferences
-      dialogue, which can be invoked by selecting  <link
-	linkend="menu-settings"><guimenuitem>Preferences</guimenuitem>
-	menu item </link> in the <guimenu> Settings</guimenu> menu. 
+      Konfigurierbare Optionen können Sie im &prefs-dlg; ändern, den
+      Sie über <link linkend="menu-settings"><guimenuitem>Einstellungen ...</guimenuitem></link> im <guimenu>Einstellungen</guimenu>-Menü erreichen.
     </para>
 
     <sect2 id="config-general">
-      <title>General options</title>
+      <title>Allgemeine Optionen</title>
       <para>
-	While most options are self-explanatory, some are discussed below
-	in more detail.
+	Während die meisten der Optionen selbsterklärend sind, werden einige
+	davon nachfolgend etwas detailierter beschrieben.
       </para>
       <variablelist>
 	<varlistentry>
-	  <term><guilabel>Terminal Class</guilabel></term>
+	  <term><guilabel>Terminalklasse</guilabel></term>
 	  <listitem>
-	    <para>Sets the terminal class for the current
-	      configuration or terminal.  Refer to the section on
-	      <link linkend="classes">classes</link> for further
-	      information.
+	    <para>
+	      Setzt die Terminalklasse für die aktuelle Konfiguration oder
+	      das aktuelle Terminal. Einzelheiten dazu finden Sie unter
+	      <link linkend="classes">Klassen</link>.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guilabel>Select-by-word characters</guilabel></term>
+	  <term><guilabel>Zeichenmenge für Wortauswahl</guilabel></term>
 	  <listitem>
-	    <para>Defines a list of characters (or
-	      <emphasis>character classes</emphasis>) that should be
-	      considered 'word characters'.  These are used when
-	      <link linkend="pointer-select">selecting text</link>
-	      by word.
+	    <para>
+	      Definiert eine Menge von Zeichen (oder 
+	      <emphasis>Zeichenklassen</emphasis>), die als
+	      'Wortzeichen' betrachtet werden sollen. Sie wird benutzt,
+	      wenn Sie Text wortweise
+	      <link linkend="pointer-select">auswählen</link>.
 	    </para>
 	  </listitem>
 	</varlistentry>
       </variablelist>
     </sect2>
     <sect2 id="config-image">
-      <title>Background image configuration</title>
+      <title>Hintergrundtyp</title>
       <para>
-	In the <guilabel>Image</guilabel> tab, you can set the
-	background image to use for the terminal. Possible choices are
+	Im <guilabel>Grafik</guilabel>-Reiter können Sie den Hintergrund
+	für das Terminal bestimmen. Mögliche Hintergrundtypen sind:
       </para>
       <itemizedlist>
 	<listitem> 
-	  <para><guilabel>None</guilabel> &mdash; in this
-	    case, &term; will use the background color as set in
-	    <guilabel>Colors</guilabel> tab 
+	  <para><guilabel>Keiner</guilabel> &mdash; in diesem Fall
+	    benutzt das &term; die Hintergrundfarbe aus dem
+	    <guilabel>Farben</guilabel>-Reiter.
 	  </para>
 	</listitem>
 	<listitem> 
-	  <para> <guilabel>Background pixmap</guilabel> &mdash; this
-	    option allows you to choose an image file to be used as 
-	    background. You can press <guibutton>Browse</guibutton>
-	    button to choose the image file. 
+	  <para><guilabel>Hintergrundpixmap</guilabel> &mdash; diese
+	    Option ermöglicht Ihnen die Wahl eines Hintergrundbildes.
+	    Sie können den <guibutton>Suchen ...</guibutton>-Knopf dazu
+	    verwenden, das Bild auszuwählen.
 	  </para>
 	</listitem>
 	<listitem> 
 	  <para> 
-	    <guilabel>Transparent</guilabel> &mdash; this
-	    option makes &term; use "transparent"
-	    background. It is not really transparent: it
-	    just mimics the background of your desktop (root
-	    window), much like a chameleon does. Do not expect to see
-	    other windows through the &term;, though.
+	    <guilabel>Transparent</guilabel> &mdash; diese Option macht
+	    das &term; "transparent". Es ist nicht wirklich transparent,
+	    es simuliert nur den Hintergrund Ihres Desktops wie ein
+	    Chamäleon. Erwarten Sie jedoch nicht, andere Fenster durch
+	    das &term; hindurch zu sehen.
 	  </para>
 	</listitem>
       </itemizedlist>
       <para> 
-	For <guilabel>Pixmap</guilabel> and
-	<guilabel>Transparent</guilabel> 
-	backgrounds, you can also check the button
-	<guibutton>Shade background</guibutton>, which will
-	"shade", or "dim", the background image.  
+	Falls Sie <guilabel>Pixmap</guilabel> oder
+	<guilabel>Transparent</guilabel> als Hintergrund wählen, können Sie
+	auch die Option <guibutton>Hintergrund sollte schattiert sein</guibutton>
+	wählen, welches das Hintergrundbild "abschirmt" oder "verdunkelt".
       </para> 
     </sect2>
 
@@ -462,79 +459,82 @@
 
 
     <sect2 id="config-colour">
-      <title>Colour configuration</title>
+      <title>Farbkonfiguration</title>
       <para>
-	Gnome terminal fully supports the colour extensions used by
-	<application>xterm</application>.
-	<guilabel>Colors</guilabel> tab allows you
-	to control those colours.
+	Das &term; unterstützt alle Farberweiterungen, die das &xterm-prog;
+	verwendet. Der <guilabel>Farben</guilabel>-Reiter ermöglicht Ihnen,
+	diese Farben anzupassen.
       </para>
 
       <variablelist>
 	<varlistentry>
-	  <term><guilabel>Colour scheme</guilabel></term>
+	  <term><guilabel>Farbschema</guilabel></term>
 	  <listitem>
-	    <para> Some applications are capable of using the colour
-	      capabilities of a terminal. The way the interaction
-	      between an application and the terminal is set up is
-	      that the application can request one of sixteen named
-	      colours (ANSI colours), such as "blue" or "bright red":
-	      for example, <application>mutt</application> mail reader
-	      can use red colour to show urgent messages. However, it
-	      is up to the terminal to decide which exact tint to use
-	      for "bright red" or "blue". This collection of sixteen
-	      colours is called a palette, or "colour scheme".
-	    </para>
-	    <para>&term; supports four colour schemes: the
-	      <guilabel>Linux console</guilabel> scheme, the
-	      <guilabel>Color Xterm</guilabel> scheme, the
-	      <guilabel>rxvt</guilabel> colour scheme, and a
-	      completely customizable colour scheme. They all are
-	      slightly different: for example, Linux console uses
-	      light gray in place of "white", while rxvt uses real
-	      white.
+	    <para>
+	      Einige Applikationen sind in der Lage, die Farbfähigkeit
+	      des Terminals zu verwenden. Die Interaktion zwischen der
+	      Applikation und dem Terminal erfolgt auf eine Art und Weise,
+	      in der die Applikation eine von sechzehn bekannten Farben
+	      (ANSI-Farben), wie etwa "blau" oder "leuchtend rot", anfordern
+	      kann: das Mail-Programm <application>mutt</application> kann
+	      zum Beispiel wichtige Nachrichten in rot darstellen. Es ist
+	      jedoch Aufgabe des Terminals, zu bestimmen, welche Farbe denn
+	      nun genau für "leuchtend rot" oder "blau" verwendet wird.
+	      Die Zusammenstellung dieser sechzehn Farben nennt man eine
+	      Palette oder ein Farbschema.
 	    </para>
 	    <para>
-	      If you have selected the <guilabel>custom</guilabel>
-	      option, then all 16 colours (nominally 8 colours and 8
-	      bright colours) can be customized by clicking on the
-	      colour selector buttons.
+	      Das &term; unterstützt vier Farbschemata: das
+	      <guilabel>Linux-Konsole</guilabel>-Schema, das
+	      <guilabel>Farbiges XTerm</guilabel>-Schema, das
+	      <guilabel>rxvt</guilabel>-Schema und ein frei
+	      zusammenstellbares Schema. Diese Schemata sind alle
+	      etwas verschieden voneinander: zum Beispiel benutzt
+	      die Linux-Konsole hellgrau statt "weiß", während
+	      rxvt wirklich weiß benutzt.
+	    </para>
+	    <para>
+	      Wenn Sie das <guilabel>Eigene</guilabel>-Schema gewählt haben,
+	      können Sie alle 16 Farben (genaugenommen 8 Farben und 8
+	      leuchtende Farben) anpassen, indem Sie auf die Farbwähler-Knöpfe
+	      klicken.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guilabel>Foreground/Background colours</guilabel></term>
+	  <term><guilabel>Vorder-/Hintergrundfarbe</guilabel></term>
 	  <listitem>
-	    <para>Here you can set the default terminal foreground
-	      and background colours, which are used when no colours
-	      have been requested by the application running inside
-	      of &term;.
+	    <para>
+	      Hier können Sie die Standard Vorder- und Hintergrundfarbe
+	      festlegen, die vom Terminal benutzt wird, wenn keine Farben
+	      von der im Terminal ablaufenden Applikation angefordert wurden.
 	    </para>
 	    
 	    <para>
-	      The following options are available:
-	      <guilabel>white on black</guilabel>, <guilabel>black
-		on white</guilabel>, <guilabel>green on
-		black</guilabel>, <guilabel>black on light
-		yellow</guilabel>, and <guilabel>custom</guilabel>.
-	      How these actually appear depends on the palette
-	      selected (for the <guilabel>white on black</guilabel>
-	      and <guilabel>black on white</guilabel> options).
-	      <guilabel>Custom</guilabel> allows you to select the
-	      default foreground and background colours individually
-	      and separate from the palette.
+	      Folgende Optionen stehen zur Verfügung:
+	      <guilabel>Weiß auf schwarz</guilabel>,
+	      <guilabel>Schwarz auf Weiß</guilabel>,
+	      <guilabel>Grün auf Schward</guilabel>,
+	      <guilabel>Schwarz auf Hellgelb</guilabel> und
+	      <guilabel>Eigene Farben</guilabel>.
+	      Wie diese wirklich erscheinen, hängt jedoch von der gewählten
+	      Palette ab (für die Optionen
+	      <guilabel>Weiß auf schwarz</guilabel> und
+	      <guilabel>Schwarz auf weiß</guilabel>).
+	      <guilabel>Eigene Farben</guilabel> ermöglicht Ihnen, die
+	      standardmäßig benutzte Vorder- und Hintergrundfarbe
+	      individuell und unabhängig von der Palette festzulegen.
 	    </para>
 
-	    <para>Additionally, the user can drag a colour from the
-	      rectangular box beneath the colour wheel from any GNOME
-	      colour selector or colour source and drop it into the
-	      terminal.  If the user drops the colour on a blank space, it
-	      will set the background, if the user drops the colour on a
-	      cell that contains a character, it will change the
-	      foreground.  This will also automatically change
-	      foreground/background type to <guilabel>Custom
-		colours</guilabel>  and set the custom foreground or
-	      background colour.
+	    <para>
+	      Zusätzlich können Sie eine Farbe aus der rechteckigen Box
+	      nahe des Farbrades aus jedem GNOME-Farbwähler wählen und
+	      sie auf Terminal fallenlassen. Wenn Sie die Farbe auf einer
+	      leeren Fläche fallenlassen, wird sie als Hintergrundfarbe
+	      benutzt, andernfalls als Vordergrundfarbe. Dies ändert
+	      außerdem automatisch den Vorder-/Hintergrundtyp auf
+	      <guilabel>Eigene Farben</guilabel> und setzt die gewählte
+	      Vorder- bzw. Hintergrundfarbe.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -542,10 +542,11 @@
     </sect2>
 
     <sect2 id="config-scrolling">  
-      <title>Scrolling</title>
+      <title>Rollen</title>
       <para>
-	In this tab you can set the position of the scrollbar and the
-	number of lines to keep in memory for scrolling. 
+	In diesem Reiter können Sie die Position der Rollbalken und die
+	Anzahl der Zeilen festlegen, die zum Rollen im Speicher behalten
+	werden sollen.
       </para>
     </sect2>
 
