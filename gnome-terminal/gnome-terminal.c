@@ -48,7 +48,7 @@ int invoke_as_login_shell = 0;
 int blink;
 
 /* Initial command */
-char *initial_command;
+char **initial_command;
 
 /* A list of all the open terminals */
 GList *terminals = 0;
@@ -590,7 +590,7 @@ configure_term_dnd (ZvtTerm *term)
 }
 
 void
-new_terminal_cmd (char *cmd)
+new_terminal_cmd (char **cmd)
 {
 	GtkWidget *app, *hbox, *scrollbar;
 	ZvtTerm   *term;
@@ -705,14 +705,12 @@ new_terminal_cmd (char *cmd)
 		return;
 		
 	case 0: {
-		char *cmd_args [] = { "-c", NULL, NULL };
-		char **args = NULL;
-		
 		sprintf (buffer, "WINDOWID=%d",(int) ((GdkWindowPrivate *)app->window)->xwindow);
 		env_copy [winid_pos] = buffer;
-		if (cmd)
-			execle (shell, name, "-c", cmd, NULL, env_copy);
-		else
+		if (cmd) {
+			environ = env_copy;
+			execvp (cmd[0], cmd);
+		} else
 			execle (shell, name, NULL, env_copy);
 		perror ("Could not exec\n");
 		_exit (127);
@@ -787,7 +785,8 @@ parse_an_arg (int key, char *arg, struct argp_state *state)
 		geometry = arg;
 		break;
 	case COMMAND_KEY:
-		initial_command = arg;
+		initial_command = &state->argv[state->next - 1];
+		state->next = state->argc;
 		break;
 		
 	default:

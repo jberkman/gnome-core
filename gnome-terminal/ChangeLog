@@ -1,3 +1,10 @@
+Sat May 16 02:55:35 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* gnome-terminal.c (initial_command): Now a vector.
+	(parse_an_arg): Treat all arguments following --command as part of
+	command.
+	(new_terminal_cmd): `cmd' arg now a vector.
+
 1998-05-14  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (parse_an_arg): Addedd support for executing a
