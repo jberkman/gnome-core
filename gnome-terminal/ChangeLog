@@ -1,3 +1,7 @@
+2000-04-14  Fatih Demir	<kabalak@gmx.net>
+
+	* gnome-terminal.desktop : Added [tr] ..
+
 2000-04-03  Jacob Berkman  <jacob@helixcode.com>
 
 	* */Makefile.am: use new template makefile
