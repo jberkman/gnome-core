@@ -28,14 +28,15 @@ GNOME_control_panel_cpo_request_id(GNOME_control_panel _obj,
    _ORBIT_request_id = giop_get_request_id();
    _ORBIT_send_buffer =
       giop_send_request_buffer_use(_obj->connection, NULL,
-		     _ORBIT_request_id, CORBA_TRUE, &(_obj->object_key_vec),
+    _ORBIT_request_id, CORBA_TRUE, &(_obj->objinfo.iopinfo->object_key_vec),
 			   &_ORBIT_operation_vec, &default_principal_iovec);
 
    /* marshal parameter cookie */
    {
       GIOP_unsigned_long len = cookie ? (strlen(cookie) + 1) : 0;
 
-      giop_send_buffer_append_mem_indirect_a(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
+      giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 4);
+      giop_send_buffer_append_mem_indirect(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
       if (cookie)
 	 giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), cookie, len);
    }
@@ -91,20 +92,22 @@ GNOME_control_panel_cpo_register(GNOME_control_panel _obj,
    _ORBIT_request_id = giop_get_request_id();
    _ORBIT_send_buffer =
       giop_send_request_buffer_use(_obj->connection, NULL,
-		     _ORBIT_request_id, CORBA_TRUE, &(_obj->object_key_vec),
+    _ORBIT_request_id, CORBA_TRUE, &(_obj->objinfo.iopinfo->object_key_vec),
 			   &_ORBIT_operation_vec, &default_principal_iovec);
 
    /* marshal parameter ior */
    {
       GIOP_unsigned_long len = ior ? (strlen(ior) + 1) : 0;
 
-      giop_send_buffer_append_mem_indirect_a(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
+      giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 4);
+      giop_send_buffer_append_mem_indirect(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
       if (ior)
 	 giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), ior, len);
    }
 
    /* marshal parameter cpo_id */
-   giop_message_buffer_append_mem_a(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), &cpo_id, sizeof(cpo_id));
+   giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 2);
+   giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), &cpo_id, sizeof(cpo_id));
 
    giop_send_buffer_write(_ORBIT_send_buffer);
    giop_send_buffer_unuse(_ORBIT_send_buffer);
@@ -144,14 +147,15 @@ GNOME_control_panel_quit(GNOME_control_panel _obj,
    _ORBIT_request_id = giop_get_request_id();
    _ORBIT_send_buffer =
       giop_send_request_buffer_use(_obj->connection, NULL,
-		     _ORBIT_request_id, CORBA_TRUE, &(_obj->object_key_vec),
+    _ORBIT_request_id, CORBA_TRUE, &(_obj->objinfo.iopinfo->object_key_vec),
 			   &_ORBIT_operation_vec, &default_principal_iovec);
 
    /* marshal parameter cookie */
    {
       GIOP_unsigned_long len = cookie ? (strlen(cookie) + 1) : 0;
 
-      giop_send_buffer_append_mem_indirect_a(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
+      giop_message_buffer_do_alignment(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), 4);
+      giop_send_buffer_append_mem_indirect(GIOP_SEND_BUFFER(_ORBIT_send_buffer), &len, sizeof(len));
       if (cookie)
 	 giop_message_buffer_append_mem(GIOP_MESSAGE_BUFFER(_ORBIT_send_buffer), cookie, len);
    }
