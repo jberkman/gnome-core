@@ -1,5 +1,7 @@
 Sun Mar  8 18:40:05 1998  Tom Tromey  <tromey@cygnus.com>
 
+	* property-mouse.c (mouse_read): rtol_default now gboolean.
+
 	* property-mouse.c (mouse_rtol): Now gboolean.
 
 	* property-keyboard.c (keyboard_read): repeat_default and

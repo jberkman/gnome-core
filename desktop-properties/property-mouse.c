@@ -40,7 +40,7 @@ mouse_read (void)
 {
   unsigned char buttons[MAX_BUTTONS];
   int acc_num, acc_den, thresh;
-  int rtol_default;
+  gboolean rtol_default;
 
   mouse_nbuttons = XGetPointerMapping (GDK_DISPLAY (), buttons, MAX_BUTTONS);
   assert (mouse_nbuttons <= MAX_BUTTONS);
