@@ -1,3 +1,7 @@
+2000-10-27  John B Tunison <jtunison@andrew.cmu.edu>
+
+	* gnome-terminal.c: Make the dingus url accept %NN characters
+
 2000-10-19  Christophe Merlet  <christophe@merlet.net>
 
 	* gnome-terminal.desktop: Updated French translation.
