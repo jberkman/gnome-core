@@ -1,0 +1,5 @@
+1998-08-31    <jrb@redhat.com>
+
+	* capplets/mouse-properties/mouse-properties.c: undoing the
+	changes to capplet_widget_state_changed.  Also, adding a ChangeLog 
+	so I know who to yell at next time silly changes get committed. (:

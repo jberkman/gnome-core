@@ -37,6 +37,7 @@ static int mouse_acceleration;
 /* Acceleration threshold.  */
 static int mouse_thresh;
 
+static GtkWidget *capplet;
 
 static void
 mouse_read (void)
@@ -135,7 +136,7 @@ mouse_apply (void)
 
         XChangePointerControl (GDK_DISPLAY (), True, True, num, den, mouse_thresh);
 
-        capplet_widget_state_changed(TRUE, NULL);
+        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 
 /* Run when the left- or right-handed radiobutton is clicked.  */
@@ -143,7 +144,7 @@ static void
 button_toggled (GtkWidget *widget, gpointer data)
 {
         mouse_rtol = (int) data;
-        capplet_widget_state_changed(TRUE, NULL);
+        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 
 /* Run when a scale widget is manipulated.  */
@@ -152,7 +153,7 @@ scale_moved (GtkAdjustment *adj, gpointer data)
 {
         int *value = (int *) data;
         *value = adj->value;
-        capplet_widget_state_changed(TRUE, NULL);
+        capplet_widget_state_changed(CAPPLET_WIDGET (capplet), TRUE);
 }
 
 static void
@@ -207,7 +208,6 @@ make_scale (char *title, char *max_title, char *min_title,
 static void
 mouse_setup (void)
 {
-        GtkWidget *capplet;
         GtkWidget *vbox, *frame, *hbox, *lbutton, *rbutton, *table, *sep;
         GtkObject *adjust;
 
