@@ -12,6 +12,6 @@ Comment[el]=Υπόδειξη κατά την εκκίνηση
 Comment[pt_BR]=Opηυes para caixa de diαlogo de dicas na inicializaηγo
 Comment[uk]=πΑÒΑΝΕΤÒΙ Δ¦ΑΜΟΗΥ ΣΤΑÒΤΟΧΙΘ ΠΟÒΑΔ
 Exec=gnome-hint-properties-capplet
-Icon=
+Icon=gnome-hint.png
 Terminal=0
 Type=Application
