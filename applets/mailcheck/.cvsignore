@@ -5,3 +5,4 @@ mailcheck.lo
 _libs
 .libs
 libpanel_mailcheck.la
+so_locations
