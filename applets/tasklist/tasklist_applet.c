@@ -81,8 +81,15 @@ get_task_class (GwmhTask *task)
 {
 	XClassHint hint;
 	char *retval;
+	Status status;
 
-	if (!XGetClassHint (GDK_DISPLAY (), task->xwin, &hint))
+	gdk_error_trap_push ();
+	status = XGetClassHint (GDK_DISPLAY (), task->xwin, &hint);
+	gdk_flush ();
+	if (gdk_error_trap_pop ())
+		return NULL;
+
+	if ( ! status)
 		return NULL;
 
 	d(g_print ("name: %s\tclass: %s\n", hint.res_name, hint.res_class));

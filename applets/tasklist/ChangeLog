@@ -1,3 +1,9 @@
+Sun Apr 22 00:25:04 2001  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c, tasklist_icon.c:  Avoid races by properly
+	  pushing the error trap and add a gdk_flush before a pop in the
+	  icon code.  This fixes issues with XView windows.
+
 Tue Apr 17 13:59:01 2001  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.c: fix a crash that could possibly happen when
