@@ -155,8 +155,9 @@ property_main (int argc, char *argv [])
 			init = 1;
 
 	/* FIXME: actually save state.  */
-	session_id = gnome_init_session (NULL, NULL,
-					 NULL, previous_id);
+	session_id = gnome_session_init (NULL, NULL,
+					 NULL, NULL,
+					 previous_id);
 
 	/* FIXME: for now, fake out the session manager and have it
 	   restart us in -init mode.  This is pretty bogus.  But it
@@ -165,10 +166,10 @@ property_main (int argc, char *argv [])
 	new_argv[1] = "-init";
 	new_argv[2] = "-previous-id";
 	new_argv[3] = session_id;
-	gnome_set_restart_style (GNOME_RESTART_ANYWAY);
-	gnome_set_restart_command (4, new_argv);
-	gnome_set_clone_command (2, new_argv);
-	gnome_set_program (argv[0]);
+	gnome_session_set_restart_style (GNOME_RESTART_ANYWAY);
+	gnome_session_set_restart_command (4, new_argv);
+	gnome_session_set_clone_command (2, new_argv);
+	gnome_session_set_program (argv[0]);
 
 	gnome_property_configurator_request_foreach (display_config,
 						     GNOME_PROPERTY_READ);
