@@ -1,3 +1,9 @@
+Thu Feb 17 21:20:16 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c: don't leak the minicons pixbufs.  Also don't
+	  crash when a window is destroyed too quickly in which we will
+	  only get a DESTROY from gwmh and never a NEW
+
 
 2000-02-17 TANIGUCHI Toru <g97p0639@mn.waseda.ac.jp>
 

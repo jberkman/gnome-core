@@ -589,22 +589,33 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 									   width, height);
 									   
 			task->icon->minimized = create_minimized_icon (task->icon->normal);
+			gdk_pixmap_unref(pixmap);
 		}
 		else {
-
 			task->icon->mask = unknown_icon->mask;
 			task->icon->normal = unknown_icon->normal;
 			task->icon->minimized = unknown_icon->minimized;
+
+			/* ref them so that unref won't kill them when the
+			 * task is destroyed */
+			gdk_bitmap_ref(unknown_icon->mask);
+			gdk_pixbuf_ref(unknown_icon->normal);
+			gdk_pixbuf_ref(unknown_icon->minimized);
 		}
 		tasks = g_list_append (tasks, task);
 	        layout_tasklist ();
 		break;
 	case GWMH_NOTIFY_DESTROY:
 		task = find_gwmh_task (gwmh_task);
-		tasks = g_list_remove (tasks, task);
-		g_free (task->icon);
-		g_free (task);
-		layout_tasklist ();
+		if(task) {
+			tasks = g_list_remove (tasks, task);
+			gdk_bitmap_unref(task->icon->mask);
+			gdk_pixbuf_unref(task->icon->normal);
+			gdk_pixbuf_unref(task->icon->minimized);
+			g_free (task->icon);
+			g_free (task);
+			layout_tasklist ();
+		}
 		break;
 	default:
 		g_print ("Unknown ntype: %d\n", ntype);
