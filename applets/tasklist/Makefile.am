@@ -40,9 +40,9 @@ gnorbadir  = $(sysconfdir)/CORBA/servers
 gnorba_DATA = tasklist_applet.gnorba 
 
 gstc.c: $(srcdir)/../desk-guide/gstc.c
-	cp -f $(srcdir)/../desk-guide/gstc.c $(srcdir)
+	cp -f $(srcdir)/../desk-guide/gstc.c $(builddir)
 
 gwmh.c: $(srcdir)/../desk-guide/gwmh.c
-	cp -f $(srcdir)/../desk-guide/gwmh.c $(srcdir)
+	cp -f $(srcdir)/../desk-guide/gwmh.c $(builddir)
 
 CLEANFILES += gwmh.c gstc.c
