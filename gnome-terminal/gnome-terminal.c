@@ -7,8 +7,8 @@
  *          Michael Zucchi  (zvt widget, font code).
  *
  * Other contributors: George Lebl, Jeff Garzik, Jay Painter,
- * Christopher Blizzard, Jens Lautenbacher, Tom Tromey, Tristan Tarant
- * and Jonathan Blandford
+ * Christopher Blizzard, Jens Lautenbacher, Tom Tromey, Tristan Tarant,
+ * Jonathan Blandford and Nat Friedman
  */
 #include <config.h>
 #include <unistd.h>
@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 #include <gdk/gdkprivate.h>
 #include <gnome.h>
@@ -67,6 +68,7 @@ enum targets_enum {
 };
 
 struct terminal_config {
+	int keyboard_secured :1;		/* Does this terminal have the keyboard secured? */
         int bell             :1;                /* Do we want the bell? */
 	int blink            :1; 		/* Do we want blinking cursor? */
 	int scroll_key       :1;       		/* Scroll on input? */
@@ -139,16 +141,24 @@ typedef struct {
 } preferences_t;
 
 /*
+ * These are the indices for the toggle items in the popup menu.  If
+ * you change the popup menus, these macros MUST be updated to reflect
+ * the changes.
+ */
+#define POPUP_MENU_TOGGLE_INDEX_MENUBAR 2
+#define POPUP_MENU_TOGGLE_INDEX_SECURE  3
+
+/*
  * Exported interfaces, for Gtk modules that hook
  * into the gnome terminal
  */
 void close_terminal_cmd   (void *unused, void *data);
 void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
 void color_cmd            (void);
-void show_menu_cmd        (GtkWidget *widget, ZvtTerm *term);
-void hide_menu_cmd        (GtkWidget *widget, ZvtTerm *term);
+void toggle_menubar_cmd   (GtkWidget *widget, ZvtTerm *term);
 void paste_cmd            (GtkWidget *widget, ZvtTerm *term);
 void preferences_cmd      (GtkWidget *widget, ZvtTerm *term);
+void toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term);
 
 GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry);
 GtkWidget *new_terminal     (GtkWidget *widget, ZvtTerm *term);
@@ -1337,28 +1347,22 @@ color_cmd (void)
 #endif
 
 void
-show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
+toggle_menubar_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GnomeApp *app;
 	struct terminal_config *cfg;
 
-	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
-	cfg->menubar_hidden = 0;
-	gtk_widget_show (app->menubar->parent);
-	save_preferences_cmd (widget, term);
-}
 
-void
-hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
-{
-	GnomeApp *app;
-	struct terminal_config *cfg;
+	cfg->menubar_hidden = ! cfg->menubar_hidden;
 
 	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
-	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
-	cfg->menubar_hidden = 1;
-	gtk_widget_hide (app->menubar->parent);
+
+	if (cfg->menubar_hidden)
+		gtk_widget_hide (app->menubar->parent);
+	else
+		gtk_widget_show (app->menubar->parent);
+
 	save_preferences_cmd (widget, term);
 }
 
@@ -1390,31 +1394,46 @@ paste_cmd (GtkWidget *widget, ZvtTerm *term)
 			       GDK_CURRENT_TIME);
 }
 
+void
+toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term)
+{
+	struct terminal_config *cfg;
+
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
+
+	cfg->keyboard_secured = ! cfg->keyboard_secured;
+
+	if (cfg->keyboard_secured)
+		gdk_keyboard_grab (term->term_window, TRUE, GDK_CURRENT_TIME);
+	else
+		gdk_keyboard_ungrab (GDK_CURRENT_TIME);
+}
+
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
         GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
 	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, hide_menu_cmd),
+	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, toggle_menubar_cmd),
 	GNOMEUIINFO_SEPARATOR,
 	GNOMEUIINFO_ITEM_STOCK (N_("_Close terminal"), NULL, close_terminal_cmd,
 													GNOME_STOCK_MENU_EXIT),
 	GNOMEUIINFO_END
 };
 
-static GnomeUIInfo gnome_terminal_popup_menu_hide [] = {
+/*
+ * Warning:
+ * 
+ *   If you change the layout of the popup menus, you must update the
+ *   value of the POPUP_MENU_TOGGLE_INDEX_* macros to reflect the new
+ *   menu item indices.
+ */
+static GnomeUIInfo gnome_terminal_popup_menu [] = {
         GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
         GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
-	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, hide_menu_cmd),
-#ifdef HAVE_ZVT_TERM_RESET
-	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
-	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
-#endif
-	GNOMEUIINFO_END
-};
-
-static GnomeUIInfo gnome_terminal_popup_menu_show [] = {
-        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
-        GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
-	GNOMEUIINFO_ITEM_NONE (N_("_Show menubar"), NULL, show_menu_cmd),
+	GNOMEUIINFO_TOGGLEITEM (N_("_Show menubar"), N_("Toggles whether or not the menubar is displayed."),
+				toggle_menubar_cmd, NULL),
+	GNOMEUIINFO_TOGGLEITEM (N_("_Secure keyboard"),
+				N_("Toggles whether or not the keyboard is grabbed by the terminal."),
+				toggle_secure_keyboard_cmd, NULL),
 #ifdef HAVE_ZVT_TERM_RESET
 	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
 	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
@@ -1625,6 +1644,7 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	GtkWidget *menu;
 	struct terminal_config *cfg;
 	GnomeUIInfo *uiinfo;
+	GtkCheckMenuItem *toggle_item;
 
 	if (event->button != 3
 	    || (!(event->state & GDK_CONTROL_MASK) && term->vx->selected)
@@ -1635,12 +1655,25 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	if (cfg->menubar_hidden)
-		uiinfo = gnome_terminal_popup_menu_show;
-	else
-		uiinfo = gnome_terminal_popup_menu_hide;
+
+	uiinfo = gnome_terminal_popup_menu;
 
 	menu = gnome_popup_menu_new (uiinfo);
+
+	/*
+	 * Set the toggle state for the "show menubar"
+	 * menu item.
+	 */
+	toggle_item = GTK_CHECK_MENU_ITEM (uiinfo [POPUP_MENU_TOGGLE_INDEX_MENUBAR].widget);
+	toggle_item->active = ! cfg->menubar_hidden;
+
+	/*
+	 * Set the toggle state for the secure keyboard
+	 * menu item.
+	 */
+	toggle_item = GTK_CHECK_MENU_ITEM (uiinfo [POPUP_MENU_TOGGLE_INDEX_SECURE].widget);
+	toggle_item->active = cfg->keyboard_secured;
+
 	gnome_popup_menu_do_popup_modal (menu, NULL, NULL, event, term);
 	gtk_widget_destroy (menu);
 

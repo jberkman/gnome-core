@@ -1,3 +1,21 @@
+1999-07-08  Nat Friedman  <nat@gnome-support.com>
+
+	* gnome-terminal.c: Include gdk/gdk.h
+	(struct terminal_config): Added keyboard_secured flag.
+	(show_menu_cmd): Removed.
+	(hide_menu_cmd): Removed.
+	(toggle_menubar_cmd): New function to toggle whether or not the
+ 	menubar is displayed.
+	(toggle_secure_keyboard_cmd): New function to toggle whether or
+ 	not the keyboard is grabbed.
+	(gnome_terminal_popup_menu_show): Renamed to
+ 	gnome_terminal_popup_menu.
+	(gnome_terminal_popup_menu_hide): Removed.
+	(gnome_terminal_poup_menu): Made show/hide menubar a toggle item.
+  	Added secure keyboard toggle item.
+	(button_press): Added code to set the states of the popup menu
+ 	toggle items before showing the menu.
+	
 1999-07-07  Miguel de Icaza  <miguel@gnu.org>
 
 	* gnome-terminal.c (new_terminal_cmd): Merge this fix from gnome-core-1-0
@@ -18,6 +36,7 @@
 	Zucchi had sent me, which fixes TERM being set to 'dumb'.  I
 	believe this was in the stable branch already.
 
+>>>>>>> 1.126
 1999-06-28  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (new_terminal_cmd): Bug fix.  If the TERM
