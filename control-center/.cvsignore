@@ -11,3 +11,4 @@ control-center-stubs.c
 control-center-skels.c
 control-center-impl.c
 gnomecc
+cappletConf.sh

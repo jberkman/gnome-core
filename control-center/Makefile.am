@@ -28,10 +28,15 @@ gnomecc_LDADD = \
 	$(INTLLIBS)					\
 	$(ORB_LIBS)
 
-EXTRA_DIST = gnomecc.desktop
+EXTRA_DIST = gnomecc.desktop cappletConf.sh.in
 
 sysdir = $(datadir)/apps/System
 sys_DATA = gnomecc.desktop
+
+## Put `exec' in the name because this should be installed by
+## `install-exec', not `install-data'.
+confexecdir = $(libdir)
+confexec_DATA = cappletConf.sh
 
 libcapplet_la_SOURCES = \
 	capplet-widget.c	\
@@ -53,3 +58,14 @@ $(CORBA_SRCLIST): $(top_srcdir)/idl/control-center.idl
 	orbit-idl $(top_srcdir)/idl/control-center.idl
 
 main.c: $(CORBA_SRCLIST)
+
+#
+# Create the cappletConf.sh file from the sh.in file
+#
+cappletConf.sh: cappletConf.sh.in Makefile
+	sed -e 's,\@GNOME_LIBDIR\@,$(GNOME_LIBDIR),g' \
+	    -e 's,\@GNOMEUI_LIBS\@,$(GNOMEUI_LIBS),g' \
+	    -e 's,\@GNOME_INCLUDEDIR\@,$(GNOME_INCLUDEDIR),g' \
+	    -e 's,\@ORB_LIBS\@,$(ORB_LIBS),g' \
+	    < $(srcdir)/cappletConf.sh.in > cappletConf.tmp \
+	  && mv cappletConf.tmp cappletConf.sh
