@@ -50,6 +50,6 @@ EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop
 
 sysdir = $(datadir)/apps/System
 install-data-local:
-	$(INSTALL_DATA) $(srcdir)/background.desktop $(sysdir)/"Background Properties.desktop"
-	$(INSTALL_DATA) $(srcdir)/mouse.desktop $(sysdir)/"Mouse Properties.desktop"
-	$(INSTALL_DATA) $(srcdir)/keyboard.desktop $(sysdir)/"Keyboard Properties.desktop"
+	$(INSTALL_DATA) $(srcdir)/background.desktop $(sysdir)/background.desktop
+	$(INSTALL_DATA) $(srcdir)/mouse.desktop $(sysdir)/mouse.desktop
+	$(INSTALL_DATA) $(srcdir)/keyboard.desktop $(sysdir)/keyboard.desktop
