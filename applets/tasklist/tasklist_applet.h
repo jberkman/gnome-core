@@ -29,9 +29,13 @@ struct _TasklistConfig {
 
 	gboolean show_pixmaps; /* Show pixmaps next to tasks */
 	gboolean confirm_before_kill; /* Confirm before killing windows */
+
 	/* Stuff for horizontal mode */
-	gint width; /* The Width of the tasklist */
+	gint width; /* The width of the tasklist */
 	gint rows; /* Number of rows */
+
+	/* Stuff for vertical mode */
+	gint height; /* The height of the tasklist */
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);

@@ -17,6 +17,7 @@ void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
 
+GtkWidget *handle; /* The handle box */
 GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
 GList *tasks; /* The list of tasks used */
@@ -24,6 +25,9 @@ GdkPixmap *unknown_icon; /* Unknown icon */
 GdkBitmap *unknown_mask; /* Unknown mask */
 
 extern TasklistConfig Config;
+
+/* from gtkhandlebox.c */
+#define DRAG_HANDLE_SIZE 10
 
 /* Shorten a label that is too long */
 gchar *
@@ -128,9 +132,9 @@ draw_task (TasklistTask *task)
 
 	gtk_paint_box (area->style, area->window,
 		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
-		       GTK_STATE_ACTIVE : GTK_STATE_NORMAL, 
+		       GTK_STATE_ACTIVE : GTK_STATE_NORMAL,
 		       GWMH_TASK_FOCUSED (task->gwmh_task) ?
-		       GTK_SHADOW_IN: GTK_SHADOW_OUT,
+		       GTK_SHADOW_IN : GTK_SHADOW_OUT,
 		       NULL, area, "button",
 		       task->x, task->y,
 		       task->width, task->height);
@@ -208,7 +212,7 @@ layout_tasklist (void)
 	TasklistTask *task;
 	gint extra_space;
 	gint num_rows = 0, num_cols = 0;
-	gint curx, cury, curwidth, curheight;
+	gint curx = 0, cury = 0, curwidth = 0, curheight = 0;
 	
 	temp_tasks = get_visible_tasks ();
 	num = g_list_length (temp_tasks);
@@ -217,55 +221,96 @@ layout_tasklist (void)
 		gtk_widget_draw (area, NULL);
 		return;
 	}
-	while (p < num) {
-		if (num < Config.rows)
-			num_rows = num;
 
-		j++;
-		if (num_cols < j)
-			num_cols = j;
-		if (num_rows < k + 1)
-			num_rows = k + 1;
-		
-		if (j >= ((num + Config.rows - 1) / Config.rows)) {
-			j = 0;
-			k++;
+	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
+	case ORIENT_UP:
+	case ORIENT_DOWN:
+		while (p < num) {
+			if (num < Config.rows)
+				num_rows = num;
+			
+			j++;
+			if (num_cols < j)
+				num_cols = j;
+			if (num_rows < k + 1)
+				num_rows = k + 1;
+			
+			if (j >= ((num + Config.rows - 1) / Config.rows)) {
+				j = 0;
+				k++;
+			}
+			p++;
 		}
-		p++;
+
+		curheight = (ROW_HEIGHT * Config.rows - 4) / num_rows;
+		curwidth = (Config.width - 4) / num_cols;
+
+		curx = 2;
+		cury = 2;
+
+		extra_space = Config.width - 4 - (curwidth * num_cols);
+		/* FIXME: Do something with extra_space */
+
+		while (temp_tasks) {
+			task = (TasklistTask *) temp_tasks->data;
+			
+			task->x = curx;
+			task->y = cury;
+			task->width = curwidth;
+			task->height = curheight;
+			
+			curx += curwidth;
+			if (curx >= Config.width ||
+			    curx + curwidth > Config.width) {
+				cury += curheight;
+				curx = 2;
+			}
+			
+			if (temp_tasks->next)
+				temp_tasks = temp_tasks->next;
+			else {
+				g_list_free (temp_tasks);
+				break;
+			}
+		}
+		break;
+
+	case ORIENT_LEFT:
+	case ORIENT_RIGHT:
+		
+		curheight = ROW_HEIGHT;
+		curwidth = 44;
+		
+		num_cols = 1;
+		num_rows = num;
+		
+		curx = 2;
+		cury = 2;
+
+		while (temp_tasks) {
+			task = (TasklistTask *) temp_tasks->data;
+			
+			task->x = curx;
+			task->y = cury;
+			task->width = curwidth;
+			task->height = curheight;
+			
+			curx += curwidth;
+			if (curx >= 44) {
+				cury += curheight;
+				curx = 2;
+			}
+			
+			if (temp_tasks->next)
+				temp_tasks = temp_tasks->next;
+			else {
+				g_list_free (temp_tasks);
+				break;
+			}
+		}
+		break;
 	}
 
-	curheight = (ROW_HEIGHT * Config.rows - 4) / num_rows;
-	curwidth = (Config.width - 4) / num_cols;
-
-	curx = 2;
-	cury = 2;
-
-	extra_space = Config.width - 4 - (curwidth * num_cols);
-	/* FIXME: Do something with extra_space */
-
-	while (temp_tasks) {
-		task = (TasklistTask *) temp_tasks->data;
-		
-		task->x = curx;
-		task->y = cury;
-		task->width = curwidth;
-		task->height = curheight;
-
-		curx += curwidth;
-		if (curx >= Config.width ||
-		    curx + curwidth > Config.width) {
-			cury += curheight;
-			curx = 2;
-		}
-		
-		if (temp_tasks->next)
-			temp_tasks = temp_tasks->next;
-		else
-		{
-			/* FIXME: Free list */
-			break;
-		}
-	}
 	
 	gtk_widget_draw (area, NULL);
 }
@@ -425,12 +470,49 @@ ignore_1st_click (GtkWidget *widget, GdkEvent *event)
 	return FALSE;
 }
 
+/* Changes size of the applet */
+static void
+change_size (void)
+{
+	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
+	case ORIENT_UP:
+	case ORIENT_DOWN:
+		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_LEFT;
+		gtk_widget_set_usize (handle, 
+				      DRAG_HANDLE_SIZE + Config.width,
+				      Config.rows * ROW_HEIGHT);
+		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
+				       Config.width,
+				       Config.rows * ROW_HEIGHT);
+		layout_tasklist ();
+		break;
+	case ORIENT_LEFT:
+	case ORIENT_RIGHT:
+		GTK_HANDLE_BOX (handle)->handle_position = GTK_POS_TOP;
+		gtk_widget_set_usize (handle, 
+				      48,
+				      DRAG_HANDLE_SIZE + Config.height);
+		gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
+				       48,
+				       Config.height);
+		layout_tasklist ();
+	}
+}
+
+static gboolean
+cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
+{
+	/* Change size accordingly */
+	change_size ();
+
+	return FALSE;
+}
+ 
 /* Create the applet */
 void
 create_applet (void)
 {
 	GtkWidget *hbox;
-	GtkWidget *handle;
 
 	applet = applet_widget_new ("tasklist_applet");
 	
@@ -441,10 +523,9 @@ create_applet (void)
 	handle = gtk_handle_box_new ();
 	gtk_signal_connect (GTK_OBJECT (handle), "event",
 			    GTK_SIGNAL_FUNC (ignore_1st_click), NULL);
+
 	area = gtk_drawing_area_new ();
-	gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
-			       Config.width,
-			       Config.rows * ROW_HEIGHT);
+
 	gtk_widget_show (area);
 	gtk_widget_show (handle);
 	gtk_container_add (GTK_CONTAINER (handle), area);
@@ -458,20 +539,15 @@ create_applet (void)
 	gtk_signal_connect (GTK_OBJECT (area), "button_press_event",
 			    GTK_SIGNAL_FUNC (cb_button_press_event), NULL);
 
+	gtk_signal_connect (GTK_OBJECT (applet), "change-orient",
+			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
 	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "about",
 					       GNOME_STOCK_MENU_ABOUT,
 					       _("About..."),
 					       (AppletCallbackFunc) cb_about,
 					       NULL);
-	/*don't register with NULL callback, it's evil, uncomment when
-	  properties do exist*/
-   	/*applet_widget_register_stock_callback (APPLET_WIDGET (applet),
-					       "properties",
-					       GNOME_STOCK_MENU_PROP,
-					       _("Properties..."),
-					       NULL,
-					       NULL);*/
+	change_size ();
 	gtk_widget_show (applet);
 }
 

@@ -1,3 +1,8 @@
+1999-09-09  Anders Carlsson   <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c
+	  tasklist_menu.c: Added orient support
+
 1999-08-30  Anders Carlsson   <anders.carlsson@tordata.se>
 
 	* tasklist_applet.c

@@ -10,6 +10,7 @@ void cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data);
 
 extern TasklistConfig Config;
 extern GtkWidget *area;
+extern GtkWidget *applet;
 TasklistTask *current_task;
 
 /* Callback for menu positioning */
@@ -24,9 +25,27 @@ cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data)
 
 	gtk_widget_get_child_requisition (GTK_WIDGET (menu), &mreq);
 	gdk_window_get_origin (area->window, &wx, &wy);
-	
-	*x = wx + task->x;
-	*y = wy - mreq.height + task->y;
+
+	switch (applet_widget_get_panel_orient (APPLET_WIDGET (applet))) {
+	case ORIENT_UP:
+		*x = wx + task->x;
+		*y = wy - mreq.height + task->y;
+		break;
+	case ORIENT_DOWN:
+		*x = wx + task->x;
+		*y = wy + task->y + task->height;
+		break;
+	case ORIENT_LEFT:
+		*y = wy + task->y;
+		*x = wx - mreq.width + task->x;
+		break;
+	case ORIENT_RIGHT:
+		*y = wy + task->y;
+		*x = wx + task->width;
+		printf ("right\n");
+		break;
+	}
+
 }
 
 /* Callback for menus */
