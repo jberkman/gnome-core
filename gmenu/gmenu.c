@@ -225,7 +225,7 @@ static void about_cb(GtkWidget *w, gpointer data)
 
 	sprintf(version,"%d.%d.%d",GMENU_VERSION_MAJOR, GMENU_VERSION_MINOR, GMENU_VERSION_REV);
 
-	authors[0] = "John Ellis (gqview@geocities.com)";
+	authors[0] = "John Ellis <johne@bellatlantic.net>";
 	authors[1] = NULL;
 
 	about = gnome_about_new ( _("GNOME menu editor"), version,
@@ -272,8 +272,8 @@ int main (int argc, char *argv[])
 	gtk_signal_connect(GTK_OBJECT(app), "delete_event", GTK_SIGNAL_FUNC(destroy_cb), NULL);
 
 	gnome_app_create_menus_with_data (GNOME_APP(app), main_menu, app);
-	gtk_menu_item_right_justify(GTK_MENU_ITEM(main_menu[2].widget));
-
+/*	gtk_menu_item_right_justify(GTK_MENU_ITEM(main_menu[2].widget));
+*/
 	gnome_app_create_toolbar (GNOME_APP(app), toolbar);
 /*	gtk_toolbar_set_style (GTK_TOOLBAR (GNOME_APP(app)->toolbar), GTK_TOOLBAR_ICONS);
 */
