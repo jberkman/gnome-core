@@ -1506,16 +1506,17 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
 	if (cmd != NULL)
 		initial_term = app;
-#ifdef ZVT_USES_MINIMAL_ALLOC
-	gtk_window_set_policy  (GTK_WINDOW (app), 1, 1, 1);
-#else
-	gtk_window_set_policy  (GTK_WINDOW (app), 0, 1, 1);
-#endif
+
 	gtk_widget_realize (app);
 	terminals = g_list_append (terminals, app);
 
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
+
+	/* set a default grid size for the terminal -- this
+	 * might be reset by the geometry option
+	 */
+	zvt_term_set_size (ZVT_TERM (term), 80, 25);
 
 	if ((zvt_term_get_capabilities (term) & ZVT_TERM_PIXMAP_SUPPORT) != 0){
 		if (gdk_imlib_get_visual () == gtk_widget_get_default_visual ())
@@ -1526,11 +1527,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
 				  GTK_SIGNAL_FUNC(term_change_pos),
 				  GTK_OBJECT(term));
-#if ZVT_USES_MINIMAL_ALLOC
-	gtk_widget_set_usize (GTK_WIDGET (term),
-			      80 * term->charwidth,
-			      25 * term->charheight);
-#endif
+
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	gnome_term_set_font (term, cfg->font);
 	zvt_term_set_bell  (term, !cfg->bell);
@@ -1581,9 +1578,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	gnome_app_set_contents (GNOME_APP (app), hbox);
 
 	/*
-	 * Handle geometry specification, this is not quite ok, as the
-	 * geometry for terminals is usually specified in terms of
-	 * lines/columns
+	 * Handle geometry specification; height and width are in
+	 * terminal rows and columns
 	 */
 	if (geometry){
 		int xpos, ypos, width, height;
@@ -1592,7 +1588,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		if (xpos != -1 && ypos != -1)
 			gtk_widget_set_uposition (GTK_WIDGET (app), xpos, ypos);
 		if (width != -1 && height != -1)
-			gtk_widget_set_usize (GTK_WIDGET (app), width, height);
+		        zvt_term_set_size (ZVT_TERM (term), width, height);
 		
 		/* Only the first window gets --geometry treatment for now */
 		geometry = NULL;

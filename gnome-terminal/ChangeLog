@@ -1,9 +1,16 @@
+1998-12-31 Jay Painter <jpaint@serv.net>
+
+	* gnome-terminal.c: use zvt_term_set_size to set the grid
+	size of the terminal.  --geometry now works correctly.
+
 1998-12-23 Jay Painter <jpaint@serv.net>
+
 	* gnome-terminal.c: resize in incriments equal to the charactor
 	size, and also inform the window manager with proper hints so it
 	can display the correct terminal grid size.
 
 1998-12-18 Felix Bellaby  <felix@pooh.u-net.com>
+
 	* gnome-terminal.c: various updates to session management code.
 
 1998-12-10  Jonathan Blandford  <jrb@aware-of-vacuity.labs.redhat.com>
