@@ -23,13 +23,13 @@ gnome_hint_properties_capplet_LDADD = \
 	$(GNOME_CAPPLET_LIBS)	\
 	$(INTLLIBS)
 
-EXTRA_DIST = gnome-hint.desktop
 utildir = $(datadir)/gnome/apps/Utilities
 util_DATA = gnome-hint.desktop
 
 EXTRA_DIST = \
 	gnome-hint-properties.desktop \
-	gnome-hint.png
+	gnome-hint.png \
+	gnome-hint.desktop
 
 sysdir = $(datadir)/control-center/Session/
 sys_DATA = gnome-hint-properties.desktop
