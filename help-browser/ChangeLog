@@ -1,3 +1,11 @@
+1998-11-23  Christopher Blizzard  <blizzard@appliedtheory.com>
+
+	* bookmarks.c (createBookmarksWindow): Comment out
+ 	gtk_clist_set_policy().  This should compile.
+ 
+	* history.c (createHistoryWindow): Comment out
+ 	gtk_clist_set_policy().  This should compile.
+
 1998-11-19  Havoc Pennington <hp@pobox.com>
 
 	* gnome-help-browser.c (main): Reflect renaming of gnorba calls

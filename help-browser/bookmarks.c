@@ -244,8 +244,8 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
     /* The clist */
     *clist = gtk_clist_new_with_titles(2, titles);
     gtk_clist_set_selection_mode(GTK_CLIST(*clist), GTK_SELECTION_SINGLE);
-    gtk_clist_set_policy(GTK_CLIST(*clist),
-			 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    /*gtk_clist_set_policy(GTK_CLIST(*clist),
+      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);*/
     gtk_clist_column_titles_show(GTK_CLIST(*clist));
     gtk_clist_column_titles_passive(GTK_CLIST(*clist));
     gtk_clist_set_column_justification(GTK_CLIST(*clist), 0,
