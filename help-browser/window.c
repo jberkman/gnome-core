@@ -57,7 +57,7 @@ struct _helpWindow {
     GtkWidget *entryBox;
 
     /* status bar */
-    GtkWidget *statusBar;
+    GtkWidget *appBar;
 
     /* Bogus widgets used by accel table */
     GtkWidget *accelWidget;
@@ -286,9 +286,9 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 static void
 anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
-	gtk_statusbar_pop(GTK_STATUSBAR(win->statusBar), 1);
+	gnome_appbar_pop(GNOME_APPBAR(win->appBar));
 	if (cbs->href) {
-		gtk_statusbar_push(GTK_STATUSBAR(win->statusBar),1,cbs->href);
+		gnome_appbar_push(GNOME_APPBAR(win->appBar), cbs->href);
 	}
 }
 
@@ -710,9 +710,12 @@ helpWindowNew(gchar *name,
 	gtk_widget_show(w->helpWidget);
 
 	/* add a status bar */
-	w->statusBar = gtk_statusbar_new();
-	gtk_widget_show(w->statusBar);
+	w->appBar = gnome_appbar_new(TRUE, TRUE,
+				     GNOME_PREFERENCES_USER);
 
+	gnome_app_set_statusbar(GNOME_APP(w->app), GTK_WIDGET(w->appBar));
+	gnome_app_install_menu_hints(GNOME_APP (w->app), mainmenu);
+	
 	/* trap clicks on tags so we can stick requested link in browser */
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "activate",
 			   GTK_SIGNAL_FUNC(xmhtml_activate), w);
@@ -724,7 +727,7 @@ helpWindowNew(gchar *name,
 					     GTK_SIGNAL_FUNC(formActivate), w);
 
 	gtk_box_pack_start(GTK_BOX(vbox), w->helpWidget, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), w->statusBar, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), w->appBar, FALSE, FALSE, 0);
 	gnome_app_set_contents(GNOME_APP(w->app), vbox);
 
 	/* HACKHACKHACK this will grab images via http */
@@ -818,7 +821,7 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 		return;
 	} else {
 		/* clear the status bar */
-		gtk_statusbar_pop(GTK_STATUSBAR(win->statusBar), 1);
+		gnome_appbar_pop(GNOME_APPBAR(win->appBar));
 	}
 	update_toolbar(win);
 	setCurrent(win);

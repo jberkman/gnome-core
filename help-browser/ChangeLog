@@ -1,5 +1,13 @@
 1999-01-07  Nat Friedman  <nat@nat.org>
 
+	* window.c (helpWindowNew): Changed the status bar to a
+ 	GnomeAppBar.  Installed the menu hints.
+
+	Changed gtk_statusbar_push/pop calls to gnome_appbar_push/pop
+ 	calls throughout.
+
+1999-01-07  Nat Friedman  <nat@nat.org>
+
 	* window.c: Added settingsmenu, moved preferences there.  Updated
  	all menu items to use the GNOMEUIINFO standard macros.
 
