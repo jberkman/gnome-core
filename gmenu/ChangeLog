@@ -1,3 +1,9 @@
+Tue Aug 18 16:51:32 1998  John Ellis  <johne@bellatlantic.net>
+
+	* dialogs.c, gmenu.c, order.c tree.c: Applyed patch from Lars Hamann
+	to update all the gtk_ctree_* that were renamed to gtk_ctree_node_*
+	in GTK+.
+
 Sat Aug 15 03:43:53 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch], tree.c: Now items in the tree can be moved by dragging

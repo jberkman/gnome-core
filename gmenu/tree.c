@@ -68,7 +68,7 @@ void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, g
 	if (old) gtk_ctree_unselect(GTK_CTREE(w),old);
         if (new && select) gtk_ctree_select(GTK_CTREE(w),new);
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(w), new);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(w), new);
 	gtk_label_set(GTK_LABEL(infolabel),d->comment);
 	if (d->editable)
 		gnome_stock_pixmap_widget_set_icon(GNOME_STOCK_PIXMAP_WIDGET(infopixmap),
@@ -97,8 +97,8 @@ static void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 	gchar *path;
 
 	parent = GTK_CTREE_ROW(node)->parent;
-	n = gtk_ctree_get_row_data(ctree, node);
-	p = gtk_ctree_get_row_data(ctree, parent);
+	n = gtk_ctree_node_get_row_data(ctree, node);
+	p = gtk_ctree_node_get_row_data(ctree, parent);
 
 	path = g_strconcat(p->path, "/", n->path + g_filename_index(n->path), NULL);
 	g_free(n->path);
@@ -132,7 +132,7 @@ void tree_moved(GtkCTree *ctree, GtkCTreeNode *node, GtkCTreeNode *new_parent,
 		gchar *new_filename;
 		GtkCTreeNode *parent;
 
-		node_data = gtk_ctree_get_row_data(ctree, node);
+		node_data = gtk_ctree_node_get_row_data(ctree, node);
 		old_filename = node_data->path;
 
 		parent = GTK_CTREE_ROW(node)->parent;
@@ -144,7 +144,7 @@ void tree_moved(GtkCTree *ctree, GtkCTreeNode *node, GtkCTreeNode *new_parent,
 			}
 		else
 			{
-			Desktop_Data *d = gtk_ctree_get_row_data(ctree, parent);
+			Desktop_Data *d = gtk_ctree_node_get_row_data(ctree, parent);
 			new_filename = g_strconcat(d->path, "/",
 					old_filename + g_filename_index(old_filename), NULL);
 
@@ -188,11 +188,11 @@ gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
 			return FALSE;
 		}
 
-	d = gtk_ctree_get_row_data(ctree, new_parent);
+	d = gtk_ctree_node_get_row_data(ctree, new_parent);
 	if (!d || !d->editable)
 		return FALSE;
 
-	d = gtk_ctree_get_row_data(ctree, source_node);
+	d = gtk_ctree_node_get_row_data(ctree, source_node);
 	if (!d || !d->editable)
 		return FALSE;
 
@@ -203,7 +203,7 @@ gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
 		GtkCTreeNode *node = GTK_CTREE_ROW(new_parent)->children;
 		while (node)
 			{
-			Desktop_Data *n = gtk_ctree_get_row_data(ctree, node);
+			Desktop_Data *n = gtk_ctree_node_get_row_data(ctree, node);
 			if (!strcmp(d->path + index, n->path + g_filename_index(n->path)))
 				return FALSE;
 			node = GTK_CTREE_ROW(node)->sibling;
@@ -231,7 +231,7 @@ static void move_item_down(GtkCTreeNode *node)
 		next = node;
 	row = g_list_position((GList *)topnode, (GList *)next);
 	if (!gtk_clist_row_is_visible(GTK_CLIST(menu_tree_ctree),row ))
-		gtk_ctree_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 1.0, 0.0);
+		gtk_ctree_node_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 1.0, 0.0);
 }
 
 static void move_item_up(GtkCTreeNode *node)
@@ -254,7 +254,7 @@ static void move_item_up(GtkCTreeNode *node)
 		next = node;
 	row = g_list_position((GList *)topnode, (GList *)next);
 	if (!gtk_clist_row_is_visible(GTK_CLIST(menu_tree_ctree),row ))
-		gtk_ctree_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 0.0, 0.0);
+		gtk_ctree_node_moveto (GTK_CTREE(menu_tree_ctree), next, 0, 0.0, 0.0);
 }
 
 void move_down_cb(GtkWidget *w, gpointer data)
@@ -284,7 +284,7 @@ int is_node_editable(GtkCTreeNode *node)
 	else
 		parent = node;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
 	return d->editable;
 }
 
@@ -294,7 +294,7 @@ void edit_pressed_cb()
 
 	if (!current_node || current_node == topnode || current_node == usernode ||
 			current_node == systemnode) return;
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
 	update_edit_area(d);
 }
 
@@ -322,7 +322,7 @@ void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data)
 
 	if (event->button == 3 && (node == systemnode || node == usernode)) return;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(ctree),node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(ctree),node);
 
 	update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
 
@@ -353,7 +353,7 @@ GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode 
 
 /*	g_print("%s\n",file);*/
 
-	parent_data = gtk_ctree_get_row_data(GTK_CTREE(ctree), parent);
+	parent_data = gtk_ctree_node_get_row_data(GTK_CTREE(ctree), parent);
 
 	path_buf = g_copy_strings (parent_data->path, "/", file, NULL);
 				
@@ -373,14 +373,14 @@ GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode 
 		text[0] = d->name;
 		text[1] = NULL;
 		if (d->isfolder)
-			node = gtk_ctree_insert (GTK_CTREE(ctree), parent, node, text, 5,
+			node = gtk_ctree_insert_node (GTK_CTREE(ctree), parent, node, text, 5,
 				GNOME_PIXMAP(d->pixmap)->pixmap,
 				GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
 		else
-			node = gtk_ctree_insert (GTK_CTREE(ctree), parent, node, text, 5,
+			node = gtk_ctree_insert_node (GTK_CTREE(ctree), parent, node, text, 5,
 				GNOME_PIXMAP(d->pixmap)->pixmap,
 				GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-		gtk_ctree_set_row_data (GTK_CTREE(ctree), node, d);
+		gtk_ctree_node_set_row_data (GTK_CTREE(ctree), node, d);
 		}
 	g_free(path_buf);
 	return node;
@@ -395,7 +395,7 @@ void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent)
 	GList *orderlist = NULL;
 	Desktop_Data *parent_data;
 
-	parent_data = gtk_ctree_get_row_data(GTK_CTREE(ctree), parent);
+	parent_data = gtk_ctree_node_get_row_data(GTK_CTREE(ctree), parent);
 	parent_data->expanded = TRUE;
 
 /*	g_print("reading node: %s\n", parent_data->path);*/
@@ -465,7 +465,7 @@ void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent)
 
 static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 {
-	Desktop_Data *d = gtk_ctree_get_row_data(GTK_CTREE(ctree), node);
+	Desktop_Data *d = gtk_ctree_node_get_row_data(GTK_CTREE(ctree), node);
 	if (d->isfolder && !d->expanded )
 		{
 		wait_pixmap(FALSE);
@@ -526,7 +526,7 @@ void add_main_tree_node()
 	text[1] = NULL;
 	
 	pixmap = gnome_pixmap_new_from_xpm_d(top_xpm);
-	topnode = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), NULL, NULL, text, 5,
+	topnode = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), NULL, NULL, text, 5,
 		NULL, NULL,
 		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
 		FALSE, TRUE);
@@ -538,12 +538,12 @@ void add_main_tree_node()
 	d->isfolder = TRUE;
 	d->editable = FALSE;
 
-	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), topnode, d);
+	gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), topnode, d);
 
 	/* system's menu tree */
 	text[0] = _("System Menus");
 	pixmap = gnome_pixmap_new_from_xpm_d(top_xpm);
-	systemnode = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), topnode, NULL, text, 5,
+	systemnode = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), topnode, NULL, text, 5,
 		NULL, NULL,
 		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
 		FALSE, TRUE);
@@ -564,12 +564,12 @@ void add_main_tree_node()
 	else
 		d->editable = FALSE;
 
-	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), systemnode, d);
+	gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), systemnode, d);
 
 	/* user's menu tree */
 	text[0] = _("User Menus");
 	pixmap = gnome_pixmap_new_from_xpm_d(top_xpm);
-	usernode = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), topnode, systemnode, text, 5,
+	usernode = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), topnode, systemnode, text, 5,
 		NULL, NULL,
 		GNOME_PIXMAP(pixmap)->pixmap, GNOME_PIXMAP(pixmap)->mask,
 		FALSE, TRUE);
@@ -581,7 +581,7 @@ void add_main_tree_node()
 	d->expanded = FALSE;
 	d->editable = TRUE;
 
-	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), usernode, d);
+	gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), usernode, d);
 
 	/* now load the entire menu tree */
 	c = 0;

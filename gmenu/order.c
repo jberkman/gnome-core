@@ -55,7 +55,7 @@ void save_order_of_dir(GtkCTreeNode *node)
 	else
 		parent = node;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), parent);
 	row_file = g_copy_strings(d->path, "/.order", NULL);
 
 /*	g_print("saving .order file: %s\n", row_file);*/
@@ -74,7 +74,7 @@ void save_order_of_dir(GtkCTreeNode *node)
 
 		while (row)
 			{
-			d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), row);
+			d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), row);
 			fprintf(f, "%s\n", d->path + g_filename_index(d->path));
 			row = GTK_CTREE_ROW(row)->sibling;
 			}

@@ -88,14 +88,14 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 					}
 
 				if (d->isfolder)
-					node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
+					node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 						GNOME_PIXMAP(d->pixmap)->pixmap,
 						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
 				else
-					node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
+					node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 						GNOME_PIXMAP(d->pixmap)->pixmap,
 						GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-				gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
+				gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
 				save_order_of_dir(parent);
 				add_tree_node(GTK_CTREE(menu_tree_ctree), node);
 				update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
@@ -148,7 +148,7 @@ static void delete_dialog_cb( gint button, gpointer data)
 		{
 		Desktop_Data *d;
 		GtkCTreeNode *node;
-		d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
+		d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
 
 		if (d->isfolder)
 			{
@@ -190,7 +190,7 @@ static void delete_dialog_cb( gint button, gpointer data)
 			}
 
 		update_tree_highlight(menu_tree_ctree, current_node, node, TRUE);
-		gtk_ctree_remove(GTK_CTREE(menu_tree_ctree),current_node);
+		gtk_ctree_remove_node(GTK_CTREE(menu_tree_ctree),current_node);
 		current_node = node;
 
 		free_desktop_data(d);
@@ -215,7 +215,7 @@ void delete_pressed_cb()
 		return;
 		}
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),current_node);
 
 	if (!d->editable)
 		{
@@ -296,13 +296,13 @@ static void save_dialog_cb( gint button, gpointer data)
 			gboolean leaf;
 			gboolean expanded;
 
-			free_desktop_data(gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree), node));
+			free_desktop_data(gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree), node));
 
 			/* since we are saving, it it safe to assume a folder's
 			submenus have been read */
 			if (d->isfolder) d->expanded = TRUE;
 
-			gtk_ctree_set_row_data(GTK_CTREE(menu_tree_ctree), node, d);
+			gtk_ctree_node_set_row_data(GTK_CTREE(menu_tree_ctree), node, d);
 
 			gtk_ctree_get_node_info (GTK_CTREE(menu_tree_ctree), node, NULL, &spacing,
 						NULL, NULL, NULL, NULL, &leaf, &expanded);
@@ -338,14 +338,14 @@ static void save_dialog_cb( gint button, gpointer data)
 				}
 
 			if (d->isfolder)
-				node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
+				node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 					GNOME_PIXMAP(d->pixmap)->pixmap,
 					GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, FALSE, FALSE);
 			else
-				node = gtk_ctree_insert (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
+				node = gtk_ctree_insert_node (GTK_CTREE(menu_tree_ctree), parent, node, text, 5,
 					GNOME_PIXMAP(d->pixmap)->pixmap,
 					GNOME_PIXMAP(d->pixmap)->mask, NULL, NULL, TRUE, FALSE);
-			gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
+			gtk_ctree_node_set_row_data (GTK_CTREE(menu_tree_ctree), node, d);
 			save_order_of_dir(node);
 			}
 

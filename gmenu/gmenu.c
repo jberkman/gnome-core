@@ -108,10 +108,10 @@ static void sort_node( GtkCTreeNode *node)
 
 	if (!node || node == topnode) return;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),node);
 	if (!d->isfolder) node = GTK_CTREE_ROW(node)->parent;
 
-	gtk_ctree_sort(GTK_CTREE(menu_tree_ctree), node);
+	gtk_ctree_sort_node(GTK_CTREE(menu_tree_ctree), node);
 	save_order_of_dir(node);
 }
 
@@ -127,7 +127,7 @@ static void sort_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 
 	if (!node) return;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),node);
 	if (d->isfolder) sort_node (node);
 }
 
@@ -138,7 +138,7 @@ static void sort_recursive_pressed()
 
 	if (!node || node == topnode) return;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),node);
 	if (!d->isfolder) node = GTK_CTREE_ROW(node)->parent;
 
 	gtk_ctree_post_recursive(GTK_CTREE(menu_tree_ctree), node, sort_recurse_cb, NULL);
@@ -150,7 +150,7 @@ static void dnd_data_request(GtkWidget *widget, GdkEvent *event)
 {
 	Desktop_Data *d;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(widget),current_node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(widget),current_node);
 
 	gtk_widget_dnd_data_set (widget, event, d->path, strlen (d->path) + 1);
 	g_print("drag request %s\n",d->path);
@@ -163,7 +163,7 @@ static void dnd_data_begin(GtkWidget *widget, GdkEventDragBegin *event)
 
 	if (!current_node) return;
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(widget),current_node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(widget),current_node);
 
 	g_print("drag begin %s\n",d->path);
 }
@@ -186,7 +186,7 @@ static void dnd_data_dropped(GtkWidget *widget, GdkEventDropDataAvailable *event
 
 	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (menu_tree_ctree)->row_list, row));
 
-	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(menu_tree_ctree),node);
 
 	g_print(" on %s\n",d->path);
 }
