@@ -144,6 +144,14 @@ get_and_set_dpmscheck (GtkWidget *box)
         return retval;
 }
 
+
+static gint compareItems(const void *a, const void *b)
+{
+        gint res;
+        
+        return strcmp((char *)b, (char *)a);
+}
+
 void
 create_list (GtkList *list, gchar *directory)
 {
@@ -154,7 +162,9 @@ create_list (GtkList *list, gchar *directory)
         struct dirent *child;
         gchar *prefix;
         GList *items = NULL;
+        GList *desktop_items = NULL, *listp;
         screensaver_data *sdnew;
+
         dir = opendir (directory);
         if (dir == NULL)
                 return;
@@ -164,64 +174,82 @@ create_list (GtkList *list, gchar *directory)
                         continue;
 
                 if (child->d_name[0] != '.') {
-                        prefix = g_copy_strings ("=", directory, child->d_name, "=/Desktop Entry/", NULL);
-                        gnome_config_push_prefix (prefix);
-                        g_free (prefix);
-
-                        sdnew = g_malloc (sizeof (screensaver_data));
-                        sdnew->desktop_filename = g_copy_strings (directory, child->d_name, NULL);
-                        sdnew->name = gnome_config_get_translated_string ("Name");
-                        sdnew->tryexec = gnome_config_get_string ("TryExec");
-                        gnome_config_pop_prefix ();
-                        sdnew->args = NULL;
-
-                        prefix = g_copy_strings ("=", directory, child->d_name, "=/Screensaver Data/", NULL);
-                        gnome_config_push_prefix (prefix);
-                        g_free (prefix);
-                        sdnew->windowid = gnome_config_get_string ("WindowIdCommand");
-                        sdnew->root = gnome_config_get_string ("RootCommand");
-                        sdnew->author = gnome_config_get_string ("Author");
-                        sdnew->comment = gnome_config_get_translated_string ("ExtendedComment");
-                        sdnew->demo = gnome_config_get_string ("Demo");
-                        prefix =  gnome_config_get_string ("Icon");
-                        if (prefix) {
-                                if (prefix[0] == '/') {
-                                        sdnew->icon = prefix;
-                                        g_free (prefix);
-                                } else {
-                                        /* we want to set up the initial settings */
-                                        sdnew->icon = g_copy_strings (directory, prefix, NULL);
-
-                                        g_free (prefix);
-                                }
-                        } else
-                                sdnew->icon = NULL;
-                        
-                        gnome_config_pop_prefix ();
-                        sdnew->dialog = NULL;
-                        sdnew->setup_data = NULL;
-                        if (!sdnew->name) {
-                                /* bah -- useless file... */
-                                break;
-                        }
-                        temp_item = gtk_list_item_new_with_label (sdnew->name);
-                        items = g_list_prepend (items, temp_item);
-                        if (strcmp (sdnew->name, screensaver) == 0) {
-                                sd = sdnew;
-                                list_item = temp_item;
-                                init_screensaver_data (sdnew);
-                                if (sdnew->setup_data == NULL)
-                                        gtk_widget_set_sensitive (setup_button, FALSE);
-                        }
-                        gtk_object_set_data(GTK_OBJECT(items->data), "sdata",
-                                            sdnew);
-/*                        gtk_signal_connect (GTK_OBJECT (items->data),
-                                            "button_press_event",
-                                            (GtkSignalFunc) list_click_callback,
-                                            sdnew);
-*/
+                        desktop_items = g_list_insert_sorted(desktop_items, 
+                                             g_strdup(child->d_name),
+                                             (GCompareFunc)compareItems); 
                 }
         }
+
+        listp = desktop_items;
+        while (listp) {
+                gchar *name;
+
+                name = listp->data;
+                prefix = g_copy_strings ("=", directory, name, "=/Desktop Entry/", NULL);
+                gnome_config_push_prefix (prefix);
+                g_free (prefix);
+                
+                sdnew = g_malloc (sizeof (screensaver_data));
+                sdnew->desktop_filename = g_copy_strings (directory, name, NULL);
+                sdnew->name = gnome_config_get_translated_string ("Name");
+                sdnew->tryexec = gnome_config_get_string ("TryExec");
+                gnome_config_pop_prefix ();
+                sdnew->args = NULL;
+                
+                prefix = g_copy_strings ("=", directory, name, "=/Screensaver Data/", NULL);
+                gnome_config_push_prefix (prefix);
+                g_free (prefix);
+                sdnew->windowid = gnome_config_get_string ("WindowIdCommand");
+                sdnew->root = gnome_config_get_string ("RootCommand");
+                sdnew->author = gnome_config_get_string ("Author");
+                sdnew->comment = gnome_config_get_translated_string ("ExtendedComment");
+                sdnew->demo = gnome_config_get_string ("Demo");
+                prefix =  gnome_config_get_string ("Icon");
+                if (prefix) {
+                        if (prefix[0] == '/') {
+                                sdnew->icon = prefix;
+                                g_free (prefix);
+                        } else {
+                                /* we want to set up the initial settings */
+                                sdnew->icon = g_copy_strings (directory, prefix, NULL);
+                                
+                                g_free (prefix);
+                        }
+                } else
+                        sdnew->icon = NULL;
+                
+                gnome_config_pop_prefix ();
+                sdnew->dialog = NULL;
+                sdnew->setup_data = NULL;
+                if (!sdnew->name) {
+                                /* bah -- useless file... */
+                        break;
+                }
+                temp_item = gtk_list_item_new_with_label (sdnew->name);
+                items = g_list_prepend (items, temp_item);
+                if (strcmp (sdnew->name, screensaver) == 0) {
+                        sd = sdnew;
+                        list_item = temp_item;
+                        init_screensaver_data (sdnew);
+                        if (sdnew->setup_data == NULL)
+                                gtk_widget_set_sensitive (setup_button, FALSE);
+                }
+                gtk_object_set_data(GTK_OBJECT(items->data), "sdata",
+                                    sdnew);
+/*                        gtk_signal_connect (GTK_OBJECT (items->data),
+                          "button_press_event",
+                          (GtkSignalFunc) list_click_callback,
+                          sdnew);
+*/
+
+                listp = g_list_next(listp);
+        }
+
+        if (desktop_items) {
+                g_list_foreach(desktop_items, (GFunc)g_free, NULL);
+                g_list_free(desktop_items);
+        }
+
         if (items) {
                 gtk_list_append_items (list, items);
                 if (list_item) {
@@ -230,7 +258,6 @@ create_list (GtkList *list, gchar *directory)
                 else
                         gtk_widget_set_sensitive (setup_button, FALSE);
         } 
-
                 
 }
 

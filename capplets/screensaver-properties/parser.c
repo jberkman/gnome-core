@@ -2,9 +2,12 @@
 /* Copyright (C) 1998 Redhat Software Inc. 
  * Authors: Jonathan Blandford <jrb@redhat.com>
  */
+#include <string.h>
+
 #include "parser.h"
 #include "gnome.h"
 #include "capplet-widget.h"
+
 
 #define get_lrange(ssd) (get_range (ssd, 0)) 
 #define get_nrange(ssd) (get_range (ssd, 1)) 
@@ -508,12 +511,12 @@ init_screensaver_data (screensaver_data *sd)
         /* We determine the setup layout. */
         sec_iter = gnome_config_init_iterator_sections (prefix);
         sd->setup_data = NULL;
-        while (sec_iter = gnome_config_iterator_next (sec_iter, &sec, NULL)) {
+        while ((sec_iter = gnome_config_iterator_next (sec_iter, &sec, NULL))) {
                 if (strncmp ("Arg", sec, 3) == 0) {
                         arg_vals = new_arg_vals();
                         tempstring = g_copy_strings (prefix, "/", sec, "/", NULL);
                         val_iter = gnome_config_init_iterator (tempstring);
-                        while (val_iter = gnome_config_iterator_next (val_iter, &key, &value)) {
+                        while ((val_iter = gnome_config_iterator_next (val_iter, &key, &value))) {
                                 parse_key (arg_vals, key, value);
                                 g_free (key);
                                 g_free (value);
