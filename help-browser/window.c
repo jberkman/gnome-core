@@ -87,6 +87,7 @@ static void new_window_cb (GtkWidget *w, HelpWindow win);
 static void help_forward(GtkWidget *w, HelpWindow win);
 static void help_backward(GtkWidget *w, HelpWindow win);
 static void help_onhelp(GtkWidget *w, HelpWindow win);
+static void help_gotoindex(GtkWidget *w, HelpWindow win);
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
@@ -113,18 +114,6 @@ XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 /**********************************************************************/
 
 /* Menu and toolbar structures */
-
-#if 0
-GnomeUIInfo filemenu[] = {
-    GNOMEUIINFO_ITEM("New window", "Open new browser window",
-		     new_window_cb, NULL),
-    GNOMEUIINFO_ITEM("Add Bookmark", "Add Bookmark", bookmark_cb, NULL),
-    GNOMEUIINFO_ITEM("Configure", "Configure", config_cb, NULL),
-    GNOMEUIINFO_ITEM("Close", "Close window", close_cb, NULL),
-    GNOMEUIINFO_ITEM("Exit", "Exit program", quit_cb, NULL),
-    GNOMEUIINFO_END
-};
-#endif
 
 GnomeUIInfo filemenu[] = {
 	{GNOME_APP_UI_ITEM, 
@@ -167,34 +156,39 @@ GnomeUIInfo helpmenu[] = {
 };
  
 GnomeUIInfo windowmenu[] = {
-    GNOMEUIINFO_ITEM("History", "Show History Window",
+    GNOMEUIINFO_ITEM(N_("History"), N_("Show History Window"),
 		     ghelpShowHistory, NULL),
-    GNOMEUIINFO_ITEM("Bookmarks", "Show Bookmarks Window",
+    GNOMEUIINFO_ITEM(N_("Bookmarks"), N_("Show Bookmarks Window"),
 		     ghelpShowBookmarks, NULL),
     GNOMEUIINFO_END
 };
 
 GnomeUIInfo mainmenu[] = {
-    GNOMEUIINFO_SUBTREE("File", filemenu),
-    GNOMEUIINFO_SUBTREE("Window", windowmenu),
-    GNOMEUIINFO_SUBTREE("Help", helpmenu),
+    GNOMEUIINFO_SUBTREE(N_("File"), filemenu),
+    GNOMEUIINFO_SUBTREE(N_("Window"), windowmenu),
+    GNOMEUIINFO_SUBTREE(N_("Help"), helpmenu),
     GNOMEUIINFO_END
 };
 
 GnomeUIInfo toolbar[] = {
-    GNOMEUIINFO_ITEM("Back", "Go to the previous location in the history list",
+    GNOMEUIINFO_ITEM(N_("Back"), 
+		     N_("Go to the previous location in the history list"),
 		     help_backward, right_arrow_xpm),
-    GNOMEUIINFO_ITEM("Forward", "Go to the next location in the history list",
+    GNOMEUIINFO_ITEM(N_("Forward"),
+		     N_("Go to the next location in the history list"),
 		     help_forward, left_arrow_xpm),
     GNOMEUIINFO_SEPARATOR,
-    GNOMEUIINFO_ITEM("Reload", "Reload", reload_page, reload_xpm),
+    GNOMEUIINFO_ITEM(N_("Reload"), N_("Reload"), reload_page, reload_xpm),
     GNOMEUIINFO_SEPARATOR,
-    GNOMEUIINFO_ITEM("Help", "Help on Help", help_onhelp, help_xpm),
+    GNOMEUIINFO_ITEM(N_("Index"), N_("Show Documentation Index"), 
+		     help_gotoindex, contents_xpm),
     GNOMEUIINFO_SEPARATOR,
-    GNOMEUIINFO_ITEM("History", "Show History Window",
+    GNOMEUIINFO_ITEM(N_("History"), N_("Show History Window"),
 		     ghelpShowHistory, contents_xpm),
-    GNOMEUIINFO_ITEM("BMarks", "Show Bookmarks Window",
+    GNOMEUIINFO_ITEM(N_("BMarks"), N_("Show Bookmarks Window"),
 		     ghelpShowBookmarks, contents_xpm),
+    GNOMEUIINFO_SEPARATOR,
+    GNOMEUIINFO_ITEM(N_("Help"), N_("Help on Help"), help_onhelp, help_xpm),
     GNOMEUIINFO_END
 };
 
@@ -350,6 +344,12 @@ help_onhelp(GtkWidget *w, HelpWindow win)
 	strcat(q, p);
 	g_free(p);
 	helpWindowShowURL(win, q, TRUE, FALSE);
+}
+
+static void
+help_gotoindex(GtkWidget *w, HelpWindow win)
+{
+	helpWindowShowURL(win, "toc:", TRUE, FALSE);
 }
 
 static void
