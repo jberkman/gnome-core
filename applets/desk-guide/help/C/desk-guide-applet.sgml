@@ -29,7 +29,14 @@
         url="http://www.fsf.org">their Web site</ulink> or by writing to:
 	Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 	Boston, MA 02111-1307, USA.
-   </para>  
+      </para>  
+      <para>
+	Many of the names used by companies to distinguish their products and
+	services are claimed as trademarks. Where those names appear in any
+	GNOME documentation, and those trademarks are made aware to the members
+	of the GNOME Documentation Project, the names have been printed in caps
+	or initial caps.
+      </para>
     </legalnotice>
     <releaseinfo> 
       This is version 1.0 of the Desk Guide Applet manual.

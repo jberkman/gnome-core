@@ -1,5 +1,8 @@
 2000-04-14  Eric Baudais  <baudais@okstate.edu>
 
+	* help/C/desk-guide-applet.sgml: Added a bit about trademarks.
+2000-04-14  Eric Baudais  <baudais@okstate.edu>
+
 	* help/C/*.sgml: Updated the docs to the 1.x template.
 
 2000-03-30  Jacob Berkman  <jacob@helixcode.com>
