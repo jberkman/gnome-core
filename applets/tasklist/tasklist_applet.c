@@ -552,6 +552,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	        layout_tasklist ();
 		break;
 	case GWMH_NOTIFY_DESTROY:
+		g_free (find_gwmh_task (gwmh_task));
 		tasks = g_list_remove (tasks, find_gwmh_task (gwmh_task));
 		layout_tasklist ();
 		break;
@@ -579,9 +580,10 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 						    task->gwmh_task->harea,
 						    task->gwmh_task->varea);
 
-		if (GWMH_TASK_ICONIFIED (task->gwmh_task))
+		if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task))
 			gwmh_task_show (task->gwmh_task);
-		gwmh_task_show (task->gwmh_task);
+		else
+		  gwmh_task_iconify (task->gwmh_task);
 	}
 
 	if (event->button == 3) {
