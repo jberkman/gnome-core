@@ -1,3 +1,9 @@
+1998-11-21  Michael Zucchi  <zucchi@zzedzone.fsi.com.au>
+
+	* gnome-terminal.c (new_terminal_cmd): Add signal setup for
+	title_changed signal.	
+	(title_changed): Callback for title_changed signal.
+
 1998-11-20  Manish Vachharajani <mvachhar@vger.rutgers.edu>
 
 	* gnome-terminal.c: Add ability to turn the terminal bell on and off

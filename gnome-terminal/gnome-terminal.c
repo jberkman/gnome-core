@@ -1209,6 +1209,22 @@ terminal_kill (GtkWidget *widget, void *data)
 	close_terminal_cmd (widget, app);
 }
 
+/* called for "title_changed" event.  Use it to change the window title */
+static void
+title_changed(ZvtTerm *term, VTTITLE_TYPE type, char *newtitle)
+{
+  GnomeApp *window = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+
+  switch(type) {
+  case VTTITLE_WINDOW:
+  case VTTITLE_WINDOWICON:
+    gtk_window_set_title((GtkWindow *)window, newtitle);
+    break;
+  default:
+    break;
+  }
+}
+
 
 static void  
 drag_data_received  (GtkWidget *widget, GdkDragContext *context, 
@@ -1453,6 +1469,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
+
+	gtk_signal_connect (GTK_OBJECT (term), "title_changed",
+			    (GtkSignalFunc) title_changed, term);
 
 	gtk_signal_connect (GTK_OBJECT (app), "delete_event",
 			   GTK_SIGNAL_FUNC (close_app), term);
