@@ -232,17 +232,44 @@ hints_clicked(GtkWidget *w, int button, gpointer data)
 	}
 }
 
+static void
+window_realize(GtkWidget *win)
+{
+	gnome_win_hints_set_layer(win,WIN_LAYER_ONTOP);
+}
+
 int
 main(int argc, char *argv[])
 {
 	GtkWidget *win;
 	GtkWidget *canvas;
 	char *hint;
+	GnomeClient *client;
 
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
 
 	gnome_init("gnome-hint", VERSION, argc, argv);
+	
+	client = gnome_master_client ();
+
+	if(client) {
+		char *session_args[2];
+
+		session_args[0] = argv[0];
+		session_args[1] = NULL;
+		gnome_client_set_priority(client, 20);
+		gnome_client_set_restart_style(client, 
+						GNOME_RESTART_ANYWAY);
+		gnome_client_set_restart_command(client, 1, 
+						  session_args);
+
+		gnome_client_flush(client);
+	}
+	
+	/* if we are turned off */
+	if(!gnome_config_get_bool("/Gnome/Login/RunHints=TRUE"))
+		return 0;
 
 	win = gnome_dialog_new(_("Gnome hint"),
 			       GNOME_STOCK_BUTTON_PREV,
@@ -253,6 +280,8 @@ main(int argc, char *argv[])
 			   GTK_SIGNAL_FUNC(hints_clicked),
 			   NULL);
 	gtk_window_set_position(GTK_WINDOW(win),GTK_WIN_POS_CENTER);
+	gtk_signal_connect_after(GTK_OBJECT(win),"realize",
+				 GTK_SIGNAL_FUNC(window_realize), NULL);
 
 	canvas = gnome_canvas_new();
 	gnome_canvas_set_scroll_region(GNOME_CANVAS(canvas),

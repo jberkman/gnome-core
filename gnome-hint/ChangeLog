@@ -1,3 +1,8 @@
+Sat Oct 02 21:23:54 1999  George Lebl  <jirka@5z.com>
+
+	* gnome-hint.c: if /Gnome/Login/RunHints is false just exit, also
+	  set up for the session manager to run us again next time
+
 Sat Oct 02 20:18:20 1999  George Lebl  <jirka@5z.com>
 
 	* gnome-hint.c: a gnome hint dialog, to be launched on startup
