@@ -52,45 +52,44 @@
 
     <sect1 id="config">
       <title>Configurable options</title>
-      <para>
-	<sect2 id="colorschemes">
-	  <title>Color schemes</title> 
 
-	  <para>gnome-terminal supports three color schemes: the Linux
+      <sect2 id="colorschemes">
+	<title>Color schemes</title> 
+
+	<para>gnome-terminal supports three color schemes: the Linux
 	  console scheme, the color Xterm scheme and the rxvt color
 	  scheme.  These define the intensity and colors for the
 	  sixteen ANSI color combinations that are supported by the
 	  terminal.</para>
-	</sect2>
+      </sect2>
 
-	<sect2 id="colorcombos">
-	  <title>Primary color combination</title>
+      <sect2 id="colorcombos">
+	<title>Primary color combination</title>
 
-	  <para>When no colors are specified, the program can use a
+	<para>When no colors are specified, the program can use a
 	  number of values for the default foreground and background
 	  colors.  White and black in the following description map to
 	  the colors as defined by the color scheme for white and
 	  black. </para>
+	
+	<para>The stock supported modes are: white on black, black
+	  on white, green on black and black on light yellow.</para>
+      </sect2>
 
-	  <para>The stock supported modes are: white on black, black
-	  on white, green on black and black on light yellow.  
-	</sect2>
-
-	<sect2 id="selcolor">
-	  <title>Setting the foreground and background</title>
-	  <para>In addition to the stock color combinations for
+      <sect2 id="selcolor">
+	<title>Setting the foreground and background</title>
+	<para>In addition to the stock color combinations for
 	  foreground and background the user can select its own
 	  foreground and background colors from the property
 	  box.</para> 
-
-	  <para>Additionally, the user can drag a color from any GNOME
+	
+	<para>Additionally, the user can drag a color from any GNOME
 	  color selector or color source and drop it into the
 	  terminal.  If the user drops the color on a white space, it
 	  will set the background, if the user drops the color on a
 	  cell that contains a character, it will change the
-	  foreground. 
-	</sect2>
-      </para>
+	  foreground. </para>
+      </sect2>
     </sect1>
     
     <sect1 id="classes">
@@ -109,7 +108,7 @@
       <para>
 	<itemizedlist>
 	  <listitem>
-	    <symbol>--background COLOR</symbol>
+	    <para><symbol>--background COLOR</symbol></para>
 	    
 	    <para>Used to specify the 
 	      background color for the terminal at startup.  The COLOR can be
@@ -118,7 +117,7 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--class CLASSNAME</symbol>
+	    <para><symbol>--class CLASSNAME</symbol></para>
 	    <para>
 	      CLASSNAME Specifies the terminal class used to configure the
 	      terminal at startup.
@@ -126,28 +125,28 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--command CMD, -e CMD</symbol>
+	    <para><symbol>--command CMD, -e CMD</symbol></para>
 	    <para>
 	      Runs the CMD command at startup time
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--font FONT</symbol>
+	    <para><symbol>--font FONT</symbol></para>
 	    <para>
 	      Sets the font of the terminal to FONT
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--foreground COLOR</symbol>
+	    <para><symbol>--foreground COLOR</symbol></para>
 	    <para>
 	      Sets the foreground of the terminal to COLOR.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--geometry GEOMETRY</symbol>
+	    <para><symbol>--geometry GEOMETRY</symbol></para>
 	    <para>
 	      Specifies the startup geometry for this terminal.   The
 	      geometry specifies the desired width and height in
@@ -159,7 +158,7 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--login</symbol>
+	    <para><symbol>--login</symbol></para>
 	    <para>
 	      Make gnome-terminal launch the shell in login mode (it will run
 	      all of your login initialization scripts in this mode). 
@@ -167,14 +166,14 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--nologin</symbol>
+	    <para><symbol>--nologin</symbol></para>
 	    <para>
 	      Make gnome-terminal only launch a shell.
 	    </para>
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--noutmp</symbol>
+	    <para><symbol>--noutmp</symbol></para>
 	    <para>
 	      Indicates that this and the associated shell should not be
 	      registered in the system database of users logged into the
@@ -183,7 +182,7 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--utmp</symbol>
+	    <para><symbol>--utmp</symbol></para>
 	    <para>
 	      Indicates that the user wants this terminal to be
 	      registered in the system database of users logged into
@@ -192,7 +191,7 @@
 	  </listitem>
 	  
 	  <listitem>
-	    <symbol>--title TITLE, -t TITLE</symbol>
+	    <para><symbol>--title TITLE, -t TITLE</symbol></para>
 	    <para>
 	      Makes GNOME terminal use TITLE for the window caption.
 	    </para>
@@ -219,32 +218,50 @@
       <para>
 	The following variables are set by gnome-terminal: 
 	<itemizedlist>
-	  <listitem><symbol>TERM</symbol></listitem>This
-	  variable is set to "xterm" by default.  Some curses
-	  implementations and applications based on curses might want
-	  the value to be xterm-color, color-xterm or xterm-debian to
-	  support color.  You might need to change this setting if
-	  your application does not display in color to one of those
-	  values. 
+	  <listitem>
+	    <para><symbol>TERM</symbol></para>
 
-	  <listitem><symbol>COLORTERM</symbol></listitem>This variable
-	  is set to "xterm".  Various applications (specially the
-	  Slang-based applications) use this setting to determine if
-	  the terminal supports color.
+	    <para>
+	      This variable is set to "xterm" by default.  Some curses
+	      implementations and applications based on curses might want
+	      the value to be xterm-color, color-xterm or xterm-debian to
+	      support color.  You might need to change this setting if
+	      your application does not display in color to one of those
+	      values.
+	    </para>
+	  </listitem>
 
-	  <listitem><symbol>WINDOWID</symbol></listitem>This variable
-	  contains the X11 Window identifier.  This is used sometimes
-	  by applications to modify the contents of this window or
-	  provide special effects.
+	  <listitem>
+	    <para><symbol>COLORTERM</symbol></para>
+
+	    <para>
+	      This variable is set to "xterm".
+	      Various applications (specially the
+	      Slang-based applications) use this setting to determine if
+	      the terminal supports color.
+	    </para>
+	  </listitem>
+
+	  <listitem>
+	    <para><symbol>WINDOWID</symbol></para>
+
+	    <para>
+	      This variable contains the X11 Window identifier.
+	      This is used sometimes by applications to modify the
+	      contents of this window or provide special effects.
+	    </para>
+	  </listitem>
 	</itemizedlist>
       </para>
     </sect1>
     
     <sect1 id="Authors">
       <title>Authors</title>
-      
-      A number of people work together to bring you the
-      gnome-terminal:
+
+      <para>
+	A number of people work together to bring you the
+	gnome-terminal:</para>
+
       <para>
 	Michael Zucchi coded the Zvt widget engine; Miguel de Icaza
 	and Jay Painter improved it and did further debugging and
