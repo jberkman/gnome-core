@@ -70,6 +70,9 @@ struct _GwmDesktopClass
   GtkOrientation orientation;
   guint	         area_size;
   guint		 double_buffer : 1;
+
+  gboolean	(*check_task)	(GwmDesktop	*desktop,
+				 GwmhTask	*task);
 };
 
 

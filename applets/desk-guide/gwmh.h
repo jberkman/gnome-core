@@ -264,6 +264,9 @@ void		gwmh_task_get_frame_area_pos	(GwmhTask        *task,
 gboolean	gwmh_task_close			(GwmhTask	 *task);
 void		gwmh_task_kill			(GwmhTask	 *task);
 void		gwmh_task_iconify		(GwmhTask	 *task);
+void		gwmh_task_deiconify		(GwmhTask	 *task);
+void		gwmh_task_focus			(GwmhTask	 *task);
+void		gwmh_task_raise			(GwmhTask	 *task);
 void		gwmh_task_show			(GwmhTask	 *task);
 void		gwmh_task_set_gstate_flags	(GwmhTask	 *task,
 						 GnomeWinState	  flags);
@@ -284,8 +287,8 @@ void		gwmh_task_set_area		(GwmhTask	 *task,
 						 guint		  harea,
 						 guint            varea);
 void            gwmh_task_get_mini_icon         (GwmhTask        *task,
-						 GdkPixmap       **pixmap,
-						 GdkBitmap       **mask);
+						 GdkPixmap      **pixmap,
+						 GdkBitmap      **mask);
 
 /* task list functions, task list managing needs to be explicitely
  * enabled since it causes a lot of extra traffic that not all

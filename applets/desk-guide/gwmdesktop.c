@@ -22,6 +22,17 @@
 #include "stripe.xbm"
 #include <gtk/gtkprivate.h>
 
+/* --- signals --- */
+enum {
+  SIGNAL_CHECK_TASK,
+  SIGNAL_LAST
+};
+typedef gboolean (*SignalCheckTask) (GtkObject *object,
+				     GwmhTask  *task,
+				     gpointer   user_data);
+
+
+/* --- structures --- */
 typedef struct
 {
   gint  x, y;
@@ -59,6 +70,7 @@ static gboolean gwmh_desktop_motion	  (GtkWidget          *widget,
 /* --- static variables --- */
 static gpointer         parent_class = NULL;
 static GwmDesktopClass *gwm_desktop_class = NULL;
+static guint            gwm_desktop_signals[SIGNAL_LAST] = { 0 };
 static GQuark		quark_grab_area = 0;
 
 
@@ -89,6 +101,18 @@ gwm_desktop_get_type (void)
 }
 
 static void
+gwm_desktop_marshal_check_task (GtkObject    *object,
+				GtkSignalFunc func,
+				gpointer      func_data,
+				GtkArg       *args)
+{
+  SignalCheckTask sfunc = (SignalCheckTask) func;
+  gboolean *retval = GTK_RETLOC_BOOL (args[1]);
+  
+  *retval = sfunc (object, GTK_VALUE_POINTER (args[0]), func_data);
+}
+
+static void
 gwm_desktop_class_init (GwmDesktopClass *class)
 {
   GtkObjectClass *object_class;
@@ -116,6 +140,16 @@ gwm_desktop_class_init (GwmDesktopClass *class)
   class->orientation = GTK_ORIENTATION_HORIZONTAL;
   class->area_size = 22;
   class->double_buffer = TRUE;
+  class->check_task = NULL;
+
+  gwm_desktop_signals[SIGNAL_CHECK_TASK] =
+    gtk_signal_new ("check_task",
+		    GTK_RUN_LAST,
+		    object_class->type,
+		    GTK_SIGNAL_OFFSET (GwmDesktopClass, check_task),
+		    gwm_desktop_marshal_check_task,
+		    GTK_TYPE_BOOL, 1, GTK_TYPE_POINTER);
+  gtk_object_class_add_signals (object_class, gwm_desktop_signals, SIGNAL_LAST);
 }
 
 static void
@@ -525,6 +559,7 @@ gwm_desktop_draw (GtkWidget    *widget,
 		  GdkRectangle *area)
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
+  GtkObject *object = GTK_OBJECT (desktop);
   GwmhDesk *desk = gwmh_desk_get_config ();
   GdkWindow *window = desktop->pixmap ? desktop->pixmap : widget->window;
   GtkStyle *style = widget->style;
@@ -597,9 +632,19 @@ gwm_desktop_draw (GtkWidget    *widget,
   for (node = desktop->task_list; node; node = node->next)
     {
       GwmhTask *task = node->data;
-      GrabArea *grab_area = g_new (GrabArea, 1);
+      GrabArea *grab_area;
       gint task_x, task_y;
       gint x2, y2;
+      gboolean show_task = TRUE;
+
+      gtk_signal_emit (object, gwm_desktop_signals[SIGNAL_CHECK_TASK], task, &show_task);
+      if (!show_task)
+	{
+	  gwmh_task_set_qdata_full (task, quark_grab_area, NULL, NULL);
+	  continue;
+	}
+
+      grab_area = g_new (GrabArea, 1);
 
       /* offset to area */
       x = xthick + task->harea * area_width;

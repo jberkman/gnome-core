@@ -1,8 +1,31 @@
+Fri Aug 20 11:09:48 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmdesktop.[hc]: added a ::check-task signal to determine
+	visibility of individual tasks.
+
+	* deskguide_applet.c: connect to GmwDesktop's ::check-task signal
+	for all desktops to hide tasks according to the new config flags
+	show_hidden_tasks, show_shaded_tasks, show_skip_winlist and
+	show_skip_taskbar.
+	don't show iconified tasks at all.
+
+Fri Aug 20 10:28:55 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.[hc]: split up gwmh_task_show() into gwmh_task_deiconify(),
+	gwmh_task_focus(), gwmh_task_raise() since some code needs only
+	part of the sho() functionality.
+	gwmh_task_show() still incorporates the functionality of the above
+	fucntions and is more efficient since it coalescs the task updates
+	and will only sync once. though, it will not try to assign focus to
+	SKIP_FOCUS tasks anymore. it'll also unshade shaded tasks now.
+
+	* gwmh.c (gwmh_task_get_mini_icon): fixed this function up a bit
+	(codingstyle), added assertments, get_typed_property_data() returns
+	memory allocated through glib, so use g_free not XFree.
+
 1999-08-04 Anders Carlsson <anders.carlsson@tordata.se>
 
-	* gwmh.c
-	  gwmh.h: Added gwmh_task_get_mini_icon
-	  
+	* gwmh.[hc]: Added gwmh_task_get_mini_icon
 
 Tue Jul  6 12:47:37 1999  Tim Janik  <timj@gtk.org>
 

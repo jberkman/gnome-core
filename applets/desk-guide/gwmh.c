@@ -47,7 +47,7 @@ static gulong XA_WM_PROTOCOLS = 0;
 static gulong XA_WM_DELETE_WINDOW = 0;
 static gulong XA_WM_TAKE_FOCUS = 0;
 static gulong XA_ENLIGHTENMENT_DESKTOP = 0;
-static gulong KWM_WIN_ICON = 0;
+static gulong XA_KWM_WIN_ICON = 0;
 
 static const struct {
   gulong      *atom;
@@ -72,7 +72,7 @@ static const struct {
   { &XA_WM_DELETE_WINDOW,		"WM_DELETE_WINDOW", },
   { &XA_WM_TAKE_FOCUS,			"WM_TAKE_FOCUS", },
   { &XA_ENLIGHTENMENT_DESKTOP,		"ENLIGHTENMENT_DESKTOP", },
-  { &KWM_WIN_ICON,                      "KWM_WIN_ICON", },
+  { &XA_KWM_WIN_ICON,                   "XA_KWM_WIN_ICON", },
 };
 
 
@@ -1645,16 +1645,60 @@ gwmh_task_iconify (GwmhTask *task)
 }
 
 void
+gwmh_task_deiconify (GwmhTask *task)
+{
+  g_return_if_fail (task != NULL);
+
+  gwmh_task_update (task, GWMH_TASK_INFO_ICONIFIED, FALSE);
+
+  if (GWMH_TASK_ICONIFIED (task))
+    {
+      gdk_error_trap_push ();
+
+      XMapWindow (GDK_DISPLAY (), task->xwin);
+
+      gwmh_sync ();
+      gdk_error_trap_pop ();
+    }
+}
+
+void
+gwmh_task_focus (GwmhTask *task)
+{
+  g_return_if_fail (task != NULL);
+
+  gwmh_task_update (task, GWMH_TASK_INFO_FOCUSED, FALSE);
+
+  if (wm_protocol_check_support (task->xwin, XA_WM_TAKE_FOCUS))
+    send_client_message_32 (task->xwin, task->xwin,
+			    XA_WM_PROTOCOLS,
+			    0,
+			    2, XA_WM_TAKE_FOCUS, CurrentTime);
+
+  if (!GWMH_TASK_FOCUSED (task))
+    {
+      gdk_error_trap_push ();
+
+      XSetInputFocus (GDK_DISPLAY (), task->xwin, RevertToPointerRoot, CurrentTime);
+
+      gwmh_sync ();
+      gdk_error_trap_pop ();
+    }
+}
+
+void
 gwmh_task_show (GwmhTask *task)
 {
   g_return_if_fail (task != NULL);
 
   gwmh_task_update (task,
 		    (GWMH_TASK_INFO_ICONIFIED |
-		     GWMH_TASK_INFO_FOCUSED),
+		     GWMH_TASK_INFO_FOCUSED |
+		     GWMH_TASK_INFO_GSTATE),
 		    FALSE);
 
-  if (wm_protocol_check_support (task->xwin, XA_WM_TAKE_FOCUS))
+  if (!GWMH_TASK_SKIP_FOCUS (task) &&
+      wm_protocol_check_support (task->xwin, XA_WM_TAKE_FOCUS))
     send_client_message_32 (task->xwin, task->xwin,
 			    XA_WM_PROTOCOLS,
 			    0,
@@ -1664,8 +1708,29 @@ gwmh_task_show (GwmhTask *task)
 
   if (GWMH_TASK_ICONIFIED (task))
     XMapWindow (GDK_DISPLAY (), task->xwin);
-  if (!GWMH_TASK_FOCUSED (task))
+  if (!GWMH_TASK_SKIP_FOCUS (task) && !GWMH_TASK_FOCUSED (task))
     XSetInputFocus (GDK_DISPLAY (), task->xwin, RevertToPointerRoot, CurrentTime);
+  XRaiseWindow (GDK_DISPLAY (), task->xwin);
+  if (GWMH_TASK_SHADED (task))
+    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+			    GWMHA_WIN_STATE,
+			    SubstructureNotifyMask,
+			    3,
+			    WIN_STATE_SHADED,
+			    0, CurrentTime);
+  
+  gwmh_sync ();
+  
+  gdk_error_trap_pop ();
+}
+
+void
+gwmh_task_raise (GwmhTask *task)
+{
+  g_return_if_fail (task != NULL);
+
+  gdk_error_trap_push ();
+
   XRaiseWindow (GDK_DISPLAY (), task->xwin);
   gwmh_sync ();
   
@@ -1748,7 +1813,7 @@ gwmh_task_set_app_state (GwmhTask        *task,
 }
 
 void
-gwmh_task_get_mini_icon (GwmhTask  *task,
+gwmh_task_get_mini_icon (GwmhTask   *task,
 			 GdkPixmap **pixmap,
 			 GdkBitmap **mask)
 {
@@ -1760,41 +1825,46 @@ gwmh_task_get_mini_icon (GwmhTask  *task,
   Window root;
   int x, y, b, width, height, depth;
   gint size;
-  Display *xdisplay = GDK_WINDOW_XDISPLAY (task->gdkwindow);
+  Display *xdisplay;
+
+  g_return_if_fail (task != NULL);
+  g_return_if_fail (pixmap);
+  g_return_if_fail (mask);
+
+  xdisplay = GDK_WINDOW_XDISPLAY (task->gdkwindow);
 
   atomdata = get_typed_property_data (xdisplay,
 				      xwindow,
-				      KWM_WIN_ICON,
-				      KWM_WIN_ICON,
+				      XA_KWM_WIN_ICON,
+				      XA_KWM_WIN_ICON,
 				      &size,
 				      32);
 
-  if (atomdata) {
-    
-    /* Get icon size and depth */
-    XGetGeometry (xdisplay, (Drawable)atomdata[0], &root, &x, &y, 
-		  &width, &height, &b, &depth);
-    
-    /* Create a new GdkPixmap and copy the mini icon pixmap to it */
-    (*pixmap) = gdk_pixmap_new (NULL, 16, 16, depth);
-    gc = gdk_gc_new ((*pixmap));
-    gc_private = (GdkGCPrivate *)gc;
-    private = (GdkPixmapPrivate *)(*pixmap);
-    XCopyArea (private->xdisplay, atomdata[0], private->xwindow, gc_private->xgc,
-	       0, 0, width, height, 0, 0);
-    gdk_gc_destroy (gc);
-
-    /* Create a new GdkBitmap and copy the mini icon mask to it */
-    (*mask) = gdk_pixmap_new (NULL, 16, 16, 1);
-    gc = gdk_gc_new ((*mask));
-    gc_private = (GdkGCPrivate *)gc;
-    private = (GdkPixmapPrivate *)(*mask);
-    XCopyArea (private->xdisplay, atomdata[1], private->xwindow, gc_private->xgc,
-	       0, 0, 16, 16, 0, 0);
-    gdk_gc_destroy (gc);
-    XFree (atomdata);
-  }
-  
+  if (atomdata)
+    {
+      /* Get icon size and depth */
+      XGetGeometry (xdisplay, (Drawable)atomdata[0], &root, &x, &y, 
+		    &width, &height, &b, &depth);
+      
+      /* Create a new GdkPixmap and copy the mini icon pixmap to it */
+      *pixmap = gdk_pixmap_new (NULL, 16, 16, depth);
+      gc = gdk_gc_new (*pixmap);
+      gc_private = (GdkGCPrivate*) gc;
+      private = (GdkPixmapPrivate*) *pixmap;
+      XCopyArea (private->xdisplay, atomdata[0], private->xwindow, gc_private->xgc,
+		 0, 0, width, height, 0, 0);
+      gdk_gc_destroy (gc);
+      
+      /* Create a new GdkBitmap and copy the mini icon mask to it */
+      *mask = gdk_pixmap_new (NULL, 16, 16, 1);
+      gc = gdk_gc_new (*mask);
+      gc_private = (GdkGCPrivate*) gc;
+      private = (GdkPixmapPrivate*) (*mask);
+      XCopyArea (private->xdisplay, atomdata[1], private->xwindow, gc_private->xgc,
+		 0, 0, 16, 16, 0, 0);
+      gdk_gc_destroy (gc);
+      g_free (atomdata);
+    }
 }
 
 void

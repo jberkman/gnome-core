@@ -39,7 +39,9 @@ static void	gp_load_config		(const gchar	   *privcfgpath);
 static gboolean	gp_save_session		(gpointer	    func_data,
 					 const gchar	   *privcfgpath,
 					 const gchar	   *globcfgpath);
-
+static gboolean	gp_check_task_visible	(GwmDesktop	   *desktop,
+					 GwmhTask	   *task,
+					 gpointer	    user_data);
 
 static GtkWidget	*gp_applet = NULL;
 static GtkTooltips	*gp_tooltips = NULL;
@@ -55,8 +57,7 @@ static guint		 GP_ARROW_DIR = 0;
 static gchar		*DESK_GUIDE_NAME = NULL;
 
 static ConfigItem gp_config_items[] = {
-  CONFIG_SECTION (tooltip_settings,
-		  "Tooltips"),
+  CONFIG_SECTION (tooltip_settings,			  "Tooltips"),
   CONFIG_BOOL (desktips,	TRUE,
 	       "Enable Desktop Names"),
   CONFIG_RANGE (desktips_delay,	10,	1,	5000,
@@ -65,17 +66,26 @@ static ConfigItem gp_config_items[] = {
 	       "Enable Tooltips"),
   CONFIG_RANGE (tooltips_delay,	500,	1,	5000,
 		"Tooltips Delay [ms]"),
-  CONFIG_SECTION (layout,
-		  "Layout"),
+  CONFIG_SECTION (layout,				  "Layout"),
   CONFIG_BOOL (switch_arrow,	FALSE,
 	       "Switch Arrow"),
   CONFIG_BOOL (current_only,	FALSE,
 	       "Show only current Desktop"),
   CONFIG_BOOL (show_pager,	TRUE,
 	       "Show Desktop Pager"),
+  
   CONFIG_PAGE ("Tasks"),
-  CONFIG_BOOL (all_tasks,	FALSE,
-	       "List all tasks"),
+  CONFIG_SECTION (task_visibility,			  "Visibility"),
+  CONFIG_BOOL (show_hidden_tasks,	FALSE,
+	       "Show `HIDDEN' Tasks"),
+  CONFIG_BOOL (show_shaded_tasks,	TRUE,
+	       "Show `SHADED' Tasks"),
+  CONFIG_BOOL (show_skip_winlist,	FALSE,
+	       "Show `SKIP-WINLIST' Tasks"),
+  CONFIG_BOOL (show_skip_taskbar,	FALSE,
+	       "Show `SKIP-TASKBAR' Tasks"),
+  CONFIG_SECTION ("", NULL),
+  
   CONFIG_PAGE ("Advanced Options"),
   CONFIG_BOOL (double_buffer,	TRUE,
 	       "Draw desktops double buffered"),
@@ -106,7 +116,7 @@ main (gint   argc,
 		      VERSION,
 		      argc, argv,
 		      NULL, 0, NULL);
-
+  
   DESK_GUIDE_NAME = TRANSL ("GNOME Desktop Guide (Pager)");
   
   /* setup applet widget
@@ -411,11 +421,27 @@ gp_create_desk_widgets (void)
 	    gtk_widget_set (gp_desk_widget[i],
 			    "parent", gp_desk_box,
 			    "visible", TRUE,
+			    "signal::check-task", gp_check_task_visible, NULL,
 			    "signal::destroy", gtk_widget_destroyed, &gp_desk_widget[i],
 			    NULL);
 	  }
       gp_n_desk_widgets = i;
     }
+}
+
+static gboolean
+gp_check_task_visible (GwmDesktop *desktop,
+		       GwmhTask   *task,	
+		       gpointer    user_data)
+{
+  if (GWMH_TASK_ICONIFIED (task) ||
+      (GWMH_TASK_HIDDEN (task) && !BOOL_CONFIG (show_hidden_tasks)) ||
+      (GWMH_TASK_SHADED (task) && !BOOL_CONFIG (show_shaded_tasks)) ||
+      (GWMH_TASK_SKIP_WINLIST (task) && !BOOL_CONFIG (show_skip_winlist)) ||
+      (GWMH_TASK_SKIP_TASKBAR (task) && !BOOL_CONFIG (show_skip_taskbar)))
+    return FALSE;
+  else
+    return TRUE;
 }
 
 static inline gboolean
