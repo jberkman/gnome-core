@@ -24,4 +24,4 @@ sysdir = $(datadir)/control-center/Workspace
 sys_DATA = background-properties.desktop 
 
 install-exec-hook:
-	ln -sf $(bindir)/background-properties-capplet $(bindir)/background-properties-init
+	cd $(bindir) && $(LN_S) background-properties-capplet background-properties-init
