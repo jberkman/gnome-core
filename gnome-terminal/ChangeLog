@@ -1,8 +1,13 @@
 1998-05-21  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
-	* gnome-terminal.c (get_shell_name): More fixes:  name variable
-	was not being correctly computed.
-	* gnome-terminal.c: Initialize initial_command variable. 
+	* gnome-terminal.c (get_shell_name): Be more agresive while
+	setting up the shell: Use the variable SHELL if defined; if not,
+	use the password entry and if this fails, try a list of shells. 
+
+	(get_shell_name): More fixes: name variable was not being
+	correctly computed.
+	
+	Initialize initial_command variable. 
 
 1998-05-16  Raja R Harinath  <harinath@cs.umn.edu>
 

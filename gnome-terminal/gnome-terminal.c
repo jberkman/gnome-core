@@ -538,6 +538,25 @@ static GnomeUIInfo gnome_terminal_menu [] = {
 	GNOMEUIINFO_END
 };
 
+static void
+set_shell_to (char *the_shell, char **shell, char **name)
+{
+	char *only_name;
+	int len;
+
+	only_name = strrchr (the_shell, '/');
+	only_name++;
+	
+	if (invoke_as_login_shell){
+		len = strlen (only_name);
+		
+		*name  = g_malloc (len + 2);
+		**name = '-';
+		strcpy ((*name)+1, only_name); 
+	} else
+		*name = only_name;
+}
+
 /*
  * Puts in *shell a pointer to the full shell pathname
  * Puts in *name the invocation name for the shell
@@ -546,29 +565,27 @@ static void
 get_shell_name (char **shell, char **name)
 {
 	struct passwd *pw;
-	char *only_name;
-	int len;
-
-	pw = getpwuid(getuid());
-	if (pw) {
-		*shell = pw->pw_shell;
-		only_name = strrchr (pw->pw_shell, '/');
-		
-		if (invoke_as_login_shell){
-			len = strlen (only_name);
-		
-			*name  = g_malloc (len + 2);
-			**name = '-';
-			strcpy ((*name)+1, only_name+1); 
-		} else
-			*name = only_name+1;
-	} else {
-		*shell = "/bin/bash";
-		if (invoke_as_login_shell)
-			*name  = "-bash";
-		else
-			*name  = "bash";
+	int i;
+	char *shells [] = {
+		"/bin/bash", "/bin/zsh", "/bin/tcsh", "/bin/ksh",
+		"/bin/csh", "/bin/sh", 0
+	};
+	
+	if (*shell = getenv ("SHELL")){
+		set_shell_to (*shell, shell, name);
+		return;
 	}
+	pw = getpwuid(getuid());
+	if (pw && pw->pw_shell) {
+		set_shell_to (pw->pw_shell, shell, name);
+		return;
+	} 
+
+	for (i = 0; shells [i]; i++)
+		if (g_file_exists (shells [i])){
+			set_shell_to (shells [i], shell, name);
+			return;
+		}
 }
 
 void
@@ -726,8 +743,6 @@ new_terminal_cmd (char **cmd)
 	case 0: {
 		sprintf (buffer, "WINDOWID=%d",(int) ((GdkWindowPrivate *)app->window)->xwindow);
 		env_copy [winid_pos] = buffer;
-		printf ("cmd=%p cmd=%s\n", cmd, cmd ? cmd [0] : "NONE");
-		printf ("shell=%s, name=%s\n", shell, name);
 		if (cmd) {
 			environ = env_copy;
 			execvp (cmd[0], cmd);
