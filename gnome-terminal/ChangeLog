@@ -1,3 +1,13 @@
+Mon Jun 25 Malcolm Tredinnick <malcolm@commsecure.com.au>
+
+	* gnome-terminal.c (new_terminal_cmd): Change the matching regex so that
+	  you can't dingus click things like a www-admin user in 'ls- l' output.
+	  There must now be either a period in the string, or it must start with
+	  'http:' or 'ftp:' (fixes bug #51939).
+
+	* gnome-terminal.glade: A couple of entries in the colour palette were out
+	  of order. Not any more (bug #51376).
+
 2001-05-30  Havoc Pennington  <hp@redhat.com>
 
 	* gnome-terminal.c (paste_cmd): Paste pastes the clipboard, not

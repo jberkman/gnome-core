@@ -728,8 +728,6 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	return 0;
 }
 
-void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
-
 static void
 apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term)
 {
@@ -2212,8 +2210,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 				  GTK_SIGNAL_FUNC (set_hints), term);
 
 #ifdef ZVT_TERM_MATCH_SUPPORT
-	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp))[-A-Za-z0-9\\.]+(:[0-9]*)?", VTATTR_UNDERLINE, "host only url");
-	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp))[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\) ,\\\"]", VTATTR_UNDERLINE, "full url");
+	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?", VTATTR_UNDERLINE, "host only url");
+	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\) ,\\\"]", VTATTR_UNDERLINE, "full url");
 #endif
 
 	if (!cfg->menubar_hidden)

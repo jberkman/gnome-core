@@ -944,7 +944,7 @@
 
 	<widget>
 	  <class>GnomeColorPicker</class>
-	  <name>palette-10-colorpicker</name>
+	  <name>palette-11-colorpicker</name>
 	  <can_focus>True</can_focus>
 	  <dither>True</dither>
 	  <use_alpha>False</use_alpha>
@@ -967,7 +967,7 @@
 
 	<widget>
 	  <class>GnomeColorPicker</class>
-	  <name>palette-11-colorpicker</name>
+	  <name>palette-10-colorpicker</name>
 	  <can_focus>True</can_focus>
 	  <dither>True</dither>
 	  <use_alpha>False</use_alpha>
