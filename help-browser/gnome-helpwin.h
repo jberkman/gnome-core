@@ -28,22 +28,6 @@
 
 BEGIN_GNOME_DECLS
 
-
-/* filters convert a particular file type to HTML               */
-/* it is assumed that the filter takes the file from stdin, and */
-/* sends the converted data to stdout                           */
-
-typedef gint DocType;
-
-struct _HTMLFilter {
-    DocType type;        /* key for type, assigned when created */
-    gchar   *descr;      /* string describing type of file */
-    gchar   *exec;       /* path of executable to run , a '{}' is */
-                         /* replaced by the name of the file */
-};
-
-typedef struct _HTMLFilter   HTMLFilter;
-
 /* widget related macros and structures */
 #define GNOME_HELPWIN(obj) GTK_CHECK_CAST(obj, gnome_helpwin_get_type(), GnomeHelpWin)
 #define GNOME_HELPWIN_CLASS(klass) GTK_CHECK_CAST_CLASS(klass, gnome_helpwin_get_type(), GnomeHelpWinClass)
@@ -57,9 +41,6 @@ struct _GnomeHelpWin {
 
     gchar document_path[1024];
     gchar *html_source;
-    
-    gint       numfilters;
-    HTMLFilter *filters;
 };
 
 struct _GnomeHelpWinClass {
@@ -76,9 +57,8 @@ guint gnome_helpwin_close(GnomeHelpWin *help);
 /* load file straight into the HTML widget */
 void gnome_helpwin_goto(GnomeHelpWin *help,  const char *filename);
 
-/* load file into HTML widget, using filter for file type 'type' */
-void gnome_helpwin_load(GnomeHelpWin *help,  const char *filename,
-			const char *type);
+void jump_to_anchor( GnomeHelpWin *w, gchar *a );
+void jimp_to_line( GnomeHelpWin *w, gint line );
 
 END_GNOME_DECLS
 

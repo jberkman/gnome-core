@@ -11,11 +11,26 @@ details.
 This requires you to check out a version of gnome-libs so that the 
 gnome_app_create_menus() will work properly.
 
+UPDATE (2/20/98)
+----------------
+
+Lots of new goodies!
+
+ - history works now (back and forward buttons)
+ - new internal structure for transport/mime conversion/etc
+ - browse man pages!
+ - simple http transport using 'lynx -source' - use as a WEB BROWSER
+    (example:  gnome-help-browser http:/www.gimp.org/gtk/')
+
+The program 'gnome-man2html' is installed in the standard bin location
+for GNOME binaries, and is used by the help browser. Also, lynx is
+expected to be on the standard PATH for http transfers.
+
 
 TODO
 ----
  - Make a better scheme to reference files/section than using a real filename?
- - Make the help browser do something interesting!
+ - add caching code (its written, need to integrate)
  - work on DocBook output to generate topic.dat automatically (need to use
    special tags in DocBook to denote links which should go into the 'Help' 
    menu).

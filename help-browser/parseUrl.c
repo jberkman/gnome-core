@@ -1,0 +1,70 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <malloc.h>
+#include <string.h>
+#include <glib.h>
+
+#include "HTParse.h"
+#include "url.h"
+
+#define COPY_OR_EMPTY(x) g_strdup((x) ? (x) : "")
+
+DecomposedUrl decomposeUrl(char *url)
+{
+    DecomposedUrl res;
+    gchar buf[BUFSIZ];
+    HTURI parts;
+
+    strcpy(buf, url);
+    res = (DecomposedUrl)malloc(sizeof(*res));
+
+    HTScan(buf, &parts);
+
+    res->access = COPY_OR_EMPTY(parts.access);
+    res->host = COPY_OR_EMPTY(parts.host);
+    if (parts.relative) {
+	res->path = COPY_OR_EMPTY(parts.relative);
+    } else {
+	res->path = COPY_OR_EMPTY(parts.absolute);
+    }
+    sprintf(buf, "/%s", res->path);
+    g_free(res->path);
+    res->path = g_strdup(buf);
+    res->anchor = COPY_OR_EMPTY(parts.fragment);
+
+    return res;
+}
+
+void freeDecomposedUrl(DecomposedUrl decomposedUrl)
+{
+    g_free(decomposedUrl->access);
+    g_free(decomposedUrl->host);
+    g_free(decomposedUrl->path);
+    g_free(decomposedUrl->anchor);
+    free(decomposedUrl);
+}
+
+int isRelative(gchar *url)
+{
+    return HTURL_isAbsolute(url) ? 0 : 1;
+}
+
+DecomposedUrl decomposeUrlRelative(char *url, char *ref, char **resolved)
+{
+    gchar urlBuf[BUFSIZ];
+    gchar refBuf[BUFSIZ];
+    DecomposedUrl res;
+    gchar *s;
+
+    strcpy(urlBuf, url);
+    strcpy(refBuf, ref);
+    s = HTParse(urlBuf, refBuf, PARSE_ALL);
+    res = decomposeUrl(s);
+    if (resolved) {
+	*resolved = s;
+    } else {
+	free(s);
+    }
+
+    return res;
+}

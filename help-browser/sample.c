@@ -3,10 +3,10 @@
 /* gnome-hello-menus.c -- Example for the "Adding menus" section
    of the Gnome Developers' Tutorial (that's is included in the
    Gnome Developers' Documentation in devel-progs/)
-   */
+*/
 /* Includes: Basic stuff
-	     Menus
-	     */
+   Menus
+*/
 
 /* Copyright (C) 1998 Mark Galassi, Horacio J. Peña, all rights reserved */
 
@@ -25,98 +25,81 @@ void about_cb (GtkWidget *widget, void *data);
 void quit_cb (GtkWidget *widget, void *data);
 
 void prepare_app();
-GtkMenuFactory *create_menu ();
-
 GtkWidget *app;
 
 /* The menu definitions: File/Exit and Help/About are mandatory */
-GtkMenuEntry hello_menu [] = {
-  { "File/Exit",	 "<control>E", (GtkMenuCallback) quit_cb,  NULL },
-	/* The '...' end indicate that the options open a dialog */
-  { "Help/About...", "<control>A", (GtkMenuCallback) about_cb, NULL },
-};
-
-
 GnomeUIInfo filemenu[] = {
-    {GNOME_APP_UI_ITEM, N_("Exit"), NULL, quit_cb,
-     GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT, 0, 0, NULL},
-    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
-     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
+	{GNOME_APP_UI_ITEM, "Exit", "Exit program", quit_cb,
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };
 
 GnomeUIInfo helpmenu[] = {
-    {GNOME_APP_UI_HELP, NULL, NULL, "sample-help",
-     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-    {GNOME_APP_UI_ITEM, N_("About..."), NULL, about_cb,
-     GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT, 0, 0, NULL},
-    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
-     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
+	{GNOME_APP_UI_ITEM, "About...", "Info about this program", about_cb, 
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+	{GNOME_APP_UI_HELP, NULL, NULL, "sample-help",
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };
-
+ 
 GnomeUIInfo mainmenu[] = {
-    {GNOME_APP_UI_SUBTREE, N_("File"), NULL, filemenu,
-     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-    {GNOME_APP_UI_SUBTREE, N_("Help"), NULL, helpmenu,
-     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
-    {GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL,
-     GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL}
+	{GNOME_APP_UI_SUBTREE, "File", NULL, filemenu,
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+	{GNOME_APP_UI_SUBTREE, "Help", NULL,  helpmenu,
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+	{GNOME_APP_UI_ENDOFINFO, NULL, NULL, NULL}
 };
  
 int
 main(int argc, char *argv[])
 {
-  /* gnome_init() is always called at the beginning of a program.  it
-     takes care of initializing both Gtk and GNOME */
-  gnome_init ("gnome_help_sample", &argc, &argv);
-
-  /* prepare_app() makes all the gtk calls necessary to set up a
-     minimal Gnome application; It's based on the hello world example
-     from the Gtk+ tutorial */
-  prepare_app ();
-
-  gtk_main ();
-
-  return 0;
+	/* gnome_init() is always called at the beginning of a program.  it
+	   takes care of initializing both Gtk and GNOME */
+	gnome_init ("sample", &argc, &argv);
+	
+	/* prepare_app() makes all the gtk calls necessary to set up a
+	   minimal Gnome application; It's based on the hello world example
+	   from the Gtk+ tutorial */
+	prepare_app ();
+	
+	gtk_main ();
+	
+	return 0;
 }
 
 void
 prepare_app()
 {
-  GtkWidget *button;
-  GtkMenuFactory *mf;
+	GtkWidget *button;
 
-  /* Make the main window and binds the delete event so you can close
-     the program from your WM */
-  app = gnome_app_new ("hello", "Hello World Gnomified");
-  gtk_widget_realize (app);
-  gtk_signal_connect (GTK_OBJECT (app), "delete_event",
-                      GTK_SIGNAL_FUNC (quit_cb),
-                      NULL);
+	/* Make the main window and binds the delete event so you can close
+	   the program from your WM */
+	app = gnome_app_new ("hello", "Hello World Gnomified");
+	gtk_widget_realize (app);
+	gtk_signal_connect (GTK_OBJECT (app), "delete_event",
+			    GTK_SIGNAL_FUNC (quit_cb),
+			    NULL);
 
-  /* Now that we've the main window we'll make the menues */
-  /* I'm using GtkMenuFactory, i've asked to the gnome-list if i should
-     use gnome_app_create_menu instead and i'm waiting the answer */
-#if 0
-  mf = create_menu ();
-  gnome_app_set_menus ( GNOME_APP (app), GTK_MENU_BAR (mf->widget));
-#else
-  gnome_app_create_menus(GNOME_APP(app), mainmenu);
-#endif	   
+	/* Now that we've the main window we'll make the menues */
+	/* I'm using GtkMenuFactory, i've asked to the gnome-list if i should
+	   use gnome_app_create_menu instead and i'm waiting the answer */
+	gnome_app_create_menus(GNOME_APP(app), mainmenu);
 
-  /* We make a button, bind the 'clicked' signal to hello and setting it
-     to be the content of the main window */
-  button = gtk_button_new_with_label ("Hello GNOME");
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
-     		      GTK_SIGNAL_FUNC (hello_cb), NULL);
-  gtk_container_border_width (GTK_CONTAINER (button), 60);
-  gnome_app_set_contents ( GNOME_APP (app), button);
-
-  /* We now show the widgets, the order doesn't matter, but i suggests 
-     showing the main window last so the whole window will popup at
-     once rather than seeing the window pop up, and then the button form
-     inside of it. Although with such simple example, you'd never notice. */
-  gtk_widget_show (button);
-  gtk_widget_show (app);
+	/* We make a button, bind the 'clicked' signal to hello and setting it
+	   to be the content of the main window */
+	button = gtk_button_new_with_label ("Hello GNOME");
+	gtk_signal_connect (GTK_OBJECT (button), "clicked",
+			    GTK_SIGNAL_FUNC (hello_cb), NULL);
+	gtk_container_border_width (GTK_CONTAINER (button), 60);
+	gnome_app_set_contents ( GNOME_APP (app), button);
+	
+	/* We now show the widgets, the order doesn't matter, but i suggests 
+	   showing the main window last so the whole window will popup at
+	   once rather than seeing the window pop up, and then the button form
+	   inside of it. Although with such simple example, you'd never 
+	   notice. */
+	gtk_widget_show (button);
+	gtk_widget_show (app);
 }
 
 /* Callbacks functions */
@@ -124,54 +107,38 @@ prepare_app()
 void
 hello_cb (GtkWidget *widget, void *data)
 {
-  g_print ("Hello GNOME\n");
-  gtk_main_quit ();
-  return;
+	g_print ("Hello GNOME\n");
+	gtk_main_quit ();
+	return;
 }
 
 void
 quit_cb (GtkWidget *widget, void *data)
 {
-  gtk_main_quit ();
-  return;
+	gtk_main_quit ();
+	return;
 }
 
 void
 about_cb (GtkWidget *widget, void *data)
 {
-  GtkWidget *about;
-  gchar *authors[] = {
+	GtkWidget *about;
+	gchar *authors[] = {
 /* Here should be your names */
-	  "Mark Galassi",
-	  "Horacio J. Peña",
-          NULL
-          };
+		"Mark Galassi",
+		"Horacio J. Peña",
+		NULL
+	};
 
-  about = gnome_about_new ( "The Hello World Gnomified", VERSION,
-        		/* copyrigth notice */
-                        "(C) 1998 the Free Software Foundation",
-                        authors,
-                        /* another comments */
-                        "GNOME is a civilized software system "
-			  "so we've a \"hello world\" program",
-                        NULL);
-  gtk_widget_show (about);
-
-  return;
-}
-
-/* Menu creation */
-
-#define ELEMENTS(x) (sizeof (x) / sizeof (x [0]))
-
-GtkMenuFactory *
-create_menu () 
-{
-  GtkMenuFactory *subfactory;
-  int i;
-
-  subfactory = gtk_menu_factory_new  (GTK_MENU_FACTORY_MENU_BAR);
-  gtk_menu_factory_add_entries (subfactory, hello_menu, ELEMENTS(hello_menu));
-
-  return subfactory;
+	about = gnome_about_new ( "The Hello World Gnomified", VERSION,
+				  /* copyrigth notice */
+				  "(C) 1998 the Free Software Foundation",
+				  authors,
+				  /* another comments */
+				  "GNOME is a civilized software system "
+				  "so we've a \"hello world\" program",
+				  NULL);
+	gtk_widget_show (about);
+	
+	return;
 }
