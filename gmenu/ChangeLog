@@ -1,3 +1,7 @@
+2000-05-19  Andreas Hyden  <a.hyden@cyberpoint.se>
+
+	* gmenu.desktop: Added Swedish translation to comment.
+
 2000-05-10  Jacob Berkman  <jacob@helixcode.com>
 
 	* main.c (main): done explicitely specify the line style
