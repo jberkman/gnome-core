@@ -1,0 +1,57 @@
+<Root>
+  <commands>
+    <cmd name="NewTerminal"    _label="_New terminal" pixtype="stock" pixname="New"/>
+    <cmd name="ToggleMenuBar"  _label="_Hide menubar" type="toggle"/>
+    <cmd name="CloseTerminal"  _label="_Close terminal" pixtype="stock" pixname="Close"/>
+
+    <cmd name="Paste"          _label="_Paste" pixtype="stock" pixname="Paste"/>
+    
+    <cmd name="Preferences"    _label="_Preferences" pixtype="stock" pixname="Preferences"/>
+    <cmd name="Reset"          _label="_Reset terminal"/>
+    <cmd name="Clear"          _label="Reset and _clear"/>
+    <cmd name="ColorSelector"  _label="C_olor selector"/>
+
+    <cmd name="UsersGuide"     _label="GNOME terminal users guide" pixtype="stock" pixname="Help"/>
+    <cmd name="About"          _label="_About..." pixtype="stock" pixname="About"/>
+
+    <cmd name="SecureKeyboard" _label="_Secure keyboard" type="toggle"/>
+    <cmd name="OpenURL"        _label="_Open in browser"/>
+  </commands>
+
+  <menu>
+    <submenu name="File" _label="File">
+      <menuitem name="NewTerminal" verb=""/>
+      <separator/>
+      <menuitem name="CloseTerminal" verb=""/>
+    </submenu>
+
+    <submenu name="Edit" _label="Edit">
+      <menuitem name="Paste" verb=""/>
+    </submenu>
+
+    <submenu name="Settings" _label="Settings">
+      <menuitem name="Preferences" verb=""/>
+      <menuitem name="ToggleMenuBar" verb=""/>
+      <menuitem name="Reset" verb=""/>
+      <menuitem name="Clear" verb=""/>
+      <menuitem name="ColorSelector" verb=""/>
+    </submenu>
+    
+    <submenu name="Help" _label="Help">
+      <menuitem name="UsersGuide" verb=""/>
+      <menuitem name="About" verb=""/>
+    </submenu>
+  </menu>
+
+  <popups>
+    <popup name="TerminalPopup">
+      <menuitem name="NewTerminal" verb=""/>
+      <menuitem name="Preferences" verb=""/>
+      <menuitem name="ToggleMenuBar" verb=""/>
+      <menuitem name="SecureKeyboard" verb=""/>
+      <menuitem name="Reset" verb=""/>
+      <menuitem name="Clear" verb=""/>
+      <menuitem name="OpenURL" verb=""/>
+    </popup>
+  </popups>
+</Root>
