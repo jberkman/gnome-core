@@ -12,6 +12,6 @@ Comment[ko]=¹è°æ ¼³Á¤
 Comment[fr]=Propriètés de l'Arrière-plan
 Comment[no]=Egenskaper for bakgrunn
 Exec=background-properties
-Icon=
+Icon=gnome-background.png
 Terminal=0
 Type=Application

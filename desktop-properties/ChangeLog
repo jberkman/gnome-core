@@ -1,6 +1,7 @@
 1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
-	* property-background.c (parse_func): Added command line parsing:
+	* property-background.c (parse_func): Added command line handling
+	for all of the background image control.  
 	This lets you control the background from the command line
 	entirely. 
 	(args.c): New file.  Property configurators that do not require

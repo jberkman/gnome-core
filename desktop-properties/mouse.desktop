@@ -12,6 +12,6 @@ Comment[ko]=¸¶¿ì½º ¼³Á¤
 Comment[fr]=Propriètés de la souris
 Comment[no]=Egenskaper for mus
 Exec=mouse-properties
-Icon=
+Icon=gnome-mouse.png
 Terminal=0
 Type=Application
