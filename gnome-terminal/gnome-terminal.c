@@ -3,6 +3,7 @@
  * (C) 1998 The Free Software Foundation
  *
  * Authors: Miguel de Icaza (GNOME terminal)
+ *          Erik Troan      (various configuration enhancements)
  *          Michael Zucchi (zvt widget, font code).
  */
 #include <config.h>
@@ -109,8 +110,11 @@ about_terminal_cmd (void)
         GtkWidget *about;
 
         const gchar *authors[] = {
-		"Zvt terminal widget: Michael Zucchi (zucchi@zedzone.box.net.au)",
-		"GNOME terminal: Miguel de Icaza (miguel@kernel.org)",
+		"Zvt terminal widget: "
+		"    Michael Zucchi (zucchi@zedzone.box.net.au)",
+		"GNOME terminal: "
+		"    Miguel de Icaza (miguel@kernel.org)",
+		"    Erik Troan (ewt@redhat.com)",
 		NULL
 	};
 
@@ -882,6 +886,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 						  color_scheme, cfg->color_type, GTK_SIGNAL_FUNC (set_active));
+	gtk_object_set_user_data (GTK_OBJECT (prefs->color_scheme), GINT_TO_POINTER (cfg->color_type));
 	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
 			  2, 6, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
@@ -929,6 +934,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 					       scrollbar_position_list,
 					       cfg->scrollbar_position, GTK_SIGNAL_FUNC (set_active));
+	gtk_object_set_user_data(GTK_OBJECT(prefs->scrollbar), GINT_TO_POINTER(cfg->scrollbar_position));
 	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
 			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
@@ -1660,8 +1666,8 @@ static struct argp parser =
 	argp_options, parse_an_arg, NULL, NULL, NULL, NULL, NULL
 };
 
-int
-main (int argc, char *argv [], char **environ)
+static int
+main_terminal_program (int argc, char *argv [], char **environ)
 {
 	GnomeClient *client, *clone;
 	char *program_name;
@@ -1735,4 +1741,12 @@ main (int argc, char *argv [], char **environ)
 
 	gtk_main ();
 	return 0;
+}
+
+int
+main (int argc, char *argv [], char **environ)
+{
+	security_check ();
+	
+	return main_terminal_program (argc, argv, environ);
 }
