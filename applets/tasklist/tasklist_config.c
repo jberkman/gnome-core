@@ -29,6 +29,7 @@ tasklist_write_config (GtkWidget *w, const gchar *privcfgpath, const gchar *glob
 	gnome_config_set_bool ("tasklist/move_to_current",     tasklist->config.move_to_current);
 	gnome_config_set_bool ("tasklist/enable_grouping",     tasklist->config.enable_grouping);
 	gnome_config_set_int  ("tasklist/grouping_min",        tasklist->config.grouping_min);
+	gnome_config_set_bool ("tasklist/enable_tooltips",     tasklist->config.enable_tooltips);
 			       
 	gnome_config_sync ();
 	
@@ -69,6 +70,7 @@ tasklist_read_config (Tasklist *tasklist)
 	
 	tasklist->config.enable_grouping = gnome_config_get_bool ("tasklist/enable_grouping=true");
 	tasklist->config.grouping_min    = gnome_config_get_int  ("tasklist/grouping_min=3");
+	tasklist->config.enable_tooltips = gnome_config_get_bool ("tasklist/enable_tooltips=true");
 
 	gnome_config_pop_prefix ();
 }

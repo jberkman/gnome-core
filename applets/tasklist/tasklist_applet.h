@@ -126,6 +126,9 @@ struct _TasklistConfig {
 	/* grouping options */
 	gboolean enable_grouping;
 	gint grouping_min;
+
+	/* tooltips */
+	gboolean enable_tooltips;
 };
 
 struct _TasklistIcon {
@@ -188,6 +191,11 @@ struct _Tasklist {
 	
 	guint task_notifier_id;
 	guint desk_notifier_id;
+
+	/* Thy evil fake widget for doing tooltips */
+	GtkWidget *fake_tooltip_widget;
+	GtkTooltips *tooltips;
+	TasklistTask *tooltip_task;
 };
 
 void   	   tasklist_menu_popup          (TasklistTask *task, guint button,

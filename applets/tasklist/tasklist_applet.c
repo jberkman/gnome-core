@@ -1239,6 +1239,123 @@ cb_drag_motion (GtkWidget *widget, GdkDragContext *context, int x, int y, guint 
 	return TRUE;
 }
 
+/* FIXME: This routine is one of the ugliest ones in existence,
+ * gtk purists should not look at it.  This should get rewritten such
+ * that each label has a widget with an inputonly window OR draw the
+ * tooltips ourselves.  However for the time being this is better then
+ * nothing I suppose.  Feel free to flame me for this.  Tooltips have
+ * been one of the more requested features for a LONG time.
+ *
+ * -George
+ */
+static gboolean
+cb_area_event (GtkWidget *widget, GdkEvent *event, Tasklist *tasklist)
+{
+	GSList *temp_tasks, *temp;
+	TasklistTask *task;
+
+	if ((event->type == GDK_LEAVE_NOTIFY ||
+	     event->type == GDK_ENTER_NOTIFY) &&
+	    event->crossing.detail == GDK_NOTIFY_INFERIOR)
+		return FALSE;
+
+	if (event->type == GDK_LEAVE_NOTIFY) {
+		gtk_tooltips_set_tip (tasklist->tooltips,
+				      tasklist->fake_tooltip_widget,
+				      NULL, NULL);
+		tasklist->tooltip_task = NULL;
+		return FALSE;
+	}
+
+	if (event->type == GDK_MOTION_NOTIFY ||
+	    event->type == GDK_ENTER_NOTIFY) {
+		int x, y;
+
+		if (event->type == GDK_MOTION_NOTIFY) {
+			x = event->motion.x;
+			y = event->motion.y;
+		} else {
+			x = event->crossing.x;
+			y = event->crossing.y;
+		}
+
+		temp_tasks = tasklist->vtasks;
+		for (temp = temp_tasks; temp != NULL; temp = temp->next) {
+			task = (TasklistTask *)temp->data;
+
+			if (!is_task_really_visible (task))
+				continue;
+
+			if (x >= task->x && 
+			    x <= task->x + task->width &&
+			    y >= task->y && 
+			    y <= task->y + task->height) {
+				/* This is it, and this is
+				 * also the utterly evil part */
+				if (tasklist->tooltip_task != task) {
+					char *label;
+					gboolean ignore;
+					gpointer old_data;
+					GdkEvent new_event = { 0 };
+					GtkWidget *fake = tasklist->fake_tooltip_widget;
+
+					tasklist->tooltip_task = task;
+
+					fake->allocation.x = task->x;
+					fake->allocation.y = task->y;
+					fake->allocation.width = task->width;
+					fake->allocation.height = task->height;
+					fake->window = tasklist->area->window;
+
+					label = tasklist_task_get_label
+						(task, 0, task->task_group);
+
+					gtk_tooltips_set_tip
+						(tasklist->tooltips,
+						 fake, label, NULL);
+
+					g_free (label);
+
+					if (event->type == GDK_ENTER_NOTIFY) {
+						new_event = *event;
+					} else {
+						new_event.type = GDK_ENTER_NOTIFY;
+						new_event.any.window = fake->window;
+					}
+
+					/* EEEEEEEEEEEEEVIL, this is the only
+					 * way to make gtk draw the tooltips
+					 * short of drawing them ourselves.
+					 * The tooltips unfortunately do a whole
+					 * bunch of internal checking so we abuse
+					 * the area window.  This way it will
+					 * appear almost as if the window belongs
+					 * to the fake rather then to the area,
+					 * at least for the duration of this call. */
+					old_data = fake->window->user_data;
+					fake->window->user_data = fake;
+					gtk_signal_emit_by_name (GTK_OBJECT (fake),
+								 "event",
+								 &new_event,
+								 &ignore);
+					fake->window->user_data = old_data;
+				}
+				break;
+			}
+		}
+		/* No task found, so we want to turn off the tooltip */
+		if (temp == NULL) {
+			gtk_tooltips_set_tip (tasklist->tooltips,
+					      tasklist->fake_tooltip_widget,
+					      NULL, NULL);
+			tasklist->tooltip_task = NULL;
+			return FALSE;
+		}
+	}
+
+	return FALSE;
+}
+
 /* This routine gets called when the tasklist is exposed */
 static gboolean
 cb_expose_event (GtkWidget *widget, GdkEventExpose *event, Tasklist *tasklist)
@@ -1455,6 +1572,17 @@ tasklist_destroy (GtkObject *applet_widget, Tasklist *tasklist)
         #warning Here we save peoples memory by making this a shlib applet and leaking whatever we possibly can!
 #endif
 
+	if (tasklist->fake_tooltip_widget != NULL) {
+		tasklist->fake_tooltip_widget->window = NULL;
+		gtk_widget_unref (tasklist->fake_tooltip_widget);
+		tasklist->fake_tooltip_widget = NULL;
+	}
+
+	if (tasklist->tooltips != NULL) {
+		gtk_object_destroy (GTK_OBJECT (tasklist->tooltips));
+		tasklist->tooltips = NULL;
+	}
+
 	if (tasklist->groups != NULL) {
 		/* FIXME: we leak EVERYTHING here */
 		g_hash_table_destroy (tasklist->groups);
@@ -1488,6 +1616,16 @@ tasklist_new (void)
 		return NULL;
 	}
 
+	/* Some evil tooltip stuff, this is some pretty evil stuff */
+	tasklist->tooltips = gtk_tooltips_new ();
+	tasklist->fake_tooltip_widget = gtk_type_new (gtk_widget_get_type ());
+	GTK_WIDGET_SET_FLAGS (tasklist->fake_tooltip_widget, GTK_NO_WINDOW);
+	GTK_WIDGET_SET_FLAGS (tasklist->fake_tooltip_widget, GTK_VISIBLE);
+	GTK_WIDGET_SET_FLAGS (tasklist->fake_tooltip_widget, GTK_MAPPED);
+	gtk_widget_ref (tasklist->fake_tooltip_widget);
+	gtk_object_sink (GTK_OBJECT (tasklist->fake_tooltip_widget));
+	tasklist->tooltip_task = NULL;
+
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox);
 	
@@ -1496,7 +1634,6 @@ tasklist_new (void)
 			    GTK_SIGNAL_FUNC (ignore_1st_click), tasklist);
 
 	tasklist->area = gtk_drawing_area_new ();
-
 
 	gtk_widget_ensure_style (tasklist->area);
 	tasklist->unknown_icon = g_new (TasklistIcon, 1);
@@ -1518,7 +1655,12 @@ tasklist_new (void)
 
 	gtk_widget_set_events (tasklist->area, GDK_EXPOSURE_MASK | 
 			       GDK_BUTTON_PRESS_MASK |
-			       GDK_BUTTON_RELEASE_MASK);
+			       GDK_BUTTON_RELEASE_MASK |
+			       GDK_ENTER_NOTIFY_MASK |
+			       GDK_LEAVE_NOTIFY_MASK |
+			       GDK_POINTER_MOTION_MASK);
+	gtk_signal_connect (GTK_OBJECT (tasklist->area), "event",
+			    GTK_SIGNAL_FUNC (cb_area_event), tasklist);
 	gtk_signal_connect (GTK_OBJECT (tasklist->area), "expose_event",
 			    GTK_SIGNAL_FUNC (cb_expose_event), tasklist);
 	gtk_signal_connect (GTK_OBJECT (tasklist->area), "button_press_event",
@@ -1539,6 +1681,9 @@ tasklist_new (void)
 	gtk_container_add (GTK_CONTAINER (tasklist->handle), tasklist->area);
 	
 	tasklist_read_config (tasklist);
+
+	if ( ! tasklist->config.enable_tooltips)
+		gtk_tooltips_disable (tasklist->tooltips);
 	
 	applet_widget_register_stock_callback (
 		APPLET_WIDGET (tasklist->applet),
