@@ -81,6 +81,7 @@ typedef struct {
 	GtkWidget *color_scheme;
 	GtkWidget *def_fore_back;
 	GtkWidget *scrollbar;
+	GtkWidget *scrollback_spin;
 	GnomeColorSelector *fore_cs;
 	GnomeColorSelector *back_cs;
 } preferences_t;
@@ -295,6 +296,8 @@ apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 		zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
 		scrollpos  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 		blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
+		scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin)); 
+		zvt_term_set_scrollback (term, scrollback);
 		if (font)
 			g_free (font);
 		font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
@@ -459,8 +462,9 @@ enum {
 	FORECOLOR_ROW = 3,
 	BACKCOLOR_ROW = 4,
 	SCROLL_ROW    = 1,
-	FONT_ROW      = 2,
-	BLINK_ROW     = 3
+	SCROLLBACK_ROW = 2,
+	FONT_ROW      = 3,
+	BLINK_ROW     = 4
 };
 
 /* called back to free the ColorSelector */
@@ -475,6 +479,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GtkWidget *l, *table, *o, *m, *b1, *b2;
 	preferences_t *prefs;
+	GtkAdjustment *adj;
 
 	/* Is a property window for this terminal already running? */
 	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
@@ -527,6 +532,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->blink_checkbox,
 			  2, 3, BLINK_ROW, BLINK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
+	/* Scroll back */
+	l = aligned_label (_("Scrollback lines"));
+        gtk_table_attach (GTK_TABLE (table), l, 1, 2, SCROLLBACK_ROW, SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	adj = (GtkAdjustment *) gtk_adjustment_new ((gfloat)scrollback, 1.0, 1000.0, 1.0, 5.0, 0.0);
+	prefs->scrollback_spin = gtk_spin_button_new (adj, 0, 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->scrollback_spin), "changed",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->scrollback_spin,
+			  2, 3, SCROLLBACK_ROW, SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	/* Color page */
 	table = gtk_table_new (4, 4, FALSE);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Colors")));

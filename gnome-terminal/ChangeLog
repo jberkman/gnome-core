@@ -1,3 +1,7 @@
+1998-07-14  Tristan Tarrant  <ttarrant@suntlc.etnoteam.it>
+	* gnome-terminal.c: Added ability to set scrollback lines from 
+	  preferences (at last)
+
 1998-07-01  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* gnome-terminal.desktop: Added Portuguese translation.
