@@ -6,6 +6,8 @@
 #include "gnome.h"
 #include "gnome-desktop.h"
 
+
+
 GtkWidget *main_window;
 GnomePropertyConfigurator *display_config;
 
@@ -14,6 +16,33 @@ static GtkWidget *apply_button;
 
 /* This is true if we've ever changed the state with this program.  */
 static int state_changed = 0;
+
+/* True if we are running in initialize-then-exit mode.  */
+static int init = 0;
+
+/* Options used by this program.  */
+static struct argp_option arguments[] =
+{
+  { "init", -1, NULL, 0,
+    N_("Set parameters from saved state and exit"), 1 },
+  { NULL, 0, NULL, 0, NULL, 0 }
+};
+
+/* Forward decl of our parsing function.  */
+static error_t parse_func (int key, char *arg, struct argp_state *state);
+
+/* The parser used by this program.  */
+static struct argp parser =
+{
+  arguments,
+  parse_func,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+
+
 
 GtkWidget *
 get_monitor_preview_widget (GtkWidget *window)
@@ -40,7 +69,7 @@ get_monitor_preview_widget (GtkWidget *window)
 void
 property_changed (void)
 {
-  gtk_widget_set_sensitive (apply_button, TRUE);
+	gtk_widget_set_sensitive (apply_button, TRUE);
 }
 
 static gint
@@ -138,28 +167,43 @@ display_properties_setup (void)
 	gtk_widget_show (main_window);
 }
 
+static error_t
+parse_func (int key, char *arg, struct argp_state *state)
+{
+  if (key == ARGP_KEY_ARG)
+    {
+      /* This program has no command-line options.  */
+      argp_usage (state);
+    }
+  else if (key != -1)
+    return ARGP_ERR_UNKNOWN;
+
+  init = 1;
+  return 0;
+}
+
 int
 property_main (char *app_id, int argc, char *argv [])
 {
         GnomeClient *client = NULL;
-	int init = 0, token = 0;
+	int token = 0;
 	int i, new_argc;
 	char *previous_id = NULL;
 	char *new_argv[4];
 
-	gnome_init (app_id, &argc, &argv);
+	argp_program_version = VERSION;
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 
+	client = gnome_client_new_default ();
+	gnome_init (app_id, &parser, argc, argv, 0, NULL);
+
+	/* Set this stuff for completeness' sake.  */
+	gnome_client_set_restart_command (client, 1, argv);
+	gnome_client_set_clone_command (client, 1, argv);
+
 	display_config = gnome_property_configurator_new ();
 	application_register (display_config);
-
-	for (i=1; i<argc; i++) {
-		if (!strcmp (argv [i], "-init"))
-			init = 1;
-	}
-
-	client = gnome_client_new (argc, argv);
 
 	/* If this startup is the result of a previous session, we try
 	   to acquire the token that would let us set the current
@@ -192,7 +236,7 @@ property_main (char *app_id, int argc, char *argv [])
 		/* Arrange to be run again next time the session
 		   starts.  */
 		new_argv[0] = argv[0];
-		new_argv[1] = "-init";
+		new_argv[1] = "--init";
 		gnome_client_set_restart_command (client, 2, new_argv);
 		gnome_client_set_clone_command (client, 2, new_argv);
 		gnome_client_set_restart_style (client, GNOME_RESTART_ANYWAY);

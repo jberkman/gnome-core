@@ -1,6 +1,6 @@
 INCLUDES = 			\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
-	-I$(includedir) $(X_CFLAGS)
+	-I$(includedir) $(X_CFLAGS) $(GNOME_INCLUDEDIR)
 
 bin_PROGRAMS = mouse-properties keyboard-properties background-properties
 

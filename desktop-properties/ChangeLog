@@ -1,3 +1,19 @@
+Sun Mar  8 18:40:05 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* property-mouse.c (mouse_rtol): Now gboolean.
+
+	* property-keyboard.c (keyboard_read): repeat_default and
+	click_default now gbooleans.
+
+	* Makefile.am (INCLUDES): Added GNOME_INCLUDEDIR.
+
+Sat Mar  7 11:55:05 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* main.c (arguments): New structure.
+	(parser): Likewise.
+	(parse_func): New function.
+	(init): New global.
+
 Mon Feb 23 00:17:18 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* gnome-desktop.h (property_main): Updated decl.

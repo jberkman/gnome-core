@@ -23,7 +23,7 @@
 static GnomePropertyConfigurator *config;
 
 /* True if buttons are mapped right-to-left.  */
-static int mouse_rtol;
+static gboolean mouse_rtol;
 
 /* Number of buttons.  */
 static int mouse_nbuttons;

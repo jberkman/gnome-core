@@ -32,7 +32,7 @@ static XF86MiscKbdSettings kbdsettings;
 
 static void keyboard_read(void)
 {
-	int repeat_default, click_default;
+	gboolean repeat_default, click_default;
 
 	keyboard_rate = gnome_config_get_int("/Desktop/Keyboard/rate=-1");
 	keyboard_delay = gnome_config_get_int("/Desktop/Keyboard/delay=-1");
