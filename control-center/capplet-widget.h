@@ -22,6 +22,7 @@ struct _CappletWidget
 {
 	GtkPlug			window;
 	int			control_center_id;
+        gboolean 		changed;
 };
 
 struct _CappletWidgetClass
@@ -46,7 +47,7 @@ error_t		gnome_capplet_init	(char *app_id,
                                          char **argv,
                                          unsigned int flags,
                                          int *arg_index);
-void 		capplet_widget_state_changed 	(gboolean undoable);
+void 		capplet_widget_state_changed 	(CappletWidget *cap, gboolean undoable);
 
 
 #ifdef __cplusplus

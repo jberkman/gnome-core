@@ -5,7 +5,7 @@
 
 CORBA_ORB orb;
 CORBA_Environment ev;
-GNOME_capplet capplet;
+GNOME_capplet capplet = NULL;
 GNOME_control_center control_center;
 
 /* prototypes... (: */
@@ -75,7 +75,7 @@ server_help (PortableServer_Servant servant, CORBA_Environment * ev)
 }
 
 void
-capplet_widget_corba_gtk_init(gint *argc, char **argv, gchar *cc_ior)
+capplet_widget_corba_init(gint *argc, char **argv, gchar *cc_ior, gint id)
 {
         PortableServer_ObjectId objid = {0, sizeof("capplet_interface"), "capplet_interface"};
         PortableServer_POA poa;
@@ -109,9 +109,8 @@ capplet_widget_corba_gtk_init(gint *argc, char **argv, gchar *cc_ior)
                 g_warning ("Unable reach the control-center.\nExiting...");
                 exit (1);
         }
-        
+        GNOME_control_center_register_capplet(control_center, id,control_center,&ev);
 }
-
 void
 capplet_corba_gtk_main (void)
 {

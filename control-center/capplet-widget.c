@@ -1,17 +1,18 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*- */
 #include <gnome.h>
 #include <orb/orbit.h>
-#include "control-center.h"
 #include "capplet-widget.h"
 #include "capplet-widget-libs.h"
+#include "control-center.h"
 
-/* static variables */
-
+/* variables */
 static GtkPlugClass *parent_class;
 static GList *capplet_list = NULL;
 gchar* cc_ior = NULL;
-gint id = 0;
+static gint id = -1;
 guint32 xid = 0;
+extern GNOME_control_center control_center;
+extern CORBA_Environment ev;
 
 enum {
 	TRY_SIGNAL,
@@ -101,6 +102,7 @@ capplet_widget_init (CappletWidget *widget)
 {
         widget->control_center_id = id;
         capplet_list = g_list_prepend (capplet_list, widget);
+        widget->changed = FALSE;
 }
 GtkWidget *
 capplet_widget_new ()
@@ -119,7 +121,7 @@ capplet_gtk_main (void)
 {
         capplet_corba_gtk_main();
 }
-static error_t
+error_t
 parse_an_arg (int key, char *arg, struct argp_state *state)
 {
         switch (key) {
@@ -156,18 +158,19 @@ gnome_capplet_init (char *app_id, struct argp *app_parser,
         error_t retval;
         retval = gnome_init(app_id,&parser,argc,argv,flags,arg_index);
 
-        if ((xid == 0) || (cc_ior == NULL)) {
+        if ((xid == 0) || (cc_ior == NULL) || (id == -1)) {
                 g_warning ("Insufficient arguments passed to the arg parser.\n");
                 exit (1);
         }
-        capplet_widget_corba_gtk_init(&argc, argv, cc_ior);
+        capplet_widget_corba_init(&argc, argv, cc_ior, id);
 
         return retval;
 }
 void
 _capplet_widget_server_try()
 {
-        //        gtk_signal_emit();a
+        g_print (" in _capplet_widget_server_try\n");
+        //        gtk_signal_emit();
 }
 void
 _capplet_widget_server_revert()
@@ -185,12 +188,15 @@ _capplet_widget_server_help()
         
 }
 void
-capplet_widget_state_changed(gboolean undoable)
+capplet_widget_state_changed(CappletWidget *cap, gboolean undoable)
 {
-        
+        if (cap->changed == FALSE) {
+                GNOME_control_center_state_changed(control_center, cap->control_center_id, undoable, &ev);
+                cap->changed = TRUE;
+        }
 }
 GtkWidget *
 get_widget_by_id(gint id)
 {
-        
+        return NULL;
 }

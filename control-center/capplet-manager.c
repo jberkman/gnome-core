@@ -109,7 +109,7 @@ launch_capplet (node_data *data)
                 sprintf (temp, "--id=");
                 sprintf (temp + 5, "%d", data->id);
                 argv[0] = temp;
-        
+
                 temp = g_malloc (sizeof (char[17]));
                 sprintf (temp, "--xid=");
                 sprintf (temp + 6, "%d",  GDK_WINDOW_XWINDOW (data->socket->window));

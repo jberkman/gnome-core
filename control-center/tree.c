@@ -262,6 +262,5 @@ selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column)
 
         if (event && event->type == GDK_2BUTTON_PRESS)
                 launch_capplet (data);
-        g_print ("did we get here?\n");
 
 }

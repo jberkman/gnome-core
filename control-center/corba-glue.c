@@ -27,8 +27,8 @@ POA_GNOME_control_center__epv control_center_epv =
 {  
         NULL, 
         (gpointer)&server_register_capplet,
-        (gpointer)&server_state_changed,
         NULL,
+        (gpointer)&server_state_changed,
 };
 POA_GNOME_control_center__vepv poa_control_center_vepv = { &base_epv, &control_center_epv };
 POA_GNOME_control_center poa_control_center_servant = { NULL, &poa_control_center_vepv };
@@ -105,21 +105,24 @@ orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond)
         }
 }
 void
-server_register_capplet(PortableServer_Servant servant, CORBA_long id, GNOME_capplet cap, CORBA_Environment * ev)
+server_register_capplet(PortableServer_Servant servant, CORBA_long id, GNOME_capplet cap, CORBA_Environment * env)
 {
         node_data *nd = find_node_by_id (id);
-
         if (nd == NULL) {
                 g_print ("error -- unable to locate node %d\n",id);
                 return;
         }
         nd->capplet = cap;
+        CORBA_Object_duplicate (cap, env);
 }
 void
 server_state_changed(PortableServer_Servant servant, CORBA_long id, CORBA_boolean undoable, CORBA_Environment * ev)
 {
         node_data *nd = find_node_by_id (id);
-
+        if (nd == NULL){
+                g_print ("er, couldn't find node %d\n",id);
+                return;
+        }
         nd->modified = TRUE;
         gtk_widget_set_sensitive (nd->try_button, TRUE);
         if (undoable)

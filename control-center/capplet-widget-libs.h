@@ -6,6 +6,6 @@
 
 void capplet_corba_gtk_main (void);
 void capplet_corba_gtk_main_quit (void);
-void capplet_widget_corba_gtk_init(gint *argc, char **argv, gchar *cc_ior);
+void capplet_widget_corba_gtk_init(gint *argc, char **argv, gchar *cc_ior, gint id);
 gint get_new_id();
 #endif
