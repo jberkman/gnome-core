@@ -288,37 +288,39 @@ apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
 
-	if (page != -1)
-		return;
-	
-	zvt_term_set_font_name (term, gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
-	zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
-	color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
-	scrollpos  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
-	color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
-	gnome_color_selector_get_color_int (prefs->fore_cs, &r, &g, &b, 65535);
-	user_fore.red   = r;
-	user_fore.green = g;
-	user_fore.blue  = b;
-	gnome_color_selector_get_color_int (prefs->back_cs, &r, &g, &b, 65535);
-	user_back.red   = r;
-	user_back.green = g;
-	user_back.blue  = b;
-	
-	/* sve the global variables */
-	blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
-	if (font)
-		g_free (font);
-	font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
-	scrollbar_position = scrollpos;
-
-	set_color_scheme (term, color_type);
-	if (scrollpos == SCROLLBAR_HIDDEN)
-		gtk_widget_hide (scrollbar);
-	else {
-		gtk_box_reorder_child (GTK_BOX (box), scrollbar,
-				       scrollpos == SCROLLBAR_LEFT ? 0 : 1);
-		gtk_widget_show (scrollbar);
+	/* get page details separately */
+	switch(page) {
+	case 0:
+		zvt_term_set_font_name (term, gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
+		zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
+		scrollpos  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
+		blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
+		if (font)
+			g_free (font);
+		font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
+		scrollbar_position = scrollpos;
+		if (scrollpos == SCROLLBAR_HIDDEN)
+			gtk_widget_hide (scrollbar);
+		else {
+			gtk_box_reorder_child (GTK_BOX (box), scrollbar,
+					       scrollpos == SCROLLBAR_LEFT ? 0 : 1);
+			gtk_widget_show (scrollbar);
+		}
+		break;
+	case 1:
+		color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
+		color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
+		gnome_color_selector_get_color_int (prefs->fore_cs, &r, &g, &b, 65535);
+		user_fore.red   = r;
+		user_fore.green = g;
+		user_fore.blue  = b;
+		gnome_color_selector_get_color_int (prefs->back_cs, &r, &g, &b, 65535);
+		user_back.red   = r;
+		user_back.green = g;
+		user_back.blue  = b;
+		
+		set_color_scheme (term, color_type);
+		break;
 	}
 }
 

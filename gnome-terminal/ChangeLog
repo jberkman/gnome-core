@@ -1,3 +1,9 @@
+1998-06-15  Michael Zucchi  <zucchi@zzedzone.box.net.au>
+
+	* gnome-terminal.c (apply_changes): Get terminal preferences from
+	each page separately, rather than try to retrieve them all
+	together [which doesn't work].
+
 Sat Jun 13 13:13:50 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* gnome-terminal.c (save_session): New function.
