@@ -241,7 +241,7 @@ GtkWidget
 	gtk_widget_show (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
 	
-	add_menu_item (_("Kill app"), menu, MENU_ACTION_KILL, NULL);
+	add_menu_item (_("Kill app"), menu, MENU_ACTION_KILL, tasklist_kill_xpm);
 	
 	return menu;
 }

@@ -1,3 +1,8 @@
+1999-09-19  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* pixmaps.h
+	  tasklist_menu.c: Added spooky skull for "kill"
+
 1999-09-18  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* gnome-tasklist.png
