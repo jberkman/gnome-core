@@ -1,3 +1,7 @@
+Tue Feb 13 05:00:44 2001  George Lebl <jirka@5z.com>
+
+	* tasklist_menu.c: make sure menu doesn't go off screen.
+
 Mon Feb 12 21:25:33 2001  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.[ch], tasklist_menu.c, pixmaps.h: Remove some

@@ -40,6 +40,8 @@ cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data)
 		break;
 	}
 
+	*x = CLAMP (*x, 0, gdk_screen_width () - mreq.width);
+	*y = CLAMP (*y, 0, gdk_screen_height () - mreq.height);
 }
 
 static gboolean
