@@ -1,3 +1,6 @@
+2000-07-11  David A. Wheeler  <dwheeler@dwheeler.com>
+	* gnome-man2html/man2html.c: Silenced spurious compiler warnings.
+
 2000-07-05  David A. Wheeler  <dwheeler@dwheeler.com>
 
 	* gnome-man2html/man2html.c: Several changes to improve

@@ -453,7 +453,7 @@ static char
  * Does nothing if first == NULL, last == NULL, or last<first.
  * Note that if (first && *first && first==last), one character is printed.
  */
-void
+static void
 putspan(const char *first, const char *last)
 {
     char *s;
@@ -466,7 +466,7 @@ putspan(const char *first, const char *last)
 
 /* Returns match position if first..last contains the literal match,
    else NULL. */
-char *
+static char *
 strstrspan(const char *first, const char *last, const char *match)
 {
     register char *c;
@@ -507,7 +507,7 @@ static const char *legaldirs[] = {
 
 /* Given f (a string that might begin an absolute filename),
    returns pointer to last char of directory prefix, or NULL if not found. */
-char *
+static char *
 find_directory_prefix(char *f)
 {
 	int i, len;
@@ -527,7 +527,7 @@ find_directory_prefix(char *f)
 
 /* Given begin (pointing to a string that might begin an absolute filename),
    returns pointer to last char of a linkable filename, else NULL. */
-char *
+static char *
 find_linkable_file_end(char *begin)
 {
 	char *end;
