@@ -1,3 +1,6 @@
+1998-11-08  Felix Bellaby <felix@pooh.u-net.com>
+	* Makefile.am: added ORBIT_IDL to dependencies.
+
 1998-10-12    <jrb@redhat.com>
 
 	* added multi capplet support.
