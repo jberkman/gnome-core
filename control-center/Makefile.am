@@ -5,14 +5,16 @@ INCLUDES = 			\
 
 bin_PROGRAMS = gnomecc
 
-gnomecc_SOURCES =	\
-	main.c		\
-	tree.c		\
-	tree.h		\
-	callbacks.c	\
-	corba-glue.c	\
-	capplet-manager.c\
-	callbacks.h	\
+gnomecc_SOURCES = \
+	main.c			\
+	tree.c			\
+	tree.h			\
+	callbacks.c		\
+	callbacks.h		\
+	corba-glue.c		\
+	corba-glue.h		\
+	capplet-manager.c	\
+	capplet-manager.h	\
 	$(CORBA_SRCLIST)
 
 BUILT_SOURCES = $(CORBA_SRCLIST)
@@ -26,15 +28,21 @@ gnomecc_LDADD = \
 	$(INTLLIBS)					\
 	$(ORB_LIBS)
 
-EXTRA_DIST = gnomecc.desktop control-center.idl
+EXTRA_DIST = gnomecc.desktop
 
 sysdir = $(datadir)/apps/System
 sys_DATA = gnomecc.desktop
 
-libcapplet_la_SOURCES=capplet-widget.c capplet-widget-libs.c $(CORBA_SRCLIST)
+libcapplet_la_SOURCES = \
+	capplet-widget.c	\
+	capplet-widget-libs.c	\
+	capplet-widget-libs.h	\
+	$(CORBA_SRCLIST)
+
 libcapplet_la_LDFLAGS = -version-info 0:0:0 -rpath $(libdir)
 libcapplet_la_LIBADD = $(ORB_LIBS) -lm $(DL_LIB)
-include_HEADERS = capplet-widget.h 
+
+include_HEADERS = capplet-widget.h
 
 lib_LTLIBRARIES = libcapplet.la
 

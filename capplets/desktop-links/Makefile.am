@@ -8,9 +8,19 @@ WindowManagerdir= $(ccenterdir)/WindowManager
 
 
 Directory_files = \
-	Input.directory\
-	Appearances.directory\
-	Workspace.directory\
+	Gnome.directory		\
+	Desktop.directory	\
+	Input.directory		\
+	Appearances.directory	\
+	Workspace.directory	\
+	WindowManager.directory
+
+EXTRA_DIST = \
+	Gnome.directory		\
+	Desktop.directory	\
+	Input.directory		\
+	Appearances.directory	\
+	Workspace.directory	\
 	WindowManager.directory
 
 install-data-local:
