@@ -394,16 +394,17 @@ ConfigScreenSaver::apply ()
 		/* runs a specified program                         */
 
 		if (!pid) {
-			execlp ("xautolock",
-				"xautolock",
-				"-corners",
-				"++++",
-				"-time",
+			int l = strlen(cmdLine) + 20;
+			char *tmp = g_malloc(l);
+			g_snprintf(tmp, l, "*programs: %s", cmdLine);
+			execlp ("xscreensaver",
+				"xscreensaver",
+				"-timeout",
 				waitV,
-				"-locker",
-				cmdLine,
+				"-xrm",
+				tmp,
 				NULL);
-                       g_warning("Exec of xautolock failed!\n");
+                       g_warning("Exec of xscreensaver failed!\n");
 		       exit(1);
  		} else {
 			gnome_config_set_int ("/Desktop/ScreenSaver/xautolock_pid",
