@@ -92,6 +92,10 @@ static char *mailcheck_text_only;
 
 static char *config_animation_file = "/panel/Mail Check/animation_file";
 
+
+static void close_callback (GtkWidget *widget, void *data);
+
+
 static char *
 mail_animation_filename ()
 {
@@ -246,12 +250,30 @@ icon_expose (GtkWidget *widget, GdkEventExpose *event, gpointer closure)
 	return TRUE;
 }
 
+static void
+mailcheck_destroy (GtkWidget *widget, gpointer data)
+{
+	bin = NULL;
+
+	if (property_window)
+		close_callback (NULL, NULL);
+}
+
 static GtkWidget *
 create_mail_widgets ()
 {
 	char *fname = mail_animation_filename ();
 
 	bin = gtk_hbox_new (0, 0);
+
+	/* This is so that the properties dialog is destroyed if the
+	 * applet is removed from the panel while the dialog is
+	 * active.
+	 */
+	gtk_signal_connect (GTK_OBJECT (bin), "destroy",
+			    (GtkSignalFunc) mailcheck_destroy,
+			    NULL);
+
 	gtk_widget_show (bin);
 	check_mail_file_status ();
 	
@@ -268,7 +290,7 @@ create_mail_widgets ()
 	label = gtk_label_new ("");
 	gtk_widget_show (label);
 	
-	if (fname && WANT_BITMAPS (report_mail_mode)){
+	if (fname && WANT_BITMAPS (report_mail_mode)) {
 		mailcheck_load_animation (fname);
 		containee = da;
 	} else {
@@ -288,7 +310,7 @@ create_instance (Panel *panel, char *params, int pos)
 	GtkWidget *mailcheck;
 
 	/* Only allow one instance of this module */
-	if (mail_file)
+	if (bin)
 		return;
 	
 	mail_file = getenv ("MAIL");
@@ -380,12 +402,10 @@ close_callback (GtkWidget *widget, void *data)
 void
 load_new_pixmap_callback (GtkWidget *widget, void *data)
 {
-	PanelCommand cmd;
-
 	gtk_container_remove (GTK_CONTAINER (bin), containee);
 	gtk_widget_hide (containee);
 	
-	if (selected_pixmap_name == mailcheck_text_only){
+	if (selected_pixmap_name == mailcheck_text_only) {
 		report_mail_mode = REPORT_MAIL_USE_TEXT;
 		containee = label;
 		gnome_config_set_string (config_animation_file, "");
@@ -423,19 +443,25 @@ mailcheck_notification_frame (void)
 	f = gtk_frame_new (_("Notification"));
 	gtk_widget_show (f);
 	gtk_container_border_width (GTK_CONTAINER (f), 5);
+
+	/* If a lot of label/optionmenu pairs are added to the dialog,
+	 * you should use a GtkTable to keep stuff nicely aligned.
+	 */
 	
-	vbox = gtk_vbox_new (0, 5);
+	vbox = gtk_vbox_new (FALSE, 0);
+	gtk_container_border_width (GTK_CONTAINER (vbox), 6);
 	gtk_container_add (GTK_CONTAINER (f), vbox);
 	gtk_widget_show (vbox);
 
-	hbox = gtk_hbox_new (0, 5);
-	gtk_box_pack_start_defaults (GTK_BOX (vbox), hbox);
+	hbox = gtk_hbox_new (FALSE, 6);
+	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 	gtk_widget_show (hbox);
 
 	l = gtk_label_new (_("Select animation"));
+	gtk_misc_set_alignment (GTK_MISC (l), 0.0, 0.5);
 	gtk_widget_show (l);
-	gtk_box_pack_start_defaults (GTK_BOX (hbox), l);
-	gtk_box_pack_start_defaults (GTK_BOX (hbox), mailcheck_get_animation_menu ());
+	gtk_box_pack_start (GTK_BOX (hbox), l, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), mailcheck_get_animation_menu (), FALSE, FALSE, 0);
 
 	return f;
 }
@@ -445,6 +471,9 @@ mailcheck_properties (void)
 {
 	GtkWidget *f;
 	GtkDialog *d;
+
+	if (property_window != NULL)
+		return; /* Only one instance of the properties dialog! */
 	
 	property_window = gtk_dialog_new ();
 	gtk_window_set_title (GTK_WINDOW (property_window), _("Mail check properties"));
