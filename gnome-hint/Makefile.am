@@ -37,5 +37,6 @@ pixmapsdir = $(datadir)/pixmaps
 pixmaps_DATA = gnome-hint.png
 
 install-data-local:
+	$(mkinstalldirs) $(DESTDIR)$(datadir)/gnome/apps/Settings/Session/
 	$(INSTALL_DATA) $(srcdir)/gnome-hint-properties.desktop $(DESTDIR)$(datadir)/gnome/apps/Settings/Session/gnome-hint-properties.desktop
 

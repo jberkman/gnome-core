@@ -1,3 +1,7 @@
+Sun Mar 26 12:12:40 2000  George Lebl <jirka@5z.com>
+
+	* Makefile.am: create session directory in menu if it doesn't exist
+
 2000-02-27  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-hint.c (main): always run, and don't set the cookie thing,
