@@ -1,3 +1,8 @@
+2000-02-25  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c (draw_task): Draw text with fg_gc[0] instead of
+	black_gc.
+
 2000-02-23  Peter Hawkins  <peterhawkins@ozemail.com.au>
 
 	* tasklist_applet.c: stopped about box being opened many times at once.

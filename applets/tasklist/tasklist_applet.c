@@ -282,7 +282,8 @@ draw_task (TasklistTask *task)
 		text_height = gdk_string_height (area->style->font, "1");
 		text_width = gdk_string_width (area->style->font, tempstr);
 		gdk_draw_string (area->window,
-				 area->style->font, area->style->black_gc,
+				 area->style->font,
+				 area->style->fg_gc[0],
 				 task->x +
 				 (Config.show_mini_icons ? 8 : 0) +
 				 ((task->width - text_width) / 2),
