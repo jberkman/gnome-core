@@ -20,6 +20,14 @@ GdkBitmap *mask2;
 GdkBitmap *mask3;*/
 
 extern GtkWidget *status_bar;
+gint button_press (GtkCTree *ctree, GdkEventButton *event, gpointer data)
+{
+        if (event->button == 1 && event->type == GDK_2BUTTON_PRESS) {
+                //                g_print ("stoping the button press...\n");
+                //                gtk_signal_emit_stop_by_name (GTK_OBJECT (ctree), "button_press_event");
+        }
+ 
+}
 
 gboolean
 compare_last_dir (gchar *first, gchar *second)
@@ -173,6 +181,8 @@ generate_tree_helper (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node)
                 data->gde = (GnomeDesktopEntry *)i->data;
                 data->socket = NULL;
                 data->id = -1;
+                data->notetab_id = -1;
+                data->modified = FALSE;
                 gtk_ctree_node_set_row_data (ctree, child, data);
                 if (i->children)
                         generate_tree_helper (ctree, child, i->children);
@@ -188,7 +198,9 @@ generate_tree ()
         gchar *user_prefix;
 
         retval = gtk_ctree_new (1, 0);
-
+        gtk_signal_connect (GTK_OBJECT (retval), "button_press_event",
+                            GTK_SIGNAL_FUNC (button_press), NULL);
+        
         /* First thing we want to do is to check directories to create the menus */
         
         gtk_clist_set_row_height(GTK_CLIST (retval),20);

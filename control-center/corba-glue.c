@@ -9,15 +9,6 @@ static void orb_add_connection(GIOPConnection *cnx);
 static void orb_remove_connection(GIOPConnection *cnx);
 void control_center_corba_gtk_init(gint *argc, char **argv);
 static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond);
-void server_GNOME_control_center_widget_request_id(GNOME_control_center _obj,
-                                                   CORBA_Object cco,
-                                                   CORBA_unsigned_long * xid,
-                                                   CORBA_short *id,
-                                                   CORBA_Environment * ev);
-void server_GNOME_control_center_quit(GNOME_control_center _obj,
-                                      CORBA_short id,
-                                      CORBA_Environment * ev);
-
 
 
 /* Variables */
@@ -33,7 +24,7 @@ PortableServer_ServantBase__epv base_epv = {
 POA_GNOME_control_center__epv control_center_epv = 
 {  
         NULL, 
-        server_GNOME_control_center_widget_request_id,
+        NULL,
         NULL,
 };
 POA_GNOME_control_center__vepv poa_control_center_vepv = { &base_epv, &control_center_epv };
@@ -87,9 +78,6 @@ control_center_corba_gtk_init(gint *argc, char **argv)
         }
         ior = CORBA_ORB_object_to_string(orb, control_center, &ev);
        
-        /* print IOR address so the client can use it to connect to us. */
-        g_print ("%s\n", ior);fflush (stdout);
-        
         CORBA_Object_release(control_center, &ev);
         ORBit_custom_run_setup(orb, &ev);
 }
@@ -100,14 +88,6 @@ control_center_corba_gtk_main (gint *argc, char **argv)
         if(!orb)
                 control_center_corba_gtk_init( argc, argv);
         gtk_main();
-}
-void server_GNOME_control_center_widget_request_id(GNOME_control_center _obj,
-                                                   CORBA_Object cco,
-                                                   CORBA_unsigned_long * xid,
-                                                   CORBA_short *id,
-                                                   CORBA_Environment * ev)
-{
-        return request_new_id(cco, xid, id);
 }
 
 static void orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond)

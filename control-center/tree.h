@@ -27,6 +27,8 @@ struct _node_data
         GnomeDesktopEntry *gde;
         GtkWidget *socket;
         gint id;
+        gint notetab_id;
+        gboolean modified;
 };
 
 

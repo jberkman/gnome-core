@@ -51,6 +51,7 @@ create_exit_dialog (GList *apps)
         GtkWidget *label;
         GtkWidget *list;
         GtkWidget *pixmap = NULL;
+        gint i = 0;
         char *s;
 
         /* we create the widgets */
@@ -67,7 +68,7 @@ create_exit_dialog (GList *apps)
                                " If you would like to edit them, please\n click on the appropriate entry.");
         gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
 
-        /* stolen from gnome-message-box (: */
+        /* stolen straight from gnome-message-box (: */
         s = gnome_pixmap_file("gnome-warning.png");
         if (s)
                 pixmap = gnome_pixmap_new_from_file(s);
@@ -87,10 +88,17 @@ create_exit_dialog (GList *apps)
         gtk_clist_set_policy (GTK_CLIST (list), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
         text[1] = NULL;
         for (;apps ;apps = apps->next) {
-                text[0] = (gchar *)apps->data;
+                text[0] = ((node_data*)apps->data)->gde->name;
                 gtk_clist_append (GTK_CLIST (list), text);
+                gtk_clist_set_row_data (GTK_CLIST (list), i++, apps->data);
         }
+        gtk_signal_connect( GTK_OBJECT (list),"select_row", GTK_SIGNAL_FUNC (exit_row_callback), NULL);
+        gnome_dialog_button_connect (GNOME_DIALOG (retval), 0, exit_dialog_ok_callback, NULL);
+        gnome_dialog_button_connect (GNOME_DIALOG (retval), 1, exit_dialog_cancel_callback, NULL);
 
+
+
+        
         /* and put it all together */
         gtk_box_pack_start (GTK_BOX (right_vbox), label, FALSE, FALSE, 5);
         gtk_box_pack_start (GTK_BOX (right_vbox), list, FALSE, FALSE, 5);
@@ -131,6 +139,7 @@ create_window ()
         gtk_paned_gutter_size (GTK_PANED (hpane), 10);
         tree = generate_tree();
         container = gtk_frame_new(NULL);
+        gtk_frame_set_shadow_type (GTK_FRAME (container), GTK_SHADOW_NONE);;
         splash_screen = gtk_drawing_area_new ();
         gdk_imlib_load_file_to_pixmap ("splash.png", &temp_splash, NULL);
         gtk_widget_set_usize (container, 500, 375);
