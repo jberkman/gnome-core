@@ -571,6 +571,12 @@ ignore_1st_click (GtkWidget *widget, GdkEvent *event)
 		if (buttonevent->window != area->window)
 			buttonevent->button = 2;
 	}
+	if (event->type == GDK_BUTTON_RELEASE &&
+	    buttonevent->button == 1) {
+		if (buttonevent->window != area->window)
+			buttonevent->button = 2;
+	}
+	 
 	return FALSE;
 }
 
