@@ -135,7 +135,7 @@ mouse_apply (void)
 
         XChangePointerControl (GDK_DISPLAY (), True, True, num, den, mouse_thresh);
 
-        capplet_widget_state_changed(TRUE);
+        capplet_widget_state_changed(TRUE, NULL);
 }
 
 /* Run when the left- or right-handed radiobutton is clicked.  */
@@ -143,7 +143,7 @@ static void
 button_toggled (GtkWidget *widget, gpointer data)
 {
         mouse_rtol = (int) data;
-        capplet_widget_state_changed(TRUE);
+        capplet_widget_state_changed(TRUE, NULL);
 }
 
 /* Run when a scale widget is manipulated.  */
@@ -152,7 +152,7 @@ scale_moved (GtkAdjustment *adj, gpointer data)
 {
         int *value = (int *) data;
         *value = adj->value;
-        capplet_widget_state_changed(TRUE);
+        capplet_widget_state_changed(TRUE, NULL);
 }
 
 static void
