@@ -911,8 +911,9 @@ static void add_main_tree_node()
 	d->expanded = TRUE;
 
 	/* FIXME: are we root? then we can edit the system menu */
-	if (!strcmp("/root",getenv("HOME")) || !strcmp("root",getenv("USER")) ||
-						!strcmp("root",getenv("USERNAME")) )
+	if (!strcmp("/root",getenv("HOME")) || 
+	    ((getenv("USER"))&&(!strcmp("root",getenv("USER")))) ||
+		((getenv("USERNAME"))&&(!strcmp("root",getenv("USERNAME")))) )
 		d->editable = TRUE;
 	else
 		d->editable = FALSE;
