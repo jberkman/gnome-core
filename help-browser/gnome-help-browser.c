@@ -229,7 +229,6 @@ main(int argc, char *argv[])
     objref = CORBA_ORB_object_to_string(orb, browser_object, &ev);
     Exception(&ev);
 
-    
     pm = PortableServer_POA__get_the_POAManager(root_poa, &ev);
     Exception(&ev);
 
@@ -240,8 +239,10 @@ main(int argc, char *argv[])
     if (!CORBA_Object_is_nil(name_service, &ev))
       {
 	goad_server_register(name_service, browser_object, "gnome-help-browser", "object", &ev);
-        fprintf(stderr,"\n%s\n", objref);
+        printf("%s\n", objref); fflush(stdout);
       }
+    CORBA_free(objref);
+    CORBA_Object_release(name_service, &ev);
 
     output_fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
 		     | O_APPEND, 0666);
