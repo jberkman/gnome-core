@@ -1,9 +1,11 @@
 [Desktop Entry]
 Name=Look and Feel Properties
+Name[fr]=Propriétés "Look&Feel"
 Name[ko]=°Ñ¸ð½À ¼³Á¤
 Name[no]=Egenskaper for utseende
 Comment=Look and Feel Properties
 Comment[ko]=°Ñ¸ð½À ¼³Á¤
+Comment[fr]=Propriétés "Look&Feel"
 Comment[no]=Egenskaper for utseende
 Exec=ui-properties
 Icon=
