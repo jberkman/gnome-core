@@ -580,8 +580,12 @@ cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 						    task->gwmh_task->harea,
 						    task->gwmh_task->varea);
 
-		if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task))
+		if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task)) {
 			gwmh_task_show (task->gwmh_task);
+			/* Why is a focus needed here?
+			   gwmh_task_show is supposed to give focus */
+			gwmh_task_focus (task->gwmh_task);
+		}
 		else
 		  gwmh_task_iconify (task->gwmh_task);
 	}
