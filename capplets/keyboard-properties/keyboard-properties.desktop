@@ -1,10 +1,12 @@
 [Desktop Entry]
 Name=Keyboard Properties
+Name[de]=Tastatur Einstellungen
 Name[es]=Propiedades del Teclado
 Name[fr]=Propriétés du Clavier
 Name[no]=Egenskaper for tastatur
 Name[pt]=Propriedades do Teclado
 Comment=Keyboard Properties
+Comment[de]=Tastatur Einstellungen
 Comment[es]=Modifica las propiedades del teclado
 Comment[fr]=Modifie les propriétés du clavier
 Comment[no]=Egenskaper for tastaturet
