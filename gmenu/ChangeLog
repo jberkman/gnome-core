@@ -1,3 +1,7 @@
+2001-06-05  Christian Rose  <menthos@menthos.com>
+
+	* gmenu.desktop: Modified Swedish translation.
+
 Thu Mar 01 03:32:56 2001  George Lebl <jirka@5z.com>
 
 	* Makefile.am, edit.c:  Fix the icon entry by copying the icon hack

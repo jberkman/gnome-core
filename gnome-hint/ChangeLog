@@ -1,3 +1,8 @@
+2001-06-05  Christian Rose  <menthos@menthos.com>
+
+	* gnome-hint-properties.desktop, gnome-hint.desktop:
+	Modified Swedish translation.
+
 Sun Feb 18 04:05:33 2001  George Lebl <jirka@5z.com>
 
 	* gnome-hint.c: minor cleanup, use fontset instead of font and
