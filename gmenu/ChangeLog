@@ -1,3 +1,8 @@
+Thu Oct  1 14:42:15 1998  John Ellis  <johne@bellatlantic.net>
+
+	* dialogs.c, edit.c, gmenu.[ch], tree.c: Fix missing prototype
+	compiler warnings.
+
 Wed Sep 30 17:52:55 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c: Use stock up/down buttons.

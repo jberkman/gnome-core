@@ -112,7 +112,7 @@ static gint create_folder_cb(GtkWidget *w, gpointer data)
 	return TRUE;
 }
 
-void create_folder_pressed()
+void create_folder_pressed(GtkWidget *w, gpointer data)
 {
 	Misc_Dialog *dlg;
 	GtkWidget *label;
@@ -203,7 +203,7 @@ static void delete_dialog_cb( gint button, gpointer data)
 		}
 }
 
-void delete_pressed_cb()
+void delete_pressed_cb(GtkWidget *w, gpointer data)
 {
 	Desktop_Data *d;
 	if (!current_node)
@@ -363,7 +363,7 @@ static void save_dialog_cb( gint button, gpointer data)
 		}
 } 
 
-void save_pressed_cb()
+void save_pressed_cb(GtkWidget *w, gpointer data)
 {
 	char *path;
 	GnomeDesktopEntry *dentry;

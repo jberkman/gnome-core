@@ -11,12 +11,12 @@ static GtkWidget *button_revert;
 static GtkWidget *filename_entry;
 static GnomeDesktopEntry *revert_dentry;
 
-static void edit_area_changed();
+static void edit_area_changed(void);
 static void button_save_enable(gboolean enabled);
 static void button_revert_enable(gboolean enabled);
 static void edit_area_set_editable(gboolean enabled);
 
-static void edit_area_changed()
+static void edit_area_changed(void)
 {
 	button_save_enable(TRUE);
 	if (revert_dentry) button_revert_enable(TRUE);
@@ -59,7 +59,7 @@ void edit_area_reset_revert(Desktop_Data *d)
 	button_revert_enable(FALSE);
 }
 
-gchar * edit_area_get_filename()
+gchar * edit_area_get_filename(void)
 {
 	return gtk_entry_get_text(GTK_ENTRY(filename_entry));
 }
@@ -108,7 +108,7 @@ void update_edit_area(Desktop_Data *d)
 	edit_area_orig_data = d;
 }
 
-void revert_edit_area()
+void revert_edit_area(void)
 {
 	if (revert_dentry) gnome_dentry_edit_set_dentry(GNOME_DENTRY_EDIT(edit_area), revert_dentry);
 
@@ -119,7 +119,7 @@ void revert_edit_area()
 	button_revert_enable(FALSE);
 }
 
-void new_edit_area()
+void new_edit_area(void)
 {
 	GnomeDesktopEntry *dentry;
 	gnome_dentry_edit_clear(GNOME_DENTRY_EDIT(edit_area));
@@ -144,7 +144,7 @@ void new_edit_area()
 	edit_area_orig_data = NULL;
 }
 
-GtkWidget * create_edit_area()
+GtkWidget * create_edit_area(void)
 {
 	GtkWidget *vbox;
 	GtkWidget *notebook;

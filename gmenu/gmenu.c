@@ -27,12 +27,12 @@ gchar *current_path;
 Desktop_Data *edit_area_orig_data = NULL;
 
 static void sort_node( GtkCTreeNode *node);
-static void sort_single_pressed();
+static void sort_single_pressed(GtkWidget *w, gpointer data);
 static void sort_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
-static void sort_recursive_pressed();
+static void sort_recursive_pressed(GtkWidget *w, gpointer data);
 static gchar *check_for_dir(char *d);
-static void about_cb();
-static void destroy_cb();
+static void about_cb(GtkWidget *w, gpointer data);
+static void destroy_cb(GtkWidget *w, gpointer data);
 int main (int argc, char *argv[]);
 
 /* menu bar */
@@ -108,7 +108,7 @@ static void sort_node( GtkCTreeNode *node)
 	save_order_of_dir(node);
 }
 
-static void sort_single_pressed()
+static void sort_single_pressed(GtkWidget *w, gpointer data)
 {
 	sort_node(current_node);
 }
@@ -124,7 +124,7 @@ static void sort_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
 	if (d->isfolder) sort_node (node);
 }
 
-static void sort_recursive_pressed()
+static void sort_recursive_pressed(GtkWidget *w, gpointer data)
 {
 	Desktop_Data *d;
 	GtkCTreeNode *node = current_node;
@@ -217,7 +217,7 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename)
 	return correct_path;
 }
 
-static void about_cb()
+static void about_cb(GtkWidget *w, gpointer data)
 {
 	GtkWidget *about;
 	const gchar *authors[2];
@@ -237,7 +237,7 @@ static void about_cb()
 	gtk_widget_show (about);
 }
 
-static void destroy_cb()
+static void destroy_cb(GtkWidget *w, gpointer data)
 {
 	gtk_main_quit();
 }

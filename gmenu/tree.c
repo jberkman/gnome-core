@@ -293,7 +293,7 @@ static int is_file_editable(gchar *path)
 	return !access(path, W_OK);
 }
 
-void edit_pressed_cb()
+void edit_pressed_cb(GtkWidget *w, gpointer data)
 {
 	Desktop_Data *d;
 
@@ -491,7 +491,7 @@ static gint get_ctree_count(GtkCTree *ctree)
 	return count;
 }
 
-void add_main_tree_node()
+void add_main_tree_node(void)
 {
 	gchar *text[2];
 	Desktop_Data *d;

@@ -77,20 +77,20 @@ gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
 void move_down_cb(GtkWidget *w, gpointer data);
 void move_up_cb(GtkWidget *w, gpointer data);
 gint is_node_editable(GtkCTreeNode *node);
-void edit_pressed_cb();
+void edit_pressed_cb(GtkWidget *w, gpointer data);
 void tree_item_selected (GtkCTree *ctree, GdkEventButton *event, gpointer data);
 GtkCTreeNode *add_leaf_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkCTreeNode *node, char *file);
 void add_tree_node(GtkCTree *ctree, GtkCTreeNode *parent, GtkWidget *pbar);
-void add_main_tree_node();
+void add_main_tree_node(void);
 
 /* edit.c ---------------- */
 
 void edit_area_reset_revert(Desktop_Data *d);
-gchar * edit_area_get_filename();
+gchar * edit_area_get_filename(void);
 void update_edit_area(Desktop_Data *d);
-void revert_edit_area();
-void new_edit_area();
-GtkWidget * create_edit_area();
+void revert_edit_area(void);
+void new_edit_area(void);
+GtkWidget * create_edit_area(void);
 
 /* order.c --------------- */
 
@@ -101,8 +101,8 @@ Desktop_Data * get_desktop_file_info (gchar *file);
 
 /* dialogs.c ------------- */
 
-void create_folder_pressed();
-void delete_pressed_cb();
-void save_pressed_cb();
+void create_folder_pressed(GtkWidget *w, gpointer data);
+void delete_pressed_cb(GtkWidget *w, gpointer data);
+void save_pressed_cb(GtkWidget *w, gpointer data);
 
 
