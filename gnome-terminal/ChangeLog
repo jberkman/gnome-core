@@ -1,3 +1,7 @@
+1998-11-22  Jay Painter <jpaint@serv.net>
+	* gnome-terminal.c: slight changes to widget packing so the
+	terminal looks better.
+
 1998-11-21  Michael Zucchi  <zucchi@zzedzone.fsi.com.au>
 
 	* gnome-terminal.c (new_terminal_cmd): Add signal setup for

@@ -1485,6 +1485,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
+	gtk_container_border_width (GTK_CONTAINER (hbox), 2);
+	gtk_box_set_spacing (GTK_BOX (hbox), 3);
 	gtk_widget_show (hbox);
 	get_shell_name (&shell, &name, cfg->invoke_as_login_shell);
 
@@ -1500,7 +1502,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	if (cfg->scrollbar_position != SCROLLBAR_HIDDEN)
 		gtk_widget_show (scrollbar);
 
-	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 3);
+	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 0);
 	
 	gnome_app_set_contents (GNOME_APP (app), hbox);
 
