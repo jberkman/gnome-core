@@ -53,7 +53,6 @@ ui_DATA = gnome-terminal.xml
 gladedir   = $(datadir)/gnome-terminal/glade
 glade_DATA = gnome-terminal.glade2
 glade_src = gnome-terminal.glade
-glade_msgs = gnome-terminal.glade.h
 
 gnome-terminal.glade2: gnome-terminal.glade $(LIBGLADE_CONVERT)
 	$(LIBGLADE_CONVERT) $(srcdir)/gnome-terminal.glade > gnome-terminal.glade.tmp \
@@ -65,7 +64,6 @@ EXTRA_DIST =				\
 	$(util_DATA)			\
 	$(glade_DATA)			\
 	$(glade_src)			\
-	$(glade_msgs)			\
 	$(man_MANS)			\
 	$(ui_DATA)
 
