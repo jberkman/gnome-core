@@ -549,8 +549,8 @@ color_setup ()
 	gtk_widget_show(radioh);
 
 	/* BEFORE our signals are connected, set initial states */
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radiog), grad);
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radioh), !vertical);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radiog), grad);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (radioh), !vertical);
 
 	gtk_widget_set_sensitive(button2, grad);
 	gtk_widget_set_sensitive(radioh, grad);
@@ -788,7 +788,7 @@ wallpaper_setup ()
 	rbut = gtk_radio_button_new_with_label
 		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
 		 _("Scaled (keep aspect)"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rbut),
 				     (wpType == WALLPAPER_SCALED_KEEP));
 	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
 			    (GtkSignalFunc) set_wallpaper_type,
@@ -799,7 +799,7 @@ wallpaper_setup ()
 	rbut = gtk_radio_button_new_with_label
 		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
 		 _("Centered"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rbut),
 				     (wpType == WALLPAPER_CENTERED));
 	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
 			    (GtkSignalFunc) set_wallpaper_type,
@@ -810,7 +810,7 @@ wallpaper_setup ()
 	rbut = gtk_radio_button_new_with_label
 		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
 		 _("Tiled"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rbut),
 				     (wpType == WALLPAPER_TILED));
 	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
 			    (GtkSignalFunc) set_wallpaper_type,

@@ -177,7 +177,7 @@ keyboard_setup(void)
 	gtk_widget_show (hbox);
 
 	rbutton = gtk_check_button_new_with_label(_("Enable auto-repeat"));
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(rbutton), keyboard_repeat);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rbutton), keyboard_repeat);
 	gtk_signal_connect(GTK_OBJECT(rbutton), "toggled",
 			   GTK_SIGNAL_FUNC(rbutton_toggled), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), rbutton, FALSE, FALSE, 0);
@@ -252,7 +252,7 @@ keyboard_setup(void)
 	gtk_widget_show (hbox);
 
 	cbutton = gtk_check_button_new_with_label(_("Click on keypress"));
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(cbutton), click_on_keypress);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cbutton), click_on_keypress);
 	gtk_signal_connect(GTK_OBJECT(cbutton), "toggled",
 			   GTK_SIGNAL_FUNC(cbutton_toggled), NULL);
 	gtk_box_pack_start (GTK_BOX (hbox), cbutton, FALSE, FALSE, 0);

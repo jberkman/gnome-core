@@ -933,7 +933,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	
 	/* Blinking status */
 	prefs->blink_checkbox = gtk_check_button_new_with_label (_("Blinking cursor"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->blink_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->blink_checkbox),
 				     term->blink_enabled ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->blink_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -942,7 +942,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Show menu bar */
 	prefs->menubar_checkbox = gtk_check_button_new_with_label (_("Hide menu bar"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->menubar_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->menubar_checkbox),
 				     cfg->menubar_hidden ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->menubar_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -951,7 +951,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Toggle the bell */
 	prefs->bell_checkbox = gtk_check_button_new_with_label (_("Silence Terminal bell"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->bell_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->bell_checkbox),
 				     zvt_term_get_bell(term) ? 0 : 1);
 	gtk_signal_connect (GTK_OBJECT (prefs->bell_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -960,7 +960,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Swap keys */
 	prefs->swapkeys_checkbox = gtk_check_button_new_with_label (_("Swap DEL/Backspace"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox),
 				     cfg->swap_keys ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->swapkeys_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -978,7 +978,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Background Pixmap checkbox */
 	prefs->pixmap_checkbox = gtk_check_button_new_with_label (_("Background pixmap"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_checkbox),
 				     term->pixmap_filename ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -1002,7 +1002,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Transparency */
 	prefs->transparent_checkbox = gtk_check_button_new_with_label (_("Transparent"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->transparent_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->transparent_checkbox),
 				     term->transparent ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->transparent_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -1011,7 +1011,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Shaded */
 	prefs->shaded_checkbox = gtk_check_button_new_with_label (_("Background should be shaded (slow)"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->shaded_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->shaded_checkbox),
 				     term->shaded ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->shaded_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -1095,7 +1095,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Scroll on keystroke checkbox */
 	prefs->scroll_kbd_checkbox = gtk_check_button_new_with_label (_("Scroll on keystroke"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox),
 				     cfg->scroll_key);
 	gtk_signal_connect (GTK_OBJECT (prefs->scroll_kbd_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
@@ -1104,7 +1104,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	/* Scroll on output checkbox */
 	prefs->scroll_out_checkbox = gtk_check_button_new_with_label (_("Scroll on output"));
-	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox),
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox),
 				     cfg->scroll_out);
 	gtk_signal_connect (GTK_OBJECT (prefs->scroll_out_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);

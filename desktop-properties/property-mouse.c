@@ -224,7 +224,7 @@ mouse_setup (void)
   lbutton = gtk_radio_button_new_with_label (NULL, _("Left handed"));
   rbutton = gtk_radio_button_new_with_label (gtk_radio_button_group (GTK_RADIO_BUTTON (lbutton)),
 					     _("Right handed"));
-  gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON ((mouse_rtol
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON ((mouse_rtol
 						   ? lbutton
 						   : rbutton)), TRUE);
   gtk_signal_connect (GTK_OBJECT (lbutton), "clicked",

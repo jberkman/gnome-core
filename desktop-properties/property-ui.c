@@ -209,7 +209,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Use statusbar instead of dialog when possible"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_statusbar_dialog());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -219,7 +219,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Place dialogs over application window when possible"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_dialog_centered());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -236,7 +236,7 @@ ui_setup (void)
   
   button = 
     gtk_check_button_new_with_label(_("Menubars are detachable"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_menubar_handlebox());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -245,7 +245,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Menubars have relieved border"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_menubar_relief());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -254,7 +254,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Toolbars are detachable"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_toolbar_handlebox());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -263,7 +263,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Toolbar buttons have relieved border"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_toolbar_relief());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -272,7 +272,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Toolbars have flat look"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_toolbar_flat());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -281,7 +281,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Toolbars have line separators"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_toolbar_lines());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -290,7 +290,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Toolbars have text labels"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_toolbar_labels());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -299,7 +299,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Statusbar is interactive when possible"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_statusbar_interactive());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
@@ -308,7 +308,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Dialog buttons have icons"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_config_get_bool("/Gnome/Icons/ButtonUseIcons=true"));
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_bool_cb),
@@ -317,7 +317,7 @@ ui_setup (void)
 
   button = 
     gtk_check_button_new_with_label(_("Menu items have icons"));
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 
                               gnome_config_get_bool("/Gnome/Icons/MenusUseIcons=true"));
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_bool_cb),
