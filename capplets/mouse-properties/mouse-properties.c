@@ -316,8 +316,7 @@ main (int argc, char **argv)
                 mouse_apply ();
                 return;
         }
-
-        
+        gnome_capplet_init ("mouse-properties", NULL, argc, argv, 0, NULL);
         mouse_read ();
         mouse_setup();
         capplet_gtk_main ();

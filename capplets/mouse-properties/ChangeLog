@@ -1,3 +1,8 @@
+1998-10-16    <jrb@aware-of-vacuity.labs.redhat.com>
+
+	* mouse-properties.c (main): added an accidenatall removed
+	gnome_capplet_init 
+
 1998-09-07    <jrb@redhat.com>
 
 	* mouse-properties.c (mouse_revert) : modified to properly set the 
