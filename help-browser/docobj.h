@@ -5,6 +5,7 @@
 #include "url.h"
 #include "queue.h"
 #include "history.h"
+#include "window.h"
 
 struct _docObj {
 	gchar *ref;
@@ -19,17 +20,16 @@ struct _docObj {
 typedef struct _docObj docObj;
 
 /* URL for data in widget */
+/* XXX this stuff belongs in the HelpWindow structure */
 extern gchar CurrentRef[];
 extern gchar LoadingRef[]; /* HACK */
-extern Queue queue;
 extern History history;
 
-void visitURL( GnomeHelpWin *help, gchar *ref );
-void visitURL_nohistory( GnomeHelpWin *help, gchar *ref );
-void visitDocument( GnomeHelpWin *help, docObj *obj );
+void visitURL( HelpWindow win, gchar *ref );
+void visitURL_nohistory( HelpWindow win, gchar *ref );
+
 docObj *docObj_new( void );
 void docObj_free( docObj *obj );
-void displayHTML( GnomeHelpWin *help, docObj *obj );
 #endif
 
 

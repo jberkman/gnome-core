@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string.h>
 
 #include "toc.h"
 #include "toc-man.h"

@@ -167,7 +167,7 @@ static void createHistoryWindow(History h, GtkWidget **window,
     gtk_clist_set_column_width(GTK_CLIST(*clist), 1, 100);
     gtk_clist_set_column_width(GTK_CLIST(*clist), 2, 50);
 
-    gtk_box_pack_start(GTK_CONTAINER(box), *clist, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(box), *clist, TRUE, TRUE, 0);
     gtk_widget_show(*clist);
 
     /* Set callbacks */

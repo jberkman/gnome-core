@@ -1,4 +1,4 @@
-/* history functions */
+/* queue functions (for forward/backward movement */
 
 #include <glib.h>
 

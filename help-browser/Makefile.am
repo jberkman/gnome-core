@@ -24,7 +24,8 @@ gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
 			     transport.c transport.h \
 			     HTParse.c HTParse.h cache.c cache.h \
 			     parseUrl.c parseUrl.h \
-			     queue.c queue.h history.c history.h
+			     queue.c queue.h history.c history.h \
+                             misc.c misc.h window.c window.h
 
 gnome_help_browser_LDADD = $(LDADD) $(GTKXMHTML_LIBS)
 

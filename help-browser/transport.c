@@ -1,25 +1,22 @@
 /* handles url type references and retrieving the sorresponding doc data */
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <dirent.h>
 #include <fcntl.h>
 
 #include <glib.h>
 
-#include "docobj.h"
 #include "transport.h"
-#include "mime.h"
+#include "docobj.h"
+#include "misc.h"
+#include "url.h"
 
 #include "parseUrl.h"
 
-void transportUnknown( docObj *obj );
-void transportFile( docObj *obj );
-void transportHTTP( docObj *obj );
+static void transportUnknown( docObj *obj );
+static void transportFile( docObj *obj );
+static void transportHTTP( docObj *obj );
 
 /* parse a URL into component pieces */
 void
@@ -69,13 +66,13 @@ resolveURL( docObj *obj )
 	/* stupid test for transport types with currently understand */
 	if (!strncmp(obj->url.u->access, "file", 4)) {
 		obj->url.method = TRANS_FILE;
-		obj->url.func   = transportFile;
+		obj->url.func   = (transportFunc)transportFile;
 	} else if (!strncmp(obj->url.u->access, "http", 4)) {
 		obj->url.method = TRANS_HTTP;
-		obj->url.func   = transportHTTP;
+		obj->url.func   = (transportFunc)transportHTTP;
 	} else {
 		obj->url.method = TRANS_UNKNOWN;
-		obj->url.func   = transportUnknown;
+		obj->url.func   = (transportFunc)transportUnknown;
 	}
 }
 
@@ -86,7 +83,7 @@ transport( docObj *obj )
 	(obj->url.func)(obj);
 }
 
-void
+static void
 transportUnknown( docObj *obj )
 {
 	gchar    s[513];
@@ -97,7 +94,7 @@ transportUnknown( docObj *obj )
 	obj->freeraw = TRUE;
 }
 
-void
+static void
 transportFile( docObj *obj )
 {
 	gchar   *s=NULL, *out;
@@ -269,7 +266,7 @@ transportFile( docObj *obj )
 }
 
 
-void
+static void
 transportHTTP( docObj *obj )
 {
 	char *argv[4];
