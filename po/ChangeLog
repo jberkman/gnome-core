@@ -451,7 +451,7 @@ Sun Dec 09 14:34:59 2001  George Lebl <jirka@5z.com>
 	* zh_CN.GB2312.po: Fix incorrect line breaking at line 580.
 	  Newer gettext complains about this.
 
-2001-08-25  Christophe Merlet  <redfox@eikonex.org>
+2001-08-25  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -773,7 +773,7 @@ Fri Apr 20 04:04:32 2001  George Lebl <jirka@5z.com>
 
 	* cs.po: update
 
-2001-04-19  Christophe Merlet  <redfox@eikonex.org>
+2001-04-19  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -844,7 +844,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* de.po: Minor changes.
 
-2001-03-16  Christophe Merlet  <redfox@eikonex.org>
+2001-03-16  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -892,7 +892,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* gl.po: Updated Galician translation.
 
-2001-03-13  Christophe Merlet  <redfox@eikonex.org>
+2001-03-13  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -912,7 +912,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* gl.po: Updated Galician translation.
 
-2001-03-09  Christophe Merlet  <redfox@eikonex.org>
+2001-03-09  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -936,7 +936,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* hu.po: Updated Hungarian translation.
 
-2001-03-07  Christophe Merlet  <redfox@eikonex.org>
+2001-03-07  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -944,7 +944,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* no.po: Updated Norwegian (bokmål) translation.
 	
-2001-03-06  Christophe Merlet  <redfox@eikonex.org>
+2001-03-06  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -957,7 +957,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* fi.po: Updated Finnish translation by Pauli Virtanen.
 
-2001-03-05  Christophe Merlet  <redfox@eikonex.org>
+2001-03-05  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -998,7 +998,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* sv.po: Updated Swedish translation.
 
-2001-03-01  Christophe Merlet  <redfox@eikonex.org>
+2001-03-01  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -1038,7 +1038,7 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* pt_BR.po: Updated Brazilian Portuguese translation.
 
-2001-02-20  Christophe Merlet  <redfox@eikonex.org>
+2001-02-20  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
@@ -1102,15 +1102,15 @@ Sun Apr 15 22:43:05 2001  George Lebl <jirka@5z.com>
 
 	* fi.po: Updated Finnish translation by Pauli Virtanen
 
-2001-02-14  Christophe Merlet  <redfox@eikonex.org>
+2001-02-14  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
-2001-02-13  Christophe Merlet  <redfox@eikonex.org>
+2001-02-13  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
-2001-02-12  Christophe Merlet  <redfox@eikonex.org>
+2001-02-12  Christophe Merlet  <christophe@merlet.net>
 
 	* fr.po: Updated French translation.
 
