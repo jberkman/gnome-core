@@ -62,6 +62,8 @@ $(CORBA_SRCLIST): $(top_srcdir)/idl/control-center.idl
 
 main.c: $(CORBA_SRCLIST)
 
+capplet-widget.c: $(CORBA_SRCLIST)
+
 #
 # Create the cappletConf.sh file from the sh.in file
 #
