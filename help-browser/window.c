@@ -709,7 +709,7 @@ helpWindowNew(gchar *name,
 	init_toolbar(w);
 
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_border_width (GTK_CONTAINER (vbox), 0);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), 0);
 	gtk_widget_show(vbox);
 
 	entryArea = makeEntryArea(w);

@@ -232,7 +232,7 @@ static void createBookmarksWindow(Bookmarks b, GtkWidget **window,
 
     /* Vbox */
     box = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width (GTK_CONTAINER (box), 5);
+    gtk_container_set_border_width (GTK_CONTAINER (box), 5);
     gtk_container_add(GTK_CONTAINER(*window), box);
     gtk_widget_show(box);
 

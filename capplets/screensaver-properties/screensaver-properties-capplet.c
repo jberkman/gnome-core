@@ -45,7 +45,7 @@ get_saver_frame ()
 
         retval = gtk_frame_new (_("Screen Saver"));
         vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
         gtk_container_add (GTK_CONTAINER (retval), vbox);
         
         ignore_changes = TRUE;
@@ -86,7 +86,7 @@ get_settings_frame()
         /* set up the initial frame, and get a vbox in which to pack things. */
         retval = gtk_frame_new (_("Screen Saver Settings"));
         vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
         gtk_container_add (GTK_CONTAINER (retval), vbox);
 
         /* the regular settings part */
@@ -155,7 +155,7 @@ get_demo_frame()
         monitor = gtk_drawing_area_new ();
         gtk_widget_set_usize (monitor, 200, 150);
         
-	gtk_container_border_width (GTK_CONTAINER (inner_frame), GNOME_PAD_SMALL);
+	gtk_container_set_border_width (GTK_CONTAINER (inner_frame), GNOME_PAD_SMALL);
         gtk_container_add (GTK_CONTAINER (retval), inner_frame);
         gtk_container_add (GTK_CONTAINER (inner_frame), monitor);
         return retval;
@@ -171,9 +171,9 @@ screensaver_setup ()
         vbox = gtk_vbox_new (FALSE, 0);
 	hbox = gtk_hbox_new (FALSE, GNOME_PAD);
 
-	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD_SMALL);
+	gtk_container_set_border_width (GTK_CONTAINER (hbox), GNOME_PAD_SMALL);
 	bottom = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-	gtk_container_border_width (GTK_CONTAINER (bottom), GNOME_PAD_SMALL);
+	gtk_container_set_border_width (GTK_CONTAINER (bottom), GNOME_PAD_SMALL);
         demo = get_demo_frame ();
         saver = get_saver_frame ();
         settings = get_settings_frame ();

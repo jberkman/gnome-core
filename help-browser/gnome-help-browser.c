@@ -649,7 +649,7 @@ generateConfigWidgets(GnomePropertyBox *property, struct _config_entry *configs,
     }
 
     table = gtk_table_new(0, 0, FALSE);
-    gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD);
+    gtk_container_set_border_width (GTK_CONTAINER (table), GNOME_PAD);
     gnome_property_box_append_page (property, table, gtk_label_new (title));
 
     rows = 0;

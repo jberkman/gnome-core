@@ -193,7 +193,7 @@ keyboard_setup (void)
         GtkWidget *vbox, *frame, *table, *hbox, *label, *entry;
 
         vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
+        gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
 
         capplet = capplet_widget_new();
         frame = gtk_frame_new (_("Auto-repeat"));
@@ -201,7 +201,7 @@ keyboard_setup (void)
         gtk_widget_show (frame);
 
         table = gtk_table_new (3, 2, FALSE);
-        gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (table), GNOME_PAD_SMALL);
         gtk_table_set_row_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
         gtk_table_set_col_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
         gtk_container_add (GTK_CONTAINER (frame), table);
@@ -227,7 +227,7 @@ keyboard_setup (void)
         gtk_widget_show (frame);
 
         table = gtk_table_new (2, 2, FALSE);
-        gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (table), GNOME_PAD_SMALL);
         gtk_table_set_row_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
         gtk_table_set_col_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
         gtk_container_add (GTK_CONTAINER (frame), table);
@@ -246,7 +246,7 @@ keyboard_setup (void)
         vscale = make_scale (_("Click volume"), vol_adjust, &click_volume, table, 1);
 
         hbox = gtk_hbox_new(FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
+        gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
         gtk_box_pack_start(GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
         gtk_widget_show(hbox);
 

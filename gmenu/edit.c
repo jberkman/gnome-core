@@ -156,7 +156,7 @@ GtkWidget * create_edit_area(void)
 	GtkWidget *frame;
 
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_border_width (GTK_CONTAINER (vbox), 5);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), 5);
 
 	notebook = gtk_notebook_new();
 	gtk_notebook_set_tab_pos (GTK_NOTEBOOK(notebook), GTK_POS_TOP);

@@ -170,7 +170,7 @@ sound_properties_create(void)
 
     sound_properties_regenerate_ctree(retval);
 
-    gtk_container_border_width(GTK_CONTAINER(table), GNOME_PAD_SMALL);
+    gtk_container_set_border_width(GTK_CONTAINER(table), GNOME_PAD_SMALL);
     gtk_table_attach_defaults(GTK_TABLE(table), retval->ctree, 0, 2, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(table),
                               (retval->btn_play = gtk_button_new_with_label(_("Play"))),

@@ -45,7 +45,7 @@ make_dialog (screensaver_data *sd)
         avbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
         authorframe = gtk_frame_new(_("About:"));
         temphbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (avbox), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (avbox), GNOME_PAD_SMALL);
         if (sd->author) {
                 align2 = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
                 label = gtk_label_new (_("Author:"));

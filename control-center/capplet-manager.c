@@ -115,7 +115,7 @@ launch_capplet (node_data *data)
                         gtk_notebook_set_scrollable (GTK_NOTEBOOK (notebook), TRUE);
                         gtk_widget_ref (splash_screen);
                         gtk_container_remove (GTK_CONTAINER (container), splash_screen);
-                        gtk_container_border_width (GTK_CONTAINER (container), 5);
+                        gtk_container_set_border_width (GTK_CONTAINER (container), 5);
                         gtk_container_add (GTK_CONTAINER (container), notebook);
                         gtk_widget_show (notebook);
                 } 
@@ -127,7 +127,7 @@ launch_capplet (node_data *data)
                 gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_SPREAD);
                 gtk_button_box_set_spacing (GTK_BUTTON_BOX (bbox), 5);
                 gtk_button_box_set_child_size (GTK_BUTTON_BOX (bbox), 5, -1);
-                gtk_container_border_width (GTK_CONTAINER (bbox), 5);
+                gtk_container_set_border_width (GTK_CONTAINER (bbox), 5);
 
                 data->try_button = gtk_button_new_with_label ("Try");
                 gtk_widget_set_sensitive (data->try_button, FALSE);
@@ -154,7 +154,7 @@ launch_capplet (node_data *data)
                 /* put it all together */
                 frame = gtk_frame_new (NULL);
                 gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
-                gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
+                gtk_container_set_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
                 gtk_container_add (GTK_CONTAINER (frame), data->socket);
                 gtk_box_pack_start (GTK_BOX (vbox), frame, TRUE, TRUE, 0);
                 gtk_box_pack_end (GTK_BOX (vbox), bbox, FALSE, FALSE, 0);
@@ -219,7 +219,7 @@ void close_capplet (GtkWidget *widget, gpointer data)
         if (--current_page == 0) {
                 gtk_container_remove (GTK_CONTAINER (container), notebook);
                 notebook = NULL;
-                gtk_container_border_width (GTK_CONTAINER (container), 5);
+                gtk_container_set_border_width (GTK_CONTAINER (container), 5);
                 gtk_container_add (GTK_CONTAINER (container), splash_screen);
                 g_list_remove (capplet_list, nd);
                 gtk_widget_unref (splash_screen);

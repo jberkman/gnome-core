@@ -950,7 +950,7 @@ e_create_frame(gchar *title)
   
   table = gtk_table_new(1, 1, FALSE);
   gtk_widget_show(table);
-  gtk_container_border_width(GTK_CONTAINER(table), GNOME_PAD_SMALL);
+  gtk_container_set_border_width(GTK_CONTAINER(table), GNOME_PAD_SMALL);
   gtk_container_add(GTK_CONTAINER(align), table);
   
   gtk_object_set_data(GTK_OBJECT(frame), "table", (gpointer)table);
@@ -1170,7 +1170,7 @@ e_setup_desktops (GtkWidget *c)
 	  gtk_object_set_data(GTK_OBJECT(l_item), "bg", bg);
 	  gtk_widget_show(l_item);
 	  l_hb = gtk_hbox_new(FALSE, 1);
-	  gtk_container_border_width(GTK_CONTAINER(l_hb), 1);
+	  gtk_container_set_border_width(GTK_CONTAINER(l_hb), 1);
 	  gtk_widget_show(l_hb);
 	  gtk_container_add(GTK_CONTAINER(l_item), l_hb);
 	  l_pixmap = gtk_pixmap_new(pmap, NULL);

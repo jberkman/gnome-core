@@ -153,7 +153,7 @@ keyboard_setup(void)
 	GtkObject *radj, *dadj, *cadj;
 
 	vbox = gtk_vbox_new(FALSE, GNOME_PAD_SMALL);
-	gtk_container_border_width(GTK_CONTAINER(vbox), GNOME_PAD);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), GNOME_PAD);
 
 	/* Auto repeat */
 
@@ -162,7 +162,7 @@ keyboard_setup(void)
 	gtk_widget_show (frame);
 
 	table = gtk_table_new (3, 2, FALSE);
-	gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (table), GNOME_PAD);
 	gtk_table_set_row_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
 	gtk_table_set_col_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
 	gtk_container_add (GTK_CONTAINER (frame), table);
@@ -237,7 +237,7 @@ keyboard_setup(void)
 	gtk_widget_show (frame);
 
 	table = gtk_table_new (2, 2, FALSE);
-	gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (table), GNOME_PAD);
 	gtk_table_set_row_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
 	gtk_table_set_col_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
 	gtk_container_add (GTK_CONTAINER (frame), table);

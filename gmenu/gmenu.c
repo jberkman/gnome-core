@@ -333,7 +333,7 @@ int main (int argc, char *argv[])
         gtk_widget_show (mainbox);
 
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_container_border_width (GTK_CONTAINER (vbox), 5);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), 5);
 	gtk_box_pack_start(GTK_BOX(mainbox),vbox,TRUE,TRUE,0);
 	gtk_widget_show(vbox);
 

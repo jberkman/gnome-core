@@ -280,7 +280,7 @@ get_entry (setup_data *ssd)
         if (ssd->label)
                 frame = gtk_frame_new (ssd->label);
         box = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
 
         /* make the entry */
         entry = gtk_entry_new ();
@@ -329,7 +329,7 @@ get_range (setup_data *ssd, gint type)
         if (ssd->label)
                 frame = gtk_frame_new (ssd->label);
         box = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
 
         /* set up the adjustment */
         adj = get_adjustment (ssd->val_type);
@@ -391,7 +391,7 @@ get_check (setup_data *ssd)
                 frame = gtk_frame_new (ssd->label);
         prefix = g_copy_strings (ssd->name, "=FALSE", NULL);
         box = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
-        gtk_container_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (box), GNOME_PAD_SMALL);
         check = gtk_check_button_new_with_label (ssd->left_label);
         ssd->widget = check;
         
@@ -569,7 +569,7 @@ get_screensaver_widget (screensaver_data *sd)
                 
         }
         gnome_config_pop_prefix ();
-        gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
+        gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
         return vbox;
 }
 /* we go through the arg list and generate our arg field */

@@ -500,7 +500,7 @@ color_setup ()
 	gtk_widget_show (vb2);
 
 	table = gtk_table_new (2, 2, FALSE);
-	gtk_container_border_width (GTK_CONTAINER(table), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER(table), GNOME_PAD);
 	gtk_table_set_col_spacings (GTK_TABLE(table), GNOME_PAD);
 	gtk_container_add (GTK_CONTAINER(frame), table);
 	gtk_widget_show (table);
@@ -818,7 +818,7 @@ wallpaper_setup ()
 	gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
 	gtk_widget_show (rbut);
 
-	gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
 	gtk_container_add (GTK_CONTAINER (wallp), vbox);
 
 
@@ -964,7 +964,7 @@ background_setup ()
 	vbox = gtk_vbox_new (FALSE, 0);
 
 	hbox = gtk_hbox_new (FALSE, 0);
-	gtk_container_border_width (GTK_CONTAINER(hbox), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER(hbox), GNOME_PAD);
 
 	align = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
 
@@ -986,7 +986,7 @@ background_setup ()
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 	
 	settings = gtk_hbox_new (FALSE, GNOME_PAD);
-	gtk_container_border_width (GTK_CONTAINER(settings), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER(settings), GNOME_PAD);
 	gtk_box_pack_end (GTK_BOX (vbox), settings, TRUE, TRUE, 0);
 
 	fill = color_setup ();
