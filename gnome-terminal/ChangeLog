@@ -1,3 +1,10 @@
+Mon Jan 14 12:28:18 2002  Owen Taylor  <otaylor@redhat.com>
+
+	* gnome-terminal.c (term_change_pos): We don't need
+	to do this ... it's done for us by libzvt.
+
+	* gnome-terminal.c (button_press): Some cleanups.
+
 Mon Jan 14 03:00:42 2002  Owen Taylor  <otaylor@redhat.com>
 
 	* gnome-terminal.c: Deal with failure to parse colors

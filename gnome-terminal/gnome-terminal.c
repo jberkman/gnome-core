@@ -868,11 +868,7 @@ window_destroy (GtkWidget *w, gpointer data)
 	g_free (prefs);
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", NULL);
 
-	tmp = gtk_object_get_data (GTK_OBJECT (term), "matchstr");
-	if (tmp) {
-		g_free(tmp);
-		gtk_object_set_data(GTK_OBJECT (term), "matchstr", NULL);
-	}
+	gtk_object_set_data(GTK_OBJECT (term), "matchstr", NULL);
 }
 
 /* 
@@ -1872,11 +1868,9 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	if (event->button == 1
 	    && (event->state & GDK_CONTROL_MASK)
 	    && match) {
-		gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
 #ifdef FIXME
 		gnome_url_show (match, NULL);
 #endif /* FIXME */
-		return TRUE;
 	}
 
 	if (event->button != 3
@@ -1884,17 +1878,13 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	    || (term->vx->vt.mode & VTMODE_SEND_MOUSE))
 		return FALSE;
 
-	gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
-
 	uic = gtk_object_get_data (GTK_OBJECT (term), "uic");
 
 	/* construct the popup menu properly */
 	if (match) {
 		char *tmp;
-		tmp = gtk_object_get_data(GTK_OBJECT (term), "matchstr");
-		if (tmp)
-			g_free(tmp);
-		gtk_object_set_data (GTK_OBJECT (term), "matchstr", g_strdup(match));
+		gtk_object_set_data_full (GTK_OBJECT (term), "matchstr",
+					  g_strdup(match), (GDestroyNotify)g_free);
 	}
 
 	menu = gtk_menu_new ();
@@ -2158,10 +2148,6 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	}
 	gtk_object_set_data(GTK_OBJECT(app), "term", term);
 	gtk_widget_grab_focus(GTK_WIDGET(term));
-
-	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
-				  GTK_SIGNAL_FUNC(term_change_pos),
-				  GTK_OBJECT(term));
 
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	gnome_term_set_font (term, cfg->font, cfg->use_bold);
