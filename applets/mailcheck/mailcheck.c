@@ -17,7 +17,6 @@
 #include <string.h>
 #include <gnome.h>
 #include "applet-lib.h"
-#include "panel.h"
 #include <gdk_imlib.h>
 
 #define WIDGET_HEIGHT 48
