@@ -95,12 +95,19 @@ static gpointer		get_typed_property_data	  (Display     *xdisplay,
 						   guint        expected_format);
 static gboolean		wm_protocol_check_support (Window     xwin,
 						   Atom       check_atom);
-static gboolean		send_client_message_32	  (Window     recipient,
+static gboolean		send_client_message_2L	  (Window     recipient,
 						   Window     event_window,
 						   Atom       message_type,
 						   long       event_mask,
-						   guint      n_longs,
-						   ...);
+						   glong      long1,
+						   glong      long2);
+static gboolean		send_client_message_3L	  (Window     recipient,
+						   Window     event_window,
+						   Atom       message_type,
+						   long       event_mask,
+						   glong      long1,
+						   glong      long2,
+						   glong      long3);
 static void 		get_task_root_and_frame   (GwmhTask    *task);
 static GdkWindow*	gdk_window_ref_from_xid	  (Window       xwin);
 static guint            gwmh_property_atom2info   (Atom         atom,
@@ -118,15 +125,15 @@ static void		gwmh_task_notify	  (GwmhTask	     *task,
 						   GwmhTaskInfoMask   imask);
 static GwmhTask*	task_new		  (GdkWindow	      *gdkwindow);
 static void		task_delete		  (GwmhTask	     *task);
-static gboolean		client_list_sync	  (Window            *xwindows,
-						   guint              n_xwindows);
+static gboolean		client_list_sync	  (guint32           *xwindows_ids,
+						   guint              n_ids);
 static GdkFilterReturn	task_event_monitor	  (GdkXEvent         *gdk_xevent,
 						   GdkEvent          *event,
 						   gpointer           task_pointer);
 static GdkFilterReturn	root_event_monitor	  (GdkXEvent         *gdk_xevent,
 						   GdkEvent          *event,
 						   gpointer           gdk_root);
-static gpointer		hack_a_client_list	  (Display           *display,
+static guint32*		hack_a_client_list	  (Display           *display,
 						   Window             xroot,
 						   guint             *_n_clients);
 
@@ -387,6 +394,15 @@ get_typed_property_data (Display *xdisplay,
 	{
 	case 32:
 	  *size_p = nitems_return * 4;
+	  if (sizeof (gulong) == 8)
+	    {
+	      guint32 i, *mem = g_malloc0 (*size_p + 1);
+	      gulong *prop_longs = (gulong*) prop_data;
+
+	      for (i = 0; i < *size_p / 4; i++)
+		mem[i] = prop_longs[i];
+	      data = mem;
+	    }
 	  break;
 	case 16:
 	  *size_p = nitems_return * 2;
@@ -399,7 +415,7 @@ get_typed_property_data (Display *xdisplay,
 		     format_returned);
 	  break;
 	}
-      if (*size_p)
+      if (!data && *size_p)
 	{
 	  guint8 *mem = g_malloc (*size_p + 1);
 
@@ -419,18 +435,18 @@ static gboolean
 wm_protocol_check_support (Window xwin,
 			   Atom   check_atom)
 {
-  Atom *protocols, *xdata = NULL;
-  gpointer gdata = NULL;
-  int n_protocols = 0;
+  Atom *pdata = NULL;
+  guint32 *gdata = NULL;
+  int n_pids = 0;
   gboolean is_supported = FALSE;
-  guint i;
+  guint i, n_gids = 0;
 
   gdk_error_trap_push ();
 
   if (!XGetWMProtocols (GDK_DISPLAY (),
 			xwin,
-			&xdata,
-			&n_protocols))
+			&pdata,
+			&n_pids))
     {
       gint size = 0;
 
@@ -439,49 +455,62 @@ wm_protocol_check_support (Window xwin,
 				       XA_WM_PROTOCOLS,
 				       XA_WM_PROTOCOLS,
 				       &size, 32);
-      n_protocols = size / 4;
+      n_gids = size / 4;
     }
 
   gdk_error_trap_pop ();
 
-  protocols = xdata ? xdata : gdata;
-  for (i = 0; i < n_protocols; i++)
-    if (protocols[i] == check_atom)
+  for (i = 0; i < n_pids; i++)
+    if (pdata[i] == check_atom)
       {
 	is_supported = TRUE;
 	break;
       }
-  if (xdata)
-    XFree (xdata);
+  if (pdata)
+    XFree (pdata);
+  if (!is_supported)
+    for (i = 0; i < n_gids; i++)
+      if (gdata[i] == check_atom)
+        {
+	  is_supported = TRUE;
+	  break;
+        }
   g_free (gdata);
 
   return is_supported;
 }
 
 static gboolean
-send_client_message_32 (Window recipient,
+send_client_message_2L (Window recipient,
 			Window event_window,
 			Atom   message_type,
 			long   event_mask,
-			guint  n_longs,
-			...)
+			glong  long1,
+			glong  long2)
+{
+  return send_client_message_3L (recipient, event_window, message_type, event_mask, long1, long2, 0);
+}
+
+static gboolean
+send_client_message_3L (Window recipient,
+			Window event_window,
+			Atom   message_type,
+			long   event_mask,
+			glong  long1,
+			glong  long2,
+			glong  long3)
 {
   XEvent xevent = { 0, };
-  guint i = 0;
-  va_list var_args;
 
-  g_return_val_if_fail (n_longs < 6, FALSE);
-
-  va_start (var_args, n_longs);
+  /* g_return_val_if_fail (n_longs < 6, FALSE); */
 
   xevent.type = ClientMessage;
   xevent.xclient.window = event_window;
   xevent.xclient.message_type = message_type;
   xevent.xclient.format = 32;
-  while (n_longs--)
-    xevent.xclient.data.l[i++] = va_arg (var_args, gint32);
-
-  va_end (var_args);
+  xevent.xclient.data.l[0] = long1;
+  xevent.xclient.data.l[1] = long2;
+  xevent.xclient.data.l[2] = long3;
 
   gdk_error_trap_push ();
 
@@ -983,21 +1012,21 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
   if (imask & GWMH_DESK_INFO_CLIENT_LIST)
     {
       gint n_tasks, size = 0;
-      Window *task_data;
+      guint32 *task_ids;
 
       if (!gwmh_gnome_wm_win)
-	task_data = hack_a_client_list (xdisplay, xwindow, &n_tasks);
+	task_ids = hack_a_client_list (xdisplay, xwindow, &n_tasks);
       else
 	{
-	  task_data = get_typed_property_data (xdisplay, xwindow,
-					       GWMHA_WIN_CLIENT_LIST,
-					       XA_CARDINAL,
-					       &size, 32);
+	  task_ids = get_typed_property_data (xdisplay, xwindow,
+					      GWMHA_WIN_CLIENT_LIST,
+					      XA_CARDINAL,
+					      &size, 32);
 	  n_tasks = size / 4;
 	}
-      if (client_list_sync (task_data, n_tasks))
+      if (client_list_sync (task_ids, n_tasks))
 	ichanges |= GWMH_DESK_INFO_CLIENT_LIST;
-      g_free (task_data);
+      g_free (task_ids);
     }
   
   gdk_error_trap_pop ();
@@ -1692,8 +1721,8 @@ task_delete (GwmhTask *task)
 }
 
 static gboolean
-client_list_sync (Window *xwindows,
-		  guint   n_xwindows)
+client_list_sync (guint32 *xwindow_ids,
+		  guint    n_ids)
 {
   guint i;
   GList *node, *client_list = NULL;
@@ -1707,11 +1736,11 @@ client_list_sync (Window *xwindows,
       
       node = node->next;
 
-      for (i = 0; i < n_xwindows; i++)
-	if (xwindows[i] == task->xwin)
+      for (i = 0; i < n_ids; i++)
+	if (xwindow_ids[i] == task->xwin)
 	  {
-	    n_xwindows--;
-	    xwindows[i] = xwindows[n_xwindows];
+	    n_ids--;
+	    xwindow_ids[i] = xwindow_ids[n_ids];
 	    client_list = g_list_prepend (client_list, task);
 	    found_client = TRUE;
 	    break;
@@ -1723,9 +1752,9 @@ client_list_sync (Window *xwindows,
 	}
     }
 
-  for (i = 0; i < n_xwindows; i++)
+  for (i = 0; i < n_ids; i++)
     {
-      GdkWindow *window = gdk_window_ref_from_xid (xwindows[i]);
+      GdkWindow *window = gdk_window_ref_from_xid (xwindow_ids[i]);
 
       if (window)
 	{
@@ -1833,10 +1862,10 @@ gwmh_task_close (GwmhTask *task)
   can_delete = wm_protocol_check_support (task->xwin, XA_WM_DELETE_WINDOW);
 
   if (can_delete)
-    can_delete = send_client_message_32 (task->xwin, task->xwin,
+    can_delete = send_client_message_2L (task->xwin, task->xwin,
 					 XA_WM_PROTOCOLS,
 					 0,
-					 2, XA_WM_DELETE_WINDOW, CurrentTime);
+					 XA_WM_DELETE_WINDOW, CurrentTime);
 
   return can_delete;
 }
@@ -1878,10 +1907,10 @@ gwmh_task_focus (GwmhTask *task)
     return;
 
   if (wm_protocol_check_support (task->xwin, XA_WM_TAKE_FOCUS))
-    send_client_message_32 (task->xwin, task->xwin,
+    send_client_message_2L (task->xwin, task->xwin,
 			    XA_WM_PROTOCOLS,
 			    0,
-			    2, XA_WM_TAKE_FOCUS, CurrentTime);
+			    XA_WM_TAKE_FOCUS, CurrentTime);
 
   if (!GWMH_TASK_FOCUSED (task))
     {
@@ -1908,10 +1937,10 @@ gwmh_task_show (GwmhTask *task)
 
   if (!GWMH_TASK_SKIP_FOCUS (task) &&
       wm_protocol_check_support (task->xwin, XA_WM_TAKE_FOCUS))
-    send_client_message_32 (task->xwin, task->xwin,
+    send_client_message_2L (task->xwin, task->xwin,
 			    XA_WM_PROTOCOLS,
 			    0,
-			    2, XA_WM_TAKE_FOCUS, CurrentTime);
+			    XA_WM_TAKE_FOCUS, CurrentTime);
 
   gdk_error_trap_push ();
 
@@ -1921,12 +1950,10 @@ gwmh_task_show (GwmhTask *task)
     XSetInputFocus (GDK_DISPLAY (), task->xwin, RevertToPointerRoot, CurrentTime);
   XRaiseWindow (GDK_DISPLAY (), task->xwin);
   if (GWMH_TASK_SHADED (task))
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_3L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_STATE,
 			    SubstructureNotifyMask,
-			    3,
-			    GWMH_STATE_SHADED, 0,
-			    CurrentTime);
+			    GWMH_STATE_SHADED, 0, CurrentTime);
   
   gwmh_sync ();
   
@@ -1956,10 +1983,10 @@ gwmh_task_set_gstate_flags (GwmhTask *task,
     return;
 
   if ((GWMH_TASK_GSTATE (task) & flags) != flags)
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_3L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_STATE,
 			    SubstructureNotifyMask,
-			    3, flags, flags, CurrentTime);
+			    flags, flags, CurrentTime);
 }
 
 void
@@ -1972,10 +1999,10 @@ gwmh_task_unset_gstate_flags (GwmhTask *task,
     return;
 
   if (GWMH_TASK_GSTATE (task) & flags)
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_3L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_STATE,
 			    SubstructureNotifyMask,
-			    3, flags, 0, CurrentTime);
+			    flags, 0, CurrentTime);
 }
 
 void
@@ -1988,10 +2015,10 @@ gwmh_task_set_ghint_flags (GwmhTask *task,
     return;
 
   if ((GWMH_TASK_GHINTS (task) & flags) != flags)
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_3L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_HINTS,
 			    SubstructureNotifyMask,
-			    3, flags, flags, CurrentTime);
+			    flags, flags, CurrentTime);
 }
 
 void
@@ -2004,10 +2031,10 @@ gwmh_task_unset_ghint_flags (GwmhTask *task,
     return;
 
   if (GWMH_TASK_GHINTS (task) & flags)
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_3L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_HINTS,
 			    SubstructureNotifyMask,
-			    3, flags, 0, CurrentTime);
+			    flags, 0, CurrentTime);
 }
 
 void
@@ -2020,10 +2047,10 @@ gwmh_task_set_app_state (GwmhTask        *task,
     return;
 
   if (GWMH_TASK_APP_STATE (task) != app_state)
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_2L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_APP_STATE,
 			    SubstructureNotifyMask,
-			    2, app_state, CurrentTime);
+			    app_state, CurrentTime);
 }
 
 void
@@ -2091,10 +2118,10 @@ gwmh_task_set_layer (GwmhTask *task,
     return;
 
   if (task->layer != layer)
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_2L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_LAYER,
 			    SubstructureNotifyMask,
-			    2, layer, CurrentTime);
+			    layer, CurrentTime);
 }
 
 void
@@ -2143,14 +2170,14 @@ gwmh_task_set_area (GwmhTask *task,
   else
     {
       if (desktop != task->desktop)
-	send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+	send_client_message_2L (GDK_ROOT_WINDOW (), task->xwin,
 				GWMHA_WIN_WORKSPACE,
 				SubstructureNotifyMask,
-				2, desktop, CurrentTime);
-      send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+				desktop, CurrentTime);
+      send_client_message_3L (GDK_ROOT_WINDOW (), task->xwin,
 			      GWMHA_WIN_AREA,
 			      SubstructureNotifyMask,
-			      3, harea, varea, CurrentTime);
+			      harea, varea, CurrentTime);
     }
   
   gwmh_thaw_syncs ();
@@ -2183,10 +2210,10 @@ gwmh_task_set_desktop (GwmhTask *task,
       gdk_error_trap_pop ();
     }
   else
-    send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
+    send_client_message_2L (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_WORKSPACE,
 			    SubstructureNotifyMask,
-			    2, desktop, CurrentTime);
+			    desktop, CurrentTime);
 }
 
 GwmhDesk*
@@ -2223,10 +2250,10 @@ gwmh_desk_set_current_desktop (guint desktop)
       desktop == gwmh_desk.current_desktop)
     return;
 
-  send_client_message_32 (GDK_ROOT_WINDOW (), GDK_ROOT_WINDOW (),
+  send_client_message_2L (GDK_ROOT_WINDOW (), GDK_ROOT_WINDOW (),
 			  GWMHA_WIN_WORKSPACE,
 			  SubstructureNotifyMask,
-			  2, desktop, CurrentTime);
+			  desktop, CurrentTime);
 }
 
 void
@@ -2258,14 +2285,14 @@ gwmh_desk_set_current_area (guint desktop,
   gwmh_sync ();
   gwmh_freeze_syncs ();
   if (desktop != gwmh_desk.current_desktop)
-    send_client_message_32 (GDK_ROOT_WINDOW (), GDK_ROOT_WINDOW (),
+    send_client_message_2L (GDK_ROOT_WINDOW (), GDK_ROOT_WINDOW (),
 			    GWMHA_WIN_WORKSPACE,
 			    SubstructureNotifyMask,
-			    2, desktop, CurrentTime);
-  send_client_message_32 (GDK_ROOT_WINDOW (), GDK_ROOT_WINDOW (),
+			    desktop, CurrentTime);
+  send_client_message_3L (GDK_ROOT_WINDOW (), GDK_ROOT_WINDOW (),
 			  GWMHA_WIN_AREA,
 			  SubstructureNotifyMask,
-			  3, harea, varea, CurrentTime);
+			  harea, varea, CurrentTime);
   gwmh_thaw_syncs ();
 }
 
@@ -2433,7 +2460,7 @@ find_input_client (Display *display,
   return xwindow;
 }
 
-static gpointer
+static guint32*
 hack_a_client_list (Display *display,
 		    Window   xroot,
 		    guint   *_n_clients)

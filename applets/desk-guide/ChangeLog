@@ -1,3 +1,24 @@
+Fri Dec 24 12:27:06 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c: made desk-guide work on 64bit platforms (with lots of help
+	from george lebl ;).
+	scratched send_client_message_32(,...) in favour of the two new variants
+	send_client_message_2L() and send_client_message_3L() to send client
+	messages with 2 or 3 longs respectively.
+	changed a couple of functions to use send_client_message_2L() or
+	send_client_message_3L() instead of send_client_message_32().
+	(client_list_sync): operate on guint32 ids.
+	(hack_a_client_list): return a guint32* array.
+	(get_typed_property_data): for format=32 returns from
+	XGetWindowProperty(), assume the values are actually sizeof(long)
+	(i.e. *64* bit on some platforms) and convert the data accordingly if
+	sizeof (gulong) == 8, so we always return guint32* arrays for format=32.
+	(wm_protocol_check_support): don't assume Atom and guint32 have the same
+	size, i.e. walk the Atom* array independantly from the guint32* array.
+	(gwmh_desk_update): interpret the values returned from
+	get_typed_property_data() for the GWMH_DESK_INFO_CLIENT_LIST case as
+	guint32* array, not as Window* array.
+
 Thu Dec 16 09:13:53 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_create_desk_widgets): 
