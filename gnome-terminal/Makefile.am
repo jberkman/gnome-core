@@ -9,7 +9,7 @@ INCLUDES = 			\
 LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
-	-lzvt $(UTIL_LIB)				\
+	-lzvt 						\
 	$(INTLLIBS)
 
 
