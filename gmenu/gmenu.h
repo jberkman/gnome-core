@@ -43,6 +43,7 @@ extern GtkWidget *infolabel;
 extern GtkWidget *infopixmap;
 
 extern gchar *system_apps_dir;
+extern gchar *system_apps_merge_dir;
 extern gchar *system_applets_dir;
 extern gchar *user_apps_dir;
 extern gchar *system_pixmap_dir;

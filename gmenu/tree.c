@@ -419,6 +419,16 @@ void menu_tree_populate(GtkWidget *ctree)
 			      _("Top of system menus"), pixmap);
 	node = menu_tree_insert_node(ctree, NULL, NULL, dd, TRUE);
 
+	/* Programs to merge in menu branch */
+	if (system_apps_merge_dir != NULL) {
+		buf = g_concat_dir_and_file(system_apps_merge_dir, ".directory");
+		pixmap = new_top_pixmap_from_dentry_path(buf);
+		g_free(buf);
+		dd = desktop_data_new(system_apps_merge_dir, _("Programs to be merged in (system menus)"),
+				      _("Top of system merge menus"), pixmap);
+		node = menu_tree_insert_node(ctree, NULL, NULL, dd, TRUE);
+	}
+
 	/* applets menu branch */
 	buf = g_concat_dir_and_file(system_applets_dir, ".directory");
 	pixmap = new_top_pixmap_from_dentry_path(buf);

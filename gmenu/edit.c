@@ -384,13 +384,17 @@ void edit_area_set_to(Desktop_Data *dd)
 		{
 		edit_area_set_as_top_menu(_("Favorites (user menus)"), edit);
 		}
-	if (dd->editable && strcmp(dd->path, system_apps_dir) == 0)
+	else if (dd->editable && strcmp(dd->path, system_apps_dir) == 0)
 		{
 		edit_area_set_as_top_menu(_("Programs (system menus)"), edit);
 		}
-	if (dd->editable && strcmp(dd->path, system_applets_dir) == 0)
+	else if (dd->editable && strcmp(dd->path, system_applets_dir) == 0)
 		{
 		edit_area_set_as_top_menu(_("Applets (system menus)"), edit);
+		}
+	else if (dd->editable && strcmp(dd->path, system_apps_merge_dir) == 0)
+		{
+		edit_area_set_as_top_menu(_("Programs to be merged in (system menus)"), edit);
 		}
 }
 

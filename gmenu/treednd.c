@@ -156,6 +156,7 @@ static gboolean menu_tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_nod
 
 	if (strcmp(dd->path, user_apps_dir) == 0 ||
 	    strcmp(dd->path, system_apps_dir) == 0 ||
+	    strcmp(dd->path, system_apps_merge_dir) == 0 ||
 	    strcmp(dd->path, system_applets_dir) == 0 ) return FALSE;
 
 	if (new_parent != GTK_CTREE_ROW(source_node)->parent)

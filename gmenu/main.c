@@ -21,6 +21,7 @@ GtkWidget *infolabel;
 GtkWidget *infopixmap;
 
 gchar *system_apps_dir;
+gchar *system_apps_merge_dir;
 gchar *system_applets_dir;
 gchar *user_apps_dir;
 gchar *system_pixmap_dir;
@@ -285,6 +286,12 @@ int main (int argc, char *argv[])
 		gtk_main();
 		return 1;
 		}
+	system_apps_merge_dir = gnome_config_get_string("/panel/Merge/Directory=/etc/X11/applnk");
+	if (system_apps_merge_dir &&
+	    ! g_file_test(system_apps_merge_dir, G_FILE_TEST_ISDIR)) {
+		g_free(system_apps_merge_dir);
+		system_apps_merge_dir = NULL;
+	}
 
 	user_apps_dir = check_for_dir(gnome_util_home_file("apps"));
 	user_pixmap_dir = check_for_dir(gnome_util_home_file("pixmaps"));

@@ -1,3 +1,8 @@
+Fri Aug 11 14:16:43 2000  George Lebl <jirka@5z.com>
+
+	* edit.c, gmenu.h, main.c, save.c, tree.c, treedel.c, treednd.c:
+	  Add the ability to edit system merge menus if they exist
+
 2000-05-19  Andreas Hyden  <a.hyden@cyberpoint.se>
 
 	* gmenu.desktop: Added Swedish translation to comment.
