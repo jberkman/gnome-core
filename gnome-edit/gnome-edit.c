@@ -150,11 +150,22 @@ main( gint argc, gchar *argv[])
 					"or is not on your current path.") );
 		}
 	}
-	else
-	{
-		e_box( _("Alternate editor types are not supported by gnome-edit yet.\n\n"
-			 "Please choose a standard executable editor in the gnome-edit capplet\n"
-			 "in the gnome control center.") );
-	}
-	return 0;
+
+      /* Fall back to $EDITOR if possible */
+      executable = getenv( "EDITOR" );
+      if(executable) {
+        new_argv = g_new( char *, argc + 3 );
+        new_argv[0] = "xterm";
+        new_argv[1] = "-e";
+        new_argv[2] = executable;
+	for ( ; i < argc; i++, j++ )
+	  {
+	    new_argv[j] = argv[i];
+	  }
+	execvp(executable, new_argv);
+      }
+      e_box ( _("Alternate editor types are not supported by gnome-edit yet.\n"
+		"Please choose a standard executable editor in the gnome-edit capplet\n"
+		"in the gnome control center.") );
+      return 1;
 }
