@@ -634,19 +634,26 @@ gboolean
 cb_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
 	TasklistTask *task;
-
+	
 	task = task_get_xy ((gint)event->x, (gint)event->y);
 
 	if (!task)
 		return FALSE;
 
 	if (event->button == 1) {
-		if (!Config.all_desks_minimized)
-			gwmh_desk_set_current_area (task->gwmh_task->desktop,
-						    task->gwmh_task->harea,
-						    task->gwmh_task->varea);
-
 		if (GWMH_TASK_ICONIFIED (task->gwmh_task) || !GWMH_TASK_FOCUSED (task->gwmh_task)) {
+			if (Config.move_to_current) {
+				GwmhDesk *desk_info;
+				desk_info = gwmh_desk_get_config ();
+				
+				if (task->gwmh_task->desktop != desk_info->current_desktop ||
+				    task->gwmh_task->harea != desk_info->current_harea ||
+				    task->gwmh_task->varea != desk_info->current_varea) {
+					gwmh_desk_set_current_area (task->gwmh_task->desktop,
+								    task->gwmh_task->harea,
+								    task->gwmh_task->varea);
+				}
+			}
 			gwmh_task_show (task->gwmh_task);
 			/* Why is a focus needed here?
 			   gwmh_task_show is supposed to give focus */

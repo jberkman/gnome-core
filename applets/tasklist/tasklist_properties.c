@@ -279,7 +279,9 @@ create_display_page (void)
 	gtk_box_pack_start (GTK_BOX (miscbox),
 			    create_check_button (_("Confirm before killing windows"), &PropsConfig.confirm_before_kill),
 			    FALSE, TRUE, 0);
-	
+	gtk_box_pack_start (GTK_BOX (miscbox),
+			    create_check_button (_("Move iconified tasks to current workspace when restoring"), &PropsConfig.move_to_current),
+			    FALSE, TRUE, 0);
 
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), vbox,
 					gtk_label_new (_("Display")));

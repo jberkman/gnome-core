@@ -1,3 +1,9 @@
+2000-04-03  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.[ch],tasklist_config.c, tasklist_properties.c:
+	Add an option to move to switch workspace when restoring a task
+	that is on another workspace.
+
 Fri Mar 03 00:03:58 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.[ch],tasklist_menu.c: add a menu field to the
