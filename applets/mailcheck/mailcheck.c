@@ -522,9 +522,22 @@ main(int argc, char **argv)
 	report_mail_mode = REPORT_MAIL_USE_ANIMATION;
 
 	mail_file = getenv ("MAIL");
-	if (!mail_file)
-		return 1;
+	if (!mail_file){
+		char *user;
+	
+		if (user = getenv("USER")){
+			char *t;
+			t = g_malloc(strlen(user) + 20);
 
+			mail_file = t;
+			sprintf(t, "/var/spool/mail/%s", user);
+		} else {
+			return 1;
+		}
+	}
+
+	fprintf(stderr, "mail_file = %s\n", mail_file);
+	
 	applet = applet_widget_new(argv[0]);
 	if (!applet)
 		g_error("Can't create applet!\n");
@@ -560,4 +573,3 @@ main(int argc, char **argv)
 
 	return 0;
 }
-
