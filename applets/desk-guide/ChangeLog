@@ -1,3 +1,10 @@
+2001-01-31  Jason Leach  <jasonleach@usa.net>
+
+	* deskguide_applet.c: Added a boolean config option for "Show
+	tasklist arrow", default to true.  Also renamed the "Switch
+	tasklist arrow" to a more descriptive "Switch horizontal/vertical
+	position of tasklist arrow".
+
 Tue Dec 05 20:08:49 2000  George Lebl <jirka@5z.com>
 
 	* deskguide_applet.c: bind signals on applet-widget BEFORE
