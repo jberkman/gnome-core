@@ -5,7 +5,7 @@
       Desktop-Überblick-Applet
     </title>
     <subject>
-      <category>Applications|Applets|Utility</category>
+      <category>GNOME|Applets|Utility</category>
     </subject>
     <format mime="text/sgml"/>
     <identifier url="desk-guide_applet.sgml"/>

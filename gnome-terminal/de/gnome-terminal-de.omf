@@ -5,7 +5,8 @@
      GNOME-Terminal Anwenderhandbuch 
     </title>
     <subject>
-        <category>Applications</category>
+      <category>Applications|Utilities|Terminals</category>
+      <category>GNOME|System</category>
     </subject>
     <format mime="text/sgml"/>
     <identifier url="gnome-terminal.sgml"/>
