@@ -484,20 +484,20 @@ load_config (char *class)
 	cfg->font    = gnome_config_get_string ("font=" DEFAULT_FONT);
 	cfg->wordclass  = gnome_config_get_string ("wordclass=-A-Za-z0-9,./?%&#");
 	p = gnome_config_get_string ("scrollpos=right");
-	if (strcasecmp (p, "left") == 0)
+	if (g_strcasecmp (p, "left") == 0)
 		cfg->scrollbar_position = SCROLLBAR_LEFT;
-	else if (strcasecmp (p, "right") == 0)
+	else if (g_strcasecmp (p, "right") == 0)
 		cfg->scrollbar_position = SCROLLBAR_RIGHT;
 	else
 		cfg->scrollbar_position = SCROLLBAR_HIDDEN;
 	p = gnome_config_get_string ("color_scheme=linux");
-	if (strcasecmp (p, "linux") == 0)
+	if (g_strcasecmp (p, "linux") == 0)
 		cfg->color_type = PALETTE_LINUX;
-	else if (strcasecmp (p, "xterm") == 0)
+	else if (g_strcasecmp (p, "xterm") == 0)
 		cfg->color_type = PALETTE_XTERM;
-	else if (strcasecmp (p, "rxvt") == 0)
+	else if (g_strcasecmp (p, "rxvt") == 0)
 		cfg->color_type = PALETTE_RXVT;
-	else if (strcasecmp (p, "custom") == 0)
+	else if (g_strcasecmp (p, "custom") == 0)
 		cfg->color_type = PALETTE_CUSTOM;
 	else
 		cfg->color_type = PALETTE_LINUX;
@@ -533,7 +533,7 @@ load_config (char *class)
 
 	cfg->update_records = ZVT_TERM_DO_UTMP_LOG | ZVT_TERM_DO_WTMP_LOG | ZVT_TERM_DO_LASTLOG;
 
-	if (strcasecmp (fore_color, back_color) == 0)
+	if (g_strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
 		cfg->color_set = 0;
 	else {

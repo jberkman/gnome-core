@@ -396,7 +396,7 @@ gtkhtml_formActivate (GtkWidget *w, const gchar *method,
 
 	g_print("submitting '%s' to '%s' using method '%s'\n", encoding, action, method);
 
-	if(strcasecmp(method, "GET") == 0) {
+	if(g_strcasecmp(method, "GET") == 0) {
 
 		tmpstr = g_string_append_c (tmpstr, '?');
 		tmpstr = g_string_append (tmpstr, encoding);

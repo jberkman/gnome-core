@@ -1,3 +1,7 @@
+2000-05-03  Michael Meeks  <michael@helixcode.com>
+
+	* gnome-terminal.c (load_config): s/strcasecmp/g_strcasecmp/
+
 2000-05-03  Nakai Yukihiro <nakai@gnome.gr.jp>
 
 	* gnome-terminal.desktop: Updated Japanese translation.
