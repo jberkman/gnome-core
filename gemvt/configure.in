@@ -64,7 +64,13 @@ AC_DEFUN(AC_GEMVT_REQUIREMENTS,
 		-lgdk -lglib $x_libs -lm)
 
 	dnl Check for functions.
-	AC_CHECK_FUNC(putenv,,[AC_MSG_ERROR(Can not set environment variables)])
+	AC_CHECK_FUNC(putenv,,[AC_MSG_ERROR(Cannot set environment variables)])
+	
+	dnl Check for variables.
+	AC_CHECK_FUNC(environ,AC_DEFINE(HAVE_ENVIRON),
+	  AC_CHECK_FUNC(__environ,AC_DEFINE(HAVE___ENVIRON),
+	    [AC_MSG_ERROR(Cannot access environment)]))
+	
 
 	AC_CHECK_FUNC(getopt_long,
 		      GETOPT_OBJS="",

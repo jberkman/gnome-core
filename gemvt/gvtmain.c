@@ -35,7 +35,6 @@
 
 
 /* --- typedefs --- */
-
 enum
 {
   GVT_VOIDLINE,
@@ -62,13 +61,6 @@ static	void	gvt_menus_setup		(void);
 static	void	gvt_menus_shutdown	(void);
 
 
-
-/* --- external variables --- */
-/* hm, seems like some systems miss the automatic declaration
- * of the environment char array, so we explicitly declare it
- * here, and implicitly assume every system has it...
- */
-extern char **environ;
 
 /* --- static variables --- */
 static GvtColorEntry	linux_ct[GTK_TERM_MAX_COLORS] =

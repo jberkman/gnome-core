@@ -2,6 +2,10 @@ rename gtk_menu_position_func
 
 - add small scripts to the toolbar
 
+- don't use gtk_preview_get_cmap
+
+- gtk_widget_get_default_style
+
 - we need to add dingus support to it (http://dingus.mit.edu).
 
 - add more menuing functionality

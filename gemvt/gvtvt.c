@@ -22,8 +22,17 @@
 #include	"gem-b.xpm"
 #include	<string.h>
 
-/* the process envp */
+/* --- external variables --- */
+/* hm, seems like some systems miss the automatic declaration
+ * of the environment char array, since configure already made
+ * sure we got it, we can savely declare it here.
+ */
+#ifdef	HAVE_ENVIRON
 extern char **environ;
+#endif	/*HAVE_ENVIRON*/
+#ifdef	HAVE___ENVIRON
+extern char **__environ;
+#endif	/*HAVE_ENVIRON*/
 
 
 /* -- defines --- */
@@ -34,7 +43,8 @@ extern char **environ;
 static void	gvt_vt_class_init	(GvtVtClass	*class);
 static void	gvt_vt_init		(GvtVt		*vt);
 static void	gvt_vt_destroy		(GtkObject      *object);
-static void	gvt_vt_finalize		(GtkObject      *object);
+static void	gvt_vt_finalize		(GtkObject	*object);
+static void	gvt_vt_gem_realize	(GvtVt		*vt);
 static void	gvt_vt_labels_update	(GvtVt          *vt);
 static void	gvt_vt_program_exec	(GtkTty		*tty,
 					 const gchar	*prg_name,
@@ -46,6 +56,15 @@ static void	gvt_vt_program_exit	(GtkTty         *tty,
 					 const gchar     exit_status,
 					 guint           exit_signal,
 					 GvtVt		*vt);
+
+
+/* --- typedefs --- */
+typedef struct	_GvtQueuedColorEntry	GvtQueuedColorEntry;
+struct _GvtQueuedColorEntry
+{
+  guint index;
+  GvtColorEntry c_entry;
+};
 
 
 /* --- variables --- */
@@ -123,28 +142,16 @@ gvt_vt_class_init (GvtVtClass *class)
   object_class->destroy = gvt_vt_destroy;
   object_class->finalize = gvt_vt_finalize;
 
-  class->color_context = gdk_color_context_new (gtk_preview_get_visual (),
-						gtk_preview_get_cmap ());
+  class->realized = FALSE;
+  class->color_context = NULL;
   class->vts = NULL;
   class->n_vts = 0;
   class->gem_red_bit = NULL;
-  class->gem_red_pix =
-    gdk_pixmap_create_from_xpm_d (NULL,
-				  &class->gem_red_bit,
-				  &gtk_widget_get_default_style ()->bg[GTK_STATE_NORMAL],
-				  gem_r_xpm);
+  class->gem_red_pix = NULL;
   class->gem_green_bit = NULL;
-  class->gem_green_pix =
-    gdk_pixmap_create_from_xpm_d (NULL,
-				  &class->gem_green_bit,
-				  &gtk_widget_get_default_style ()->bg[GTK_STATE_NORMAL],
-				  gem_g_xpm);
+  class->gem_green_pix = NULL;
   class->gem_blue_bit = NULL;
-  class->gem_blue_pix =
-    gdk_pixmap_create_from_xpm_d (NULL,
-				  &class->gem_blue_bit,
-				  &gtk_widget_get_default_style ()->bg[GTK_STATE_NORMAL],
-				  gem_b_xpm);
+  class->gem_blue_pix = NULL;
 }
 
 static void
@@ -157,6 +164,8 @@ gvt_vt_init (GvtVt *vt)
 
   vt->mode = GVT_STATE_NONE;
   vt->nth = gvt_vt_class_add_vt (class, vt);
+
+  vt->col_queue = NULL;
 
   vt->window = NULL;
   vt->vbox =
@@ -181,9 +190,17 @@ gvt_vt_init (GvtVt *vt)
 		  "GtkObject::signal::program_exit", gvt_vt_program_exit, vt,
 		  NULL);
   gtk_box_pack_start (GTK_BOX (vt->vbox), vt->tty, TRUE, TRUE, 0);
-  vt->gem = gtk_pixmap_new (class->gem_blue_pix, class->gem_blue_bit);
+  gtk_signal_connect_object_after (GTK_OBJECT (vt->tty),
+				   "realize",
+				   GTK_SIGNAL_FUNC (gvt_vt_do_color_queue),
+				   GTK_OBJECT (vt));
+  vt->gem = gtk_type_new (gtk_pixmap_get_type ());
   gtk_box_pack_start (GTK_BOX (vt->status_box), vt->gem, FALSE, FALSE, 0);
   gtk_widget_show (vt->gem);
+  gtk_signal_connect_object_after (GTK_OBJECT (vt->gem),
+				   "realize",
+				   GTK_SIGNAL_FUNC (gvt_vt_gem_realize),
+				   GTK_OBJECT (vt));
   vt->label_box =
     gtk_widget_new (gtk_hbox_get_type (),
 		    "GtkBox::homogeneous", FALSE,
@@ -284,6 +301,8 @@ gvt_vt_set_gem_state (GvtVt          *vt,
   g_return_if_fail (state >= GVT_STATE_NONE && state <= GVT_STATE_DEAD);
 
   class = GVT_VT_CLASS (GTK_OBJECT (vt)->klass);
+  if (!class->realized)
+    return;
 
   switch (state)
   {
@@ -399,6 +418,7 @@ static void
 gvt_vt_destroy (GtkObject *object)
 {
   GvtVt *vt;
+  GSList *slist;
 
   g_return_if_fail (object != NULL);
   g_return_if_fail (GVT_IS_VT (object));
@@ -410,6 +430,11 @@ gvt_vt_destroy (GtkObject *object)
   else
     gtk_widget_destroy (vt->vbox);
 
+  for (slist = vt->col_queue; slist; slist = slist->next)
+    g_free (slist->data);
+  g_slist_free (vt->col_queue);
+  vt->col_queue = NULL;
+  
   GTK_OBJECT_CLASS (parent_class)->destroy (object);
 }
 
@@ -523,8 +548,17 @@ gvt_vt_execute (GvtVt		*vt,
   if (prg)
     {
       gchar **argv;
+      gchar **env = NULL;
       GList *list;
       guint i;
+
+#ifdef  HAVE_ENVIRON
+      env = environ;
+#endif  /*HAVE_ENVIRON*/
+#ifdef  HAVE___ENVIRON
+      env = __environ;
+#endif  /*HAVE_ENVIRON*/
+      
       
       argv = g_new (gchar*, g_list_length (args) + 1 + 1);
       
@@ -544,13 +578,52 @@ gvt_vt_execute (GvtVt		*vt,
       
       putenv ("TERM=");
       
-      gtk_tty_execute (tty, prg, argv, environ);
+      gtk_tty_execute (tty, prg, argv, env);
       
       g_free (argv);
     }
   
   g_list_free (args);
   g_free (f);
+}
+
+static void
+gvt_vt_gem_realize (GvtVt          *vt)
+{
+  GvtVtClass *class;
+
+  g_return_if_fail (vt != NULL);
+  g_return_if_fail (GVT_IS_VT (vt));
+
+  class = GVT_VT_CLASS (GTK_OBJECT (vt)->klass);
+  if (!class->realized)
+    {
+      class->realized = TRUE;
+
+      class->color_context = gdk_color_context_new (gdk_window_get_visual (vt->gem->window),
+						    gdk_window_get_colormap (vt->gem->window));
+      
+      class->gem_red_bit = NULL;
+      class->gem_red_pix =
+	gdk_pixmap_create_from_xpm_d (vt->gem->window,
+				      &class->gem_red_bit,
+				      &gtk_widget_get_default_style ()->bg[GTK_STATE_NORMAL],
+				      gem_r_xpm);
+      class->gem_green_bit = NULL;
+      class->gem_green_pix =
+	gdk_pixmap_create_from_xpm_d (vt->gem->window,
+				      &class->gem_green_bit,
+				      &gtk_widget_get_default_style ()->bg[GTK_STATE_NORMAL],
+				      gem_g_xpm);
+      class->gem_blue_bit = NULL;
+      class->gem_blue_pix =
+	gdk_pixmap_create_from_xpm_d (vt->gem->window,
+				      &class->gem_blue_bit,
+				      &gtk_widget_get_default_style ()->bg[GTK_STATE_NORMAL],
+				      gem_b_xpm);
+    }
+
+  gvt_vt_status_update (vt);
 }
 
 static gulong
@@ -574,23 +647,54 @@ gvt_color_entry_2_pixel (GdkColorContext *cc,
 }
 
 void
+gvt_vt_do_color_queue (GvtVt *vt)
+{
+  GSList *slist;
+  GvtVtClass *class;
+  
+  g_return_if_fail (vt != NULL);
+  g_return_if_fail (GVT_IS_VT (vt));
+
+  class = GVT_VT_CLASS (GTK_OBJECT (vt)->klass);
+
+  if (!vt->tty || !GTK_WIDGET_REALIZED (vt->tty) || !class->realized)
+    return;
+
+  for (slist = vt->col_queue; slist; slist = slist->next)
+    {
+      GvtQueuedColorEntry *q_entry;
+
+      q_entry = slist->data;
+      gtk_term_set_color (GTK_TERM (vt->tty),
+			  q_entry->index,
+			  gvt_color_entry_2_pixel (class->color_context, q_entry->c_entry.back_val),
+			  gvt_color_entry_2_pixel (class->color_context, q_entry->c_entry.fore_val),
+			  gvt_color_entry_2_pixel (class->color_context, q_entry->c_entry.dim_val),
+			  gvt_color_entry_2_pixel (class->color_context, q_entry->c_entry.bold_val));
+
+      g_free (q_entry);
+    }
+  g_slist_free (vt->col_queue);
+  vt->col_queue = NULL;
+}
+
+void
 gvt_vt_set_color (GvtVt          *vt,
 		  guint           index,
 		  GvtColorEntry  *c_entry)
 {
-  GvtVtClass *class;
+  GvtQueuedColorEntry *q_entry;
 
   g_return_if_fail (vt != NULL);
   g_return_if_fail (GVT_IS_VT (vt));
   g_return_if_fail (index < GTK_TERM_MAX_COLORS);
   g_return_if_fail (c_entry != NULL);
 
-  class = GVT_VT_CLASS (GTK_OBJECT (vt)->klass);
+  q_entry = g_new (GvtQueuedColorEntry, 1);
+  q_entry->index = index;
+  q_entry->c_entry = *c_entry;
 
-  gtk_term_set_color (GTK_TERM (vt->tty),
-		      index,
-		      gvt_color_entry_2_pixel (class->color_context, c_entry->back_val),
-		      gvt_color_entry_2_pixel (class->color_context, c_entry->fore_val),
-		      gvt_color_entry_2_pixel (class->color_context, c_entry->dim_val),
-		      gvt_color_entry_2_pixel (class->color_context, c_entry->bold_val));
+  vt->col_queue = g_slist_prepend (vt->col_queue, q_entry);
+
+  gvt_vt_do_color_queue (vt);
 }

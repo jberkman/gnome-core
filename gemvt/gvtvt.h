@@ -51,6 +51,7 @@ typedef enum
 /* --- typedefs --- */
 typedef struct	_GvtVt		GvtVt;
 typedef struct	_GvtVtClass	GvtVtClass;
+typedef	struct	_GvtColorEntry	GvtColorEntry;
 
 
 /* --- structures --- */
@@ -61,6 +62,8 @@ struct	_GvtVt
   GvtVtMode	mode;
 
   guint		nth;
+
+  GSList	*col_queue;
 
   GtkWidget	*window;
   GtkWidget	*vbox;
@@ -83,6 +86,8 @@ struct	_GvtVtClass
   GvtVt		**vts;
   guint		n_vts;
 
+  gint		realized : 1;
+
   GdkBitmap	*gem_red_bit;
   GdkPixmap	*gem_red_pix;
   GdkBitmap	*gem_green_bit;
@@ -91,13 +96,13 @@ struct	_GvtVtClass
   GdkPixmap	*gem_blue_pix;
 };
 
-typedef struct
+struct	_GvtColorEntry
 {
   guint       back_val : 24;
   guint       fore_val : 24;
   guint       dim_val  : 24;
   guint       bold_val : 24;
-} GvtColorEntry;
+};
 
 
 GtkType		gvt_vt_get_type		(void);
@@ -111,6 +116,8 @@ void		gvt_vt_execute		(GvtVt		*vt,
 void		gvt_vt_set_color	(GvtVt		*vt,
 					 guint		 index,
 					 GvtColorEntry	*c_entry);
+void		gvt_vt_do_color_queue	(GvtVt		*vt);
+     
      
 
 

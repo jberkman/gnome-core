@@ -5,6 +5,8 @@
 #undef	HAVE_STPCPY
 #undef	HAVE_WAIT4
 #undef	HAVE_LIBSM
+#undef	HAVE_ENVIRON
+#undef	HAVE___ENVIRON
 
 /* build with consideration of "linux" entry in termcap?
  */
