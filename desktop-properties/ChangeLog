@@ -1,3 +1,12 @@
+1998-04-28  Radek Doulik  <rodo@msdec.ms.mff.cuni.cz>
+
+	* property-background.c: disable debug msgs, added scaled bg
+
+1998-04-27  Radek Doulik  <rodo@msdec.ms.mff.cuni.cz>
+
+	* property-background.c (fill_monitor): hope I fixed activating
+	apply by color change
+
 Sun Apr 19 10:29:12 EDT 1998 Gregory McLean <gregm@comstar.net>
 
 	* screensaver.h, property-background.c: added in some #ifdef stuff

@@ -48,6 +48,8 @@ static gchar *wpFileName;
 enum {
 	WALLPAPER_TILED,
 	WALLPAPER_CENTERED,
+	WALLPAPER_SCALED,
+	WALLPAPER_SCALED_KEEP,
 };
 
 enum {
@@ -85,7 +87,7 @@ radio_toggle_widget_active(GtkWidget *widget, gpointer data)
 	dest = GTK_WIDGET(data);
 
 	gtk_widget_set_sensitive(dest, GTK_TOGGLE_BUTTON(widget)->active);
-	printf ("%s\n", __FUNCTION__);
+	/* printf ("%s\n", __FUNCTION__); */
 	property_changed ();
 }
 
@@ -152,7 +154,7 @@ fill_gradient (unsigned char *d, gint w, gint h,
 }
 
 static gint
-fill_monitor (void)
+fill_monitor (gpointer gp)
 {
 	GdkWindow *rootWindow;
 	GdkImlibImage *pi = NULL;
@@ -166,6 +168,9 @@ fill_monitor (void)
 	gint r, g, b;
 	gint cx, cy;
 	gint cw, ch;
+	gint pc = (gint) gp;
+
+	/* printf ("fill monitor %d\n", pc); */
 
 	rootWindow = gdk_window_foreign_new (GDK_ROOT_WINDOW());
 	gdk_window_get_size (rootWindow, &rootWidth, &rootHeight);
@@ -278,7 +283,8 @@ fill_monitor (void)
 		gint w, h;
 		gint xoff, yoff;
 
-		if (fillPreview) {
+		if (fillPreview &&
+		    wpType != WALLPAPER_SCALED && wpType != WALLPAPER_SCALED_KEEP) {
 			w = (cw*bi->rgb_width) / rootWidth;
 			h = (ch*bi->rgb_height) / rootHeight;
 			bi = gdk_imlib_clone_scaled_image (bi, w, h);
@@ -316,8 +322,53 @@ fill_monitor (void)
 						 (yoff+h > ch) ? ch - yoff : h);
 				}
 		} else {
-			xoff = (cw - w) >> 1;
-			yoff = (ch - h) >> 1;
+
+			if (wpType == WALLPAPER_SCALED || wpType == WALLPAPER_SCALED_KEEP) {
+
+				if (wpType == WALLPAPER_SCALED_KEEP) {
+
+					gdouble asp;
+					gint st = 0;
+
+					asp = (gdouble) bi->rgb_width / cw;
+
+					if (asp < (gdouble) bi->rgb_height / ch) {
+						asp = (gdouble) bi->rgb_height / ch;
+						st = 1;
+					}
+
+					if (st) {
+						w = bi->rgb_width / asp;
+						h = ch;
+						xoff = (cw - w) >> 1;
+						yoff = 0;
+					} else {
+						h = bi->rgb_height / asp;
+						w = cw;
+						xoff = 0;
+						yoff = (ch - h) >> 1;
+					}
+				} else {
+					w = cw;
+					h = ch;
+
+					xoff = yoff = 0;
+				}
+
+				bi = gdk_imlib_clone_scaled_image (bi, w, h);
+				gdk_imlib_render (bi, w, h);
+		
+				w = bi->rgb_width;
+				h = bi->rgb_height;
+		
+				pix = gdk_imlib_move_image (bi);
+				mask = gdk_imlib_move_mask (bi);
+
+			} else {
+
+				xoff = (cw - w) >> 1;
+				yoff = (ch - h) >> 1;
+			}
 
 			if (mask) {
 				
@@ -353,6 +404,9 @@ fill_monitor (void)
 		gdk_window_clear (rootWindow);
 	}
 
+	if (pc)
+		property_changed ();
+
 	return FALSE;
 }
 
@@ -377,8 +431,7 @@ set_background_mode (GtkWidget *widget)
       gtk_widget_set_sensitive(radiov, TRUE);
       grad = TRUE;
     }
-  fill_monitor();
-  property_changed();
+  fill_monitor ((gpointer)TRUE);
 }
 
 static void
@@ -391,19 +444,20 @@ set_orientation (GtkWidget *widget)
     /* Vertical gradient */
     vertical = TRUE;
 
-  fill_monitor ();
-  property_changed ();
+  fill_monitor ((gpointer)TRUE);
 }
 
 static void
-set_tiled_wallpaper (GtkWidget *widget, gpointer data)
+set_wallpaper_type (GtkWidget *widget, gpointer data)
 {
-	wpType = (GTK_TOGGLE_BUTTON (widget)->active) ?
-		WALLPAPER_TILED : WALLPAPER_CENTERED;
+	/* printf ("set wp %d\n", GTK_TOGGLE_BUTTON (widget)->active); */
 
-	fill_monitor();
+	if (GTK_TOGGLE_BUTTON (widget)->active) {
+		wpType = (gint) data;
+
+		fill_monitor ((gpointer)TRUE);
+	}
 	/* printf ("%s\n", __FUNCTION__); */
-	property_changed ();
 }
 
 static GtkWidget *
@@ -428,7 +482,7 @@ color_setup ()
 	gtk_container_add (GTK_CONTAINER(frame), table);
 	gtk_widget_show (table);
 
-	cs1 = gnome_color_selector_new ((SetColorFunc) fill_monitor, NULL);
+	cs1 = gnome_color_selector_new ((SetColorFunc) fill_monitor, (gpointer)FALSE);
 	gnome_color_selector_set_color_int (cs1,
 					    bgColor1.red,
 					    bgColor1.green,
@@ -448,7 +502,7 @@ color_setup ()
 	gtk_box_pack_start (GTK_BOX (vb1), radiog, FALSE, FALSE, 0);
 	gtk_widget_show(radiog);
 
-	cs2 = gnome_color_selector_new ((SetColorFunc) fill_monitor, NULL);
+	cs2 = gnome_color_selector_new ((SetColorFunc) fill_monitor, (gpointer)FALSE);
 	gnome_color_selector_set_color_int (cs2,
 					    bgColor2.red,
 					    bgColor2.green,
@@ -494,7 +548,7 @@ color_setup ()
 			    (GtkSignalFunc) set_orientation,
 			    (gpointer) ((long) FALSE));
 
-	gtk_idle_add ((GtkFunction) fill_monitor, NULL);
+	gtk_idle_add ((GtkFunction) fill_monitor, (gpointer)FALSE);
 
 	return frame;
 }
@@ -520,9 +574,8 @@ browse_activated (GtkWidget *w, gchar *s)
 	bgType = (s) ? BACKGROUND_WALLPAPER : BACKGROUND_SIMPLE;
 	/* printf ("%s\n", s); */
 
-	fill_monitor ();
-	printf ("%s\n", __FUNCTION__);
-	property_changed ();
+	fill_monitor ((gpointer)TRUE);
+	/* printf ("%s\n", __FUNCTION__); */
 }
 
 static void
@@ -591,8 +644,8 @@ wp_selection_ok (GtkWidget *w, GtkWidget **f)
 	bgType = BACKGROUND_WALLPAPER;
 
 	gtk_option_menu_set_history (GTK_OPTION_MENU (wpOMenu), found);
-	property_changed ();
-	fill_monitor ();
+
+	fill_monitor ((gpointer)TRUE);
 }
 
 static void
@@ -691,22 +744,45 @@ wallpaper_setup ()
 	gtk_box_pack_end (GTK_BOX (hbox), but, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
 
-	rbut = gtk_radio_button_new_with_label (NULL, _("Centered"));
+	rbut = gtk_radio_button_new_with_label (NULL, _("Scaled"));
+	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
+			    (GtkSignalFunc) set_wallpaper_type,
+			    (gpointer)WALLPAPER_SCALED);
+	gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
+	gtk_widget_show (rbut);
+
+	rbut = gtk_radio_button_new_with_label
+		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
+		 _("Scaled (keep ascpect)"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
+				     (wpType == WALLPAPER_SCALED_KEEP));
+	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
+			    (GtkSignalFunc) set_wallpaper_type,
+			    (gpointer) WALLPAPER_SCALED_KEEP);
+	gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
+	gtk_widget_show (rbut);
+
+	rbut = gtk_radio_button_new_with_label
+		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
+		 _("Centered"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
+				     (wpType == WALLPAPER_CENTERED));
+	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
+			    (GtkSignalFunc) set_wallpaper_type,
+			    (gpointer) WALLPAPER_CENTERED);
 	gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
 	gtk_widget_show (rbut);
 
 	rbut = gtk_radio_button_new_with_label
 		(gtk_radio_button_group (GTK_RADIO_BUTTON (rbut)),
 		 _("Tiled"));
-
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (rbut),
-				     !(wpType == WALLPAPER_CENTERED));
-
-	gtk_signal_connect (GTK_OBJECT(rbut), "toggled",
-			    (GtkSignalFunc) set_tiled_wallpaper,
-			    NULL);
-
+				     (wpType == WALLPAPER_TILED));
+	gtk_signal_connect (GTK_OBJECT (rbut), "toggled",
+			    (GtkSignalFunc) set_wallpaper_type,
+			    (gpointer) WALLPAPER_TILED);
 	gtk_box_pack_end (GTK_BOX (vbox), rbut, FALSE, FALSE, 0);
+	gtk_widget_show (rbut);
 
 	gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
 	gtk_container_add (GTK_CONTAINER (wallp), vbox);
@@ -715,7 +791,6 @@ wallpaper_setup ()
 	gtk_widget_show (wpOMenu);
 	gtk_widget_show (but);
 	gtk_widget_show (hbox);
-	gtk_widget_show (rbut);
 	gtk_widget_show (vbox);
 	gtk_widget_show (wallp);
 
@@ -726,7 +801,7 @@ static void
 background_apply ()
 {
 	fillPreview = FALSE;
-	fill_monitor ();
+	fill_monitor ((gpointer)FALSE);
 	fillPreview = TRUE;
 
 #if 0 /* Unused - fill_monitor does it all now */	
@@ -857,8 +932,7 @@ background_write ()
 
 	gnome_config_set_string ("/Desktop/Background/wallpaper",
 				 (bgType == BACKGROUND_SIMPLE) ? "none" : wpFileName);
-	gnome_config_set_string ("/Desktop/Background/wallpaperAlign",
-				 (wpType == WALLPAPER_TILED) ? "tiled" : "centered");
+	gnome_config_set_int ("/Desktop/Background/wallpaperAlign", wpType);
 }
 
 static void
@@ -883,13 +957,7 @@ background_read ()
 		     (gnome_config_get_string
 		      ("/Desktop/Background/gradient=vertical"),
 		      "vertical"));
-	if ((strcasecmp
-	      (gnome_config_get_string
-	       ("/Desktop/Background/wallpaperAlign=tiled"),
-	       "tiled")))
-		wpType = WALLPAPER_CENTERED;
-	else
-		wpType = WALLPAPER_TILED;
+	wpType = gnome_config_get_int ("/Desktop/Background/wallpaperAlign=0");
 
 	wpFileName = gnome_config_get_string ("/Desktop/Background/wallpaper=none");
 	wpFileSelName = gnome_config_get_string
