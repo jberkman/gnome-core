@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-core 1.5.4\n"
 "POT-Creation-Date: 2002-01-18 14:36+0200\n"
-"PO-Revision-Date: 2002-02-12 18:44+0200\n"
+"PO-Revision-Date: 2002-02-12 18:53+0200\n"
 "Last-Translator: Yuriy Syrota <yuri@renome.rovno.ua>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -782,11 +782,11 @@ msgstr "Зображення"
 
 #: gnome-terminal/gnome-x-font-selector.c:803
 msgid "Scalable"
-msgstr ""
+msgstr "Масштабується"
 
 #: gnome-terminal/gnome-x-font-selector.c:809
 msgid "Scaled Bitmap"
-msgstr ""
+msgstr "Змаштабований растр"
 
 #: gnome-terminal/gnome-x-font-selector.c:880
 msgid "*"
@@ -795,7 +795,7 @@ msgstr "*"
 #. Convert '(nil)' weights to 'regular', since it looks nicer.
 #: gnome-terminal/gnome-x-font-selector.c:1205
 msgid "(nil)"
-msgstr ""
+msgstr "(нічого)"
 
 #: gnome-terminal/gnome-x-font-selector.c:1205
 msgid "regular"
@@ -865,7 +865,7 @@ msgstr "моноширний"
 
 #: gnome-terminal/gnome-x-font-selector.c:1975
 msgid "char cell"
-msgstr ""
+msgstr "знакомісце"
 
 #: gnome-terminal/gnome-x-font-selector.c:2175
 msgid "Font: (Filter Applied)"
@@ -1731,29 +1731,27 @@ msgstr "Виконати"
 
 #: applets/gen_util/mailcheck.c:1144
 msgid "Before each update:"
-msgstr ""
+msgstr "Перед кожним поновленням:"
 
 #: applets/gen_util/mailcheck.c:1165
 msgid "When new mail arrives:"
-msgstr ""
+msgstr "З отриманням нової пошти:"
 
 #: applets/gen_util/mailcheck.c:1184
 msgid "When clicked:"
-msgstr ""
+msgstr "З клацанням:"
 
 #: applets/gen_util/mailcheck.c:1207
 msgid "Check for mail every"
-msgstr ""
+msgstr "Перевіряти пошту через"
 
 #: applets/gen_util/mailcheck.c:1220
-#, fuzzy
 msgid "minutes"
-msgstr "Пункти"
+msgstr "хв"
 
 #: applets/gen_util/mailcheck.c:1233
-#, fuzzy
 msgid "seconds"
-msgstr "Піктограма щухляди"
+msgstr "с"
 
 #: applets/gen_util/mailcheck.c:1237
 msgid "Play a sound when new mail arrives"
@@ -2233,9 +2231,8 @@ msgid "_Enable key bindings"
 msgstr "_Увімкнути комбінації клавіш"
 
 #: panel/gnome-panel-properties.glade.h:26
-#, fuzzy
 msgid "_Raise panels on mouse-over"
-msgstr "Піднімати панелі під вказівником миші"
+msgstr "_Піднімати панелі під вказівником миші"
 
 #: panel/gnome-panel-screenshot.c:126
 msgid ""
@@ -2424,9 +2421,8 @@ msgid "Run Program"
 msgstr "Виконати програму"
 
 #: panel/launcher.c:73
-#, fuzzy
 msgid "This launch icon does not specify a url to show"
-msgstr "Цій піктограмі запускача не вказано програму для запуску"
+msgstr "Цій піктограмі запуску не вказано URL для запуску"
 
 #: panel/launcher.c:81
 #, c-format
@@ -2438,14 +2434,15 @@ msgstr ""
 "%s"
 
 #: panel/launcher.c:110
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "<b>Cannot launch icon</b>\n"
 "\n"
 "Details: %s"
 msgstr ""
-"Неможливо запустити піктограму\n"
-"%s"
+"<b>Неможливо запустити піктограму</b>\n"
+"\n"
+"Подробиці: %s"
 
 #: panel/launcher.c:156
 #, c-format
@@ -2584,12 +2581,15 @@ msgstr ""
 #: panel/menu.c:353
 #: panel/menu.c:847
 #: panel/menu.c:875
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "<b>Can't load entry</b>\n"
 "\n"
 "Details: %s"
-msgstr "Неможливо завантажити елемент меню"
+msgstr ""
+"<b>Неможливо завантажити елемент</b>\n"
+"\n"
+"Подробиці: %s"
 
 #: panel/menu.c:661
 msgid ""
