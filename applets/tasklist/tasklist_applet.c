@@ -124,17 +124,22 @@ tasklist_task_get_label (TasklistTask *task, int width, gboolean add_groupcount)
 
 	das_string = task->gwmh_task->name;
 
-	if(!das_string)
-	  return g_strdup("");
+	if (das_string == NULL)
+		das_string = _("???");
 
 	label_len = gdk_string_width (tasklist->area->style->font, das_string);
 
 	overhead = tasklist->config.show_mini_icons ? 30 : 6;
 
 	if (add_groupcount) {
-		groupcount = g_strdup_printf ("(%d) ", g_slist_length (task->vtasks 
-								       ? task->vtasks 
-								       : task->group->vtasks));
+		GSList *vtasks = task->vtasks;
+		/* not sure why this was there but at least
+		 * now it has the correct logic, perhaps sometime
+		 * we'd want to draw a task with it's group count */
+		if (vtasks == NULL &&
+		    task->group != NULL)
+			vtasks = task->group->vtasks;
+		groupcount = g_strdup_printf ("(%d) ", g_slist_length (vtasks));
 		
 		overhead += 10 + gdk_string_width (tasklist->area->style->font, 
 						   groupcount);
@@ -163,8 +168,8 @@ tasklist_task_get_label (TasklistTask *task, int width, gboolean add_groupcount)
 			if (label_len <= allowed_width) {
 				str = gdk_wcstombs(wstr);
 				g_free(wstr);
-				return str;
-				}
+				goto finish_label_up;
+			}
 		}
 		wstr[len] = wstr[len+1] = '.';
 		wstr[len+2] = '\0'; /*wcscat(wstr,"..");*/
@@ -185,6 +190,8 @@ tasklist_task_get_label (TasklistTask *task, int width, gboolean add_groupcount)
 	} else {
 		str = g_strdup (das_string);
 	}
+
+finish_label_up:
 
 	if (task->gwmh_task && GWMH_TASK_ICONIFIED (task->gwmh_task)) {
 		tempstr = g_strdup_printf ("[%s]", str);	
@@ -263,7 +270,7 @@ is_task_really_visible (TasklistTask *task)
 	if (task->group && g_slist_length (task->group->vtasks) > task->tasklist->config.grouping_min)
 		return FALSE;
 	else if (task->task_group)
-		return g_slist_length (task->vtasks) > task->tasklist->config.grouping_min;;
+		return g_slist_length (task->vtasks) > task->tasklist->config.grouping_min;
 	return is_task_visible (task);
 }
 
@@ -864,7 +871,9 @@ tasklist_group_destroy (TasklistTask *group)
 	g_hash_table_remove (group->tasklist->groups, group->group_name);
 
 	g_free (group->gwmh_task);
+	group->gwmh_task = NULL;
 	g_free (group->group_name);
+	group->group_name = NULL;
 
 	tasklist_clean_menu (group);
 
@@ -925,7 +934,7 @@ tasklist_task_destroy (GwmhTask *gtask, Tasklist *tasklist)
 }
 
 static TasklistTask *
-tasklist_group_new (TasklistTask *first_task, char *group_name)
+tasklist_group_new (TasklistTask *first_task, const char *group_name)
 {
 	TasklistTask *group;
 
@@ -935,9 +944,10 @@ tasklist_group_new (TasklistTask *first_task, char *group_name)
 	group = g_new0 (TasklistTask, 1);
 	group->tasklist = first_task->tasklist;
 	group->task_group = TRUE;
-	group->group_name = group_name;
+	group->group_name = g_strdup (group_name);
 	group->fullwidth = -1;
-	g_hash_table_insert (group->tasklist->groups, group_name, group);
+	g_hash_table_insert (group->tasklist->groups,
+			     group->group_name, group);
 
 	gdk_pixbuf_ref (first_task->icon->normal);
 	gdk_pixbuf_ref (first_task->icon->minimized);
@@ -949,7 +959,7 @@ tasklist_group_new (TasklistTask *first_task, char *group_name)
 	group->tasks = g_slist_prepend (group->tasks, first_task);
 
 	group->gwmh_task = g_new0 (GwmhTask, 1);
-	group->gwmh_task->name = group_name;
+	group->gwmh_task->name = group->group_name;
 
 	return group;
 }
@@ -985,18 +995,19 @@ tasklist_task_new (GwmhTask *gtask, Tasklist *tasklist)
 	ttask->fullwidth = -1;
 
 	class = get_task_class (gtask);
-	if (!class)
+	if (class == NULL)
 		return;
 
 	ttask->group = g_hash_table_lookup (tasklist->groups, class);
 
-	if (!ttask->group)
+	if (ttask->group == NULL) {
 		ttask->group = tasklist_group_new (ttask, class);
-	else {
+	} else {
 		ttask->group->tasks = g_slist_prepend (ttask->group->tasks, ttask);
-		g_free (class);
 		fixup_vtask (ttask->group, NULL);
 	}
+
+	g_free (class);
 }
 
 static void
