@@ -1782,7 +1782,5 @@ main_terminal_program (int argc, char *argv [], char **environ)
 int
 main (int argc, char *argv [], char **environ)
 {
-	security_check ();
-	
 	return main_terminal_program (argc, argv, environ);
 }
