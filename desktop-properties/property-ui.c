@@ -119,9 +119,6 @@ ui_setup (void)
 
   gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
 
-  /* 
-     radio = gtk_radio_button_new_with_label(NULL, _("Use interactive statusbar.));
-     */ 
 
   gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
                                   vbox, gtk_label_new (_("Dialogs")));
@@ -154,6 +151,15 @@ ui_setup (void)
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
                      GTK_SIGNAL_FUNC(checkbutton_cb),
                      gnome_preferences_set_toolbar_relief);
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  button = 
+    gtk_check_button_new_with_label(_("Statusbar is interactive when possible"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_preferences_get_statusbar_interactive());
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(checkbutton_cb),
+                     gnome_preferences_set_statusbar_interactive);
   gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
 
   gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
