@@ -17,6 +17,7 @@ gchar     e_opt_slide_cleanup = 1;
 gchar     e_opt_slide_map = 1;
 gchar     e_opt_slide_desk = 1;
 gchar     e_opt_hq_background = 1;
+gchar     e_opt_saveunders = 1;
 
 gint      e_opt_focus = 1;
 gint      e_opt_move = 0;
@@ -30,6 +31,8 @@ gfloat    e_opt_shade_speed = 4000.0;
 gfloat    e_opt_map_speed = 4000.0;
 gfloat    e_opt_cleanup_speed = 4000.0;
 gfloat    e_opt_desk_speed = 4000.0;
+gfloat    e_opt_desktop_bg_timeout = 240.0;
+gfloat    e_opt_number_of_desks = 6;
 
 FILE *eesh = NULL;
 
@@ -54,6 +57,8 @@ e_try (void)
 	     " SLIDESPEEDMAP: %i"
 	     " SLIDESPEEDCLEANUP: %i"
 	     " DESKSLIDESPEED: %i"
+	     " DESKTOPBGTIMEOUT: %i"
+	     " SAVEUNDER: %i"
 	     "\""
 	     ,
 	     e_opt_sound, e_opt_slide_cleanup, e_opt_slide_map, 
@@ -63,7 +68,9 @@ e_try (void)
 	     (gint)e_opt_shade_speed,
 	     (gint)e_opt_map_speed,
 	     (gint)e_opt_cleanup_speed,
-	     (gint)e_opt_desk_speed
+	     (gint)e_opt_desk_speed,
+	     (gint)e_opt_desktop_bg_timeout,
+	     e_opt_saveunders
 	     );
   system(cmd);
 }
@@ -173,6 +180,16 @@ e_read (void)
 	  sscanf(buf, "%*s %4000s", cmd);
 	  e_opt_desk_speed = atof(cmd);
 	}
+      else if (!strcmp(cmd, "DESKTOPBGTIMEOUT:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_desktop_bg_timeout = atof(cmd);
+	}
+      else if (!strcmp(cmd, "SAVEUNDER:"))
+	{
+	  sscanf(buf, "%*s %4000s", cmd);
+	  e_opt_saveunders = atoi(cmd);
+	}
     }
   pclose(eesh);
   eesh = NULL;
@@ -213,15 +230,29 @@ e_cb_range(GtkWidget *widget, gpointer data)
   GtkWidget          *c;
   GtkWidget          *w;
   GtkAdjustment      *adj;
-  gfloat             *value;
+  gfloat             *value, current_val;
+  static gint        just_changed = 0;
   
   w = GTK_WIDGET(data);
   c = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(w), "capplet");
   capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
   adj = gtk_object_get_data(GTK_OBJECT(w), "adj");
   value = (gfloat *)gtk_object_get_data(GTK_OBJECT(w), "value");
+  if (adj->step_increment > 0.5)
+    {
+      current_val = adj->value;
+      adj->value = (gfloat)((gint)(adj->value / adj->step_increment)) *
+	adj->step_increment;
+      if (just_changed == 0)
+	{
+	  just_changed ++;
+	  gtk_adjustment_value_changed(adj);
+	}
+      else if (just_changed > 0)
+	just_changed--;
+    }
   *value = adj->value;
-  
+    
   widget = NULL;
 }
 
@@ -289,6 +320,65 @@ e_cb_rangeonoff_toggle(GtkWidget *widget, gpointer data)
 }
 
 void
+e_add_step_range_to_frame(GtkWidget *w, gchar *text, gfloat *value, 
+			  gfloat lower, gfloat upper, gchar *lower_text, 
+			  gchar *upper_text, gfloat step)
+{
+  GtkObject *adj;
+  GtkWidget *frame, *hscale, *hbox, *label, *align, *table, *align2;
+  gint rows;
+  
+  if (!w)
+    return;
+  if (!text)
+    return;
+  table = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(w), "table");
+  if (!table)
+    return;
+  rows = (gint)gtk_object_get_data(GTK_OBJECT(w), "rows");
+  
+  frame = gtk_frame_new(text);
+  gtk_widget_show(frame);
+  align = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
+  gtk_widget_show(align);
+  gtk_container_add(GTK_CONTAINER(align), frame);
+  gtk_table_attach(GTK_TABLE(table), align, 0, 10, rows, rows + 1,
+		   GTK_EXPAND | GTK_FILL,
+		   GTK_EXPAND | GTK_FILL, 0, 0);
+  
+  align = gtk_alignment_new(0.5, 0.5, 1.0, 0.0);
+  gtk_widget_show(align);
+  gtk_container_add(GTK_CONTAINER(frame), align);
+  hbox = gtk_hbox_new(FALSE, 2);
+  gtk_widget_show(hbox);
+  gtk_container_add(GTK_CONTAINER(align), hbox);
+  
+  label = gtk_label_new(lower_text);
+  gtk_widget_show(label);
+  align2 = gtk_alignment_new(0.5, 1.0, 0.0, 0.0);
+  gtk_widget_show(align2);
+  gtk_container_add(GTK_CONTAINER(align2), label);
+  gtk_box_pack_start(GTK_BOX(hbox), align2, FALSE, FALSE, 0);
+  adj = gtk_adjustment_new(*value, lower, upper, step, step, step);
+  hscale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
+  gtk_widget_show(hscale);
+  gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
+		     GTK_SIGNAL_FUNC(e_cb_range), (gpointer)hscale);
+  gtk_object_set_data(GTK_OBJECT(hscale), "adj", (gpointer)adj);
+  gtk_object_set_data(GTK_OBJECT(hscale), "value", (gpointer)value);  
+  gtk_object_set_data(GTK_OBJECT(hscale), "capplet", (gpointer)current_capplet);  
+  gtk_box_pack_start(GTK_BOX(hbox), hscale, TRUE, TRUE, 0);
+  label = gtk_label_new(upper_text);
+  gtk_widget_show(label);
+  align2 = gtk_alignment_new(0.5, 1.0, 0.0, 0.0);
+  gtk_widget_show(align2);
+  gtk_container_add(GTK_CONTAINER(align2), label);
+  gtk_box_pack_start(GTK_BOX(hbox), align2, FALSE, FALSE, 0);
+  
+  gtk_object_set_data(GTK_OBJECT(w), "rows", (gpointer)(rows + 1));
+}
+
+void
 e_add_range_to_frame(GtkWidget *w, gchar *text, gfloat *value, gfloat lower,
 		     gfloat upper, gchar *lower_text, gchar *upper_text)
 {
@@ -353,6 +443,7 @@ e_add_rangeonoff_to_frame(GtkWidget *w, gchar *text, gfloat *value,
 {
   GtkObject *adj;
   GtkWidget *frame, *hscale, *hbox, *label, *align, *table, *align2, *check;
+  GtkWidget *label2;
   gint rows;
   gfloat *offval;
   
@@ -428,13 +519,43 @@ e_add_rangeonoff_to_frame(GtkWidget *w, gchar *text, gfloat *value,
   gtk_object_set_data(GTK_OBJECT(hscale), "offvalue", (gpointer)offval);
   
   gtk_box_pack_start(GTK_BOX(hbox), hscale, TRUE, TRUE, 0);
-  label = gtk_label_new(upper_text);
+  label2 = label = gtk_label_new(upper_text);
   gtk_object_set_data(GTK_OBJECT(hscale), "l2", (gpointer)label);
   gtk_widget_show(label);
   align2 = gtk_alignment_new(0.5, 1.0, 0.0, 0.0);
   gtk_widget_show(align2);
   gtk_container_add(GTK_CONTAINER(align2), label);
   gtk_box_pack_start(GTK_BOX(hbox), align2, FALSE, FALSE, 0);
+  if (onoff)
+    {
+      if (GTK_TOGGLE_BUTTON(check)->active)
+	{
+	  gtk_widget_set_sensitive(label, TRUE);
+	  gtk_widget_set_sensitive(hscale, TRUE);
+	  gtk_widget_set_sensitive(label2, TRUE);
+	}
+      else
+	{
+	  gtk_widget_set_sensitive(label, FALSE);
+	  gtk_widget_set_sensitive(hscale, FALSE);
+	  gtk_widget_set_sensitive(label2, FALSE);
+	}
+    }
+  else
+    {    
+      if (GTK_TOGGLE_BUTTON(check)->active)
+	{
+	  gtk_widget_set_sensitive(label, TRUE);
+	  gtk_widget_set_sensitive(hscale, TRUE);
+	  gtk_widget_set_sensitive(label2, TRUE);
+	}
+      else
+	{
+	  gtk_widget_set_sensitive(label, FALSE);
+	  gtk_widget_set_sensitive(hscale, FALSE);
+	  gtk_widget_set_sensitive(label2, FALSE);
+	}
+    }
   
   gtk_object_set_data(GTK_OBJECT(w), "rows", (gpointer)(rows + 1));
 }
@@ -509,7 +630,7 @@ e_add_multi_to_frame(GtkWidget *w, gchar *text, gchar *opts, gint *value)
 void
 e_add_onoff_to_frame(GtkWidget *w, gchar *text, gchar *value)
 {
-  GtkWidget *table, *label, *check, *align;
+  GtkWidget *table, *check, *align;
   gint rows;
   
   if (!w)
@@ -520,20 +641,13 @@ e_add_onoff_to_frame(GtkWidget *w, gchar *text, gchar *value)
   if (!table)
     return;
   rows = (gint)gtk_object_get_data(GTK_OBJECT(w), "rows");
-  
-  label = gtk_label_new(text);
-  gtk_widget_show(label);
+
+  check = gtk_check_button_new_with_label(text);
+  gtk_widget_show(check);
   align = gtk_alignment_new(0.0, 0.5, 0.0, 0.0);
   gtk_widget_show(align);
-  gtk_container_add(GTK_CONTAINER(align), label);
-  gtk_table_attach_defaults(GTK_TABLE(table), align, 0, 1, rows, rows + 1);
-  
-  check = gtk_check_button_new();
-  gtk_widget_show(check);
-  align = gtk_alignment_new(1.0, 0.5, 0.0, 0.0);
-  gtk_widget_show(align);
   gtk_container_add(GTK_CONTAINER(align), check);
-  gtk_table_attach_defaults(GTK_TABLE(table), align, 9, 10, rows, rows + 1);
+  gtk_table_attach_defaults(GTK_TABLE(table), align, 0, 10, rows, rows + 1);
 
   gtk_object_set_data(GTK_OBJECT(check), "capplet", (gpointer)current_capplet);  
   if (*value)
@@ -659,22 +773,25 @@ e_setup (GtkWidget *c)
   e_add_multi_to_frame(frame2, _("Resize mode"), 
 		       _("Opaque\nLines\nBox\nShaded\nSemi-solid"), &e_opt_resize);
 
-  e_add_space_to_frame(frame, 20);
+  e_add_space_to_frame(frame, 10);
   
   e_add_rangeonoff_to_frame(frame, 
-			    _("Tooltip timeout (sec)"),
+			    _("Tooltips & timeout (sec)"),
 			    &e_opt_tooltiptime,
 			    0.0, 10.0, 
 			    _("Shorter"), _("Longer"), 
 			    &e_opt_tooltips, 0.0);
   e_add_rangeonoff_to_frame(frame, 
-			    _("Shading speed (pixels / sec)"),
+			    _("Shading & speed (pixels / sec)"),
 			    &e_opt_shade_speed,
 			    16.0, 20000.0, 
 			    _("Slower"), _("Faster"), 
 			    NULL, 99999.0);
+  
+  e_add_space_to_frame(frame, 10);
 
-  e_add_space_to_frame(frame, 20);
+  e_add_onoff_to_frame(frame, _("Reduce Refresh by using Memory"), &e_opt_saveunders);
+
   
   frame = e_create_frame (_("Effects"));
   gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
@@ -706,18 +823,105 @@ e_setup (GtkWidget *c)
 static void
 e_setup_desktops (GtkWidget *c)
 {
-  GtkWidget *frame, *frame2, *hbox;
+  GtkWidget *frame, *frame2, *hbox, *align, *border, *area, *bar, *win;
+  GtkWidget *table, *bt;
+  GList *btl = NULL;
+  gint i, j;
   
   current_capplet = c;
   hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
   gtk_widget_show (hbox);
   gtk_container_add (GTK_CONTAINER (c), hbox);
     
-  frame = e_create_frame (_("Options"));
+  frame = e_create_frame (_("Desktop Options"));
   gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
 
-  e_add_onoff_to_frame(frame, _("Dither backgrounds"), &e_opt_hq_background);
+  e_add_step_range_to_frame(frame, _("Number of visible Desktops"), 
+			    &e_opt_number_of_desks, 1.0, 33.0, 
+			    _("Fewer"), _("More"), 1.0);
+  e_add_onoff_to_frame(frame, _("High quality rendering for backgrounds"), &e_opt_hq_background);
+  e_add_rangeonoff_to_frame(frame, 
+			    _("Seconds after which Images expire and are freed"),
+			    &e_opt_desktop_bg_timeout,
+			    0.0, 3600.0, 
+			    _("Sooner"), _("Later"), 
+			    NULL, 0.0);
 
+  frame2 = e_create_frame (_("Background Definitions"));
+  e_add_widget_to_frame(frame, frame2);
+  
+  bar = gtk_toolbar_new  (GTK_ORIENTATION_HORIZONTAL, GTK_TOOLBAR_TEXT);
+  gtk_widget_show(bar);
+  e_add_widget_to_frame(frame2, bar);
+  gtk_toolbar_append_item(GTK_TOOLBAR(bar), _("New"),
+			  _("Create a new background definition"), NULL,
+			  NULL, 
+			  NULL, NULL);
+  gtk_toolbar_append_item(GTK_TOOLBAR(bar), _("Clone"),
+			  _("Create a new background definition"), NULL,
+			  NULL, 
+			  NULL, NULL);
+  gtk_toolbar_append_item(GTK_TOOLBAR(bar), _("Edit"),
+			  _("Create a new background definition"), NULL,
+			  NULL, 
+			  NULL, NULL);
+  gtk_toolbar_append_item(GTK_TOOLBAR(bar), _("Remove"),
+			  _("Create a new background definition"), NULL,
+			  NULL, 
+			  NULL, NULL);
+  win = gtk_scrolled_window_new(NULL, NULL);
+  gtk_widget_show(win);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(win),
+				 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  align = gtk_alignment_new(0.5, 0.5, 1.0, 1.0);
+  gtk_widget_set_usize(win, -1, 70);
+  gtk_widget_show(align);
+  gtk_container_add(GTK_CONTAINER(align), win);
+  e_add_widget_to_frame(frame2, align);
+  
+  frame = e_create_frame (_("Preview"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
+
+  border = gtk_frame_new(NULL);
+  gtk_frame_set_shadow_type(GTK_FRAME(border), GTK_SHADOW_IN);
+  gtk_widget_show(border);
+  align = gtk_alignment_new(0.5, 0.5, 0.0, 0.0);
+  gtk_widget_show(align);
+  gtk_container_add(GTK_CONTAINER(align), border);
+  area = gtk_drawing_area_new();
+  gtk_widget_show(area);
+  gtk_widget_set_usize(area, 128, 96);
+  gtk_container_add(GTK_CONTAINER(border), area);
+  e_add_widget_to_frame(frame, align);
+  
+  frame2 = e_create_frame (_("Desktop"));
+  e_add_widget_to_frame(frame, frame2);
+  table = gtk_table_new(1, 1, TRUE);
+  gtk_widget_show(table);
+  for (i = 0; i < 4; i++)
+    {
+      for (j = 0; j < 8; j++)
+	{
+	  char s[32];
+	  
+	  g_snprintf(s, sizeof(s), "%i", (i * 8) + j);
+	  bt = gtk_radio_button_new_with_label(btl, s);
+	  gtk_widget_show(bt);
+	  GTK_TOGGLE_BUTTON(bt)->draw_indicator = 0;
+	  btl = g_list_append(btl, bt);
+	  gtk_table_attach_defaults(GTK_TABLE(table), bt, j, j + 1, i, i + 1);
+	}
+    }
+  for (i = 0; i < 32; i ++)
+    {
+      bt = (GtkWidget *)((g_list_nth(btl, i))->data);
+      if (i < e_opt_number_of_desks)
+	gtk_widget_set_sensitive(bt, TRUE);
+      else
+	gtk_widget_set_sensitive(bt, FALSE);      
+    }
+  e_add_widget_to_frame(frame2, table);
+      
   capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
 }
 
