@@ -1,3 +1,8 @@
+2000-03-08 Alexander Kirillov <kirillov@math.sunysb.edu>
+
+	*   C/gnome-terminal.sgml: major rewrite, now uses doctype article
+	    and DTD DocBook 3.1. See logfile for details.  
+	
 2000-02-26  Christopher R. Gabriel  <cgabriel@firenze.linux.it>
 
 	* it/: added italian translation of the Gnome Terminal
