@@ -2,7 +2,7 @@
 Name=GNOME terminal
 Name[ca]=Terminal GNOME
 Name[cs]=Terminαl Gnome
-Name[da]=GNOME Terminal
+Name[da]=Gnome terminal
 Name[de]=GNOME-Terminal
 Name[el]=Τερματικό του GNOME
 Name[es]=Terminal UNIX de GNOME
@@ -32,7 +32,7 @@ Name[zh_TW.Big5]=GNOME ²ΧΊέΎχ
 Comment=Terminal emulation program
 Comment[ca]=Emulador de terminal de GNOME
 Comment[cs]=Terminαlovύ emulαtor podporujνcν Gnome
-Comment[da]=GNOMEs terminalemulator
+Comment[da]=Gnomes terminalemulator
 Comment[de]=GNOMEs Terminalemulator
 Comment[el]=Προσομοίωση τερματικού GNOME
 Comment[es]=Emulador de terminal GNOME
