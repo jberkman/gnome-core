@@ -7,7 +7,7 @@ bin_PROGRAMS = mailcheck_applet
 
 mailcheck_applet_SOURCES = mailcheck.c
 
-MICO_VERS = 2.0.3
+MICO_VERS = 2.0.5
 MICO_LIBS = -lmicocoss$(MICO_VERS) -lmicoaux$(MICO_VERS) -lmico$(MICO_VERS)
 
 mailcheck_applet_LDADD = ../../panel/libpanel_applet.la \
