@@ -3,9 +3,9 @@
 <!ENTITY term "<application>GNOME Terminal</application>">
  ]>
 
-<article id="index">
+<article id="index" lang="es">
   
-  <artheader> <title>Gu&iacute;a de usuario del terminal de GNOME</title>
+  <artheader> <title>Guía de usuario del terminal de GNOME</title>
     <authorgroup>
       <author>
 	<firstname>Miguel</firstname> <surname>de Icaza</surname>
@@ -14,7 +14,7 @@
 	<firstname>Michael</firstname> <surname>Zucchi</surname>
       </author>
       <author>
-	<firstname>Joaqu&iacute;n</firstname> <surname>Cuenca Abela</surname>
+	<firstname>Joaquín</firstname> <surname>Cuenca Abela</surname>
       </author>
       <author>
 	<firstname>Manuel</firstname> <surname>de Vega
@@ -56,33 +56,33 @@
   
   
   <sect1 id="Description">
-    <title>Descripci&oacute;n</title>
+    <title>Descripción</title>
     <para>
 	&term; es un emulador de terminal que forma parte del proyecto
-      GNOME.  Proporciona acceso a la l&iacute;nea de &oacute;rdenes Unix en el
+      GNOME.  Proporciona acceso a la línea de órdenes Unix en el
       entorno GNOME.
     </para>
 
     <para>
-	&term; puede utilizar car&aacute;cteres en color (para m&aacute;s detalles
-      v&eacute;ase <xref linkend="config-colour">) y a&ntilde;ade la posibilidad
-      de utilizar el rat&oacute;n a las aplicaciones que son capaces de
-      recibir eventos de rat&oacute;n en terminales del estilo xterm.
+	&term; puede utilizar carácteres en color (para más detalles
+      véase <xref linkend="config-colour">) y añade la posibilidad
+      de utilizar el ratón a las aplicaciones que son capaces de
+      recibir eventos de ratón en terminales del estilo xterm.
     </para>
   </sect1>
   <sect1 id="usage">
-    <title> Uso b&aacute;sico</title>
+    <title> Uso básico</title>
     <sect2 id="shells">
-      <title>Interprete de &oacute;rdenes</title> 
+      <title>Interprete de órdenes</title> 
 	 <para> &term; arranca el
-      interprete de &oacute;rdenes por omisi&oacute;n del usuario.  Por ejemplo, el
+      interprete de órdenes por omisión del usuario.  Por ejemplo, el
       interprete <application>bash</application> (que es el incluido
-      por omisi&oacute;n en la mayor&iacute;a de las distribuciones Linux)
+      por omisión en la mayoría de las distribuciones Linux)
       proporciona la posibilidad de completar comandos (pruebe a teclear el
       comienzo de un comando o nombre de fichero y pulse la tecla
-      <keycap>Tab</keycap>, hist&oacute;rico
+      <keycap>Tab</keycap>, histórico
 	de comandos (puede recuperar comandos tecleados con anterioridad pulsando la
-	tecla flecha <keycap>superior</keycap>, y mucho m&aacute;s. Para m&aacute;s informaci&oacute;n, 
+	tecla flecha <keycap>superior</keycap>, y mucho más. Para más información, 
 	vea las paginas de manual del interprete adecuado. 
       </para>
     </sect2>
@@ -91,63 +91,63 @@
       <title>Deslizamiento (scroll)</title> 
       <para>
 	  &term; proporciona una barra de deslizamiento para permitir 
-deslizar la ventana hacia atr&aacute;s y ver los comandos y salidas previos; esto es especialmente 
-	&uacute;til cuando la salida de un comando no cabe en una pantalla. Por defecto, la
-	barra de deslizamiento se sit&uacute;a en el lado derecho de la ventana del terminal.
-	Puede cambiar su posici&oacute;n o eliminarla usando el formulario <link linkend="config"><interface>Preferencias</interface></link>.
+deslizar la ventana hacia atrás y ver los comandos y salidas previos; esto es especialmente 
+	útil cuando la salida de un comando no cabe en una pantalla. Por defecto, la
+	barra de deslizamiento se sitúa en el lado derecho de la ventana del terminal.
+	Puede cambiar su posición o eliminarla usando el formulario <link linkend="config"><interface>Preferencias</interface></link>.
       </para>
       <para> 
-	Puede usar tambi&eacute;n el teclado para los deslizamientos:
+	Puede usar también el teclado para los deslizamientos:
 	<keysym>Shift-RePag</keysym> deslizar hacia arriba,
 	<keysym>Shift-PgDown</keysym> deslizar hacia abajo. 
       </para>
     </sect2>
     <sect2 id="emulation">
-      <title>Emulaci&oacute;n</title>
+      <title>Emulación</title>
 
       <para>
-	El programa de terminal est&aacute;
-	dise&ntilde;ado para emular al programa 
+	El programa de terminal está
+	diseñado para emular al programa 
 	<application>xterm</application> creado por el consorcio X.  
 A su vez el programa 
-	    <application>xterm</application> es una emulaci&oacute;n
+	    <application>xterm</application> es una emulación
 		casi completa del terminal DEC VT102.
       </para>
       
       <para>
 	El terminal de GNOME admite las mismas extensiones al VT102
 	que proporciona el programa <application>xterm</application>
-	a trav&eacute;s de secuencias
-	especiales de escape.  El programa xterm est&aacute; en evoluci&oacute;n.
+	a través de secuencias
+	especiales de escape.  El programa xterm está en evolución.
 	Los cambios recientes de xterm se han incluido en
-	  &term;.  Esto incluye la emulaci&oacute;n de las nuevas
+	  &term;.  Esto incluye la emulación de las nuevas
 	secuencias de escape DEC VT220.
       </para>
 
       <para>
-	En t&eacute;rminos simples, esto significa que el terminal Gnome entiende todos
+	En términos simples, esto significa que el terminal Gnome entiende todos
 	los comandos (secuencias de escape) usados por los terminales VT120/VT220
 	para cosas como el posicionamiento del cursor el la pantalla. De esta forma,
-	puede ejecutar en el &term; cualquier aplicaci&oacute;n dise&ntilde;ada para funcionar
+	puede ejecutar en el &term; cualquier aplicación diseñada para funcionar
 	en terminales VT102/VT220/xterm y todos los controles (tal que flechas,
 	teclas <keycap>AvPag/RePag</keycap>, tecla <keycap>Tab</keycap>, etc) 
-	funcionar&aacute;n de la forma esperada. 
+	funcionarán de la forma esperada. 
       </para>
 
     </sect2>
   </sect1>
 
   <sect1 id="menus">
-    <title>Men&uacute;s</title>
+    <title>Menús</title>
     <para>
-	&term; proporciona una serie de caracter&iacute;sticas de control accesibles
-      a trav&eacute;s de un men&uacute; situado en la parte superior de la ventana del terminal y
-      a un <guimenu>men&uacute; desplegable</guimenu> que aparece al  pulsar el
-      bot&oacute;n <mousebutton>derecho</mousebutton> del rat&oacute;n y la tecla
+	&term; proporciona una serie de características de control accesibles
+      a través de un menú situado en la parte superior de la ventana del terminal y
+      a un <guimenu>menú desplegable</guimenu> que aparece al  pulsar el
+      botón <mousebutton>derecho</mousebutton> del ratón y la tecla
       <keycap>CTRL</keycap>.
     </para>
     <sect2 id="menu-file">
-      <title>Men&uacute; archivo</title>
+      <title>Menú archivo</title>
       <variablelist>
 	<varlistentry>
 	  <term><guimenuitem>Nuevo terminal</guimenuitem></term>
@@ -155,21 +155,21 @@ A su vez el programa
 	    <para>
 	      Crea un nuevo terminal.  Es una forma eficiente
 	      de crear varios terminales, ya que se usan menores recursos
-	      de sistema que en la creaci&oacute;n de una copia separada de &term;. (Para usuarios 
+	      de sistema que en la creación de una copia separada de &term;. (Para usuarios 
 	      experimentados: la nueva ventana de terminal creada de esta forma pertenece al mismo
 	      proceso, con el mismo PID que el programa original. Sin embargo
-	      cada ventana ejecutar&aacute; su propia l&iacute;nea de &oacute;rdenes.)
+	      cada ventana ejecutará su propia línea de órdenes.)
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Esconder la barra de men&uacute;</guimenuitem></term>
+	  <term><guimenuitem>Esconder la barra de menú</guimenuitem></term>
 	  <listitem>
 	    <para>				
-	      Esconde la barra de men&uacute; del terminal, creando un
-	      terminal m&aacute;s peque&ntilde;o y compacto.  Puede hacer
-	      reaparecer la barra de men&uacute; utilizando el 
-	      <link linkend="menu-popup"> men&uacute; <guimenu>desplegable</guimenu></link>. 
+	      Esconde la barra de menú del terminal, creando un
+	      terminal más pequeño y compacto.  Puede hacer
+	      reaparecer la barra de menú utilizando el 
+	      <link linkend="menu-popup"> menú <guimenu>desplegable</guimenu></link>. 
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -177,9 +177,9 @@ A su vez el programa
 	  <term><guimenuitem>Cerrar el terminal</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Cierra el terminal actual.  Tambi&eacute;n cierra cualquier
-	      otro terminal que haya sido abierto mediante la l&iacute;nea
-	      de &oacute;rdenes de este terminal.  Si &eacute;ste es el el &uacute;ltimo
+	      Cierra el terminal actual.  También cierra cualquier
+	      otro terminal que haya sido abierto mediante la línea
+	      de órdenes de este terminal.  Si éste es el el último
 	      terminal en cerrarse, entonces el programa
                 &term; finaliza.
 	    </para>
@@ -189,16 +189,16 @@ A su vez el programa
     </sect2>
 
     <sect2 id="menu-edit">
-      <title>Men&uacute; editar</title>
+      <title>Menú editar</title>
       <variablelist>
 	<varlistentry>
 	  <term><guimenuitem>Pegar</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Pega la selecci&oacute;n actual o el contenido del
-	      porta papeles en el terminal.  Esto tambi&eacute;n puede
-	      conseguirse utilizado el bot&oacute;n
-	      <mousebutton>central</mousebutton> del rat&oacute;n.
+	      Pega la selección actual o el contenido del
+	      porta papeles en el terminal.  Esto también puede
+	      conseguirse utilizado el botón
+	      <mousebutton>central</mousebutton> del ratón.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -206,14 +206,14 @@ A su vez el programa
     </sect2>
 
     <sect2 id="menu-settings">
-      <title>Men&uacute; configuraci&oacute;n</title>
+      <title>Menú configuración</title>
       <variablelist>
 	<varlistentry>
 	  <term><guimenuitem>Preferencias ...</guimenuitem></term>
 	  <listitem>
 	    <para>
 	      Muestra el formulario preferencias, descritas en la 
-	      secci&oacute;n <link linkend="config">opciones configurables</link>.
+	      sección <link linkend="config">opciones configurables</link>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -221,10 +221,10 @@ A su vez el programa
 	  <term><guimenuitem>Reiniciar el terminal</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Reinicia los par&aacute;metros del terminal. Esta operaci&oacute;n no
-	      limpiar&aacute; la pantalla ni desplazara el cursor, aunque cualquier 
-              presentaci&oacute;n posterior en el terminal se har&aacute; con la letra y 
-              los atributos por omisi&oacute;n.
+	      Reinicia los parámetros del terminal. Esta operación no
+	      limpiará la pantalla ni desplazara el cursor, aunque cualquier 
+              presentación posterior en el terminal se hará con la letra y 
+              los atributos por omisión.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -232,7 +232,7 @@ A su vez el programa
 	  <term><guimenuitem>Reiniciar y limpiar</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Reinicia los par&aacute;metros del terminal, y adem&aacute;s borra
+	      Reinicia los parámetros del terminal, y además borra
 	      la pantalla.  Todos los tipos de letra y los atributos
 	      son reiniciados.
 	    </para>
@@ -243,7 +243,7 @@ A su vez el programa
 	  <listitem>
 	    <para>
 	      Puede utilizarse para arrastrar y soltar colores en el
-	      terminal.  Vea la descripci&oacute;n en <xref
+	      terminal.  Vea la descripción en <xref
 		linkend="config-colour">.
 	    </para>
 	  </listitem>
@@ -252,10 +252,10 @@ A su vez el programa
     </sect2>
 
     <sect2 id="menu-help">
-      <title>Men&uacute; ayuda</title>
+      <title>Menú ayuda</title>
       <variablelist>
 	<varlistentry>
-	  <term><guimenuitem>Gu&iacute;a de usuario del terminal GNOME...
+	  <term><guimenuitem>Guía de usuario del terminal GNOME...
 	    </guimenuitem></term>
 	  <listitem>
 	    <para>
@@ -267,7 +267,7 @@ A su vez el programa
 	  <term><guimenuitem>Acerca de...</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Un peque&ntilde;o reconocimiento a todos chicos que
+	      Un pequeño reconocimiento a todos chicos que
 	      trabajaron duro para hacer que el terminal GNOME sea
 	      una realidad.
 	    </para>
@@ -277,17 +277,17 @@ A su vez el programa
     </sect2>
 
     <sect2 id="menu-popup">
-      <title>Men&uacute; desplegable</title>
+      <title>Menú desplegable</title>
       <para>
-	Podemos hacer aparecer el <guimenu>men&uacute; desplegable</guimenu> 
-	pulsando el bot&oacute;n <mousebutton>derecho</mousebutton> del rat&oacute;n y la 
+	Podemos hacer aparecer el <guimenu>menú desplegable</guimenu> 
+	pulsando el botón <mousebutton>derecho</mousebutton> del ratón y la 
 tecla
-	<keycap>CTRL</keycap> simult&aacute;neamente. (En algunas ocasiones
-	no es necesario pulsar la tecla <keycap>CTRL</keycap> para obtener el men&uacute;
-	desplegable, pero no debe suponer que siempre sea as&iacute;.).
-	Este men&uacute; es simple atajo para algunas de las funciones del men&uacute;
-	principal; esto es especialmente &uacute;til cuando el men&uacute; 
-	principal est&aacute; oculto.  Est&aacute;n disponibles las siguientes opciones:
+	<keycap>CTRL</keycap> simultáneamente. (En algunas ocasiones
+	no es necesario pulsar la tecla <keycap>CTRL</keycap> para obtener el menú
+	desplegable, pero no debe suponer que siempre sea así.).
+	Este menú es simple atajo para algunas de las funciones del menú
+	principal; esto es especialmente útil cuando el menú 
+	principal está oculto.  Están disponibles las siguientes opciones:
       </para>
       <variablelist>
 	<varlistentry>
@@ -308,10 +308,10 @@ tecla
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guimenuitem>Mostrar la barra de men&uacute;s</guimenuitem></term>
+	  <term><guimenuitem>Mostrar la barra de menús</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Esconde o muestra la barra de men&uacute; principal en la parte 
+	      Esconde o muestra la barra de menú principal en la parte 
 superior de la ventana de terminal.
 	    </para>
 	  </listitem>
@@ -321,13 +321,13 @@ superior de la ventana de terminal.
 	  <term><guimenuitem>Teclado seguro</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Esta opci&oacute;n fuerza el env&iacute;o directo de todas las entradas de teclado al
-	      terminal, puenteando cualquier otra cosa. Esto es &uacute;til en aquellas
+	      Esta opción fuerza el envío directo de todas las entradas de teclado al
+	      terminal, puenteando cualquier otra cosa. Esto es útil en aquellas
 	      (raras) situaciones en las que varios usuarios usan el mismo servidor X,
-	      y el servidor X no esta usando m&eacute;todos apropiados de autenticaci&oacute;n, haciendo
+	      y el servidor X no esta usando métodos apropiados de autenticación, haciendo
 	      posible que otros usuarios capturen lo que este tecleando. En estas 
 	      circunstancias, es aconsejable conmutar al modo "teclado seguro" antes de 
-	      teclear cualquier informaci&oacute;n sensible, como las claves. 
+	      teclear cualquier información sensible, como las claves. 
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -335,7 +335,7 @@ superior de la ventana de terminal.
 	  <term><guimenuitem>Reiniciar el terminal</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Reinicia los atributos del terminal (tipograf&iacute;a y fondo) 
+	      Reinicia los atributos del terminal (tipografía y fondo) 
 	      sin borrar la pantalla.
 	    </para>
 	  </listitem>
@@ -353,10 +353,10 @@ superior de la ventana de terminal.
 	  <term><guimenuitem>Abrir en un navegador</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Si el rat&oacute;n apunta a un URL (Por ejemplo, una direcci&oacute;n Internet) cuando
-	      se invoca el men&uacute; desplegable, se dispondr&aacute; de esta opci&oacute;n para arrancar
+	      Si el ratón apunta a un URL (Por ejemplo, una dirección Internet) cuando
+	      se invoca el menú desplegable, se dispondrá de esta opción para arrancar
 	      un navegador y ver el URL. Usar la tecla <keycap>CTRL</keycap> y el
-	      bot&oacute;n derecho es un atajo a este &iacute;tem de men&uacute;.
+	      botón derecho es un atajo a este ítem de menú.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -370,17 +370,17 @@ superior de la ventana de terminal.
     <title>Opciones configurables</title>
     <para>
       Las opciones del programa las podremos configurar gracias al
-      cuadro de di&aacute;logo preferencias, que podemos invocar gracias al
-      <link linkend="menu-settings">elemento de men&uacute;
+      cuadro de diálogo preferencias, que podemos invocar gracias al
+      <link linkend="menu-settings">elemento de menú
 	<guimenuitem>preferencias</guimenuitem></link>, que se 
-      encuentra en la opci&oacute;n
-      <guimenu>Configuraci&oacute;n</guimenu> de la barra de men&uacute;.
+      encuentra en la opción
+      <guimenu>Configuración</guimenu> de la barra de menú.
     </para>
 
     <sect2 id="config-general">
       <title>Opciones generales</title>
       <para>
-	Aunque la mayor&iacute;a de las opciones son bastante sencillas de
+	Aunque la mayoría de las opciones son bastante sencillas de
 	entender, vamos a discutir algunas de ellas en detalle.
       </para>
       <variablelist>
@@ -389,20 +389,20 @@ superior de la ventana de terminal.
 	  <listitem>
 	    <para>
 	      Elige la clase de terminal para la actual
-	      y				configuraci&oacute;n o terminal.  Vea la secci&oacute;n <link
-		linkend="classes">clases</link> para obtener m&aacute;s
-	      informaci&oacute;n.
+	      y				configuración o terminal.  Vea la sección <link
+		linkend="classes">clases</link> para obtener más
+	      información.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guilabel>Car&aacute;cteres que pueden ser parte de una palabra</guilabel></term>
+	  <term><guilabel>Carácteres que pueden ser parte de una palabra</guilabel></term>
 	  <listitem>
 	    <para>
-	      Define una lista de car&aacute;cteres (o <emphasis>clases de
-		car&aacute;cteres</emphasis>) que deben ser considerados
-	      `car&aacute;cteres de palabras'.  Estos car&aacute;cteres se
-	      utilizar&aacute;n cuando se  <link
+	      Define una lista de carácteres (o <emphasis>clases de
+		carácteres</emphasis>) que deben ser considerados
+	      `carácteres de palabras'.  Estos carácteres se
+	      utilizarán cuando se  <link
 		linkend="pointer-select">seleccione texto</link>
 	      palabra a palabra.
 	    </para>
@@ -412,7 +412,7 @@ superior de la ventana de terminal.
     </sect2>
 
     <sect2 id="config-image">
-      <title>Configuraci&oacute;n de la imagen de fondo</title>
+      <title>Configuración de la imagen de fondo</title>
       <para>
 	En la solapa <guilabel>Imagen</guilabel>, puede elegir la imagen de fondo
 	que usara el terminal. Las opciones son:
@@ -426,34 +426,34 @@ superior de la ventana de terminal.
 	</listitem>
 	<listitem> 
 	  <para> <guilabel>Pixmap de fondo</guilabel> &mdash; 
-	    esta opci&oacute;n permite escoger un fichero de imagen para usarlo como fondo.
-	    Puede pulsar el bot&oacute;n <guibutton>Buscar</guibutton> para escoger una 
+	    esta opción permite escoger un fichero de imagen para usarlo como fondo.
+	    Puede pulsar el botón <guibutton>Buscar</guibutton> para escoger una 
 	    imagen.
 	  </para>
 	</listitem>
 	<listitem> 
 	  <para> 
 	    <guilabel>Transparente</guilabel> 
-	    &mdash; esta opci&oacute;n hace el fondo transparente: simplemente reproduce
-	    el fondo de su escritorio (ventana ra&iacute;z), de igual forma que lo har&iacute;a
-	    un camale&oacute;n. No espere en cualquier caso ver otras ventanas a trav&eacute;s del
+	    &mdash; esta opción hace el fondo transparente: simplemente reproduce
+	    el fondo de su escritorio (ventana raíz), de igual forma que lo haría
+	    un camaleón. No espere en cualquier caso ver otras ventanas a través del
 	      &term;.
 	  </para>
 	</listitem>
       </itemizedlist>
       <para> 
 	Para los fondos <guilabel>Pixmap</guilabel> y <guilabel>Transparente</guilabel>
-	, debe seleccionar tambi&eacute;n el bot&oacute;n <guibutton>Oscurecer el fondo</guibutton>,
+	, debe seleccionar también el botón <guibutton>Oscurecer el fondo</guibutton>,
 	para "oscurecer", o "ensombrecer", la imagen de fondo. 
       </para> 
     </sect2>
 
     <sect2 id="config-colour">
-      <title>Configuraci&oacute;n del color</title>
+      <title>Configuración del color</title>
       <para>
 	Gnome terminal implementa todas las extensiones de color
 	utilizadas por <application>xterm</application>.  
-	Las solapas <guilabel>Colores</guilabel> le permitir&aacute;n
+	Las solapas <guilabel>Colores</guilabel> le permitirán
 	controlas estos colores.
       </para>
 
@@ -463,12 +463,12 @@ superior de la ventana de terminal.
 	  <listitem>
 	    <para>
 	      Algunas aplicaciones son capaces de utilizar las capacidades de color
-	      del terminal. La aplicaci&oacute;n puede pedir uno de los 16 colores nombrados
+	      del terminal. La aplicación puede pedir uno de los 16 colores nombrados
 	      (colores ANSI), como el "azul" o el "rojo brillante" y de esta forma 
 	      interactuar con el terminal: por ejemplo, el lector de correo 
 	      <application>mutt</application> puede usar el color rojo para mostrar los
 	      mensajes urgentes. Si embargo, es cosa del terminal decidir el tinte a usar
-	      para el "rojo brillante" o el "azul". Esta colecci&oacute;n de 16 colores se conoce
+	      para el "rojo brillante" o el "azul". Esta colección de 16 colores se conoce
 	      como paleta, o esquema de colores.
 	    </para>
 	    <para>&term; 
@@ -481,7 +481,7 @@ superior de la ventana de terminal.
 	      rxvt usa blanco literal. 
 	    </para>
 	    <para>
-	      Si ha seleccionado la opci&oacute;n colores personalizados,
+	      Si ha seleccionado la opción colores personalizados,
 	      entonces los 16 colores (realmente 8 colores, y 8
 	      tonalidades) pueden personalizarse pulsando en los
 	      selectores de color.
@@ -492,8 +492,8 @@ superior de la ventana de terminal.
 	  <term><guilabel>Colores de fondo y primer plano</guilabel></term>
 	  <listitem>
 	    <para>
-	      Aqu&iacute; podr&aacute; elegir los colores por omisi&oacute;n del fondo y primer plano del
-	      terminal, usados mientras que la aplicaci&oacute;n no solicite otros  en
+	      Aquí podrá elegir los colores por omisión del fondo y primer plano del
+	      terminal, usados mientras que la aplicación no solicite otros  en
 	      la ventana.  
 	    </para>
 	    <para>
@@ -503,22 +503,22 @@ superior de la ventana de terminal.
 	      <guilabel>verde sobre negro</guilabel>,
 	      <guilabel>negro sobre amarillo brillante</guilabel>, y 
 	      <guilabel>colores personalizados</guilabel>.
-	      La forma en la que aparezcan estos colores depender&aacute; de la paleta 
+	      La forma en la que aparezcan estos colores dependerá de la paleta 
 	      seleccionada (si
 	      utilizamos las opciones blanco sobre negro o negro
-	      sobre blanco).  <guilabel>Personalizados</guilabel> le permitir&aacute;
+	      sobre blanco).  <guilabel>Personalizados</guilabel> le permitirá
 	      seleccionar los colores de primer plano y de fondo de
 	      forma individual e independientemente de la paleta.
 	    </para>
 	    <para>
-	      Adem&aacute;s el usuario puede arrastrar un color de
+	      Además el usuario puede arrastrar un color de
 	      cualquier fuente de color (un selector rectangular de
 	      color, una rueda de color, etc...) y soltarlo en el
 	      terminal.  
 	      Si suelta el color en un espacio en blanco,
-	      cambiar&aacute; el color de fondo, si lo suelta en una celda
-	      que contenga un car&aacute;cter, cambiar el color de primer
-	      plano.  Esto har&aacute; que se cambie autom&aacute;ticamente a
+	      cambiará el color de fondo, si lo suelta en una celda
+	      que contenga un carácter, cambiar el color de primer
+	      plano.  Esto hará que se cambie automáticamente a
 	      colores <guilabel>personalizados</guilabel> y que 
 	      `color de primer plano' y
 	      `color de fondo' tomen el valor que les corresponde.
@@ -533,7 +533,7 @@ superior de la ventana de terminal.
     <sect2 id="config-scrolling">  
       <title>Desfile</title>
       <para>
-        En esta solapa puede elegir la posici&oacute;n de la barra de deslizamiento
+        En esta solapa puede elegir la posición de la barra de deslizamiento
 	y le numero de lineas que deben guardarse en memoria para el deslizamiento.
       </para>
     </sect2>
@@ -541,105 +541,105 @@ superior de la ventana de terminal.
   </sect1>
 
   <sect1 id="pointerusage">
-    <title>Uso del puntero del rat&oacute;n</title>
+    <title>Uso del puntero del ratón</title>
     <para>
-      El puntero del rat&oacute;n puede utilizarse para seleccionar
-      (copiar), y extender la selecci&oacute;n actual del texto, pegar
+      El puntero del ratón puede utilizarse para seleccionar
+      (copiar), y extender la selección actual del texto, pegar
       texto desde otros terminales o aplicaciones, y para hacer que
-      aparezcan los men&uacute;s.
+      aparezcan los menús.
     </para>
 
     <sect2 id="pointer-select">
-      <title>Selecci&oacute;n</title>
+      <title>Selección</title>
       <para>
-	Lo siguiente asume un rat&oacute;n est&aacute;ndar de tres botones cuyos
+	Lo siguiente asume un ratón estándar de tres botones cuyos
 	botones derecho e izquierdo no han sido intercambiados
-	utilizando la opci&oacute;n que hay en el centro de control para
-	zurdos.  Por supuesto, toda la explicaci&oacute;n que viene a
-	continuaci&oacute;n tambi&eacute;n sirve si se utiliza de opci&oacute;n de
-	zurdos, pero donde dice bot&oacute;n derecho habr&aacute; que usar el
+	utilizando la opción que hay en el centro de control para
+	zurdos.  Por supuesto, toda la explicación que viene a
+	continuación también sirve si se utiliza de opción de
+	zurdos, pero donde dice botón derecho habrá que usar el
 	izquierdo y viceversa.
       </para>
       <para>
-	El bot&oacute;n <mousebutton>izquierdo</mousebutton> del rat&oacute;n
-	puede utilizarse para iniciar una selecci&oacute;n.  Si se pulsa el
-	bot&oacute;n del rat&oacute;n una vez, y se arrastra, entonces se
-	seleccionar&aacute;n los car&aacute;cteres uno a uno.  Si en su arrastre
-	traspasa los l&iacute;mites verticales de la ventana, entonces se
-	har&aacute; un scroll para que pueda seguir seleccionando.
+	El botón <mousebutton>izquierdo</mousebutton> del ratón
+	puede utilizarse para iniciar una selección.  Si se pulsa el
+	botón del ratón una vez, y se arrastra, entonces se
+	seleccionarán los carácteres uno a uno.  Si en su arrastre
+	traspasa los límites verticales de la ventana, entonces se
+	hará un scroll para que pueda seguir seleccionando.
       </para>
       <para>
-	Si se hace un doble clic con el bot&oacute;n
-	<mousebutton>izquierdo</mousebutton>, entonces la selecci&oacute;n
-	ser&aacute; por palabras.  Mantenga pulsado el bot&oacute;n del rat&oacute;n en
-	el momento en que hace su segundo clic y arrastre el rat&oacute;n
-	para aumentar la selecci&oacute;n.  Los car&aacute;cteres que forman parte
-	de una palabra est&aacute;n definidos en la solapa
+	Si se hace un doble clic con el botón
+	<mousebutton>izquierdo</mousebutton>, entonces la selección
+	será por palabras.  Mantenga pulsado el botón del ratón en
+	el momento en que hace su segundo clic y arrastre el ratón
+	para aumentar la selección.  Los carácteres que forman parte
+	de una palabra están definidos en la solapa
 	<guilabel> Opciones generales</guilabel> del formulario <link
 	  linkend="config-general">preferencias</link>.
       </para>
       <para>
-	Para terminar, si hace un triple clic con el bot&oacute;n izquierdo
-	del rat&oacute;n y mantiene el bot&oacute;n pulsado, se seleccionar&aacute;n
-	l&iacute;neas enteras conforme vaya arrastrando el rat&oacute;n arriba y
+	Para terminar, si hace un triple clic con el botón izquierdo
+	del ratón y mantiene el botón pulsado, se seleccionarán
+	líneas enteras conforme vaya arrastrando el ratón arriba y
 	abajo.
       </para>
       <para>
-	El bot&oacute;n <mousebutton>derecho</mousebutton> puede utilizarse
-	para extender la selecci&oacute;n.  S&oacute;lo tiene que llevar el
-	puntero hasta donde quiera extender la selecci&oacute;n y pulsar
-	con el bot&oacute;n derecho del rat&oacute;n mientras el rat&oacute;n siga en la
-	barra de scroll.  De nuevo, un, doble o triple clic har&aacute; que
-	se seleccione por car&aacute;cteres, por palabras, o por l&iacute;neas.
+	El botón <mousebutton>derecho</mousebutton> puede utilizarse
+	para extender la selección.  Sólo tiene que llevar el
+	puntero hasta donde quiera extender la selección y pulsar
+	con el botón derecho del ratón mientras el ratón siga en la
+	barra de scroll.  De nuevo, un, doble o triple clic hará que
+	se seleccione por carácteres, por palabras, o por líneas.
       </para>
       <para>
-	En todos los casos, al soltar el bot&oacute;n del rat&oacute;n se copiar&aacute;
-	autom&aacute;ticamente el texto seleccionado en el porta papeles, y
-	podr&aacute; pegarse en cualquier otra aplicaci&oacute;n.  Si hace
-	aparecer un nuevo car&aacute;cter en pantalla se perder&aacute; la
-	selecci&oacute;n, pero no el contenido del porta papeles.
+	En todos los casos, al soltar el botón del ratón se copiará
+	automáticamente el texto seleccionado en el porta papeles, y
+	podrá pegarse en cualquier otra aplicación.  Si hace
+	aparecer un nuevo carácter en pantalla se perderá la
+	selección, pero no el contenido del porta papeles.
       </para>
     </sect2>
 
     <sect2 id="pointer-paste">
       <title>Pegando texto</title>
       <para>
-	Si se pulsa el bot&oacute;n <mousebutton>central</mousebutton> del
-	rat&oacute;n, se pegar&aacute; el contenido de la selecci&oacute;n en la ventana.
+	Si se pulsa el botón <mousebutton>central</mousebutton> del
+	ratón, se pegará el contenido de la selección en la ventana.
 	Esto puede utilizarse para transferir texto desde otras
 	aplicaciones.
       </para>
       <para>
-	Si s&oacute;lo tiene un rat&oacute;n con dos botones, probablemente su
-	servidor X tenga un m&eacute;todo para emular el bot&oacute;n
-	<mousebutton>central</mousebutton> del rat&oacute;n (generalmente
-	pulsando simult&aacute;neamente los dos botones del rat&oacute;n).  Mire
-	en la documentaci&oacute;n de su servidor X para obtener m&aacute;s
-	informaci&oacute;n.
+	Si sólo tiene un ratón con dos botones, probablemente su
+	servidor X tenga un método para emular el botón
+	<mousebutton>central</mousebutton> del ratón (generalmente
+	pulsando simultáneamente los dos botones del ratón).  Mire
+	en la documentación de su servidor X para obtener más
+	información.
       </para>
     </sect2>
 
     <sect2 id="pointer-wheel">
       <title>Ratones con rueda</title>
       <para>
-	Si tiene un rat&oacute;n con rueda (que env&iacute;an los eventos de bot&oacute;n
-	de rat&oacute;n 4 y 5), podr&aacute; utilizar la rueda para deslizarse a
-	la p&aacute;gina siguiente y a la anterior a trav&eacute;s del buffer
+	Si tiene un ratón con rueda (que envían los eventos de botón
+	de ratón 4 y 5), podrá utilizar la rueda para deslizarse a
+	la página siguiente y a la anterior a través del buffer
 	de deslizamiento.
       </para>
     </sect2>
 
     <sect2 id="pointer-menu">
-      <title>Men&uacute; de control</title>
+      <title>Menú de control</title>
       <para>
-	El rat&oacute;n tambi&eacute;n puede utilizarse para desplegar un <link
-	  linkend="menu-popup">men&uacute; de control</link>, que puede
+	El ratón también puede utilizarse para desplegar un <link
+	  linkend="menu-popup">menú de control</link>, que puede
 	utilizarse para reiniciar el terminal, o para hacer que
-	vuelva a aparecer la barra de men&uacute;, si esta hab&iacute;a sido
+	vuelva a aparecer la barra de menú, si esta había sido
 	ocultada.
-	Para hacer aparecer este men&uacute;, s&oacute;lo tiene que pulsar la
-	tecla <keycap>CTRL</keycap> y pulsar en el bot&oacute;n
-	<mousebutton>derecho</mousebutton> del rat&oacute;n.
+	Para hacer aparecer este menú, sólo tiene que pulsar la
+	tecla <keycap>CTRL</keycap> y pulsar en el botón
+	<mousebutton>derecho</mousebutton> del ratón.
       </para>
     </sect2>
     
@@ -648,17 +648,17 @@ superior de la ventana de terminal.
       <para>
 El terminal Gnome se puede usar para seleccionar enlaces URL (localizadores
 unformes de recursos, como <literal>http://www.gnome.org</literal>) de la
-ventana de texto, moviendo simplemente el rat&oacute;n sobre el texto del URL.
-El URL quedar&aacute; resalrado, prsentandose subrayado, y el puntero del rat&oacute;n 
-se convertir&aacute; en uma mano que se&ntilde;ala.
+ventana de texto, moviendo simplemente el ratón sobre el texto del URL.
+El URL quedará resalrado, prsentandose subrayado, y el puntero del ratón 
+se convertirá en uma mano que señala.
       </para> 
       <para>
-Al invocar el <link linkend="menu-popup">men&uacute; de control</link> sobre
-el URL resaltado aparaecer&aacute; una nueva opci&oacute;n de carga del URL en un 
+Al invocar el <link linkend="menu-popup">menú de control</link> sobre
+el URL resaltado aparaecerá una nueva opción de carga del URL en un 
 navegador.
       </para>
       <para>
-Pulsar el bot&oacute;n izquierdo, mientras se mantiene pulsada la tecla
+Pulsar el botón izquierdo, mientras se mantiene pulsada la tecla
 <keycap>CTRL</keycap>, es un atajo para abrir el URL de forma
 inmediata.
       </para>
@@ -667,7 +667,7 @@ inmediata.
     <sect2 id="pointer-dnd">
       <title>Arrastrar y soltar</title>
       <para>
-	Se puede utilizar el &#171;arrastrar y soltar&#187; para hacer una
+	Se puede utilizar el «arrastrar y soltar» para hacer una
 	gran cantidad de cosas en el terminal.
       </para>
       <variablelist>
@@ -675,8 +675,8 @@ inmediata.
 	  <term>Arrastrando ficheros</term>
 	  <listitem>
 	    <para>				
-	      Si se arrastra alg&uacute;n fichero en el terminal, entonces
-	      se pegar&aacute; su nombre completo en la ventana.  Tambi&eacute;n
+	      Si se arrastra algún fichero en el terminal, entonces
+	      se pegará su nombre completo en la ventana.  También
 	      se pueden, de esta misma forma,  dejar en el terminal direcciones URL de Internet.
 	    </para>
 	  </listitem>
@@ -685,16 +685,16 @@ inmediata.
 	  <term>Arrastrando colores</term>
 	  <listitem>
 	    <para>
-	      Se puede arrastrar un color desde otra aplicaci&oacute;n de
+	      Se puede arrastrar un color desde otra aplicación de
 	      GNOME, o desde el <link
 		linkend="menu-settings">selector de color</link> y
 	      soltarlo en el terminal.  Si se suelta encima de un
-	      car&aacute;cter, entonces pondr&aacute; como color de primer plano
+	      carácter, entonces pondrá como color de primer plano
 	      el color que hemos soltado.  Si se suelta en un lugar
-	      donde no haya ning&uacute;n car&aacute;cter, entonces pondr&aacute; el
-	      color de fondo.  Mire la secci&oacute;n <link
-		linkend="config-colour">configuraci&oacute;n del color</link>
-	      para m&aacute;s informaci&oacute;n.
+	      donde no haya ningún carácter, entonces pondrá el
+	      color de fondo.  Mire la sección <link
+		linkend="config-colour">configuración del color</link>
+	      para más información.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -709,30 +709,30 @@ inmediata.
 
     <para>
       El terminal GNOME le permite tener distintos perfiles de
-      configuraci&oacute;n para distintas utilizaciones (distintos colores
-      de fondo, presencia, ausencia y posici&oacute;n de las barras de
-      scroll, y cosas as&iacute;).  Para utilizar los perfiles de
-      configuraci&oacute;n, selecci&oacute;n el formulario
-      <guimenuitem>preferencias</guimenuitem> del men&uacute;
-      <guimenu>configuraci&oacute;n</guimenu> del terminal.  Seleccione las
-      opciones que prefiera (estos cambios se activar&aacute;n en el
-      terminal que tiene abierto, as&iacute; que podr&aacute; ver si est&aacute; de
+      configuración para distintas utilizaciones (distintos colores
+      de fondo, presencia, ausencia y posición de las barras de
+      scroll, y cosas así).  Para utilizar los perfiles de
+      configuración, selección el formulario
+      <guimenuitem>preferencias</guimenuitem> del menú
+      <guimenu>configuración</guimenu> del terminal.  Seleccione las
+      opciones que prefiera (estos cambios se activarán en el
+      terminal que tiene abierto, así que podrá ver si está de
       acuerdo con las opciones que ha escogido), y antes de cerrar
       el formulario <guimenuitem>preferencias</guimenuitem>,
-      aseg&uacute;rese de poner un nuevo nombre en el espacio marcado con
+      asegúrese de poner un nuevo nombre en el espacio marcado con
       <guilabel>Clase de terminal</guilabel>.
     </para>
     
     <para>
-      Para activar autom&aacute;ticamente una clase de terminal en el
-      arranque puede utilizar la opci&oacute;n <option>--tclass</option> 
-      en la l&iacute;nea de
-      &oacute;rdenes.
+      Para activar automáticamente una clase de terminal en el
+      arranque puede utilizar la opción <option>--tclass</option> 
+      en la línea de
+      órdenes.
     </para>
   </sect1>
   
   <sect1 id="options">
-    <title>Opciones de la l&iacute;nea de &oacute;rdenes</title>
+    <title>Opciones de la línea de órdenes</title>
     <para>
       <itemizedlist>
 	<listitem>
@@ -773,17 +773,17 @@ inmediata.
 	  <para>
 	    Ejecuta la orden <replaceable>COMANDO</replaceable> 
 	    con los argumentos <replaceable>ARGS</replaceable> en el
-	    arranque.  No se procesar&aacute; por el terminal ning&uacute;n
-	    argumento que venga detr&aacute;s de esta opci&oacute;n.  Este
+	    arranque.  No se procesará por el terminal ningún
+	    argumento que venga detrás de esta opción.  Este
 	    comportamiento imita el de <command>xterm -e</command>.
 	  </para>
 	</listitem>
 	
 	<listitem>
-	  <para><option>--font <replaceable>Tipograf&iacute;a</replaceable></option></para>
+	  <para><option>--font <replaceable>Tipografía</replaceable></option></para>
 	  <para>
 	    Fija el tipo de letra utilizado en el terminal al de la 
-	    <replaceable>Tipograf&iacute;a</replaceable> 
+	    <replaceable>Tipografía</replaceable> 
 	  </para>
 	</listitem>
 	
@@ -797,27 +797,27 @@ inmediata.
 	</listitem>
 	
 	<listitem>
-	  <para><option>--geometry <replaceable>Geometr&iacute;a</replaceable>
+	  <para><option>--geometry <replaceable>Geometría</replaceable>
 	    </option></para>
 	  <para>
-	    Especifica la geometr&iacute;a que tendr&aacute; este terminal.  La
-	    geometr&iacute;a incluye la anchura y altura deseadas medidas
-	    en car&aacute;cteres.  Por ejemplo: <option>--geometry=80x40</option> crear&aacute; un
+	    Especifica la geometría que tendrá este terminal.  La
+	    geometría incluye la anchura y altura deseadas medidas
+	    en carácteres.  Por ejemplo: <option>--geometry=80x40</option> creará un
 	    terminal de ochenta columnas por 40 filas.
-	  </para>
             <!--
-	    Pendiente:  Enlazar con la documentaci&oacute;n de las
-	    gnome-libs relativa a las especificaciones de GEOMETR&Iacute;A,
+	    Pendiente:  Enlazar con la documentación de las
+	    gnome-libs relativa a las especificaciones de GEOMETRÍA,
 	    cuando ese documento se escriba.
 	  </para> -->
+          </para>
 	</listitem>
 	
 	<listitem>
 	  <para><option>--login</option></para>
 	  <para>
-	    Hace que gnome-terminal ejecute la l&iacute;nea de &oacute;rdenes en
-	    modo login (en este modo se ejecutar&aacute;n todos los guiones
-	    de inicializaci&oacute;n).
+	    Hace que gnome-terminal ejecute la línea de órdenes en
+	    modo login (en este modo se ejecutarán todos los guiones
+	    de inicialización).
 	  </para>
 	</listitem>
 	
@@ -825,8 +825,8 @@ inmediata.
 	  <para><option>--nologin</option>
 	  </para>
 	  <para>
-	    Hace que gnome-terminal s&oacute;lo ejecute un shell, sin
-	    ejecutar ninguno de los guiones de inicializaci&oacute;n.
+	    Hace que gnome-terminal sólo ejecute un shell, sin
+	    ejecutar ninguno de los guiones de inicialización.
 	  </para>
 	</listitem>
 	
@@ -834,7 +834,7 @@ inmediata.
 	  <para><option>--noutmp</option></para>
 	  <para>
 	    Indica que este y el shell asociado no deben registrarse
-	    en la base de datos del sistema de usuarios que est&aacute;n
+	    en la base de datos del sistema de usuarios que están
 	    utilizando el ordenador.
 	  </para>
 	</listitem>
@@ -844,7 +844,7 @@ inmediata.
 	  <para>
 	    Indica que el usuario quiere que este terminal se
 	    registre en la base de datos del sistema de usuarios que
-	    est&aacute;n conectados actualmente al sistema (la base de
+	    están conectados actualmente al sistema (la base de
 	    datos utmp).  Este es el modo por defecto.
 	  </para>
 	</listitem>
@@ -866,9 +866,10 @@ inmediata.
 	<listitem>
 	  <para><option>--title <replaceable>Titulo</replaceable>,
 	      -t <replaceable>Titulo</replaceable>
-            </option></para>
+            </option>
+          </para>
 	  <para>
-	    Hace que el terminal GNOME utilice <option><replaceable>T&iacute;tulo</replaceable></option> como el t&iacute;tulo
+	    Hace que el terminal GNOME utilice <replaceable>Título</replaceable> como el título
 		de la ventana.
 	  </para>
 	</listitem>
@@ -885,36 +886,36 @@ inmediata.
 	<listitem>
 	  <para><option>--start-factory-server</option></para>
 	  <para>
-	    Se intentar&aacute; arrancar el servicio Fabrica de terminales para este terminal (ver m&aacute;s abajo).
+	    Se intentará arrancar el servicio Fabrica de terminales para este terminal (ver más abajo).
 	  </para>
 	</listitem>
 
 	<listitem>
 	  <para><option>--use-factory</option></para>
 	  <para>
-Si ya existe un proceso de terminal arrancado con la opci&oacute;n
-<option>--start-factory-server</option>, entonces la ejecuci&oacute;n del
+Si ya existe un proceso de terminal arrancado con la opción
+<option>--start-factory-server</option>, entonces la ejecución del
 comando <command>gnome-termina --use-factory</command> creara una ventana
 de terminal propiedad del actual proceso de terminal existente. En otras
-palabras, tendra el mismo efecto que elegir la opci&oacute;n
+palabras, tendra el mismo efecto que elegir la opción
 	    <link linkend="menu-file">
               <menuchoice><guimenu>Fichero</guimenu>
 		<guimenuitem>Nuevo terminal</guimenuitem></menuchoice></link>
 en el terminal existente.
 	  </para>
 	  <para> 
-Si no existe una fabrica de terminales en ejecuci&oacute;n, entonces esta opci&oacute;n
+Si no existe una fabrica de terminales en ejecución, entonces esta opción
 no tendra efecto alguno.
 	  </para>
 	</listitem>
       </itemizedlist>		
     </para>
     <para>
-      Puede utilizar m&aacute;s de una opci&oacute;n a la vez: por ejemplo, en una
-      m&aacute;quina con el navegador en modo texto <application>Lynx</application> instalado,
-      <command>gnome-terminal --title Web --command lynx</command> abrir&aacute; un
-      gnome-terminal que ejecutar&aacute; <application>Lynx</application> y que tendr&aacute; una barra de
-      t&iacute;tulo donde aparecer&aacute; "Web".
+      Puede utilizar más de una opción a la vez: por ejemplo, en una
+      máquina con el navegador en modo texto <application>Lynx</application> instalado,
+      <command>gnome-terminal --title Web --command lynx</command> abrirá un
+      gnome-terminal que ejecutará <application>Lynx</application> y que tendrá una barra de
+      título donde aparecerá "Web".
     </para>
 
   </sect1>
@@ -928,15 +929,15 @@ no tendra efecto alguno.
 	  <para><envar>TERM</envar></para>
 
 	  <para>
-	    Esta variable tiene el valor &#171;xterm&#187; por omisi&oacute;n.
+	    Esta variable tiene el valor «xterm» por omisión.
 	    Algunas implementaciones de curses y algunas
 	    aplicaciones basadas en curses puede que necesiten que
 	    el valor sea xterm-color, color-xterm o xterm-debian
 	    para que puedan ejecutarse en color.  Tal vez tenga que
 	    cambiar el valor de esta variable a uno de estos valores
-	    si su aplicaci&oacute;n no aparece en color.  Podr&aacute; hacer esto
-	    utilizando la <link linkend="Options">opci&oacute;n de la l&iacute;nea
-	      de &oacute;rdenes</link> --termname.
+	    si su aplicación no aparece en color.  Podrá hacer esto
+	    utilizando la <link linkend="Options">opción de la línea
+	      de órdenes</link> --termname.
 	  </para>
 	</listitem>
 
@@ -944,7 +945,7 @@ no tendra efecto alguno.
 	  <para><envar>COLORTERM</envar></para>
 
 	  <para>
-	    Esta variable tiene el valor &#171;gnome-terminal&#187;.  Varias
+	    Esta variable tiene el valor «gnome-terminal».  Varias
 	    aplicaciones (especialmente las que utilizan Slang)
 	    utilizan esta variable para determinar si el terminal
 	    admite colores.
@@ -956,9 +957,9 @@ no tendra efecto alguno.
 
 	  <para>
 	    Esta variable contiene el identificador de la ventana
-	    X11.  La utiliza a veces la aplicaci&oacute;n para
+	    X11.  La utiliza a veces la aplicación para
 	    modificar los contenidos de la ventana o para hacer
-	    alg&uacute;n efecto especial.
+	    algún efecto especial.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -977,37 +978,37 @@ no tendra efecto alguno.
 
     <para>		
       Michael Zucchi ha programado el widget Zvt; Miguel de Icaza y
-      Jay Painter lo mejoraron y se ocuparon su posterior depuraci&oacute;n
-      y mantenimiento.  George Lebl le a&ntilde;adi&oacute; la posibilidad de
+      Jay Painter lo mejoraron y se ocuparon su posterior depuración
+      y mantenimiento.  George Lebl le añadió la posibilidad de
       utilizar transparencias y dibujos como fondo. Michael Zucchi 
       mejoro notablemente las trasparencias y el soporte de los fondos
-      , a&ntilde;adiendo una
-      salida por pantalla m&aacute;s suave y m&aacute;s r&aacute;pida y un modo de scroll
+      , añadiendo una
+      salida por pantalla más suave y más rápida y un modo de scroll
       opcional.
     </para>
 
     <para>
       Miguel hizo el programa principal del terminal de GNOME, y
-      Erik Troan incluy&oacute; la utilizaci&oacute;n de la clase terminal (entre
+      Erik Troan incluyó la utilización de la clase terminal (entre
       otras cosas).  Jeff Garzik, Jay, Christopher Blizzard,
       Michael, Jens Lautenbacher, Tom Tromey, Tristan Tarrant,
       Jonathan Blandford y Michael Zucchi incluyeron arreglos y
-      mejoras menores.  Nat Friedman revis&oacute; la interfaz de usuario
-      para que utilizase los est&aacute;ndares GNOME.  Felix Bellaby, Tom
+      mejoras menores.  Nat Friedman revisó la interfaz de usuario
+      para que utilizase los estándares GNOME.  Felix Bellaby, Tom
       Tromey y Manish Vachharajani implementaron y mejoraron el
-      c&oacute;digo concerniente al gestor de sesiones.
+      código concerniente al gestor de sesiones.
     </para>
 
     <para>
-      Por favor env&iacute;e todos sus comentarios, sugerencias, y informes de errores
+      Por favor envíe todos sus comentarios, sugerencias, y informes de errores
       a la 
       <ulink url="http://bugs.gnome.org" type="http">
-	base de datos de seguimiento de errores de Gnome</ulink>. Podr&aacute; encontrar 
+	base de datos de seguimiento de errores de Gnome</ulink>. Podrá encontrar 
       instrucciones para enviar informes de errores directamente accesibles en
       <ulink
 	url="http://bugs.gnome.org/Reporting.html" type="http">
 	http://bugs.gnome.org/Reporting.html</ulink>. Si esta usando
-      Gnome 1.1 o posterior, podr&aacute; usar tambi&eacute;n el comando
+      Gnome 1.1 o posterior, podrá usar también el comando
       <command>bug-buddy</command> para enviar informes de errores.
     </para>
   </sect1>
