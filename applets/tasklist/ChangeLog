@@ -1,3 +1,7 @@
+2000-04-12  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c: Update for new GdkPixbuf.
+
 2000-04-04  Jacob Berkman  <jacob@helixcode.com>
 
 	* tasklist_properties.c (phelp_cb): use correct anchor

@@ -74,7 +74,7 @@ create_minimized_icon (GdkPixbuf *pixbuf)
 	w = gdk_pixbuf_get_width (pixbuf);
 	h = gdk_pixbuf_get_height (pixbuf);
 
-	minimized = gdk_pixbuf_new (gdk_pixbuf_get_format (pixbuf),
+	minimized = gdk_pixbuf_new (gdk_pixbuf_get_colorspace (pixbuf),
 				    gdk_pixbuf_get_has_alpha (pixbuf),
 				    gdk_pixbuf_get_bits_per_sample (pixbuf),
 				    w, h);
@@ -85,13 +85,13 @@ create_minimized_icon (GdkPixbuf *pixbuf)
 			guchar *src_pixel;
 			guchar *dest_pixel;
 			
-			src_pixel = pixbuf->art_pixbuf->pixels +
-				y * pixbuf->art_pixbuf->rowstride +
-				x * (pixbuf->art_pixbuf->has_alpha ? 4 : 3);
+			src_pixel = gdk_pixbuf_get_pixels (pixbuf) +
+				y * gdk_pixbuf_get_rowstride (pixbuf) +
+				x * (gdk_pixbuf_get_has_alpha (pixbuf) ? 4 : 3);
 
-			dest_pixel = minimized->art_pixbuf->pixels +
-				y * minimized->art_pixbuf->rowstride +
-				x * (minimized->art_pixbuf->has_alpha ? 4 : 3);
+			dest_pixel = gdk_pixbuf_get_pixels (minimized) +
+				y * gdk_pixbuf_get_rowstride (minimized) +
+				x * (gdk_pixbuf_get_has_alpha (minimized) ? 4 : 3);
 			dest_pixel [0] = ((src_pixel [0] - red) >> 2) + red;
 			dest_pixel [1] = ((src_pixel [1] - green) >> 2) + green;
 			dest_pixel [2] = ((src_pixel [2] - blue) >> 2) + blue;
@@ -305,16 +305,27 @@ draw_task (TasklistTask *task)
 
 		gdk_gc_set_clip_mask (area->style->black_gc, icon->mask);
 		gdk_gc_set_clip_origin (area->style->black_gc,
-					task->x + 3 + (16 - pixbuf->art_pixbuf->width) / 2,
-					task->y + (task->height - pixbuf->art_pixbuf->height) / 2);
-		
+					task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
+					task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2);
+
+		gdk_pixbuf_render_to_drawable (pixbuf,
+					       area->window,
+					       area->style->black_gc,
+					       0, 0,
+					       task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2,
+					       task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2,
+					       gdk_pixbuf_get_width (pixbuf),
+					       gdk_pixbuf_get_height (pixbuf),
+					       GDK_RGB_DITHER_NORMAL,
+					       0, 0);
+		/*
 		if (pixbuf->art_pixbuf->has_alpha) {
 			gdk_draw_rgb_32_image (area->window,
 					       area->style->black_gc,
-					       task->x + 3 + (16 - pixbuf->art_pixbuf->width) / 2, 
-					       task->y + (task->height - pixbuf->art_pixbuf->height) / 2,
-					       pixbuf->art_pixbuf->width,
-					       pixbuf->art_pixbuf->height,
+					       task->x + 3 + (16 - gdk_pixbuf_get_width (pixbuf)) / 2, 
+					       task->y + (task->height - gdk_pixbuf_get_height (pixbuf)) / 2,
+					       gdk_pixbuf_get_width (pixbuf),
+					       gdk_pixbuf_get_height (pixbuf),
 					       GDK_RGB_DITHER_NORMAL,
 					       pixbuf->art_pixbuf->pixels,
 					       pixbuf->art_pixbuf->rowstride);
@@ -330,7 +341,7 @@ draw_task (TasklistTask *task)
 					    pixbuf->art_pixbuf->pixels,
 					    pixbuf->art_pixbuf->rowstride);
 		}
-
+		*/
 		gdk_gc_set_clip_mask (area->style->black_gc, NULL);
 
 	}
