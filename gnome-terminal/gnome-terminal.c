@@ -9,8 +9,8 @@
  *
  * Other contributors: George Lebl, Jeff Garzik, Jay Painter,
  * Christopher Blizzard, Jens Lautenbacher, Tom Tromey, Tristan Tarant,
- * Jonathan Blandford, Cody Russell, Nat Friedman, Jacob Berkman, and
- * John Harper
+ * Jonathan Blandford, Cody Russell, Nat Friedman, Jacob Berkman,
+ * John Harper, and Hans-Andreas Engel
  */
 #include <config.h>
 #include <unistd.h>
@@ -116,9 +116,13 @@ struct terminal_config {
 	int update_records_and, update_records_xor;
 	const char *user_back_str, *user_fore_str;
 	int menubar_hidden; 			/* Whether to show the menubar */
-	int have_user_colors;			/* Only used for command line parsing */
 	int transparent;
+	int have_user_background;		/* Only used for command line parsing */
+#ifdef ZVT_BACKGROUND_SCROLL
+	int have_user_scroll_bg; 		/* Only used for command line parsing */
+#endif
 	int shaded;
+	int have_user_shaded;			/* Only used for command line parsing */
 	int background_pixmap;
 	int terminal_id;			/* terminal id for this terminal */
 	char *pixmap_file;
@@ -2682,25 +2686,36 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 
 /* Keys for the ARGP parser, should be negative */
 enum {
-	FONT_KEY     = -1,
-	NOLOGIN_KEY  = -2,
-	LOGIN_KEY    = -3,
-	GEOMETRY_KEY = -4,
-	COMMAND_KEY  = 'e',
-	FORE_KEY     = -6,
-	BACK_KEY     = -7,
-	CLASS_KEY    = -8,
-	DOUTMP_KEY   = -9,
-	DONOUTMP_KEY = -10,
-	DOWTMP_KEY   = -11,
-	DONOWTMP_KEY = -12,
-        TITLE_KEY    = -13,
-	TERM_KEY     = -14,
-	START_FACTORY_KEY= -15,
-	USE_FACTORY_KEY  = -16,
-	DOLASTLOG_KEY   = -17,
-	DONOLASTLOG_KEY = -18,
-	ICON_KEY        = -19,
+	FONT_KEY      	    = -1,
+	NOLOGIN_KEY   	    = -2,
+	LOGIN_KEY     	    = -3,
+	GEOMETRY_KEY  	    = -4,
+	COMMAND_KEY   	    = 'e',
+	FORE_KEY      	    = -6,
+	BACK_KEY      	    = -7,
+	CLASS_KEY     	    = -8,
+	DOUTMP_KEY    	    = -9,
+	DONOUTMP_KEY  	    = -10,
+	DOWTMP_KEY    	    = -11,
+	DONOWTMP_KEY  	    = -12,
+        TITLE_KEY     	    = -13,
+	TERM_KEY            = -14,
+	START_FACTORY_KEY   = -15,
+	USE_FACTORY_KEY     = -16,
+	DOLASTLOG_KEY       = -17,
+	DONOLASTLOG_KEY     = -18,
+	ICON_KEY            = -19,
+        PIXMAP_KEY          = -20,
+        SHADED_KEY          = -21,
+        NOSHADED_KEY        = -22,
+        TRANSPARENT_KEY     = -23,
+        SOLID_KEY           = -24,
+
+#ifdef ZVT_BACKGROUND_SCROLL
+        SCROLL_PIXMAP_KEY   = -25,
+        NOSCROLL_PIXMAP_KEY = -26,
+#endif
+
 };
 
 static struct poptOption cb_options [] = {
@@ -2732,6 +2747,29 @@ static struct poptOption cb_options [] = {
 
 	{ "background", '\0', POPT_ARG_STRING, NULL, BACK_KEY,
 	  N_("Background color"), N_("COLOR")},
+
+	{ "solid", '\0', POPT_ARG_NONE, NULL, SOLID_KEY,
+	  N_("Solid background"), N_("SOLID") },	
+
+	{ "pixmap", '\0', POPT_ARG_STRING, NULL, PIXMAP_KEY,
+	  N_("Background pixmap"), N_("PIXMAP")},
+
+#ifdef ZVT_BACKGROUND_SCROLL
+	{ "scroll", '\0', POPT_ARG_NONE, NULL, SCROLL_PIXMAP_KEY,
+	  N_("Background pixmap scrolls"), N_("SCROLL")},
+
+	{ "noscroll", '\0', POPT_ARG_NONE, NULL, NOSCROLL_PIXMAP_KEY,
+	  N_("Background pixmap does not scroll"), N_("NOSCROLL")},
+#endif
+
+	{ "shaded", '\0', POPT_ARG_NONE, NULL, SHADED_KEY,
+	  N_("Shade background"), N_("SHADED") },	
+
+	{ "noshaded", '\0', POPT_ARG_NONE, NULL, NOSHADED_KEY,
+	  N_("Do not shade background"), N_("NOSHADED") },	
+
+	{ "transparent", '\0', POPT_ARG_NONE, NULL, TRANSPARENT_KEY,
+	  N_("Transparent background"), N_("TRANSPARENT") },	
 
 	{ "utmp", '\0', POPT_ARG_NONE, NULL, DOUTMP_KEY,
 	  N_("Update utmp entry"), N_("UTMP") },
@@ -2825,13 +2863,59 @@ parse_an_arg (poptContext state,
 		  }
 	case FORE_KEY:
 		cfg->user_fore_str = arg;
-		cfg->have_user_colors = 1;
 		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
 	case BACK_KEY:
 		cfg->user_back_str = arg;
-		cfg->have_user_colors = 1;
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
+	case SOLID_KEY:
+		cfg->background_pixmap = 0;
+		cfg->transparent = 0;
+		cfg->have_user_background = 1;
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
+	case PIXMAP_KEY:
+		cfg->background_pixmap = 1;
+		cfg->transparent = 0;
+		cfg->pixmap_file = g_strdup(arg);
+		cfg->have_user_background = 1;
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
+#ifdef ZVT_BACKGROUND_SCROLL
+	case SCROLL_PIXMAP_KEY:
+		cfg->scroll_background = 1;
+		cfg->have_user_scroll_bg = 1;
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
+	case NOSCROLL_PIXMAP_KEY:
+		cfg->scroll_background = 0;
+		cfg->have_user_scroll_bg = 1;
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
+#endif
+	case SHADED_KEY:
+		cfg->shaded = 1;
+		cfg->have_user_shaded = 1;
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
+	case NOSHADED_KEY:
+		cfg->shaded = 0;
+		cfg->have_user_shaded = 1;
+		start_terminal_factory = FALSE;
+		use_terminal_factory = FALSE;
+		break;
+	case TRANSPARENT_KEY:
+		cfg->background_pixmap = 0;
+		cfg->transparent = 1;
+		cfg->have_user_background = 1;
 		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
@@ -3021,13 +3105,38 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	  default_config->window_icon = cmdline_config->window_icon;
 	}
 	
-	if (cmdline_config->have_user_colors){
-		default_config->color_set = cmdline_config->color_set;
-		default_config->palette[16] = cmdline_config->palette[16];
+	if (cmdline_config->user_back_str){
 		default_config->palette[17] = cmdline_config->palette[17];
 		default_config->color_set = COLORS_CUSTOM;
 	}
+	if (cmdline_config->user_fore_str){
+		default_config->palette[16] = cmdline_config->palette[16];
+		default_config->color_set = COLORS_CUSTOM;
+	}
+	/* disallow identical foreground and background colors */
+	if(default_config->color_set==COLORS_CUSTOM &&
+	   gdk_color_equal(&default_config->palette[16], 
+			   &default_config->palette[17])) {
+		default_config->color_set = 0;		
+	}
 
+	if (cmdline_config->have_user_background){
+		default_config->background_pixmap = cmdline_config->background_pixmap;
+		if(cmdline_config->background_pixmap) {
+			default_config->pixmap_file = cmdline_config->pixmap_file;
+		}
+		default_config->transparent = cmdline_config->transparent;
+	}
+
+#ifdef ZVT_BACKGROUND_SCROLL
+	if (cmdline_config->have_user_scroll_bg){
+		default_config->scroll_background = cmdline_config->scroll_background;
+	}
+#endif
+
+	if (cmdline_config->have_user_shaded){
+		default_config->shaded = cmdline_config->shaded;
+	}
 
 	/* if the default is different from the commandline, use the commandline */
 	default_config->invoke_as_login_shell =

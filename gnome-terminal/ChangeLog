@@ -1,3 +1,10 @@
+2000-08-04 Hans-Andreas Engel  <Hans-A.Engel@unibas.ch>
+
+        * gnome-terminal.c: Added command line options for choosing
+        the background type (solid/pixmap/transparent). Fixed behavior
+        when only one of the --foreground/--background options is used.
+        Now only the specified color is overridden.
+
 Sun Dec 17 17:42:53 2000  George Lebl <jirka@5z.com>
 
 	* gnome-terminal.c:  Make the icon selectable and savable just as the
