@@ -132,6 +132,11 @@ main(gint argc, gchar *argv[])
     
     setErrorHandlers();
 	
+    if (smClient->client_id)
+	    g_message("SM client ID is %s", smClient->client_id );
+    else
+	    g_message("Session Manager not detected");
+
     historyWindow = newHistory(historyLength, historyCallback, historyFile);
     cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free,
 			 cacheFile);
@@ -373,9 +378,6 @@ static GnomeClient
 	GnomeClient *client;
 
         client = gnome_client_new_default();
-
-	g_message("SM client ID is %s",
-		  client->client_id ? client->client_id : "NULL");
 
 	if (!client)
 		return NULL;
