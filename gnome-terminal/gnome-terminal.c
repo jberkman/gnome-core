@@ -53,7 +53,7 @@ struct terminal_config {
 	enum color_set_enum color_set;
 	char *font; 				/* Font used by the terminals */
 	int scrollback; 			/* Number of scrollbacklines */
-	char * class;
+	char *class;
 	enum scrollbar_position_enum scrollbar_position;
 	int invoke_as_login_shell; 		/* How to invoke the shell */
 	GdkColor user_fore, user_back; 		/* The custom colors */
@@ -95,7 +95,7 @@ about_terminal_cmd (void)
 {
         GtkWidget *about;
 
-        gchar *authors[] = {
+        const gchar *authors[] = {
 		"Zvt terminal widget: Michael Zucchi (zucchi@zedzone.box.net.au)",
 		"GNOME terminal: Miguel de Icaza (miguel@kernel.org)",
 		NULL
@@ -213,7 +213,7 @@ gushort rxvt_blu[] = { 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff, 0
 gushort *red, *blue, *green;
 
 static void
-set_color_scheme (ZvtTerm *term, struct terminal_config * color_cfg) 
+set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg) 
 {
 	GdkColor c;
 	
@@ -294,21 +294,21 @@ set_color_scheme (ZvtTerm *term, struct terminal_config * color_cfg)
 }
 
 static struct terminal_config * 
-load_config (char * class)
+load_config (char *class)
 {
 	char *p;
-	char * fore_color = NULL;
-	char * back_color = NULL;
- 	char * prefix = alloca(strlen(class) + 20);
-	struct terminal_config * cfg = g_malloc(sizeof(*cfg));
+	char *fore_color = NULL;
+	char *back_color = NULL;
+ 	char *prefix = alloca (strlen (class) + 20);
+	struct terminal_config *cfg = g_malloc (sizeof (*cfg));
 
 	/* It's very odd that these are here */
 	cfg->font = NULL;
 	cfg->invoke_as_login_shell = 0;
-	cfg->class = g_strdup(class);
+	cfg->class = g_strdup (class);
 
-	sprintf(prefix, "/Terminal/%s/", class);
-	gnome_config_push_prefix(prefix);
+	sprintf (prefix, "/Terminal/%s/", class);
+	gnome_config_push_prefix (prefix);
 
 	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
 	cfg->font    = gnome_config_get_string ("font=" DEFAULT_FONT);
@@ -347,17 +347,19 @@ load_config (char * class)
 		}
 	}
 
-	gnome_config_pop_prefix();
+	gnome_config_pop_prefix ();
 
 	return cfg;
 }
 
-static struct terminal_config * gather_changes (ZvtTerm *term) {
+static struct terminal_config *
+gather_changes (ZvtTerm *term)
+{
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
 	int r, g, b;
-	struct terminal_config * newcfg = g_malloc(sizeof(*newcfg));
+	struct terminal_config *newcfg = g_malloc (sizeof (*newcfg));
 
-	memset(newcfg, 0, sizeof(*newcfg));
+	memset (newcfg, 0, sizeof (*newcfg));
 
 	newcfg->blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
 	newcfg->menubar_hidden = GTK_TOGGLE_BUTTON (prefs->menubar_checkbox)->active;
@@ -370,20 +372,20 @@ static struct terminal_config * gather_changes (ZvtTerm *term) {
 	g_free (newcfg->font);
 	newcfg->font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
 
-	if (!strcmp(gtk_entry_get_text(GTK_ENTRY (GTK_COMBO(prefs->class_box)->entry)),
+	if (!strcmp (gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (prefs->class_box)->entry)),
 			_("Default")))
-		newcfg->class = g_strdup(_("Config"));
+		newcfg->class = g_strdup (_("Config"));
 	else
-		newcfg->class = g_strconcat("Class-", gtk_entry_get_text(GTK_ENTRY (GTK_COMBO(prefs->class_box)->entry)), NULL);
+		newcfg->class = g_strconcat ("Class-", gtk_entry_get_text (GTK_ENTRY (GTK_COMBO (prefs->class_box)->entry)), NULL);
 
 	newcfg->color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
 	newcfg->color_set  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->def_fore_back));
 
-	gnome_color_picker_get_i16 (GNOME_COLOR_PICKER(prefs->fore_cs), &r, &g, &b, NULL);
+	gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (prefs->fore_cs), &r, &g, &b, NULL);
 	newcfg->user_fore.red   = r;
 	newcfg->user_fore.green = g;
 	newcfg->user_fore.blue  = b;
-	gnome_color_picker_get_i16 (GNOME_COLOR_PICKER(prefs->back_cs), &r, &g, &b, NULL);
+	gnome_color_picker_get_i16 (GNOME_COLOR_PICKER (prefs->back_cs), &r, &g, &b, NULL);
 	newcfg->user_back.red   = r;
 	newcfg->user_back.green = g;
 	newcfg->user_back.blue  = b;
@@ -392,9 +394,9 @@ static struct terminal_config * gather_changes (ZvtTerm *term) {
 }
 
 static struct terminal_config *
-terminal_config_dup(struct terminal_config * cfg)
+terminal_config_dup (struct terminal_config *cfg)
 {
-	struct terminal_config * n;
+	struct terminal_config *n;
 
 	n = g_malloc (sizeof (*n));
 	*n = *cfg;
@@ -405,7 +407,7 @@ terminal_config_dup(struct terminal_config * cfg)
 }
 
 static void
-terminal_config_free (struct terminal_config * cfg)
+terminal_config_free (struct terminal_config *cfg)
 {
 	g_free (cfg->class);
 	g_free (cfg->font);
@@ -413,19 +415,19 @@ terminal_config_free (struct terminal_config * cfg)
 }
 
 /* prototype */
-static void switch_terminal_class (ZvtTerm *term, struct terminal_config * newcfg);
+static void switch_terminal_class (ZvtTerm *term, struct terminal_config *newcfg);
 
 static int
-apply_changes (ZvtTerm *term, struct terminal_config * newcfg)
+apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 {
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
 	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
-	struct terminal_config * cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	terminal_config_free(cfg);
-	cfg = terminal_config_dup(newcfg);
-	gtk_object_set_data(GTK_OBJECT(term), "config", cfg);
+	terminal_config_free (cfg);
+	cfg = terminal_config_dup (newcfg);
+	gtk_object_set_data (GTK_OBJECT (term), "config", cfg);
 
 	zvt_term_set_font_name (term, cfg->font);
 	zvt_term_set_blink (term, cfg->blink);
@@ -453,38 +455,38 @@ apply_changes (ZvtTerm *term, struct terminal_config * newcfg)
 }
 
 static void
-apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term) {
-	struct terminal_config * newcfg, * cfg;
+apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term){
+	struct terminal_config *newcfg, *cfg;
 
 	if (page != -1) return;
 
-	cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 	newcfg = gather_changes (term);
 
-	if (strcmp(cfg->class, newcfg->class)) {
-		switch_terminal_class(term, newcfg);
+	if (strcmp (cfg->class, newcfg->class)){
+		switch_terminal_class (term, newcfg);
 	} else {
-		apply_changes(term, newcfg);
-		terminal_config_free(newcfg);
+		apply_changes (term, newcfg);
+		terminal_config_free (newcfg);
 	}
 }
 
 static void
-switch_terminal_cb (GnomeMessageBox * mbox, gint button, void * term)
+switch_terminal_cb (GnomeMessageBox *mbox, gint button, void *term)
 {
-	struct terminal_config * newcfg, * loaded_cfg, * cfg;
+	struct terminal_config *newcfg, *loaded_cfg, *cfg;
 
 	newcfg = gtk_object_get_data (GTK_OBJECT (term), "newcfg");
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	if (button == 0) {
+	if (button == 0){
 		/* yes */
-		loaded_cfg = load_config(newcfg->class);
-		apply_changes(term, loaded_cfg);
-		terminal_config_free(loaded_cfg);
-	} else if (button == 1) {
+		loaded_cfg = load_config (newcfg->class);
+		apply_changes (term, loaded_cfg);
+		terminal_config_free (loaded_cfg);
+	} else if (button == 1){
 		/* no */
-		apply_changes(term, newcfg);
+		apply_changes (term, newcfg);
 	} else {
 		/* cancel -- don't do anything about the 'apply' at all */
 	}
@@ -497,39 +499,39 @@ switch_terminal_closed (GtkWidget *w, void *data)
 	struct terminal_config *newcfg;
 
 	newcfg = gtk_object_get_data (GTK_OBJECT (term), "newcfg");
-	terminal_config_free(newcfg);
+	terminal_config_free (newcfg);
 	gtk_object_set_data (GTK_OBJECT (term), "newcfg", NULL);
 }
 
 static void
-switch_terminal_class (ZvtTerm *term, struct terminal_config * newcfg) 
+switch_terminal_class (ZvtTerm *term, struct terminal_config *newcfg) 
 {
-	GtkWidget * mbox;
+	GtkWidget *mbox;
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
 
-	gtk_object_set_data(GTK_OBJECT(term), "newcfg", newcfg);
+	gtk_object_set_data (GTK_OBJECT (term), "newcfg", newcfg);
 
-	if (!prefs->changed) {
+	if (!prefs->changed){
 	    /* just do it! */
 	    switch_terminal_cb (NULL, 0, term);
-	    free(newcfg);
+	    free (newcfg);
 	    gtk_object_set_data (GTK_OBJECT (term), "newcfg", NULL);
 	    return;
 	}
 
-	mbox = gnome_message_box_new(_("You have switched the class of this window. Do you\n "
+	mbox = gnome_message_box_new (_("You have switched the class of this window. Do you\n "
 				       "want to reconfigure this window to match the default\n"
 				       "configuration of the new class?"),
 				 GNOME_MESSAGE_BOX_QUESTION,
                                  GNOME_STOCK_BUTTON_YES,
                                  GNOME_STOCK_BUTTON_NO, GNOME_STOCK_BUTTON_CANCEL, NULL);
 
-	gtk_signal_connect(GTK_OBJECT(mbox), "clicked", GTK_SIGNAL_FUNC(switch_terminal_cb),
+	gtk_signal_connect (GTK_OBJECT (mbox), "clicked", GTK_SIGNAL_FUNC (switch_terminal_cb),
 			   term);
-	gtk_signal_connect(GTK_OBJECT(mbox), "destroy", GTK_SIGNAL_FUNC(switch_terminal_closed),
+	gtk_signal_connect (GTK_OBJECT (mbox), "destroy", GTK_SIGNAL_FUNC (switch_terminal_closed),
 			   term);
 
-	gtk_widget_show(mbox);
+	gtk_widget_show (mbox);
 
 }
 
@@ -560,14 +562,15 @@ window_closed_event (GtkWidget *w, GdkEvent *event, void *data)
 static void
 prop_changed (GtkWidget *w, preferences_t *prefs)
 {
-	if (w != GTK_WIDGET (GTK_COMBO(prefs->class_box)->entry)) 
+	if (w != GTK_WIDGET (GTK_COMBO (prefs->class_box)->entry)) 
 		prefs->changed = 1;
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prefs->prop_win));
 }
 
-static void color_changed(GtkWidget * w, int r, int g, int b, int a,
-			  preferences_t * prefs) {
-	prop_changed(w, prefs);
+static void
+color_changed (GtkWidget *w, int r, int g, int b, int a, preferences_t *prefs)
+{
+	prop_changed (w, prefs);
 }
 
 static void
@@ -590,7 +593,7 @@ typedef struct {
 } lambda_t;
 
 static void
-set_active_data(GtkWidget * omenu, int idx, GtkWidget * sens1, GtkWidget * sens2)
+set_active_data (GtkWidget *omenu, int idx, GtkWidget *sens1, GtkWidget *sens2)
 {
 	gtk_object_set_user_data (GTK_OBJECT (omenu), (void *) idx);
 
@@ -602,7 +605,7 @@ set_active_data(GtkWidget * omenu, int idx, GtkWidget * sens1, GtkWidget * sens2
 static void
 set_active (GtkWidget *widget, lambda_t *t)
 {
-	set_active_data(t->menu, t->idx, t->data1, t->data2);
+	set_active_data (t->menu, t->idx, t->data1, t->data2);
 	t->prefs->changed = 1;
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (t->box));
 }
@@ -614,7 +617,8 @@ free_lambda (GtkWidget *w, void *l)
 }
 		    
 static GtkWidget *
-create_option_menu_data (GnomePropertyBox *box, preferences_t * prefs, char **menu_list, int item, GtkSignalFunc func, void *data1, void *data2)
+create_option_menu_data (GnomePropertyBox *box, preferences_t *prefs, char **menu_list, int item,
+			 GtkSignalFunc func, void *data1, void *data2)
 {
 	GtkWidget *omenu;
 	GtkWidget *menu;
@@ -650,7 +654,7 @@ create_option_menu_data (GnomePropertyBox *box, preferences_t * prefs, char **me
 }
 
 static GtkWidget *
-create_option_menu (GnomePropertyBox *box, preferences_t * prefs, char **menu_list, int item, GtkSignalFunc func)
+create_option_menu (GnomePropertyBox *box, preferences_t *prefs, char **menu_list, int item, GtkSignalFunc func)
 {
 	return create_option_menu_data (box, prefs, menu_list, item, func, NULL, NULL);
 }
@@ -706,17 +710,17 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	GtkWidget *l, *table, *o, *m, *b1, *b2;
 	preferences_t *prefs;
 	GtkAdjustment *adj;
-	GList * class_list = NULL;
-	void * iter;
-	char * some_class;
-	struct terminal_config * cfg;
+	GList *class_list = NULL;
+	void *iter;
+	char *some_class;
+	struct terminal_config *cfg;
 
 	/* Is a property window for this terminal already running? */
 	if (gtk_object_get_data (GTK_OBJECT (term), "prefs") ||
 	    gtk_object_get_data (GTK_OBJECT (term), "newcfg"))
 		return;
 
-	cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
 	prefs = g_new0 (preferences_t, 1);
 	prefs->changed = 0;
@@ -752,24 +756,24 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	prefs->class_box = gtk_combo_new ();
-	iter = gnome_config_init_iterator_sections("/Terminal");
-	while (gnome_config_iterator_next(iter, &some_class, NULL)) {
-		if (!strcmp(some_class, "Config") || !strncmp(some_class, "Class-", 6)) {
-		    if (!strcmp(some_class, "Config")) 
+	iter = gnome_config_init_iterator_sections ("/Terminal");
+	while (gnome_config_iterator_next (iter, &some_class, NULL)){
+		if (!strcmp (some_class, "Config") || !strncmp (some_class, "Class-", 6)){
+		    if (!strcmp (some_class, "Config")) 
 			    some_class = _("Default");
 		    else
 			    some_class += 6;
 
-		    class_list = g_list_append(class_list, some_class);
+		    class_list = g_list_append (class_list, some_class);
 		}
 	}
 	gtk_combo_set_popdown_strings (GTK_COMBO (prefs->class_box), class_list);
-	if (!strcmp(cfg->class, "Config")) 
+	if (!strcmp (cfg->class, "Config")) 
 		some_class = _("Default");
 	else
 		some_class = cfg->class + 6;
-	gtk_entry_set_text (GTK_ENTRY (GTK_COMBO(prefs->class_box)->entry), some_class);
-	gtk_signal_connect (GTK_OBJECT (GTK_COMBO(prefs->class_box)->entry), "changed",
+	gtk_entry_set_text (GTK_ENTRY (GTK_COMBO (prefs->class_box)->entry), some_class);
+	gtk_signal_connect (GTK_OBJECT (GTK_COMBO (prefs->class_box)->entry), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->class_box,
 			  2, 3, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
@@ -813,7 +817,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), b1 = prefs->fore_cs,
 			  2, 3, FORECOLOR_ROW, FORECOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
 	gtk_signal_connect (GTK_OBJECT (b1), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->fore_cs);
-	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER(prefs->fore_cs), cfg->user_fore.red, cfg->user_fore.green, cfg->user_fore.blue, 0);
+	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->fore_cs), cfg->user_fore.red, cfg->user_fore.green, cfg->user_fore.blue, 0);
 	
 	l = aligned_label (_("Background color:"));
 	gtk_table_attach (GTK_TABLE (table), l,
@@ -822,9 +826,9 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), b2 = prefs->back_cs,
 			  2, 3, BACKCOLOR_ROW, BACKCOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
 	gtk_signal_connect (GTK_OBJECT (b2), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->back_cs);
-	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER(prefs->back_cs), cfg->user_back.red, cfg->user_back.green, cfg->user_back.blue, 0);
-	gtk_signal_connect(GTK_OBJECT(prefs->fore_cs), "color_set", GTK_SIGNAL_FUNC(color_changed), prefs);
-	gtk_signal_connect(GTK_OBJECT(prefs->back_cs), "color_set", GTK_SIGNAL_FUNC(color_changed), prefs);
+	gnome_color_picker_set_i16 (GNOME_COLOR_PICKER (prefs->back_cs), cfg->user_back.red, cfg->user_back.green, cfg->user_back.blue, 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->fore_cs), "color_set", GTK_SIGNAL_FUNC (color_changed), prefs);
+	gtk_signal_connect (GTK_OBJECT (prefs->back_cs), "color_set", GTK_SIGNAL_FUNC (color_changed), prefs);
 
 	/* default foreground/backgorund selector */
 	l = aligned_label (_("Colors:"));
@@ -833,7 +837,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 							fore_back_table, cfg->color_set, GTK_SIGNAL_FUNC (set_active),
 							b1, b2);
-	set_active_data(prefs->def_fore_back, cfg->color_set, b2, b2);
+	set_active_data (prefs->def_fore_back, cfg->color_set, b2, b2);
 	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
 			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
@@ -905,7 +909,7 @@ color_cmd (void)
 
 	c = gtk_color_selection_dialog_new (_("Color selector"));
 	gtk_signal_connect (GTK_OBJECT (GTK_COLOR_SELECTION_DIALOG (c)->ok_button),
-			    "clicked", GTK_SIGNAL_FUNC(color_ok), c);
+			    "clicked", GTK_SIGNAL_FUNC (color_ok), c);
 	gtk_widget_hide (GTK_COLOR_SELECTION_DIALOG (c)->cancel_button);
 	gtk_widget_hide (GTK_COLOR_SELECTION_DIALOG (c)->help_button);
 	gtk_widget_show (c);
@@ -921,12 +925,12 @@ get_color_string (GdkColor c)
 }
 
 static void
-save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config * cfg)
+save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config *cfg)
 {
- 	char * prefix = alloca(strlen(cfg->class) + 20);
+ 	char *prefix = alloca (strlen (cfg->class) + 20);
 
-	sprintf(prefix, "/Terminal/%s/", cfg->class);
-	gnome_config_push_prefix(prefix);
+	sprintf (prefix, "/Terminal/%s/", cfg->class);
+	gnome_config_push_prefix (prefix);
 
 	if (cfg->font)
 		gnome_config_set_string ("font", cfg->font);
@@ -945,22 +949,25 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config * cfg
 	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
 	gnome_config_sync ();
 
-	gnome_config_pop_prefix();
+	gnome_config_pop_prefix ();
 }
 
 static void
-save_preferences_cmd (GtkWidget *widget, ZvtTerm *term) {
-	struct terminal_config * cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
+{
+	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	save_preferences(widget, term, cfg);
+	save_preferences (widget, term, cfg);
 }
 
 static void
 show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
-	struct terminal_config * cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	GnomeApp *app;
+	struct terminal_config *cfg;
 
+	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 	cfg->menubar_hidden = 0;
 	gtk_widget_show (app->menubar);
 }
@@ -968,26 +975,34 @@ show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 static void
 hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
-	struct terminal_config * cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	GnomeApp *app;
+	struct terminal_config *cfg;
 
+	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 	cfg->menubar_hidden = 1;
 	gtk_widget_hide (app->menubar);
 }
 
-static GnomeUIInfo gnome_terminal_terminal_menu [] = {
-	GNOMEUIINFO_ITEM_NONE (N_("_New terminal"),      NULL, new_terminal),
-	GNOMEUIINFO_ITEM_NONE (N_("_Save preferences"),  NULL, save_preferences_cmd),
-	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd),
-	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"),      NULL, hide_menu_cmd),
-	GNOMEUIINFO_ITEM_STOCK(N_("_Properties..."),     NULL, preferences_cmd, GNOME_STOCK_MENU_PROP),
-	GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd),
-	GNOMEUIINFO_END
-};
+#define DEFINE_TERMINAL_MENU(name,text,cmd) \
+\
+static GnomeUIInfo name [] = {								\
+	GNOMEUIINFO_ITEM_NONE (N_("_New terminal"),      NULL, new_terminal),		\
+	GNOMEUIINFO_ITEM_NONE (N_("_Save preferences"),  NULL, save_preferences_cmd),	\
+	GNOMEUIINFO_SEPARATOR,								\
+	GNOMEUIINFO_ITEM_NONE (text,                     NULL, cmd),			\
+	GNOMEUIINFO_ITEM_STOCK (N_("_Properties..."),    NULL, preferences_cmd, GNOME_STOCK_MENU_PROP), \
+	GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd),	      	\
+	GNOMEUIINFO_SEPARATOR, \
+	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd), 	\
+	GNOMEUIINFO_END \
+}
 
+DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_hide_menubar, N_("_Hide menubar"), hide_menu_cmd);
+DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_show_menubar, N_("_Show menubar"), show_menu_cmd);
+	
 static GnomeUIInfo gnome_terminal_about_menu [] = {
-	GNOMEUIINFO_ITEM_STOCK(N_("_About..."), NULL,
+	GNOMEUIINFO_ITEM_STOCK (N_("_About..."), NULL,
 			       about_terminal_cmd, GNOME_STOCK_MENU_ABOUT),
 	GNOMEUIINFO_SEPARATOR,
 	GNOMEUIINFO_HELP ("_Terminal"),
@@ -995,7 +1010,7 @@ static GnomeUIInfo gnome_terminal_about_menu [] = {
 };
 
 static GnomeUIInfo gnome_terminal_menu [] = {
-	GNOMEUIINFO_SUBTREE (N_("Terminal"), &gnome_terminal_terminal_menu),
+	GNOMEUIINFO_SUBTREE (N_("Terminal"), &gnome_terminal_terminal_menu_hide_menubar),
 	GNOMEUIINFO_SUBTREE (N_("Help"),     &gnome_terminal_about_menu),
 	GNOMEUIINFO_END
 };
@@ -1009,7 +1024,7 @@ set_shell_to (char *the_shell, char **shell, char **name, int isLogin)
 	only_name = strrchr (the_shell, '/');
 	only_name++;
 	
-	if (isLogin) {
+	if (isLogin){
 		len = strlen (only_name);
 		
 		*name  = g_malloc (len + 2);
@@ -1046,9 +1061,9 @@ drop_data_available (void *widget, GdkEventDropDataAvailable *event, gpointer da
 	char *p = event->data;
 	int count = event->data_numbytes;
 	int len, col, row, the_char;
-	struct terminal_config * cfg;
+	struct terminal_config *cfg;
 
-	cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
 	if (strcmp (event->data_type, "text/plain") == 0 ||
 	    strcmp (event->data_type, "url:ALL") == 0){
@@ -1116,46 +1131,56 @@ configure_term_dnd (ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (drop_data_available), term);
 }
 
+/*
+ * Performs signal connection as appropriate for interpreters or native bindings
+ *
+ * ALl of this nonsense is due to the limited features of gnome_app_fill_menus
+ *
+ */
+static void
+do_ui_signal_connect (GnomeUIInfo *uiinfo, gchar *signal_name, GnomeUIBuilderData *uibdata)
+{
+	gtk_object_set_data (GTK_OBJECT (uiinfo->widget),
+			     GNOMEUIINFO_KEY_UIDATA,
+			     uiinfo->user_data);
+
+	gtk_object_set_data (GTK_OBJECT (uiinfo->widget),
+			     GNOMEUIINFO_KEY_UIBDATA,
+			     uibdata->data);
+
+	gtk_signal_connect (GTK_OBJECT (uiinfo->widget), signal_name,
+			    uiinfo->moreinfo,
+			    uibdata->data ? uibdata->data : uiinfo->user_data);
+}
+
 static int
 button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 {
-	GtkWidget * menu;
-	GtkWidget * menu_item;
-	GnomeUIInfo * item;
-	struct terminal_config * cfg;
-	char label[50];
-	char * src, * dst;
+	GtkWidget *menu;
+	struct terminal_config *cfg;
 
-	cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
 	/* FIXME: this should popup a menu instead */
 	if (event->state & GDK_CONTROL_MASK && event->button == 3){
+		GnomeUIInfo *uiinfo;
+		GnomeUIBuilderData uib;
 		menu = gtk_menu_new (); 
 
-		for (item = gnome_terminal_terminal_menu; item->type != GNOME_APP_UI_ENDOFINFO;
-		     item++) {
-			if (item->type != GNOME_APP_UI_ITEM) continue;
+		if (cfg->menubar_hidden)
+			uiinfo = gnome_terminal_terminal_menu_show_menubar;
+		else
+			uiinfo = gnome_terminal_terminal_menu_hide_menubar;
 
-			src = item->label, dst = label;
-			while (*src) {
-			    if (*src != '_') *dst++ = *src;
-			    src++;
-			}
-			*dst = '\0';
-
-			if (!strcmp(label, "Hide menubar") && cfg->menubar_hidden) {
-				menu_item = gtk_menu_item_new_with_label(_("Show menubar"));
-				gtk_signal_connect (GTK_OBJECT (menu_item), "activate", 
-						    show_menu_cmd, term);
-			} else {
-				menu_item = gtk_menu_item_new_with_label(label);
-				gtk_signal_connect (GTK_OBJECT (menu_item), "activate", 
-						    item->moreinfo, term);
-			}
-
-			gtk_menu_append(GTK_MENU(menu), menu_item);
-			gtk_widget_show(menu_item);
-		}
+		/* All of this magic is required just to pass a *data to the menu entries */
+		uib.connect_func = do_ui_signal_connect;
+		uib.data = term;
+		uib.is_interp = FALSE;
+		uib.relay_func = NULL;
+		uib.destroy_func = NULL;
+		
+		gtk_object_set_user_data (GTK_OBJECT (menu), term);
+		gnome_app_fill_menu_custom (GTK_MENU_SHELL (menu), uiinfo, &uib, NULL, FALSE, TRUE, 0);
 
 		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, 0, NULL, 3, event->time);
 
@@ -1166,7 +1191,7 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 }
 
 static void
-new_terminal_cmd (char **cmd, struct terminal_config * cfg_in)
+new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 {
 	GtkWidget *app, *hbox, *scrollbar;
 	ZvtTerm   *term;
@@ -1175,7 +1200,7 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfg_in)
 	char buffer [40];
 	char *shell, *name;
 	int i = 0;
-	struct terminal_config * cfg;
+	struct terminal_config *cfg;
 
 	/* FIXME: is seems like a lot of this stuff should be done by apply_changes instead */
 
@@ -1200,7 +1225,7 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfg_in)
 			if (strncmp (*p, "TERM=", 5) == 0)
 				env_copy [i++] = "TERM=xterm";
 			else if ((strncmp (*p, "COLUMNS=", 8) == 0)
-				 || (strncmp (*p, "LINES=", 6) == 0)) {
+				 || (strncmp (*p, "LINES=", 6) == 0)){
 				/* nothing: do not copy those */
 			} else
 				env_copy [i++] = *p;
@@ -1240,8 +1265,8 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfg_in)
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
 
-	gtk_signal_connect(GTK_OBJECT(app), "delete_event",
-			   GTK_SIGNAL_FUNC(close_app), term);
+	gtk_signal_connect (GTK_OBJECT (app), "delete_event",
+			   GTK_SIGNAL_FUNC (close_app), term);
 
 	gtk_signal_connect (GTK_OBJECT (term), "button_press_event",
 			    GTK_SIGNAL_FUNC (button_press), term);
@@ -1300,7 +1325,7 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfg_in)
 	case 0: {
 		sprintf (buffer, "WINDOWID=%d",(int) ((GdkWindowPrivate *)app->window)->xwindow);
 		env_copy [winid_pos] = buffer;
-		if (cmd) {
+		if (cmd){
 			environ = env_copy;
 			execvp (cmd[0], cmd);
 		} else
@@ -1316,9 +1341,9 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfg_in)
 static void
 new_terminal (GtkWidget *widget, ZvtTerm *term)
 {
-	struct terminal_config * cfg;
+	struct terminal_config *cfg;
 
-	cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
+	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
 	new_terminal_cmd (NULL, cfg);
 }
@@ -1335,7 +1360,7 @@ load_session (GnomeClient *client)
 	if (def || ! num_terms)
 		return FALSE;
 
-	for (i = 0; i < num_terms; ++i) {
+	for (i = 0; i < num_terms; ++i){
 		char buffer[50], *geom, **argv;
 		int argc;
 
@@ -1365,7 +1390,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	      gint is_shutdown, GnomeInteractStyle interact_style,
 	      gint is_fast, gpointer client_data)
 {
-	if (gnome_client_get_id (client)) {
+	if (gnome_client_get_id (client)){
 		char *section = gnome_client_get_config_prefix (client);
 		char *args[11];
 		int argc = 0, i;
@@ -1375,7 +1400,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		gnome_config_push_prefix (section);
 
 		i = 0;
-		for (list = terminals; list != NULL; list = list->next) {
+		for (list = terminals; list != NULL; list = list->next){
 			
 			/* FIXME: we really ought to be able to set
 			 * the font and other information on a
@@ -1392,7 +1417,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 			gnome_config_set_string (buffer, geom);
 			g_free (geom);
 
-			if (top == initial_term) {
+			if (top == initial_term){
 				int n;
 				for (n = 0; initial_command[n]; ++n)
 					;
@@ -1528,9 +1553,9 @@ int
 main (int argc, char *argv [], char **environ)
 {
 	GnomeClient *client, *clone;
-	char * program_name;
-	char * class;
-	struct terminal_config * default_config, * cmdline_config;
+	char *program_name;
+	char *class;
+	struct terminal_config *default_config, *cmdline_config;
 
 	argp_program_version = VERSION;
 
@@ -1539,31 +1564,31 @@ main (int argc, char *argv [], char **environ)
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 
-	program_name = strrchr(argv[0], '/');
+	program_name = strrchr (argv[0], '/');
 	if (!program_name) 
 		program_name = argv[0];
 	else
 		program_name++;
 
-	if (getenv("GNOME_TERMINAL_CLASS"))
-		class = g_strconcat("Class-", getenv("GNOME_TERMINAL_CLASS"), 
+	if (getenv ("GNOME_TERMINAL_CLASS"))
+		class = g_strconcat ("Class-", getenv ("GNOME_TERMINAL_CLASS"), 
 				    NULL);
-	else if (strcmp(program_name, "gnome-terminal"))
-		class = g_strconcat("Class-", program_name, NULL);
+	else if (strcmp (program_name, "gnome-terminal"))
+		class = g_strconcat ("Class-", program_name, NULL);
 	else
-		class = g_strdup("Config");
+		class = g_strdup ("Config");
 	
-	cmdline_config = g_malloc(sizeof(*cmdline_config));
-	memset(cmdline_config, 0, sizeof(cmdline_config));
+	cmdline_config = g_malloc (sizeof (*cmdline_config));
+	memset (cmdline_config, 0, sizeof (cmdline_config));
 	gnome_init_with_data ("Terminal", &parser, argc, argv, 0, 
 			      NULL, cmdline_config);
 
-	if (cmdline_config->class) {
-		free(class);
-		class = g_strdup(cmdline_config->class);
+	if (cmdline_config->class){
+		free (class);
+		class = g_strdup (cmdline_config->class);
 	}
 
-	if (discard_section) {
+	if (discard_section){
 		gnome_config_clean_file (discard_section);
 		return 0;
 	}
@@ -1575,27 +1600,27 @@ main (int argc, char *argv [], char **environ)
 			    GTK_SIGNAL_FUNC (die), NULL);
 
 	default_config = load_config (class);
-	g_free(class);
+	g_free (class);
 
 	/* now to override the defaults */
-	if (cmdline_config->font) {
-	    	free(default_config->font);
-		default_config->font = g_strdup(cmdline_config->font);
+	if (cmdline_config->font){
+	    	free (default_config->font);
+		default_config->font = g_strdup (cmdline_config->font);
 	}
 
-	if (cmdline_config->have_user_colors) {
+	if (cmdline_config->have_user_colors){
 		default_config->color_set = cmdline_config->color_set;
 		default_config->user_fore = cmdline_config->user_fore;
 		default_config->user_back = cmdline_config->user_back;
 	}
 
-	terminal_config_free(cmdline_config);
+	terminal_config_free (cmdline_config);
 
 	clone = gnome_cloned_client ();
 	if (! clone || ! load_session (clone))
 		new_terminal_cmd (initial_command, default_config);
 
-	terminal_config_free(default_config);
+	terminal_config_free (default_config);
 
 	gtk_main ();
 	return 0;
