@@ -192,7 +192,7 @@ mail_check_timeout (void *data)
 }
 
 static void
-mail_destroy (GtkWidget *widget, void *data)
+mail_destroy (void)
 {
 	gtk_timeout_remove (mail_timeout);
 }
@@ -212,10 +212,10 @@ static GtkWidget *
 create_mail_widgets (GtkWidget *window)
 {
 	char *fname = mail_animation_filename ();
-	mail_check_timeout (0);
+
+	check_mail_file_status ();
 	
 	mail_timeout = gtk_timeout_add (10000, mail_check_timeout, 0);
-	gtk_signal_connect (GTK_OBJECT (label), "destroy", (GtkSignalFunc) mail_destroy, 0);
 	
 	if (fname && WANT_BITMAPS (report_mail_mode)){
 		int width, height;
@@ -284,6 +284,7 @@ applet_cmd_func(AppletCommand *cmd)
 			break;
 
 		case APPLET_CMD_DESTROY_MODULE:
+			mail_destroy ();
 			break;
 
 		case APPLET_CMD_GET_DEFAULT_PARAMS:
