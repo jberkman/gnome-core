@@ -271,7 +271,7 @@ gnome_helpwin_goto(GnomeHelpWin *help, const char *filename)
 
 	str = NULL;
 	while ((!feof(f)) && (!errno)) {
-		if (!fgets(s, 1023, f))
+		if (!fgets(s, sizeof (s)-1, f))
 		    continue;
 		if (str)
 		    str = g_realloc(str, strlen(str) + strlen(s) + 1);

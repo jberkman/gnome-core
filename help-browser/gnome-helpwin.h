@@ -29,12 +29,12 @@
 BEGIN_GNOME_DECLS
 
 /* widget related macros and structures */
-#define GNOME_HELPWIN(obj) GTK_CHECK_CAST(obj, gnome_helpwin_get_type(), GnomeHelpWin)
+#define GNOME_HELPWIN(obj)         GTK_CHECK_CAST(obj, gnome_helpwin_get_type(), GnomeHelpWin)
 #define GNOME_HELPWIN_CLASS(klass) GTK_CHECK_CAST_CLASS(klass, gnome_helpwin_get_type(), GnomeHelpWinClass)
 #define GNOME_HELPWIN_IS_HELP(obj) GTK_CHECK_TYPE(obj, gnome_helpwin_get_type())
 
-typedef struct _GnomeHelpWin GnomeHelpWin;
-typedef struct _GnomeHelpWinClass GnomeHelpWinClass;
+typedef struct _GnomeHelpWin       GnomeHelpWin;
+typedef struct _GnomeHelpWinClass  GnomeHelpWinClass;
 
 struct _GnomeHelpWin {
     GtkXmHTML parent;
@@ -50,18 +50,19 @@ struct _GnomeHelpWinClass {
 
 
 
-guint gnome_helpwin_get_type(void);
-GtkWidget *gnome_helpwin_new(void);
-guint gnome_helpwin_close(GnomeHelpWin *help);
+guint       gnome_helpwin_get_type       (void);
+GtkWidget  *gnome_helpwin_new            (void);
+guint       gnome_helpwin_close          (GnomeHelpWin *help);
 
 /* load file straight into the HTML widget */
-void gnome_helpwin_goto(GnomeHelpWin *help,  const char *filename);
+void        gnome_helpwin_goto           (GnomeHelpWin *help,  const char *filename);
 
-void gnome_helpwin_jump_to_anchor( GnomeHelpWin *w, gchar *a );
-void gnome_helpwin_jump_to_line( GnomeHelpWin *w, gint line );
-gint gnome_helpwin_get_line( GnomeHelpWin *w );
+void   	    gnome_helpwin_jump_to_anchor (GnomeHelpWin *w, gchar *a);
+void   	    gnome_helpwin_jump_to_line   (GnomeHelpWin *w, gint line);
+gint   	    gnome_helpwin_get_line       (GnomeHelpWin *w);
 END_GNOME_DECLS
 
 
 #endif /* __GNOME_HELPWIN_H__ */
+
 
