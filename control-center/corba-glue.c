@@ -120,6 +120,7 @@ server_state_changed(PortableServer_Servant servant, CORBA_long id, CORBA_boolea
 {
         node_data *nd = find_node_by_id (id);
         GtkStyle *style;
+        g_print ("server side state_changed\n");
         if (nd == NULL){
                 g_print ("er, couldn't find node %d\n",id);
                 return;

@@ -1,5 +1,7 @@
 1998-09-15    <jrb@redhat.com>
 
+	* capplet-widget.c (_capplet_widget_server_ok): see below
+
 	* capplet-manager.c (revert_button_callback): Now revert
 	desensitizes Try and Revert buttons
 

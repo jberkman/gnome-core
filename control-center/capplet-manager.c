@@ -139,6 +139,7 @@ launch_capplet (node_data *data)
 void try_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
+        g_print ("in try callback\n");
         gtk_widget_set_sensitive (nd->try_button, FALSE);
 
         GNOME_capplet_try (nd->capplet,nd->id, &ev);
@@ -146,9 +147,9 @@ void try_button_callback(GtkWidget *widget, gpointer data)
 void revert_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
+        GNOME_capplet_revert (nd->capplet,nd->id, &ev);
         gtk_widget_set_sensitive (nd->try_button, FALSE);
         gtk_widget_set_sensitive (nd->revert_button, FALSE);
-        GNOME_capplet_revert (nd->capplet,nd->id, &ev);
 }
 void ok_button_callback(GtkWidget *widget, gpointer data)
 {
