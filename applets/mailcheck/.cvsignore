@@ -1,7 +1,0 @@
-Makefile.in
-Makefile
-dummy.cc
-.deps
-.libs
-mailcheck_applet
-
