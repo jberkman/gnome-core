@@ -28,13 +28,15 @@
       <para>
 	gnome-terminal er en terminalemulator som er en del av GNOME
 	prosjektet.  Den gir tilgang til Unix-kommandoskallet i GNOME
-	miljøet. </para>
+	miljøet.
+      </para>
 
       <para>
 	gnome-terminal støtter fargevisning (se seksjonen om
 	<link linkend="environment">miljø</link>-variabler for 
-	detaljer) og gir musstøtte til applikasjoner som støtter
-	mushendelser for x-term lignende terminaler. </para>
+	detaljer), og gir musstøtte til applikasjoner som støtter
+	mushendelser for xterm lignende terminaler.
+      </para>
     </sect1>
     
     <sect1 id="Emulation">
@@ -82,7 +84,7 @@
 	      <para>Definerer en liste med tegn (eller
 	        <emphasis>tegnklasser</emphasis>) som skal ses på
 	        som 'ord tegn'. Disse brukes når
-	        <link linkend="pekervalg">valg av tekst</link>
+	        <link linkend="pointerusage">valg av tekst</link>
 	        etter ord.
 	      </para>
 	    </listitem>
@@ -150,10 +152,12 @@
 	profiler for å kunne tilpasse den til forskjellig bruk. For å
 	gjøre dette trenger du bare å gi et navn for din nye konfigurasjons-
 	klasse ved å skrive inn et nytt navn i dialogboksen for konfigurasjon
-	av egenskaper.</para>
+	av egenskaper.
+      </para>
       
       <para>For å aktivere en spsifikk klasse ved start av programmet kan
-	du bruke --class kommandolinjeflagget. </para>
+	du bruke --class kommandolinjeflagget.
+      </para>
     </sect1>
     
     <sect1 id="Options">
@@ -312,6 +316,8 @@
 	  utskrift på skjermen vil nullstille det viste utvalget, men
 	  det vil ikke medføre tap av innholdet på utklippstavlen.
 	</para>	
+      </sect2>
+      
       <sect2 id="pointer-paste">
         <title>Lim inn tekst</title>
 	<para>
@@ -324,6 +330,8 @@
 	  sannsynligvis ha en måte å emulere den midterste musknappen.
 	  Se i dokumentasjonen for X-tjeneren for mer informasjon.
 	</para>
+      </sect2>
+      
       <sect2 id="pointer-wheel">
         <title>Mushjul</title>
 	<para>
@@ -331,6 +339,8 @@
 	  4 og 5), så kan du bruke hjulet til å rulle opp og ned i tilbake-
 	  rullingsbufferen.
 	</para>
+      </sect2>
+      
       <sect2 id="pointer-menu">
         <title>Kontrollmeny</title>
 	<para>
@@ -343,6 +353,8 @@
 	  Ved å holde nede CTRL tasten, kan høyre musknapp brukes
 	  til å vise denne menyen.
 	</para>
+      </sect2>
+      
       <sect2 id="pointer-dnd"
         <Title>Dra-og-slipp</title>
 	<para>
@@ -367,6 +379,7 @@
 		forgrunnsfargen, ellers settes bakgrunnsfargen. Se i
 		<link linkend="config-colour">fargekonfigurasjon</link>
 		seksjonen.
+	      </para>
 	    </listitem>
 	  </varlistentry>
 	</variablelist>
