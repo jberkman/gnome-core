@@ -11,9 +11,9 @@ INCLUDES = 							\
 	-DVERSION=\""$(VERSION)"\"
 
 LDADD = \
-	$(GNOME_LIBDIR)					\
-	$(GNOMEUI_LIBS)					\
 	-lgnorba                                        \
+	$(GNOMEUI_LIBS)					\
+	$(GNOME_LIBDIR)					\
 	$(ORBIT_LIBS)                                   \
         $(INTLLIBS)
 
