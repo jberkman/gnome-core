@@ -1,3 +1,9 @@
+Sat Jul 18 19:27:29 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c (main): ctree now uses GTK_SELECTION_BROWSE
+	* tree.c (add_main_tree_node): fixed recursive loading of
+	menus at startup.
+
 Fri Jul 17 17:47:41 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.[ch], edit.c, dialogs.c, order.c: removed the code

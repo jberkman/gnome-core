@@ -300,7 +300,7 @@ int main (int argc, char *argv[])
 	
 	gtk_clist_set_row_height(GTK_CLIST(menu_tree_ctree),22);
 	gtk_clist_set_column_width(GTK_CLIST(menu_tree_ctree),0,300);
-	gtk_clist_set_selection_mode(GTK_CLIST(menu_tree_ctree),GTK_SELECTION_EXTENDED);
+	gtk_clist_set_selection_mode(GTK_CLIST(menu_tree_ctree),GTK_SELECTION_BROWSE);
 	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"button_press_event", GTK_SIGNAL_FUNC(tree_item_selected),NULL);
 	gtk_box_pack_start(GTK_BOX(vbox),menu_tree_ctree,TRUE,TRUE,0);
 	gtk_widget_show(menu_tree_ctree);

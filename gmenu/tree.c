@@ -333,6 +333,7 @@ void add_main_tree_node()
 	gchar *text[2];
 	Desktop_Data *d;
 	GtkWidget *pixmap;
+	gint c;
 
 /*	g_print("adding top node...\n");*/
 
@@ -405,7 +406,12 @@ void add_main_tree_node()
 	gtk_ctree_set_row_data (GTK_CTREE(menu_tree_ctree), usernode, d);
 
 	/* now load the entire menu tree */
-	gtk_ctree_pre_recursive(GTK_CTREE(menu_tree_ctree), topnode, add_tree_recurse_cb, NULL);
+	c = 0;
+	while (g_list_length(topnode) > c)
+		{
+		c = g_list_length(topnode);
+		gtk_ctree_pre_recursive(GTK_CTREE(menu_tree_ctree), topnode, add_tree_recurse_cb, NULL);
+		}
 
 	current_node = usernode;
 
