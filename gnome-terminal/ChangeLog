@@ -1,3 +1,9 @@
+1999-07-08  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* gnome-terminal.c (new_terminal_cmd): Applied a patch Michael
+	Zucchi had sent me, which fixes TERM being set to 'dumb'.  I
+	believe this was in the stable branch already.
+
 1999-06-28  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (new_terminal_cmd): Bug fix.  If the TERM

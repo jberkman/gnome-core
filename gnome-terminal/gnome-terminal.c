@@ -1758,7 +1758,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 		env_copy = (char **) g_malloc (sizeof (char *) * (i + 1 + EXTRA));
 		for (i = 0, p = env; *p; p++){
 			if (strncmp (*p, "TERM=", 5) == 0) {
-				if (cfg->termname)
+				if (cfg->termname && *cfg->termname)
 					env_copy [i++] = cfg->termname;
 				else {
 					/*
