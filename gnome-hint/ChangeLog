@@ -1,0 +1,4 @@
+Sat Oct 02 20:18:20 1999  George Lebl  <jirka@5z.com>
+
+	* gnome-hint.c: a gnome hint dialog, to be launched on startup
+
