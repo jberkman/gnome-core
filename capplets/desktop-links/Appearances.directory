@@ -2,7 +2,9 @@
 Name=Appearances
 Name[es]=Apariencia
 Name[no]=Utseende
+Name[pt]=Aparência
 Comment=Modify the look and feel of your session.
 Comment[es]=Modifica la apariencia de su sesión
 Comment[no]=Modifiser utseende og oppførsel på sesjonen
+Comment[pt]=Modifica a aparência da sua sessão
 Type=Directory

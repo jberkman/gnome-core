@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=General
+Name[pt]=Geral
 Comment=General
+Comment[pt]=Geral
 Exec=e-conf --cap-id=0
 Icon=e-conf.png
 Terminal=0

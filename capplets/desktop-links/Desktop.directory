@@ -2,7 +2,9 @@
 Name=Desktop
 Name[es]=Escritorio
 Name[no]=Skrivebord
+Name[pt]=Área de trabalho
 Comment=Desktop
 Comment[es]=Escritorio
 Comment[no]=Skrivebord
+Comment[pt]=Área de trabalho
 Type=Directory

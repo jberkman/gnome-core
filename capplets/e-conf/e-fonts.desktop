@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Fonts
+Name[pt]=Fontes
 Comment=Fonts
+Comment[pt]=Fontes
 Exec=e-conf --cap-id=2
 Icon=e-conf.png
 Terminal=0

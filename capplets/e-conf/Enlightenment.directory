@@ -1,4 +1,6 @@
 [Desktop Entry]
 Name=Enlightenment
+Name[pt]=Enlightenment
 Comment=Enlightenment Window Manager Configuration
+Comment[pt]=Configuração do gestor de janelas Enlightenment
 Type=Directory

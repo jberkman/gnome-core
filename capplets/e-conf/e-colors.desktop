@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Colors
+Name[pt]=Cores
 Comment=Colors
+Comment[pt]=Cores
 Exec=e-conf --cap-id=4
 Icon=e-conf.png
 Terminal=0

@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Desktop Background
+Name[pt]=Fundo da área de trabalho
 Comment=Desktop Background
+Comment[pt]=Fundo da área de trabalho
 Exec=e-conf --cap-id=1
 Icon=e-conf.png
 Terminal=0

@@ -2,7 +2,9 @@
 Name=Window Manager
 Name[es]=Gestor de Ventanas
 Name[no]=Vindusbehandler
+Name[pt]=Gestor de janelas
 Comment=Modify the settings of your window manager.
 Comment[es]=Configurar el gestor de ventanas
 Comment[no]=Endre innstillingene for vindusbehandleren
+Comment[pt]=Configura o seu gestor de janelas
 Type=Directory

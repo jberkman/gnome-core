@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Sound Properties
 Name[no]=Egenskaper for lyd
+Name[pt]=Propriedades de Som
 Comment=Configure GNOME's use of sound.
 Comment[no]=Konfigurere GNOMEs bruk av lyd.
+Comemnt[pt]=Configurar o uso de som no GNOME
 Exec=sound-properties
 Icon=gnome-audio2.png
 Terminal=0

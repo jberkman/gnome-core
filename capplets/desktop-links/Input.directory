@@ -2,7 +2,9 @@
 Name=Input Devices
 Name[es]=Dispositivos Entrada
 Name[no]=Innenheter
+Name[pt]=Dispositivos de Entrada
 Comment=Modify the settings of your input devices.
 Comment[es]=Permite configurar los dispositivos de entrada
 Comment[no]=Endre instillingene for innenheter
+Comment[pt]=Configura os dispositivos de entrada
 Type=Directory
