@@ -51,8 +51,6 @@ GtkWidget *
 get_monitor_preview_widget (void)
 {
 	GtkWidget *pwid;
-	GdkPixmap *pixmap;
-	GdkBitmap *mask;
 	char *f;
 
 	f = gnome_pixmap_file ("monitor.xpm");
@@ -78,7 +76,6 @@ deleteFn (GtkWidget *widget, gpointer *data)
 		monitor_image = NULL;
 	}
 
-	gtk_widget_destroy (main_window);
 	gtk_main_quit ();
 
 	return TRUE;

@@ -40,7 +40,7 @@ ConfigScreenSaver::select_mode (GtkWidget *, GdkEventButton *, SelectInfo *si)
 		    (gint)(GTK_RANGE (si->th->nice)->adjustment->value),
 		    si->th->monitor,
 		    MONITOR_CONTENTS_X,
-		    MONITOR_CONTENTS_Y+6,
+		    MONITOR_CONTENTS_Y,
 		    MONITOR_CONTENTS_WIDTH,
 		    MONITOR_CONTENTS_HEIGHT);
 	property_changed ();

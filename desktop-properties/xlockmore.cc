@@ -129,6 +129,7 @@ static gint
 deleteSetupWin (GtkWidget *w, GdkEvent *, XLockMore *xm)
 {
 	xm->kill (&xm->sPID);
+	gtk_widget_destroy (xm->setupWin);
 	xm->setupWin = NULL;
 	xm->mapSignal = xm->unmapSignal = -1;
 
@@ -342,7 +343,10 @@ XLockMode::run (gint type, ...)
 			ph = AL.height-24;
 		}
 
-		sprintf (geo, "%dx%d+%d+%d", pw, ph, AL.x+px, AL.y+py);
+		if (type != SS_PREVIEW)
+			sprintf (geo, "%dx%d+%d+%d", pw, ph, AL.x+px, AL.y+py);
+		else
+			sprintf (geo, "%dx%d+%d+%d", pw, ph, px, py);
 		sprintf (wid, "%d", ((GdkWindowPrivate *)widget->window)->xwindow);
 #undef AL
 
@@ -412,7 +416,7 @@ static void
 remove_widget (GtkWidget *w, GtkWidget *c)
 {
 	gtk_container_remove (GTK_CONTAINER (c), w);
-	gtk_widget_destroy (w);
+	// gtk_widget_destroy (w);
 }
 
 static void

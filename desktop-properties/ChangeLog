@@ -1,3 +1,15 @@
+Sat Mar 21 11:55:27 1998  Radek Doulik  <rodo@aquarius>
+
+	* property-background.c: reworked, now uses imlib (scale pixmaps
+	in preview, gradient BG is dithered by Imlib, ...  - big thanks
+	to Rasterman for gdk_imlib)
+
+	* xlockmore.cc (run): corrected position of preview
+	removed/added some gtk_widget_destroy calls
+
+	* property-background.c (fill_monitor): corrected solid bg
+	position in preview
+
 Tue Mar 10 14:49:11 1998  Miguel de Icaza/Federico Mena  <miguel@nuclecu.unam.mx>
 
 	* main.c (get_monitor_preview_widget): Simplify and fix to use gdk_imlib.
