@@ -25,7 +25,7 @@ GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
 GList *tasks; /* The list of tasks used */
 GdkPixbuf *unknown_icon; /* Unknown icon */
-GdkBitmap unknown_mask; /* Unknown mask */
+GdkBitmap *unknown_mask; /* Unknown mask */
 
 gint vert_height=0; /* Vertical height, used for resizing */
 gint horz_width=0;  /* Horizontal width, used for resizing */
@@ -197,21 +197,16 @@ draw_task (TasklistTask *task)
 				 task->y + ((task->height - text_height) / 2) + text_height,
 				 tempstr);
 
-#if 0
-		gdk_draw_rectangle (area->window,
-				    area->style->black_gc,
-				    FALSE,
-				    task->x + 
-				    (Config.show_mini_icons ? 8 : 0) +
-				    ((task->width - text_width) / 2),
-				    task->y + ((task->height - text_height) / 2),
-				    text_width,
-				    text_height);
-#endif 
 		g_free (tempstr);
 	}
 
 	if (Config.show_mini_icons) {
+
+		gdk_gc_set_clip_mask (area->style->black_gc, unknown_mask);
+		gdk_gc_set_clip_origin (area->style->black_gc,
+					task->x + 3,
+					task->y + (task->height - 16) / 2);
+		
 		if (unknown_icon->art_pixbuf->has_alpha) {
 			gdk_draw_rgb_32_image (area->window,
 					       area->style->white_gc,
@@ -232,42 +227,8 @@ draw_task (TasklistTask *task)
 					    unknown_icon->art_pixbuf->pixels,
 					    unknown_icon->art_pixbuf->rowstride);
 		}
-#if 0
-	  		if (task->pixmap) {
-			if (task->mask) {
-				gdk_gc_set_clip_mask (area->style->black_gc, 
-						      task->mask);
 
-				gdk_gc_set_clip_origin (area->style->black_gc,
-							task->x + 3,
-							task->y + (task->height - 16) / 2);
-			}
-			
-			gdk_draw_pixmap (area->window,
-					 area->style->black_gc,
-					 task->pixmap,
-					 0, 0,
-					 task->x + 3, 
-					 task->y + (task->height - 16) / 2,
-					 16, 16);
-			if (task->mask)
-				gdk_gc_set_clip_mask (area->style->black_gc, NULL);
-		}
-		else {
-			gdk_gc_set_clip_mask (area->style->black_gc, unknown_mask);
-			gdk_gc_set_clip_origin (area->style->black_gc,
-						task->x + 3,
-						task->y + (task->height - 16) / 2);
-			
-			gdk_draw_pixmap (area->window,
-					 area->style->black_gc,
-					 unknown_icon,
-					 0, 0,
-					 task->x + 3, task->y + (task->height - 16) / 2,
-					 16, 16);
-			gdk_gc_set_clip_mask (area->style->black_gc, NULL);
-		}
-#endif
+		gdk_gc_set_clip_mask (area->style->black_gc, NULL);
 
 	}
 }
@@ -745,14 +706,11 @@ main (gint argc, gchar *argv[])
 
 	read_config ();
 
-	/* FIXME: Move this elsewhere */
-	/*	unknown_icon = gdk_pixmap_create_from_xpm_d (area->window, &unknown_mask,
-						     NULL, unknown_xpm);
-	*/
 	unknown_icon = gdk_pixbuf_new_from_xpm_data (&unknown_xpm);
+	unknown_mask = gdk_pixmap_new (NULL, 16, 16, 1);
 	gdk_pixbuf_render_threshold_alpha (unknown_icon,
-					   &unknown_mask,
-					   0, 0, 0, 0, 16, 16, 0);
+					   unknown_mask,
+					   0, 0, 0, 0, 16, 16, 1);
 
 	applet_widget_gtk_main ();
 
