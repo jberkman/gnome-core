@@ -1469,6 +1469,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 	gtk_widget_show (app);
 	set_color_scheme (term, cfg);
 
+	gdk_window_set_hints (((GtkWidget *)app)->window,
+			      0, 0, 50, 50, 0, 0, GDK_HINT_MIN_SIZE);
+
 	switch (zvt_term_forkpty (term, cfg->invoke_as_login_shell)){
 	case -1:
 		perror ("Error: unable to fork");
