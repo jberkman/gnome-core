@@ -1,0 +1,8 @@
+Sat Feb 14 01:54:28 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* Makefile.am (LDADD): Don't include LEXLIB, XF86MISC_LIBS.  Do
+	include INTLLIBS.
+	(install-data-local): Removed.
+	(help_DATA): New macro.
+	(INCLUDES): Removed `../..' and `$(srcdir)/../..'.
+

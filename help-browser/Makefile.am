@@ -1,17 +1,14 @@
 ## Process this file with automake to produce Makefile.in.
 
 INCLUDES = 			\
-	-I../.. 		\
-	-I$(srcdir)/../.. 	\
 	-I$(includedir)		\
 	-I$(top_srcdir)/intl
 
 
 LDADD = \
-	@LEXLIB@					\
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
-        @XF86MISC_LIBS@
+	$(INTLLIBS)
 
 bin_PROGRAMS = gnome-help-browser 
 
@@ -31,6 +28,4 @@ EXTRA_DIST = sample-hello.html
 #
 helpdir = $(datadir)/gnome/help/sample-help/C
 
-install-data-local:
-	$(INSTALL_DATA)	$(srcdir)/sample-help.html $(helpdir)/
-	$(INSTALL_DATA)	$(srcdir)/sample-topic.dat $(helpdir)/topic.dat
+help_DATA = sample-help.html sample-topic.dat
