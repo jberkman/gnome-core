@@ -1,3 +1,7 @@
+2000-03-27  Kjartan Maraas  <kmaraas@online.no>
+
+	* gnome-hint-properties.desktop: Added Norwegian translation.
+	
 2000-03-26  Anders Carlsson  <andersca@gnu.org>
 
 	* gnome-hint.c: Added a "Show dialog on next login" check button and
