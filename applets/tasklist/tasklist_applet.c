@@ -112,6 +112,9 @@ tasklist_task_get_label (TasklistTask *task, int width, gboolean add_groupcount)
 
 	das_string = task->gwmh_task->name;
 
+	if(!das_string)
+	  return g_strdup("");
+
 	label_len = gdk_string_width (tasklist->area->style->font, das_string);
 
 	overhead = tasklist->config.show_mini_icons ? 30 : 6;
@@ -568,8 +571,7 @@ max_width (GSList *tasks)
 
 		if (task->fullwidth < 0) {
 			s = tasklist_task_get_label (task, -1, task->task_group);
-			task->fullwidth = gdk_string_width (
-				task->tasklist->area->style->font, s);
+			task->fullwidth = gdk_string_width (task->tasklist->area->style->font, s);
 			g_free (s);
 		}
 
