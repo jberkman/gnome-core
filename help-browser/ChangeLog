@@ -1,4 +1,8 @@
-1998-02-25  Marc Ewing  <marc@germ.labs.redhat.com>
+1998-02-25  Michael Fulbright  <msf@redhat.com>
+
+	* added better support for 'info:'
+
+1998-02-25  Marc Ewing  <marc@redhat.com>
 
 	* added caching code
 
