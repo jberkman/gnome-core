@@ -94,7 +94,7 @@ void addToHistory(History h, gchar *ref)
     text[2] = buf2;
     
     row = gtk_clist_find_row_from_data(GTK_CLIST(h->clist), entry);
-    if (row) {
+    if (row >= 0) {
 	gtk_clist_remove(GTK_CLIST(h->clist), row);
     }
     gtk_clist_insert(GTK_CLIST(h->clist), 0, text);
