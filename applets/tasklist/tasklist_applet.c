@@ -361,6 +361,9 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 			draw_task (find_gwmh_task (gwmh_task));
 		if (imask & GWMH_TASK_INFO_MISC)
 			draw_task (find_gwmh_task (gwmh_task));
+		if (imask & GWMH_TASK_INFO_DESKTOP)
+			/* Redraw entire tasklist */
+			layout_tasklist ();
 		break;
 	case GWMH_NOTIFY_NEW:
 		task = g_malloc0 (sizeof (TasklistTask));
