@@ -1802,8 +1802,19 @@ parse_an_arg (poptContext state,
 		geometry = (char *)arg;
 		break;
 	case COMMAND_KEY:
-	        initial_command = poptGetArgs(state);
+		  {
+			  char **foo;
+			  int x;
+			  
+			  poptParseArgvString((char *)arg,&x,&foo);
+			  initial_command=malloc((x+1)*sizeof(char *));
+			  initial_command[x]=NULL;
+			  while (x>0) {
+				  x--;
+				  initial_command[x]=foo[x];
+			  }
 		break;
+		  }
 	case FORE_KEY:
 	        cfg->user_fore_str = arg;
 		cfg->have_user_colors = 1;
