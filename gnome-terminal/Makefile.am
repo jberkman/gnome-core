@@ -51,7 +51,7 @@ gnome_terminal_SOURCES = \
 utildir = $(datadir)/gnome/apps/System
 util_DATA = gnome-terminal.desktop
 
-uidir = $(datadir)/gnome/ui
+uidir = $(datadir)/gnome-2.0/ui
 ui_DATA = gnome-terminal.xml
 
 gladedir   = $(datadir)/gnome-terminal/glade

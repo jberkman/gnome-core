@@ -1,3 +1,7 @@
+2001-10-18  jacob berkman  <jacob@ximian.com>
+
+	* Makefile.am (uidir): install into the dir bonobo will look for
+
 2001-10-17  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* gnome-terminal.c: Change default font to "fixed". Makes it
