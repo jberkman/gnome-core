@@ -1,3 +1,8 @@
+2001-09-04  jacob berkman  <jacob@ximian.com>
+
+	* gnome-terminal.c (button_press): set the hidden attribute on the
+	model rather than the view side of the things
+
 2001-09-04  Darin Adler  <darin@bentspoon.com>
 
 	* gnome-terminal.xml: Add Copy command.
@@ -406,7 +411,6 @@ Thu Nov 30 11:40:59 2000  George Lebl <jirka@5z.com>
 	* gnome-terminal.c (EXTRA): Applied patch from housel@acm.org,
 	change from 2 to 3
 
->>>>>>> 1.144
 1999-09-17  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* no/Makefile.am (gnome-terminal/index.html): Revert unlogged
@@ -458,7 +462,6 @@ Thu Nov 30 11:40:59 2000  George Lebl <jirka@5z.com>
 	(load_url_cmd): Called as a menu callback - launches a browser
 	window for the selected match string.
 
->>>>>>> 1.141
 1999-09-07  Kjartan Maraas  <kmaraas@online.no>
 
 	* no/Makefile.am: Merge from gnome-core-1-0 to make
@@ -467,7 +470,6 @@ Thu Nov 30 11:40:59 2000  George Lebl <jirka@5z.com>
 	* no/gnome-terminal.sgml: Merge from gnome-core-1-0 to
 	sync it to the version in C/
 	
->>>>>>> 1.136
 1999-07-26  Michael Zucchi  <zucchi@zedzone.mmc.com.au>
 
 	* C/gnome-terminal.sgml: Minor updates for colour preference

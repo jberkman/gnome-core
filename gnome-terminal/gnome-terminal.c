@@ -1997,7 +1997,7 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 
 	menu = gtk_menu_new ();
 
-	bonobo_ui_component_set_prop (uic, "/popups/TerminalPopup/OpenURL",
+	bonobo_ui_component_set_prop (uic, "/commands/OpenURL",
 				      "hidden", match ? "0" : "1", NULL);
 
 	bonobo_window_add_popup (
