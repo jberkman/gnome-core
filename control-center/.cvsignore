@@ -4,3 +4,10 @@ Makefile
 .deps
 *.lo
 *.la
+control-center.h
+control-center-common.c
+control-center-common.c
+control-center-stubs.c
+control-center-skels.c
+control-center-impl.c
+gnomecc
