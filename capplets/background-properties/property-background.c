@@ -62,6 +62,7 @@ struct bgState origState, curState;
 static GtkWidget *cp1, *cp2;
 
 void background_init(void);
+void background_properties_init(void);
 void background_read(struct bgState *state);
 void background_setup(struct bgState *state);
 
@@ -176,7 +177,7 @@ fill_monitor (int prop_changed, struct bgState *state)
     gint cx, cy;
     gint cw, ch;
     GdkCursor *cursor;
-    
+
     if (prop_changed)
 	capplet_widget_state_changed(CAPPLET_WIDGET(capplet), TRUE);
     
@@ -723,14 +724,14 @@ set_monitor_filename (gchar *str)
 	gtk_widget_show (cf);
 	wpNum++;
 	
-	gs = g_string_new ("/Desktop/Background/wallpaper");
+	gs = g_string_new ("/Background/Default/wallpaper");
 	snprintf (num, sizeof(num), "%d", wpNum);
 	g_string_append (gs, num);
 	gnome_config_set_string (gs->str, str);
 	g_string_free (gs, TRUE);
 	
-	gnome_config_set_int ("/Desktop/Background/wallpapers", wpNum);
-	gnome_config_set_string ("/Desktop/Background/wallpapers_dir",
+	gnome_config_set_int ("/Background/Default/wallpapers", wpNum);
+	gnome_config_set_string ("/Background/Default/wallpapers_dir",
 				 str);
 	
 	found = wpNum;
@@ -825,12 +826,12 @@ wallpaper_setup (struct bgState *state)
 			"activate",
 			(GtkSignalFunc) browse_activated, NULL);
     
-    wpNum = gnome_config_get_int ("/Desktop/Background/wallpapers=0");
+    wpNum = gnome_config_get_int ("/Background/Default/wallpapers=0");
     
     for (i = 0; i<wpNum; i++) {
 	
 	/* printf ("wallpaper%d", i); */
-	wpName = g_string_new ("/Desktop/Background/wallpaper");
+	wpName = g_string_new ("/Background/Default/wallpaper");
 	snprintf (num, sizeof(num),"%d", i+1);
 	g_string_append (wpName, num);
 	g_string_append (wpName, "=???");
@@ -970,11 +971,9 @@ printf("setting filename back to %s\n",state->wpFileName);
 	gtk_option_menu_set_history(GTK_OPTION_MENU(wpOMenu), 0);
     }
 
-#if 1
     fillPreview = FALSE;
     fill_monitor (FALSE, state);
     fillPreview = TRUE;
-#endif
     ignoreChanges=FALSE;
 }
 
@@ -1021,21 +1020,21 @@ background_write (struct bgState *state)
 	      state->bgColor1.red >> 8,
 	      state->bgColor1.green >> 8,
 	      state->bgColor1.blue >> 8);
-    gnome_config_set_string ("/Desktop/Background/color1", buffer);
+    gnome_config_set_string ("/Background/Default/color1", buffer);
     snprintf (buffer, sizeof(buffer), "#%02x%02x%02x",
 	      state->bgColor2.red >> 8,
 	      state->bgColor2.green >> 8,
 	      state->bgColor2.blue >> 8);
-    gnome_config_set_string ("/Desktop/Background/color2", buffer);
+    gnome_config_set_string ("/Background/Default/color2", buffer);
     
-    gnome_config_set_string ("/Desktop/Background/simple",
+    gnome_config_set_string ("/Background/Default/simple",
 			     (state->grad) ? "gradient" : "solid");
-    gnome_config_set_string ("/Desktop/Background/gradient",
+    gnome_config_set_string ("/Background/Default/gradient",
 			     (state->vertical) ? "vertical" : "horizontal");
     
-    gnome_config_set_string ("/Desktop/Background/wallpaper",
+    gnome_config_set_string ("/Background/Default/wallpaper",
 			     (state->bgType == BACKGROUND_SIMPLE) ? "none" : state->wpFileName);
-    gnome_config_set_int ("/Desktop/Background/wallpaperAlign", state->wpType);
+    gnome_config_set_int ("/Background/Default/wallpaperAlign", state->wpType);
     
     gnome_config_sync ();
 #if 0    
@@ -1050,7 +1049,7 @@ background_read ( struct bgState *state )
 	gint r, g, b;
 
 	gdk_color_parse
-		(gnome_config_get_string ("/Desktop/Background/color1=#808080"),
+		(gnome_config_get_string ("/Background/Default/color1=#808080"),
 		 &state->bgColor1);
 	r = state->bgColor1.red >> 8;
 	g = state->bgColor1.green >> 8;
@@ -1058,7 +1057,7 @@ background_read ( struct bgState *state )
 	state->bgColor1.pixel = gdk_imlib_best_color_match(&r, &g, &b);
  
 	gdk_color_parse
-		(gnome_config_get_string ("/Desktop/Background/color2=#0000ff"),
+		(gnome_config_get_string ("/Background/Default/color2=#0000ff"),
 		 &state->bgColor2);
 
 	r = state->bgColor2.red >> 8;
@@ -1068,21 +1067,21 @@ background_read ( struct bgState *state )
   
 	state->bgType = (strcasecmp
 		  (gnome_config_get_string
-		   ("/Desktop/Background/type=simple"),
+		   ("/Background/Default/type=simple"),
 		   "simple"));
 	state->grad = (strcasecmp
 		(gnome_config_get_string
-		 ("/Desktop/Background/simple=solid"),
+		 ("/Background/Default/simple=solid"),
 		 "solid"));
 	state->vertical = !(strcasecmp
 		     (gnome_config_get_string
-		      ("/Desktop/Background/gradient=vertical"),
+		      ("/Background/Default/gradient=vertical"),
 		      "vertical"));
-	state->wpType = gnome_config_get_int ("/Desktop/Background/wallpaperAlign=0");
+	state->wpType = gnome_config_get_int ("/Background/Default/wallpaperAlign=0");
 
-	state->wpFileName = gnome_config_get_string ("/Desktop/Background/wallpaper=none");
+	state->wpFileName = gnome_config_get_string ("/Background/Default/wallpaper=none");
 	state->wpFileSelName = gnome_config_get_string 
-		("/Desktop/Background/wallpapers_dir=./");
+		("/Background/Default/wallpapers_dir=./");
 
 	if (!strcasecmp (state->wpFileName, "none")) {
 		g_free(state->wpFileName);
@@ -1105,6 +1104,21 @@ background_init() {
     copyState(&curState, &origState);
     ignoreChanges = TRUE;
     background_setup(&origState);
+    ignoreChanges = FALSE;
+
+#ifdef DEBUG
+    printState(&origState);
+#endif
+}
+
+void
+background_properties_init() {
+    background_read(&origState);
+    copyState(&curState, &origState);
+    ignoreChanges = TRUE;
+    fillPreview = FALSE;
+    fill_monitor (FALSE, &origState);
+    fillPreview = TRUE;
     ignoreChanges = FALSE;
 
 #ifdef DEBUG
@@ -1265,42 +1279,42 @@ parse_func (int key, char *arg, struct argp_state *state)
 		return 0;
 
 	case WALLPAPER_KEY:
-		gnome_config_set_string ("/Desktop/Background/wallpaper", arg);
+		gnome_config_set_string ("/Background/Default/wallpaper", arg);
 		init = need_sync = 1;
 		return 0;
 
 	case COLOR_KEY:
-		gnome_config_set_string ("/Desktop/Background/color1", arg);
+		gnome_config_set_string ("/Background/Default/color1", arg);
 		init = need_sync = 1;
 		return 0;
 
 	case ENDCOLOR_KEY:
-		gnome_config_set_string ("/Desktop/Background/color2", arg);
-		gnome_config_set_string ("/Desktop/Background/simple", "gradient");
+		gnome_config_set_string ("/Background/Default/color2", arg);
+		gnome_config_set_string ("/Background/Default/simple", "gradient");
 		init = need_sync = 1;
 		return 0;
 
 	case ORIENT_KEY:
 		if (strcasecmp (arg, "vertical") == 0 || strcasecmp (arg, "horizontal") == 0){
-			gnome_config_set_string ("/Desktop/Background/gradient", arg);
+			gnome_config_set_string ("/Background/Default/gradient", arg);
 			init = need_sync = 1;
 			return 0;
 		} else
 			return ARGP_ERR_UNKNOWN;
 	case SOLID_KEY:
-		gnome_config_set_string ("/Desktop/Background/simple", "solid");
+		gnome_config_set_string ("/Background/Default/simple", "solid");
 		init = need_sync = 1;
 		return 0;
 
 	case GRADIENT_KEY:
-		gnome_config_set_string ("/Desktop/Background/simple", "gradient");
+		gnome_config_set_string ("/Background/Default/simple", "gradient");
 		init = need_sync = 1;
 		return 0;
 
 	case ALIGN_KEY:
 		for (i = 0; i < 4; i++)
 			if (strcasecmp (align_keys [i], arg) == 0){
-				gnome_config_set_int ("/Desktop/Background/wallpaperAlign", i);
+				gnome_config_set_int ("/Background/Default/wallpaperAlign", i);
 				init = need_sync = 1;
 				return 0;
 			}

@@ -63,7 +63,6 @@ get_monitor_preview_widget (void)
 	xpixmap = Imlib_copy_image (imlib_data, im);
 	xmask = Imlib_copy_mask (imlib_data, im);
 
-	Imlib_destroy_image (imlib_data, im);
 
 	gc = gdk_gc_new (GDK_ROOT_PARENT ());
 
@@ -102,6 +101,7 @@ get_monitor_preview_widget (void)
 		mask = NULL;
 
 	gdk_gc_destroy (gc);
+	/*	Imlib_destroy_image (imlib_data, im);*/
 
 	eb = gtk_event_box_new ();
 	p = gtk_pixmap_new (pixmap, mask);
