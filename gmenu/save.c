@@ -132,6 +132,8 @@ void save_desktop_entry(GnomeDesktopEntry *dentry, gchar *old_path, gint isfolde
 		}
 
 	/* we made it here, we were successful, so notify tree of update */
-	menu_tree_path_updated(tree, old_path, new_path, dentry);
-}
+	menu_tree_path_updated (tree, old_path, new_path, dentry);
 
+	g_free (new_path);
+	g_free (save_path);
+}

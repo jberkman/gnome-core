@@ -121,6 +121,7 @@ static void menu_tree_sync_node_to_dentry(GtkWidget *ctree, GtkCTreeNode *node,
 	else
 		dd->comment = g_strdup("");
 
+	gtk_widget_destroy (dd->pixmap);
 	dd->pixmap = NULL;
 	if (dentry->icon)
 		dd->pixmap = pixmap_load(dentry->icon);

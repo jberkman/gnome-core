@@ -99,6 +99,7 @@ void desktop_data_free(Desktop_Data *dd)
 		g_free(dd->path);
 		g_free(dd->name);
 		g_free(dd->comment);
+		gtk_widget_destroy (GTK_WIDGET(dd->pixmap));
 		g_free(dd);
 		}
 }

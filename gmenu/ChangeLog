@@ -1,3 +1,13 @@
+1999-03-25  Nat Friedman  <nat@nat.org>
+
+	* tree.c (menu_tree_sync_node_to_dentry): Destroy the dd->pixmap
+ 	before overwriting it.
+
+	* save.c (save_desktop_entry): Free new_path and save_path before
+ 	exiting the function..
+
+	* desktop.c (desktop_data_free): Destroy the dd->pixmap widget.
+
 Sun Mar 21 08:28:17 1999  John Ellis  <johne@bellatlantic.net>
 
 	* Merge gmenu_internal_overhaul branch into HEAD.
