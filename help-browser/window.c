@@ -76,7 +76,7 @@ struct _helpWindow {
 };
 
 
-static GtkWidget * makeEntryArea(HelpWindow w);
+static void makeEntryArea(HelpWindow w);
 
 /* Callbacks */
 static void quit_cb(void);
@@ -438,13 +438,16 @@ update_toolbar(HelpWindow w)
 		gtk_widget_set_sensitive(w->tb_forw, queue_isnext(w->queue));
 }
 
-static GtkWidget *
+static void
 makeEntryArea(HelpWindow w)
 {
-    GtkWidget *handleBox, *hbox, *label, *entry;
-    
-    handleBox = gtk_handle_box_new();
+    GtkWidget *dock, *hbox, *label, *entry;
 
+    dock = gnome_dock_item_new ("gnome-help-browser-toolbar1",
+				(GNOME_DOCK_ITEM_BEH_EXCLUSIVE
+				 | GNOME_DOCK_ITEM_BEH_NEVER_VERTICAL));
+    gtk_widget_show (dock);
+    
     hbox = gtk_hbox_new(FALSE, 2);
     gtk_container_set_border_width (GTK_CONTAINER (hbox), 3);
     gtk_widget_show(hbox);
@@ -454,16 +457,19 @@ makeEntryArea(HelpWindow w)
     
     entry = gnome_entry_new(NULL);
     gtk_widget_show(entry);
+
     gtk_signal_connect(GTK_OBJECT(GTK_COMBO(entry)->entry),
 		       "activate", (GtkSignalFunc)entryChanged, w);
 
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
-    gtk_container_add(GTK_CONTAINER(handleBox), hbox);
 
+    gtk_container_add (GTK_CONTAINER (dock), hbox);
+    gnome_dock_add_item (GNOME_DOCK (GNOME_APP (w->app)->dock),
+			 GNOME_DOCK_ITEM (dock), GNOME_DOCK_TOP, 1, 0, 0, FALSE);
     w->entryBox = GTK_COMBO(entry)->entry;
     
-    return handleBox;
+    return dock;
 }
 
 
@@ -745,9 +751,7 @@ helpWindowNew(gchar *name,
 	gtk_container_set_border_width (GTK_CONTAINER (vbox), 0);
 	gtk_widget_show(vbox);
 
-	entryArea = makeEntryArea(w);
-	gtk_widget_show(entryArea);
-	gtk_box_pack_start(GTK_BOX(vbox), entryArea, FALSE, FALSE, 0);
+	makeEntryArea(w);
 
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();

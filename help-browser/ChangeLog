@@ -1,3 +1,8 @@
+1999-08-05  Anders Carlsson  <anders.carlsson@tordata.se>
+
+	* window.c: Changed the GtkHandleBox in the Location bar to a
+	GnomeDockItem instead.
+
 1999-06-25  Pablo Saratxaga <srtxg@chanae.alphanet.ch>
 
 	* help/wa/gnome-help-browser-topic.dat: updated walloon language index
