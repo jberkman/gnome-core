@@ -205,7 +205,7 @@
 	  <term><guimenuitem>Einfügen</guimenuitem></term>
 	  <listitem>
 	    <para>
-	      Fügt die aktuelle Auswahl bzw. Zwischenablage in das
+	      Fügt die aktuelle Markierung bzw. Zwischenablage in das
 	      Terminal ein. Dies kann auch mit der mittleren Maustaste
 	      erreicht werden.
 	    </para>
@@ -401,14 +401,14 @@
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><guilabel>Zeichenmenge für Wortauswahl</guilabel></term>
+	  <term><guilabel>Zeichenmenge für Wortmarkierung</guilabel></term>
 	  <listitem>
 	    <para>
 	      Definiert eine Menge von Zeichen (oder 
 	      <emphasis>Zeichenklassen</emphasis>), die als
 	      'Wortzeichen' betrachtet werden sollen. Sie wird benutzt,
 	      wenn Sie Text wortweise
-	      <link linkend="pointer-select">auswählen</link>.
+	      <link linkend="pointer-select">markieren</link>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -559,146 +559,143 @@
 
   
   <sect1 id="pointerusage">
-    <title>Mouse usage</title>
+    <title>Mausbenutzung</title>
     <para>
-      The mouse can be used to select (copy), and extend-select
-      text, paste text from other terminals or applications, and
-      bring up a menu.
+      Die Maus kann verwendet werden, zu markieren (kopieren), die Markierung
+      zu vergrößern, Text von anderen Terminals und Applikationen einzufügen
+      und um ein Menü zum Vorschein zu bringen.
     </para>
 
     <sect2 id="pointer-select">
-      <title>Selection</title>
+      <title>Markierung</title>
       <para>
-	The following assumes a standard three-button mouse that
-	has not been made left-handed via the control center. Left-handed 
-	mice will of course work, but with the right button instead of
-	the left one, and so on.
+	Die nachfolgende Beschreibung geht davon aus, daß Sie eine
+	Standard-Maus mit drei Tasten haben, die nicht im Kontrollzentrum
+	auf Linkshänder-Modus gesetzt wurde. Selbstverständlich funktioniert
+	die Maus auch für Linkshänder, nur sind dann eben linke und rechte
+	Taste vertauscht.
       </para>
       <para>
-	The left mouse button can be used to initiate a selection.
-	If the mouse button is clicked once, and dragged, then
-	characters are selected individually.  If you drag past the
-	vertical boundaries of the window it will scroll to keep
-	up.
+	Die linke Maustaste dient dazu, eine Markierung zu starten. Wenn die
+	Taste einmal gedrückt und dann die Maus bewegt wird, während die
+	Taste weiterhin gedrückt ist, werden Zeichen einzeln markiert.
+	Sobald Sie den Mauszeiger über die vertikallen Fensterbegrenzungen
+	hinausziehen, wird der Fensterinhalt automatisch entsprechend gerollt.
       </para>
       <para>
-	If the left mouse button is double-clicked, then the
-	selection will be by word-characters.  Hold the mouse button
-	down on the second click to drag the mouse and enlarge the
-	selection.  The word-characters are defined in the
-	<guilabel> General options</guilabel> tab of <link
-	  linkend="config-general">Preferences dialogue</link>.
+	Wenn Sie die linke Maustaste doppelklicken, geschiet die Markierung
+	wortweise. Halten Sie die Maustaste nach dem zweiten Klick gedrückt
+	und ziehen Sie die Maus um die Markierung zu vergrößern. Die
+	Wortzeichen werden im <guilabel>Allgemein</guilabel>-Reiter im
+	&prefs-dlg; geändert.
       </para>
       <para>
-	Finally, if the left mouse button is triple-clicked and
-	held, whole lines are selected as you drag the mouse up and
-	down.
+	Dreifachklicken Sie hingegen die linke Maustaste und halten Sie dann
+	gedrückt, werden ganze Zeilen markiert wenn Sie mit der Maus nach
+	oben und unten fahren.
       </para>
       <para>
-	The right mouse button can be used to extend the
-	selection.  Simply scroll to where you wish to extend the
-	selection to, and click the right mouse button in the
-	desired place.   Again, single, double and 
-	triple clicks will result in by-character, by-word, or 
-	by-line selection.
+	Die rechte Maustaste kann dazu verwendet werden, die Markierung
+	auszuweiten. Rollen Sie einfach an die Stelle, bis zu der Sie die
+	Markierung ausgedehnt haben wollen und klicken Sie an der gewünschten
+	Stelle die rechte Maustaste. Wiederum resultiert Einfach-, Doppel-
+	und Dreifachklick in zeichen-, wort- bzw. zeilenweiser Markierung.
       </para>
       <para>
-	For all cases, releasing the mouse button automatically
-	copies the selected text into the clipboard, so that it may
-	be pasted to other applications.  Note that any screen
-	output will clear the highlighting of the selection, but it
-	will still be kept in the clipboard.
+	In jedem Fall wird der markierte Text automatisch in die
+	Zwischenablage kopiert, so daß er in anderen Applikationen eingefügt
+	werden kann, sobald Sie die Maustaste loslassen.
       </para>
     </sect2>
 
     <sect2 id="pointer-paste">
-      <title>Pasting text</title>
+      <title>Text einfügen</title>
       <para>
-	If the middle mouse button is pressed, then the current
-	selection is pasted into the window.  This can be used to
-	transfer text from other applications.
+	Wenn die mittlere Maustaste gedrückt wird, wird die aktuelle
+	Markierung im Fenster eingefügt. Dies kann dazu benutzt werden,
+	Text aus anderen Applikationen zu transferieren.
       </para>
       <para>
-	If you only have a two-button mouse, then your X server
-	probably has a method of emulating the middle mouse
-	button. The most common method is to emulate the middle
-	mouse button by simultaneous pressing of left and right
-	mouse buttons.  Refer to your X server documentation for
-	further information.
+	Wenn Sie nur eine Zweitastenmaus haben, bietet Ihr X-Server unter
+	Umständen eine Möglichkeit, die mittlere Taste zu simulieren. Die
+	häufigste Methode dazu ist, die linke und rechte Maustaste
+	gleichzeitig zu drücken. Sehen Sie bitte in der Dokumentation Ihres
+	X-Servers nach für weitere Informationen.
       </para>
     </sect2>
 
     <sect2 id="pointer-wheel">
-      <title>Wheel mouse</title>
+      <title>Radmaus</title>
       <para>
-	If you have a wheel mouse (which sends mouse button 4 and
-	mouse button 5 events), then you can use the wheel to scroll
-	up and down through the scrollback buffer.
+	Wenn Sie eine Radmaus (welche die Taste-4 und Taste-5-Ereignisse
+	generiert), können Sie das Rad dazu verwenden, im Textfenster auf-
+	und abzurollen.
       </para>
     </sect2>
 
     <sect2 id="pointer-menu">
-      <title>Control Menu</title>
+      <title>Kontext-Menü</title>
       <para>
-	The pointer can also be used to bring up a <link
-	  linkend="menu-popup">control-menu</link>, 
-	which can be used to reset the terminal or bring back the
-	main menu bar, if it has been hidden. To invoke this menu,
-	click anywhere in the terminal with the right mouse button
-	while holding down the <keycap>CTRL</keycap> key.
+	Die Maus kann ebenfalls benutzt werden, um das
+	<link linkend="menu-popup">Kontext-Menü</link> zum Vorschein zu
+	bringen, welches zum Beispiel das Terminal zurücksetzen oder eine
+	verborgene Hauptmenüleise wieder zum Vorschein bringen kann. Um
+	in dieses Menü zu gelangen, klicken Sie einfach irgendwo in das
+	Terminal-Fenster und halten Sie gleichzeitig die
+	<keycap>Strg</keycap>-Taste auf der Tastatur gedrückt.
       </para>
     </sect2>
     
     <sect2 id="url-highlight">
-      <title>Launching URL's</title>
+      <title>URLs starten</title>
       <para>
-	Gnome terminal can be used to select URL's (Uniform Resource
-	Locators; most commonly, Internet addresses, such as
-	<literal>http://www.gnome.org</literal>) from the text
-	display, simply by moving the mouse over the URL text.  The
-	URL will be highlighted, by being redrawn with an underline,
-	and the mouse pointer will change to a pointing hand.
+	Das &term; kann dazu verwendet werden, URLs (Uniform Resource
+	Locators; meistens Internetadressen, wie zum Beispiel
+	<literal>http://www.gnome.org</literal>) aus der Textanzeige
+	zu starten &mdash; einfach, indem Sie die Maus über den URL-Text
+	bewegen. Die URL wird dadurch hervorgehoben, indem Sie unterstrichen
+	wird und der Mauszeiger verwandelt sich in eine zeigende Hand.
       </para> 
       <para>
-	Invoking the <link linkend="menu-popup">control-menu</link>
-	while over a highlighted URL will add a new option to load
-	that URL into a browser.
+	Wenn Sie das <link linkend="menu-popup">Kontext-Menü</link> aufrufen,
+	während sich die Maus über einer solchen hervorgehobenen URL befindet,
+	enthält dieses Menü einen neuen Menüpunkt um die URL in einem Browser
+	zu öffnen.
       </para>
       <para>
-	Pressing the left mouse button, while holding down the
-	<keycap>CTRL</keycap> 
-	key is a shortcut to launch the URL immediately.
+	Als Abkürzung können Sie auch die linke Maustaste drücken, während
+	Sie die <keycap>Strg</keycap>-Taste auf der Tastatur gedrückt haben,
+	um die URL direkt im Browser zu öffnen.
       </para>
     </sect2>
 
     <sect2 id="pointer-dnd">
-      <title>Drag and Drop</title>
+      <title>Ziehen und Fallenlassen</title>
       <para>
-	Drag and drop can be used for a number of operations within
-	the terminal.
+	Eine Vielzahl von Operationen im Terminal kann durch Ziehen und
+	Fallenlassen erledigt werden.
       </para>
       <variablelist>
 	<varlistentry>
-	  <term>Dragging files</term>
+	  <term>Dateien ziehen</term>
 	  <listitem>
-	    <para>If files are dragged into the terminal, then their
-	      full filename is pasted into the window.  URL's can also
-	      be dropped in this way.
+	    <para>
+	      Wenn Dateien ins Terminal gezogen werden, wird ihr vollständiger
+	      Name in das Fenster eingefügt. URLs können auf dieselbe Art und
+	      Weise eingefügt werden.
 	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term>Dragging colours</term>
+	  <term>Farben ziehen</term>
 	  <listitem>
 	    <para>
-	      A colour can be dragged from another gnome
-	      application, or from the
-	      <link linkend="menu-settings">colour selector</link> into the
-	      display.  If it lands on a character, it sets the
-	      foreground colour, otherwise it sets the background
-	      colour.  Refer to the
-	      <link linkend="config-colour">colour
-		configuration</link> section. 
+	      Eine Farbe kann aus einer anderen GNOME-Applikation oder aus
+	      dem <link linkend="menu-settings">Farbwähler</link> in das
+	      Terminal gezogen werden. Falls sie auf einem Zeichen landet,
+	      setzt dies die Vordergrundfarbe, andernfalls die
+	      Hintergrundfarbe. Sehen Sie auch unter
+	      <link linkend="config-colour">Farbkonfiguration</link> nach. 
 	    </para>
 	  </listitem>
 	</varlistentry>
