@@ -50,6 +50,11 @@ gboolean write_config (gpointer data,
 			       Config.confirm_before_kill);
 	gnome_config_set_bool ("tasklist/move_to_current",
 			       Config.move_to_current);
+        gnome_config_set_bool ("tasklist/sort_tasklist",
+			       /* XXX: see comment in
+				* tasklist_applet.c:bool_compare_func for
+				* what's wrong here */
+                               Config.sort_tasklist);
 	gnome_config_sync ();
 	
 	gnome_config_pop_prefix ();
@@ -82,6 +87,7 @@ void read_config (void)
 	Config.all_desks_normal = gnome_config_get_bool ("tasklist/all_desks_normal=false");
 	Config.all_desks_minimized = gnome_config_get_bool ("tasklist/all_desks_minimized=false");
 	Config.move_to_current = gnome_config_get_bool ("tasklist/move_to_current=false");
+        Config.sort_tasklist = gnome_config_get_bool ("tasklist/sort_tasklist=true");
 	
 	gnome_config_pop_prefix ();
 }

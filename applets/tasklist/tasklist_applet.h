@@ -35,6 +35,7 @@ struct _TasklistTask {
 	Pixmap wmhints_icon;
 	GwmhTask *gwmh_task;
 	GtkWidget *menu;
+        gint serial_number;  /* for sorting */
 };
 
 struct _TasklistConfig {
@@ -46,6 +47,7 @@ struct _TasklistConfig {
 	gboolean all_desks_minimized; /* Show minimized tasks on all desktops */
 	gboolean confirm_before_kill; /* Confirm before killing windows */
 	gboolean move_to_current; /* Move iconified tasks to current workspace */
+        gboolean sort_tasklist; /* show the task list in sorted order? */
 	
 	/* Follow the panel sizes */
 	gboolean follow_panel_size;
@@ -74,6 +76,7 @@ void read_config (void);
 gboolean write_config (gpointer data,
 		       const gchar *privcfgpath,
 		       const gchar *globcfgpath);
+void resort_taslklist (void);
 void change_size (gboolean layout);
 void layout_tasklist (void);
 GdkPixbuf *tasklist_icon_create_minimized_icon (GdkPixbuf *pixbuf);

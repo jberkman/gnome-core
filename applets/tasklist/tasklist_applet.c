@@ -49,6 +49,45 @@ gint panel_size = 48;
 
 extern TasklistConfig Config;
 
+/* sorting the list... */
+static gint
+lexographic_compare_func (gconstpointer a, gconstpointer b)
+{
+       const TasklistTask *la = (const TasklistTask*)a;
+       const TasklistTask *lb = (const TasklistTask*)b;
+
+       return strcasecmp (la->gwmh_task->name, lb->gwmh_task->name);
+}
+
+static gint
+creation_compare_func (gconstpointer a, gconstpointer b)
+{
+       const TasklistTask *la = (const TasklistTask*)a;
+       const TasklistTask *lb = (const TasklistTask*)b;
+
+       return lb->serial_number - la->serial_number;
+}
+
+static gint
+tasklist_sorting_compare_func (gconstpointer a, gconstpointer b)
+{
+       /*
+        * This is dumb, but here's why:
+        * the intent is that there be lots of compare functions
+        * (maybe putting the icons at the top, or by desktop,
+        * or whatever.  Right now there are just two: the old
+        * one and the one I like.  BUT, I don't know enough about
+        * how to make gnome_config_xxx map a list of things into
+        * functions, so for now I just have a boolean that controls
+        * which.  Hopefully the next person who adds sorting functions
+        * will know more about gnome than I do and will fix this hack.
+        * - johnh@isi.edu, 24-Nov-00
+        */
+       return Config.sort_tasklist ?
+	       lexographic_compare_func (a, b) :
+	       creation_compare_func (a, b);
+}
+
 /* from gtkhandlebox.c */
 #define DRAG_HANDLE_SIZE 10
 
@@ -160,6 +199,7 @@ task_get_xy (gint x, gint y)
 	return NULL;
 }
 
+
 /* Check which tasks are "visible",
    if they should be drawn onto the tasklist */
 GList *
@@ -171,10 +211,10 @@ get_visible_tasks (void)
 	temp_tasks = tasks;
 	while (temp_tasks) {
 		if (is_task_visible ((TasklistTask *) temp_tasks->data))
-			visible_tasks = g_list_prepend (visible_tasks, temp_tasks->data);
+                        visible_tasks = g_list_insert_sorted (visible_tasks, temp_tasks->data, tasklist_sorting_compare_func);
 		temp_tasks = temp_tasks->next;
 	}
-	return g_list_reverse (visible_tasks);
+	return visible_tasks;
 }
 
 /* Check if a task is "visible", 
@@ -489,6 +529,7 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	       GwmhTaskNotifyType ntype,
 	       GwmhTaskInfoMask imask)
 {
+        static gint master_serial_number = 0;
 	TasklistTask *task;
 	
 	switch (ntype)
@@ -524,7 +565,8 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 		task->gwmh_task = gwmh_task;
 		task->wmhints_icon = tasklist_icon_get_pixmap (task);
 		tasklist_icon_set (task);
-		tasks = g_list_append (tasks, task);
+                task->serial_number = master_serial_number++; /* wrapping seems unlikely :-) */
+                tasks = g_list_insert_sorted (tasks, task, tasklist_sorting_compare_func);
 	        layout_tasklist ();
 		break;
 	case GWMH_NOTIFY_DESTROY:
@@ -751,6 +793,17 @@ ignore_1st_click (GtkWidget *widget, GdkEvent *event)
 	}
 	 
 	return FALSE;
+}
+ 
+/*
+ * Resort the task list.
+ * (This is only here because tasks and tasklist_sorting_compare_func
+ * are not globally defined.)
+ */
+void
+resort_tasklist (void)
+{
+       tasks = g_list_sort (tasks, tasklist_sorting_compare_func);
 }
 
 /* Changes size of the applet */

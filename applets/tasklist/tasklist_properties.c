@@ -18,7 +18,8 @@ cb_apply (GtkWidget *widget, gint page, gpointer data)
 	/* Copy the Property struct back to the Config struct */
 	memcpy (&Config, &PropsConfig, sizeof (TasklistConfig));
 
-	/* Redraw everything */
+        /* Resort and redraw everything */
+        resort_tasklist ();
 	change_size (TRUE);
 }
 
@@ -284,6 +285,10 @@ create_display_page (void)
 			    FALSE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (miscbox),
 			    create_check_button (_("Move iconified tasks to current workspace when restoring"), &PropsConfig.move_to_current),
+			    FALSE, TRUE, 0);
+        gtk_box_pack_start (GTK_BOX (miscbox),
+                            create_check_button (_("Keep tasks sorted"),
+						 &PropsConfig.sort_tasklist),
 			    FALSE, TRUE, 0);
 
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prop), vbox,

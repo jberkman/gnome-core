@@ -1,3 +1,11 @@
+Wed Dec 13 19:17:27 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c, tasklist_applet.h, tasklist_config.c,
+	  tasklist_properties.c:  Apply a very slightly modified patch
+	  from John Heidemann <johnh@isi.edu> to keep tasks sorted
+	  optionally, and turn it on by default since it's pretty cool
+	  to do so actually.
+
 Tue Dec 05 20:09:51 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_applet.c: bind signals on applet-widget before we call
