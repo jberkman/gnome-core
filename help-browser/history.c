@@ -11,8 +11,7 @@ struct _history_struct {
     GtkWidget *window;
     GtkWidget *clist;
     GHashTable *table;
-    GSearchFunc callback;
-    gpointer data;
+    HistoryCB callback;
     gint length;
     gint internalSelectSkipThis;
     gchar *file;
@@ -33,8 +32,7 @@ static int hideHistoryInt(GtkWidget *window);
 static void loadHistory(History h);
 static void appendEntry(History h, gchar *ref, gint date, guint count);
 
-History newHistory(gint length, GSearchFunc callback, gpointer data,
-		   gchar *file)
+History newHistory(gint length, HistoryCB callback, gchar *file)
 {
     gchar filename[BUFSIZ];
     History res;
@@ -43,7 +41,6 @@ History newHistory(gint length, GSearchFunc callback, gpointer data,
     res->length = length;
     res->table = g_hash_table_new(g_str_hash, g_str_equal);
     res->callback = callback;
-    res->data = data;
     res->internalSelectSkipThis = 0;
     if (file) {
 	if (*(file) != '/') {
@@ -218,7 +215,7 @@ static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
     
     entry = gtk_clist_get_row_data(GTK_CLIST(clist), row);
     if (h->callback) {
-	(h->callback)(entry->ref, h->data);
+	(h->callback)(entry->ref);
     }
 }
 

@@ -23,7 +23,7 @@ struct _toc {
 
     GtkWidget *window;
     GtkWidget *htmlWidget;
-    GtkFunction callback;
+    TocCB callback;
 };
 
 static struct _toc_config *addToConfig(struct _toc_config *index,
@@ -108,7 +108,7 @@ static void buildTocConfig(gchar *manPath, gchar *infoPath, gchar *ghelpPath)
 }
 
 Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
-	   GtkFunction callback)
+	   TocCB callback)
 {
     Toc res;
     GString *s;
@@ -165,7 +165,6 @@ static GString *generateHTML(Toc toc)
     gchar ext, last_ext, last_initial;
 
     res = g_string_new("<h1>Table of Contents</h1>\n");
-
 
     /* Man Pages */
     

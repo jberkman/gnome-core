@@ -18,6 +18,7 @@
 
 static void convertMan(docObj obj);
 static void convertHTML(docObj obj);
+static void convertNone(docObj obj);
 static void convertINFO(docObj obj);
 static void convertText(docObj obj);
 
@@ -65,61 +66,89 @@ convertMIME( docObj obj )
 	} else if (!strcmp(m, "text/plain")) {
 		convertText(obj);
 	} else {
-		convertText(obj);
+		convertNone(obj);
 	}
 }
 
 static void
 convertHTML( docObj obj ) 
 {
+        guchar *s;
+	gint len;
+    
 	g_return_if_fail( obj != NULL );
 
 	/* if converted data exists lets use it */
-	if (docObjGetConvData(obj))
+	docObjGetConvData(obj, &s, &len);
+	if (s)
 	    return;
 
-	docObjSetConvData(obj, docObjGetRawData(obj), FALSE);
+	docObjGetRawData(obj, &s, &len);
+	docObjSetConvData(obj, s, len, FALSE);
+}
+
+static void
+convertNone( docObj obj ) 
+{
+        guchar *s;
+	gint len;
+    
+	g_return_if_fail( obj != NULL );
+
+	/* if converted data exists lets use it */
+	docObjGetConvData(obj, &s, &len);
+	if (s)
+	    return;
+
+	docObjGetRawData(obj, &s, &len);
+	docObjSetConvData(obj, s, len, FALSE);
 }
 
 static void
 convertText( docObj obj )
 {
-	gchar *s;
-	gchar *raw;
+	guchar *s, *raw;
+	gint len;
 
 	g_return_if_fail( obj != NULL );
 
 	/* if converted data exists lets use it */
-	if (docObjGetConvData(obj))
+	docObjGetConvData(obj, &s, &len);
+	if (s)
 	    return;
 	
-	raw = docObjGetRawData(obj);
-	s = g_malloc(strlen(raw) + 30);
-	strcpy(s, "<BODY><PRE>\n");
-	strcat(s, raw);
-	strcat(s, "\n</PRE></BODY>\n");
+	docObjGetRawData(obj, &raw, &len);
 
-	docObjSetConvData(obj, s, TRUE);
+	s = g_malloc(len + 27);
+	memcpy(s, "<BODY><PRE>\n", 12);
+	memcpy(s + 12, raw, len);
+	memcpy(s + 12 + len, "\n</PRE></BODY>\n", 15);
+
+	docObjSetConvData(obj, s, len + 27, TRUE);
 }
 
 static void
 convertMan( docObj obj )
 {
-	/* broken - we ignore obj->rawData because man2html doesnt */
-	/*          work with input from stdin                     */
+        guchar *raw;
+	gint len;
+	char *argv[2];
+	guchar *outbuf;
+	gint outbuflen;
 
-        gchar *s;
-	char *argv[3];
-
-	if (! (s = docObjGetRawData(obj)))
+	/* if converted data exists lets use it */
+	docObjGetConvData(obj, &outbuf, &len);
+	if (outbuf)
 	    return;
-
+	
 	argv[0] = "gnome-man2html";
 	argv[1] = NULL;
 	    
 	g_message("filter: %s", argv[0]);
-	
-	docObjSetConvData(obj, getOutputFrom(argv, s, strlen(s)), TRUE);
+
+	docObjGetRawData(obj, &raw, &len);
+	getOutputFrom(argv, raw, len, &outbuf, &outbuflen);
+	docObjSetConvData(obj, outbuf, outbuflen, TRUE);
 }
 
 
@@ -131,6 +160,13 @@ convertINFO( docObj obj )
 	gchar *a;
 	gchar *base;
 	gchar *basepath;
+	guchar *raw, *outbuf;
+	gint len, outbuflen;
+
+	/* if converted data exists lets use it */
+	docObjGetConvData(obj, &outbuf, &outbuflen);
+	if (outbuf)
+	    return;
 
 	argv[0] = "gnome-info2html";
 	argv[1] = "-a";
@@ -163,9 +199,9 @@ convertINFO( docObj obj )
 	g_message("filter: %s %s %s %s %s",
 		  argv[0],argv[1],argv[2],argv[3], argv[4]);
 
-	if (! (s = docObjGetRawData(obj)))
-	    return;
+	docObjGetRawData(obj, &raw, &len);
+	getOutputFrom(argv, raw, len, &outbuf, &outbuflen);
+	docObjSetConvData(obj, outbuf, outbuflen, TRUE);
 
-	docObjSetConvData(obj, getOutputFrom(argv, s, strlen(s)), TRUE);
 	g_free(basepath);
 }

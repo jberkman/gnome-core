@@ -5,11 +5,11 @@
 #include "cache.h"
 
 struct _data_cache {
-    guint maxDataSize;
-    guint maxEntryCount;
+    guint maxMemSize;
+    guint maxDiskSize;
 
-    guint dataSize;
-    guint entryCount;
+    guint memSize;
+    guint diskSize;
 
     GHashTable *hashTable;
     GList *queue;
@@ -28,19 +28,19 @@ struct _data_cache_entry {
 static void freeEntry(struct _data_cache_entry *entry, DataCache cache);
 static void removeElement(DataCache cache);
 
-DataCache newDataCache(guint maxDataSize, guint maxEntryCount,
+DataCache newDataCache(guint maxMemSize, guint maxDiskSize,
 		       GCacheDestroyFunc destroyFunc, gchar *file)
 {
     DataCache res;
 
     res = (DataCache)malloc(sizeof *res);
-    res->maxDataSize = maxDataSize;
-    res->maxEntryCount = maxEntryCount;
+    res->maxMemSize = maxMemSize;
+    res->maxDiskSize = maxDiskSize;
     res->destroyFunc = destroyFunc;
     res->file = file;
 
-    res->dataSize = 0;
-    res->entryCount = 0;
+    res->memSize = 0;
+    res->diskSize = 0;
 
     res->hashTable = g_hash_table_new(g_str_hash, g_str_equal);
     res->queue = NULL;
@@ -104,20 +104,11 @@ void addToDataCache(DataCache cache, gchar *key, gpointer value, guint size)
 
     cache->queue = g_list_append(cache->queue, hit);
     g_hash_table_insert(cache->hashTable, hit->key, hit);
-    cache->dataSize += size;
-    cache->entryCount++;
+    cache->memSize += size;
 
     /* If we have too much stuff in the cache, clean up a bit */
-    if (cache->maxEntryCount) {
-	if (cache->entryCount > cache->maxEntryCount) {
-	    removeElement(cache);
-	}
-    }
-
-    if (cache->maxDataSize) {
-	while (cache->maxDataSize < cache->dataSize) {
-	    removeElement(cache);
-	}
+    while (cache->memSize > cache->maxMemSize) {
+	removeElement(cache);
     }
 }
 
@@ -134,8 +125,7 @@ static void removeElement(DataCache cache)
     topItem = top->data;
     g_hash_table_remove(cache->hashTable, topItem->key);
     
-    cache->dataSize -= topItem->size;
-    cache->entryCount--;
+    cache->memSize -= topItem->size;
 
     /* Free all associated memory */
     g_list_free(top);

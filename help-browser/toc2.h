@@ -25,8 +25,10 @@ struct _big_table_entry {
 
 typedef struct _toc *Toc;
 
+typedef void (*TocCB) (gchar *ref);
+
 Toc newToc(gchar *manPath, gchar *infoPath, gchar *ghelpPath,
-	   GtkFunction callback);
+	   TocCB callback);
 void showToc(Toc toc);
 void hideToc(Toc toc);
 

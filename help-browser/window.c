@@ -54,10 +54,10 @@ struct _helpWindow {
     GtkWidget *statusBar;
 
     /* Passed to us by the main program */
-    GtkSignalFunc about_cb;
-    GtkSignalFunc new_window_cb;
-    GHashFunc close_window_cb;
-    GHashFunc set_current_cb;
+    HelpWindowCB about_cb;
+    HelpWindowCB new_window_cb;
+    HelpWindowCB close_window_cb;
+    HelpWindowCB set_current_cb;
     History history;
     Toc toc;
     DataCache cache;
@@ -167,7 +167,7 @@ static void
 about_cb (GtkWidget *w, HelpWindow win)
 {
     if (win->about_cb)
-	(win->about_cb)();
+	(win->about_cb)(win);
 }
 
 static void
@@ -181,7 +181,7 @@ static void
 new_window_cb (GtkWidget *w, HelpWindow win)
 {
     if (win->new_window_cb)
-	(win->new_window_cb)();
+	(win->new_window_cb)(win);
 }
 
 static void
@@ -422,17 +422,25 @@ helpWindowHistoryAdd(HelpWindow w, gchar *ref)
 }
 
 void
-helpWindowHTMLSource(HelpWindow w, gchar *s, gchar *ref)
+helpWindowHTMLSource(HelpWindow w, gchar *s, gint len, gchar *ref)
 {
+    gchar *buf;
+    
     /* First set the current ref (it may be used to load images) */
     if (w->currentRef) {
 	g_free(w->currentRef);
     }
+
+    /* It's important to set this first because it used is to */
+    /* resolve relative refs for images.                      */
     w->currentRef = g_strdup(ref);
     gtk_entry_set_text(GTK_ENTRY(w->entryBox), ref);
 
     /* Load it up */
-    gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), s);
+    buf = g_malloc(len + 1);
+    memcpy(buf, s, len);
+    buf[len] = '\0';
+    gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), buf);
 }
 
 void
@@ -460,10 +468,10 @@ helpWindowClose(HelpWindow win)
 
 HelpWindow
 helpWindowNew(gchar *name,
-	      GtkSignalFunc about_callback,
-	      GtkSignalFunc new_window_callback,
-	      GtkSignalFunc close_window_callback,
-	      GHashFunc set_current_callback)
+	      HelpWindowCB about_callback,
+	      HelpWindowCB new_window_callback,
+	      HelpWindowCB close_window_callback,
+	      HelpWindowCB set_current_callback)
 {
         HelpWindow w;
 	GtkWidget *entryArea;
@@ -474,7 +482,7 @@ helpWindowNew(gchar *name,
 	w->queue= queue_new();
 	w->about_cb = about_callback;
 	w->new_window_cb = new_window_callback;
-	w->close_window_cb = (GHashFunc)close_window_callback;
+	w->close_window_cb = close_window_callback;
 	w->set_current_cb = set_current_callback;
 	w->history = NULL;
 	w->bookmarks = NULL;
@@ -641,7 +649,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
 		    argv[2] = theref;
 		    argv[3] = NULL;
 		
-		    getOutputFromBin(argv, NULL, 0, &buf, &buflen);
+		    getOutputFrom(argv, NULL, 0, &buf, &buflen);
 		}
 		
 		fd = open(tmpfile, O_WRONLY | O_CREAT, 0666);

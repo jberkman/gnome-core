@@ -5,7 +5,7 @@
 
 typedef struct _data_cache *DataCache;
 
-DataCache newDataCache(guint maxDataSize, guint maxEntryCount,
+DataCache newDataCache(guint maxMemSize, guint maxDiskSize,
 		       GCacheDestroyFunc destroyFunc, gchar *file);
 
 void destroyDataCache(DataCache cache);

@@ -11,7 +11,7 @@ struct _bookmarks_struct {
     GtkWidget *window;
     GtkWidget *clist;
     GHashTable *table;
-    GSearchFunc callback;
+    BookmarksCB callback;
     gpointer data;
     gchar *file;
 };
@@ -31,7 +31,7 @@ static void loadBookmarks(Bookmarks h);
 static void appendEntry(Bookmarks h, gchar *ref);
 static void removeBookmark(GtkWidget *w, Bookmarks b);
 
-Bookmarks newBookmarks(GSearchFunc callback, gpointer data, gchar *file)
+Bookmarks newBookmarks(BookmarksCB callback, gpointer data, gchar *file)
 {
     gchar filename[BUFSIZ];
     Bookmarks res;
@@ -155,7 +155,7 @@ static void mouseDoubleClick(GtkCList *clist, gint row, gint column,
 
     entry = gtk_clist_get_row_data(GTK_CLIST(clist), row);
     if (h->callback) {
-	(h->callback)(entry->ref, h->data);
+	(h->callback)(entry->ref);
     }
 }
 

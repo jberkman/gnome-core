@@ -1,3 +1,10 @@
+ - http
+   names
+   disk cache
+   config panel
+   data lengths in docobj
+   image loading through docobj mechanism
+
  - get rid of bad function type casts
 
  - add configuration stuff:

@@ -6,7 +6,9 @@
 
 typedef struct _bookmarks_struct *Bookmarks;
 
-Bookmarks newBookmarks(GSearchFunc callback, gpointer data, gchar *file);
+typedef void (*BookmarksCB) (gchar *ref);
+
+Bookmarks newBookmarks(BookmarksCB callback, gpointer data, gchar *file);
 void destroyBookmarks(Bookmarks h);
 void addToBookmarks(Bookmarks h, gchar *ref);
 void showBookmarks(Bookmarks h);

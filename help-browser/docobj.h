@@ -16,14 +16,15 @@ void   docObjSetRef(docObj obj, gchar *ref);
 gchar *docObjGetRef(docObj obj);
 gchar *docObjGetAbsoluteRef(docObj obj);
 gchar *docObjGetMimeType(docObj obj);
-gchar *docObjGetRawData(docObj obj);
-gchar *docObjGetConvData(docObj obj);
 DecomposedUrl docObjGetDecomposedUrl(docObj obj);
 TransportFunc docObjGetTransportFunc(docObj obj);
 
 void docObjSetMimeType(docObj obj, gchar *s);
-void docObjSetRawData(docObj obj, gchar *s, gboolean freeit);
-void docObjSetConvData(docObj obj, gchar *s, gboolean freeit);
+
+void docObjGetRawData(docObj obj, guchar **s, gint *len);
+void docObjGetConvData(docObj obj, guchar **s, gint *len);
+void docObjSetRawData(docObj obj, guchar *s, gint len, gboolean freeit);
+void docObjSetConvData(docObj obj, guchar *s, gint len, gboolean freeit);
 
 #endif
 

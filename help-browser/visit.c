@@ -19,25 +19,11 @@ visitURL( HelpWindow win, gchar *ref )
 	return _visitURL(win, ref, TRUE);
 }
 
-gint visitURL_nohistory(HelpWindow win, gchar *ref )
+gint
+visitURL_nohistory(HelpWindow win, gchar *ref )
 {
 	return _visitURL(win, ref, FALSE);
 }
-
-static gint
-visitDocument(HelpWindow win, docObj obj )
-{
-        if (resolveMagicURL( obj, helpWindowGetToc(win) ))
-	        return -1;
-	docObjResolveURL(obj, helpWindowCurrentRef(win));
-	if (transport(obj, helpWindowGetCache(win)))
-		return -1;
-	resolveMIME(obj);
-	convertMIME(obj);
-	displayHTML(win, obj);
-	return 0;
-}
-
 
 /* most people will call this - it allocates a docObj type and loads   */
 /* the page. Currently it frees the docObj afterwards, no history kept */
@@ -69,16 +55,30 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save )
 	return 0;
 }
 
+static gint
+visitDocument(HelpWindow win, docObj obj )
+{
+        if (resolveMagicURL( obj, helpWindowGetToc(win) ))
+	        return -1;
+	docObjResolveURL(obj, helpWindowCurrentRef(win));
+	if (transport(obj, helpWindowGetCache(win)))
+		return -1;
+	resolveMIME(obj);
+	convertMIME(obj);
+	displayHTML(win, obj);
+	return 0;
+}
+
 static void
 displayHTML( HelpWindow win, docObj obj )
 {
+        guchar *buf;
+	gint buflen;
         DecomposedUrl decomp;
     
 	/* Load the page */
-	if (docObjGetConvData(obj)) {
-		helpWindowHTMLSource(win, docObjGetConvData(obj),
-				     docObjGetAbsoluteRef(obj));
-	}
+	docObjGetConvData(obj, &buf, &buflen);
+	helpWindowHTMLSource(win, buf, buflen, docObjGetAbsoluteRef(obj));
 
 	/* Set position */
 	decomp = docObjGetDecomposedUrl(obj);

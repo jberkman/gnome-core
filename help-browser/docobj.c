@@ -16,8 +16,10 @@ struct _docObj {
     DecomposedUrl decomposedUrl;
     
     /* The data */
-    gchar *rawData;
-    gchar *convData;
+    guchar *rawData;
+    guchar *convData;
+    gint rawDataLen;
+    gint convDataLen;
     gboolean  freeraw;
     gboolean  freeconv;
 
@@ -39,6 +41,8 @@ docObjNew(gchar *ref)
 
 	p->rawData  = NULL;
 	p->convData = NULL;
+	p->rawDataLen  = 0;
+	p->convDataLen = 0;
 	p->freeraw  = FALSE;
 	p->freeconv = FALSE;
 	
@@ -131,14 +135,20 @@ gchar *docObjGetMimeType(docObj obj)
     return obj->mimeType;
 }
 
-gchar *docObjGetRawData(docObj obj)
+void docObjGetRawData(docObj obj, guchar **s, gint *len)
 {
-    return obj->rawData;
+    *s = obj->rawData;
+    if (len) {
+	*len = obj->rawDataLen;
+    }
 }
 
-gchar *docObjGetConvData(docObj obj)
+void docObjGetConvData(docObj obj, guchar **s, gint *len)
 {
-    return obj->convData;
+    *s = obj->convData;
+    if (len) {
+	*len = obj->convDataLen;
+    }
 }
 
 DecomposedUrl docObjGetDecomposedUrl(docObj obj)
@@ -159,14 +169,16 @@ void docObjSetMimeType(docObj obj, gchar *s)
     obj->mimeType = g_strdup(s);
 }
 
-void docObjSetRawData(docObj obj, gchar *s, gboolean freeit)
+void docObjSetRawData(docObj obj, guchar *s, gint len, gboolean freeit)
 {
     obj->rawData = s;
+    obj->rawDataLen = len;
     obj->freeraw = freeit;
 }
 
-void docObjSetConvData(docObj obj, gchar *s, gboolean freeit)
+void docObjSetConvData(docObj obj, guchar *s, gint len, gboolean freeit)
 {
     obj->convData = s;
+    obj->convDataLen = len;
     obj->freeconv = freeit;
 }

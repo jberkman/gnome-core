@@ -29,13 +29,15 @@
 #define NAME "GnomeHelp"
 #define VERSION "0.4"
 
-static void aboutCallback(void);
-static void newWindowCallback(void);
+static void aboutCallback(HelpWindow win);
+static void newWindowCallback(HelpWindow win);
 static void closeWindowCallback(HelpWindow win);
 static void setCurrentCallback(HelpWindow win);
+
 static void historyCallback(gchar *ref);
 static void bookmarkCallback(gchar *ref);
 static void tocCallback(gchar *ref);
+
 void messageHandler(gchar *s);
 void warningHandler(gchar *s);
 void errorHandler(gchar *s);
@@ -87,14 +89,11 @@ main(int argc, char *argv[])
     
     setErrorHandlers();
 	
-    historyWindow = newHistory(historyLength, (GSearchFunc)historyCallback,
-			       NULL, historyFile);
+    historyWindow = newHistory(historyLength, historyCallback, historyFile);
     cache = newDataCache(memCacheSize, 0, (GCacheDestroyFunc)g_free,
 			 cacheFile);
-    tocWindow = newToc(manPath, infoPath, ghelpPath,
-		       (GtkSignalFunc)tocCallback);
-    bookmarkWindow = newBookmarks((GSearchFunc)bookmarkCallback, NULL,
-				  bookmarkFile);
+    tocWindow = newToc(manPath, infoPath, ghelpPath, tocCallback);
+    bookmarkWindow = newBookmarks(bookmarkCallback, NULL, bookmarkFile);
 
     window = makeHelpWindow();
 
@@ -151,7 +150,7 @@ closeWindowCallback(HelpWindow win)
 }
 
 static void
-newWindowCallback(void)
+newWindowCallback(HelpWindow win)
 {
     HelpWindow window;
     
@@ -173,14 +172,14 @@ bookmarkCallback (gchar *ref)
 }
 
 static void
-tocCallback(gchar *ref) 
+tocCallback (gchar *ref) 
 {
     g_message("TOC: %s", ref);
     helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref);
 }
 
 static void
-aboutCallback (void)
+aboutCallback (HelpWindow win)
 {
 	GtkWidget *about;
 	gchar *authors[] = {

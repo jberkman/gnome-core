@@ -12,11 +12,13 @@
 
 typedef struct _helpWindow *HelpWindow;
 
+typedef void (*HelpWindowCB)(HelpWindow win);
+
 HelpWindow helpWindowNew(gchar *name,
-			 GtkSignalFunc about_callback,
-			 GtkSignalFunc new_window_callback,
-			 GtkSignalFunc close_window_callback,
-			 GHashFunc set_current_callback);
+			 HelpWindowCB about_callback,
+			 HelpWindowCB new_window_callback,
+			 HelpWindowCB close_window_callback,
+			 HelpWindowCB set_current_callback);
 void helpWindowClose(HelpWindow win);
 void helpWindowShowURL(HelpWindow win, gchar *ref);
 void helpWindowSetHistory(HelpWindow win, History history);
@@ -32,7 +34,7 @@ void helpWindowHistoryAdd(HelpWindow w, gchar *ref);
 
 gchar *helpWindowCurrentRef(HelpWindow w);
 
-void helpWindowHTMLSource(HelpWindow w, gchar *s, char *ref);
+void helpWindowHTMLSource(HelpWindow w, gchar *s, gint len, char *ref);
 void helpWindowJumpToAnchor(HelpWindow w, gchar *s);
 void helpWindowJumpToLine(HelpWindow w, gint n);
 

@@ -1,4 +1,14 @@
-1998-03-06  Marc Ewing  <marc@localhost.localdomain>
+1998-03-08  Marc Ewing  <marc@redhat.com>
+
+	* Misc cleanups of gnome-helpwin, gnome-info2html,
+	  gnome-man2html, my bogus function casts.
+
+	* Rework some of docobj to handle binary data.
+	  Now the raw/conv data is *not* NULL terminated!
+
+	* Added simple (stupid) http transport.
+
+1998-03-06  Marc Ewing  <marc@redhat.com>
 
 	* fix horrible toc/info bug
 

@@ -38,11 +38,11 @@ static GtkXmHTMLClass *parent_class;
 /* widget stuff */
 /****************/
 
+#if 0
 static void
 gnome_helpwin_destroy(GtkObject *object)
 {
 	GnomeHelpWin *help;
-	gint i;
 	
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (GNOME_HELPWIN_IS_HELP (object));
@@ -57,7 +57,7 @@ gnome_helpwin_destroy(GtkObject *object)
  		(* GTK_OBJECT_CLASS(parent_class)->destroy)(GTK_OBJECT(help));
 */		
 }
-
+#endif
 
 static void
 gnome_helpwin_class_init(GnomeHelpWinClass *helpclass)
@@ -86,11 +86,13 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs) {
 }
 #endif
 
+#if 0
 static int
 my_false(GtkWidget *w, gpointer *data)
 {
 	return FALSE;
 }
+#endif
 
 
 static void
@@ -124,18 +126,18 @@ gnome_helpwin_get_type(void)
 	return GnomeHelpWin_type;
 }
 
-
+#if 0
 static void
 arm_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs) {
 
 	printf("In activate with ref = |%s|\n",cbs->href);
 	fflush(stdout);
 }
+#endif
 
 GtkWidget *
 gnome_helpwin_new(void)
 {
-	GtkWidget *w;
 	GnomeHelpWin *help;
 
 	help = gtk_type_new(gnome_helpwin_get_type());
