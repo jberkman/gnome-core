@@ -125,39 +125,33 @@ XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 /* Menu and toolbar structures */
 
 GnomeUIInfo filemenu[] = {
-	{ GNOME_APP_UI_ITEM, N_("_New window"), N_("Open new browser window"), new_window_cb, NULL, NULL,
-	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_NEW, 'n', GDK_CONTROL_MASK, NULL },
-	 
+        GNOMEUIINFO_MENU_NEW_ITEM(N_("_New Window"),
+				     N_("Open new browser window"),
+				     new_window_cb, NULL),
+
+	GNOMEUIINFO_SEPARATOR,
+
 	{GNOME_APP_UI_ITEM, 
 	 N_("_Add Bookmark"), N_("Add bookmark"),
          bookmark_cb, NULL, NULL, 
 	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SAVE,
 	 0, 0, NULL},
 
-	{ GNOME_APP_UI_ITEM, N_("P_references..."), N_("Preferences"), config_cb, NULL, NULL,
-	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_PREF, 0, 0, NULL },
-	 
-	{GNOME_APP_UI_ITEM, 
-	 N_("_Close"), N_("Close window"),
-         close_cb, NULL, NULL, 
-	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_CLOSE,
-	 'w', GDK_CONTROL_MASK, NULL},
-	{GNOME_APP_UI_ITEM, 
-	 N_("E_xit"), N_("Exit all windows"),
-         quit_cb, NULL, NULL, 
-	 GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_EXIT,
-	 'q', GDK_CONTROL_MASK, NULL},
+	GNOMEUIINFO_SEPARATOR,
+
+	GNOMEUIINFO_MENU_CLOSE_ITEM(close_cb, NULL),
+
+	GNOMEUIINFO_MENU_EXIT_ITEM(quit_cb, NULL),
+
 	GNOMEUIINFO_END
 };
 
 GnomeUIInfo helpmenu[] = {
-    {GNOME_APP_UI_ITEM, 
-     N_("_About"), N_("Info about this program"),
-     about_cb, NULL, NULL, 
-     GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_ABOUT,
-     0, 0, NULL},
-    GNOMEUIINFO_SEPARATOR,
+  
     GNOMEUIINFO_HELP("help-browser"),
+
+    GNOMEUIINFO_MENU_ABOUT_ITEM(about_cb, NULL),
+
     GNOMEUIINFO_END
 };
  
@@ -175,10 +169,16 @@ GnomeUIInfo windowmenu[] = {
 	 GNOMEUIINFO_END
 };
 
+GnomeUIInfo settingsmenu[] = {
+        GNOMEUIINFO_MENU_PREFERENCES_ITEM(config_cb, NULL),
+	GNOMEUIINFO_END
+};
+
 GnomeUIInfo mainmenu[] = {
-    GNOMEUIINFO_SUBTREE(N_("_File"), filemenu),
+    GNOMEUIINFO_MENU_FILE_TREE(filemenu),
     GNOMEUIINFO_SUBTREE(N_("_Window"), windowmenu),
-    GNOMEUIINFO_SUBTREE(N_("_Help"), helpmenu),
+    GNOMEUIINFO_MENU_SETTINGS_TREE(settingsmenu),
+    GNOMEUIINFO_MENU_HELP_TREE(helpmenu),
     GNOMEUIINFO_END
 };
 
