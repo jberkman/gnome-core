@@ -36,7 +36,6 @@ gnome_help_browser_SOURCES = gnome-helpwin.c gnome-helpwin.h \
                              misc.c misc.h window.c window.h \
 			     visit.c visit.h magic.c magic.h \
 			     bookmarks.c bookmarks.h \
-			     check-running.c check-running.h \
 			     help-browser-impl.c \
 			     $(ORBIT_HELP_BROWSER_SOURCES)
 

@@ -3,7 +3,7 @@
 #include <libgnorba/gnorba.h>
 #include "help-browser.h"
 
-void Exception( CORBA_Environment* ev )
+static void Exception( CORBA_Environment* ev )
 {
   switch( ev->_major )
     {
@@ -20,7 +20,7 @@ void Exception( CORBA_Environment* ev )
     }
 }
 
-void
+int
 main(int argc, char* argv[])
 {
   CORBA_ORB orb;
@@ -76,6 +76,8 @@ main(int argc, char* argv[])
 	  Exception(&ev);
 	}
     }while (ptr);
+
+  return 0;
 }
 
 					      

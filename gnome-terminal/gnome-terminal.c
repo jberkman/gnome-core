@@ -27,9 +27,6 @@ char **env;
 #define DEFAULT_FONT "-misc-fixed-medium-r-normal--20-200-75-75-c-100-iso8859-1"
 #define EXTRA 2
 
-/* Name of section to discard if --discard given.  */
-static char *discard_section = NULL;
-
 /* Initial geometry */
 char *geometry = 0;
 
@@ -1122,6 +1119,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_widget_show_all (prefs->prop_win);
 }
 
+#ifdef NEED_UNUSED_FUNCTIONS
 static void
 color_ok (GtkWidget *w)
 {
@@ -1140,6 +1138,7 @@ color_cmd (void)
 	gtk_widget_hide (GTK_COLOR_SELECTION_DIALOG (c)->help_button);
 	gtk_widget_show (c);
 }
+#endif
 
 static void
 show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
