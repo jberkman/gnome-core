@@ -1,5 +1,7 @@
 1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
+	* gnome-terminal.c (apply_changes): Only apply changes once.
+	
 	* gnome-terminal.c (drop_data_available): Important DnD bug fix
 	that walks the list of dropped files correctly.
 

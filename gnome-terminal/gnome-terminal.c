@@ -164,6 +164,9 @@ apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
+
+	if (page != -1)
+		return;
 	
 	zvt_term_set_font_name (term, gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
 	zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
