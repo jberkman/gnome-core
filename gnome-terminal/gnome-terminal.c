@@ -1680,7 +1680,8 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	gtk_signal_connect_after (GTK_OBJECT (term), "size_allocate",
 				  GTK_SIGNAL_FUNC (size_allocate), term);
 	
-	gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
+	if (!cfg->menubar_hidden)
+		gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
@@ -1740,9 +1741,11 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	 * We need to hide this here, because the gnome_app_show
 	 * method will force a show on the menu
 	 */
-	if (cfg->menubar_hidden)
+	if (cfg->menubar_hidden) {
+		gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
 		gtk_widget_hide (GNOME_APP (app)->menubar->parent);
-	
+	}
+
 	set_color_scheme (term, cfg);
 
 	gdk_window_set_hints (((GtkWidget *)app)->window,
