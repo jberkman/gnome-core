@@ -1,3 +1,19 @@
+Sat Oct 30 13:10:16 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c:
+	guarded a bunch of API calls against invalid tasks.
+	(task_new): delete task immediatedly if we couldn't fetch the task's
+	root or frame, return NULL for that case.
+	(client_list_sync): skip NULL tasks from client list.
+	(gwmh_task_update): don't immediatedly delete tasks, but return FALSE
+	to indicate that the task isn't especially valid anymore and queue
+	a client list update so we get rid of this task as soon as possible.
+	(task_delete): added two task list checks (expensive).
+	(client_list_sync): added an expensive assertment on the rebuit
+	client_list.
+	the latter three paranoia checks, can be removed if desk-guide
+	doesn't crash for 42 days ;)
+
 Mon Oct 25 01:37:41 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c: added gp_config_check() which can change config

@@ -109,7 +109,7 @@ static void		gwmh_task_queue_full	  (GwmhTask          *task,
 						   GwmhTaskInfoMask   imask,
 						   GwmhTaskInfoMask   notify_mask);
 static void		gwmh_desk_update	  (GwmhDeskInfoMask   imask);
-static void		gwmh_task_update	  (GwmhTask          *task,
+static gboolean		gwmh_task_update	  (GwmhTask          *task,
 						   GwmhTaskInfoMask   imask,
 						   gboolean           skip_notify);
 static void		gwmh_desk_notify	  (GwmhDeskInfoMask   imask);
@@ -1030,7 +1030,7 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
     gwmh_desk_notify (ichanges);
 }
 
-static void
+static gboolean
 gwmh_task_update (GwmhTask        *task,
 		  GwmhTaskInfoMask imask,
 		  gboolean         skip_notify)
@@ -1084,8 +1084,11 @@ gwmh_task_update (GwmhTask        *task,
       get_task_root_and_frame (task);
       if (!task->xframe || !task->sroot)
 	{
-	  task_delete (task);
-	  return;
+	  /* eek, that's ugly, we need to get rid of this task as
+	   * soon as possible, but *not* right here.
+	   */
+	  gwmh_desk_queue_update (GWMH_DESK_INFO_CLIENT_LIST);
+	  return FALSE;
 	}
       if (task->xframe != xframe ||
 	  (task->sroot ? GSTC_PARENT_XWINDOW (task->sroot) : 0) != !xroot)
@@ -1338,6 +1341,8 @@ gwmh_task_update (GwmhTask        *task,
   
   if (!skip_notify && ichanges)
     gwmh_task_notify (task, GWMH_NOTIFY_INFO_CHANGED, ichanges);
+
+  return TRUE;
 }
 
 static gboolean
@@ -1602,12 +1607,19 @@ task_new (GdkWindow *window)
   /* gwmh_task_update () will do this for us:
    * get_task_root_and_frame (task);
    */
-  gwmh_task_update (task, GWMH_TASK_INFO_ALL, TRUE);
+  if (gwmh_task_update (task, GWMH_TASK_INFO_ALL, TRUE))
+    {
+      gwmh_task_notify (task, GWMH_NOTIFY_NEW, 0);
+      gwmh_task_update (task, 0, FALSE);
 
-  gwmh_task_notify (task, GWMH_NOTIFY_NEW, 0);
-  gwmh_task_update (task, 0, FALSE);
+      return task;
+    }
+  else
+    {
+      task_delete (task);
 
-  return task;
+      return NULL;
+    }
 }
 
 static void
@@ -1664,6 +1676,18 @@ task_delete (GwmhTask *task)
   gwmh_desk.client_list = g_list_remove (gwmh_desk.client_list, task);
   g_free (task->name);
   task->name = "DELETED";
+
+  if (g_list_find (gwmh_desk.client_list, task))
+    {
+      g_warning ("deleted task still in client_list\n"); /* FIXME */
+      g_assert_not_reached ();
+    }
+  if (g_slist_find (gwmh_task_queue, task))
+    {
+      g_warning ("deleted task still in queue\n"); /* FIXME */
+      g_assert_not_reached ();
+    }
+    
   g_free (task);
 }
 
@@ -1705,13 +1729,18 @@ client_list_sync (Window *xwindows,
 
       if (window)
 	{
-	  client_list = g_list_prepend (client_list,
-					task_new (window));
-	  clients_changed = TRUE;
+	  GwmhTask *task = task_new (window);
+
+	  if (task)
+	    {
+	      client_list = g_list_prepend (client_list, task);
+	      clients_changed = TRUE;
+	    }
 	  gdk_window_unref (window);
 	}
     }
 
+  g_assert (g_list_length (gwmh_desk.client_list) == g_list_length (client_list)); /* FIXME */
   if (clients_changed)
     {
       g_list_free (gwmh_desk.client_list);
@@ -1828,14 +1857,13 @@ gwmh_task_deiconify (GwmhTask *task)
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_ICONIFIED, FALSE);
-
-  if (GWMH_TASK_ICONIFIED (task))
+  if (gwmh_task_update (task, GWMH_TASK_INFO_ICONIFIED, FALSE) &&
+      GWMH_TASK_ICONIFIED (task))
     {
       gdk_error_trap_push ();
-
+      
       XMapWindow (GDK_DISPLAY (), task->xwin);
-
+      
       gwmh_sync ();
       gdk_error_trap_pop ();
     }
@@ -1846,7 +1874,8 @@ gwmh_task_focus (GwmhTask *task)
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_FOCUSED, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_FOCUSED, FALSE))
+    return;
 
   if (wm_protocol_check_support (task->xwin, XA_WM_TAKE_FOCUS))
     send_client_message_32 (task->xwin, task->xwin,
@@ -1870,11 +1899,12 @@ gwmh_task_show (GwmhTask *task)
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task,
-		    (GWMH_TASK_INFO_ICONIFIED |
-		     GWMH_TASK_INFO_FOCUSED |
-		     GWMH_TASK_INFO_GSTATE),
-		    FALSE);
+  if (!gwmh_task_update (task,
+			 (GWMH_TASK_INFO_ICONIFIED |
+			  GWMH_TASK_INFO_FOCUSED |
+			  GWMH_TASK_INFO_GSTATE),
+			 FALSE))
+    return;
 
   if (!GWMH_TASK_SKIP_FOCUS (task) &&
       wm_protocol_check_support (task->xwin, XA_WM_TAKE_FOCUS))
@@ -1922,7 +1952,8 @@ gwmh_task_set_gstate_flags (GwmhTask *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_GSTATE, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_GSTATE, FALSE))
+    return;
 
   if ((GWMH_TASK_GSTATE (task) & flags) != flags)
     send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
@@ -1937,7 +1968,8 @@ gwmh_task_unset_gstate_flags (GwmhTask *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_GSTATE, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_GSTATE, FALSE))
+    return;
 
   if (GWMH_TASK_GSTATE (task) & flags)
     send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
@@ -1952,7 +1984,8 @@ gwmh_task_set_ghint_flags (GwmhTask *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_GHINTS, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_GHINTS, FALSE))
+    return;
 
   if ((GWMH_TASK_GHINTS (task) & flags) != flags)
     send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
@@ -1967,7 +2000,8 @@ gwmh_task_unset_ghint_flags (GwmhTask *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_GHINTS, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_GHINTS, FALSE))
+    return;
 
   if (GWMH_TASK_GHINTS (task) & flags)
     send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
@@ -1982,7 +2016,8 @@ gwmh_task_set_app_state (GwmhTask        *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_APP_STATE, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_APP_STATE, FALSE))
+    return;
 
   if (GWMH_TASK_APP_STATE (task) != app_state)
     send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
@@ -2052,7 +2087,8 @@ gwmh_task_set_layer (GwmhTask *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_LAYER, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_LAYER, FALSE))
+    return;
 
   if (task->layer != layer)
     send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
@@ -2069,7 +2105,8 @@ gwmh_task_set_area (GwmhTask *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_DESKTOP | GWMH_TASK_INFO_AREA, FALSE);
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_DESKTOP | GWMH_TASK_INFO_AREA, FALSE))
+    return;
   
   if (desktop >= gwmh_desk.n_desktops ||
       harea >= gwmh_desk.n_hareas ||
@@ -2125,9 +2162,8 @@ gwmh_task_set_desktop (GwmhTask *task,
 {
   g_return_if_fail (task != NULL);
 
-  gwmh_task_update (task, GWMH_TASK_INFO_DESKTOP, FALSE);
-  
-  if (desktop >= gwmh_desk.n_desktops || task->desktop == desktop)
+  if (!gwmh_task_update (task, GWMH_TASK_INFO_DESKTOP, FALSE) ||
+      desktop >= gwmh_desk.n_desktops || task->desktop == desktop)
     return;
   
   /* ugly hack for buggy window managers
