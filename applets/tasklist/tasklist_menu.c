@@ -94,6 +94,9 @@ cb_menu (GtkWidget *widget, gpointer data)
 		break;
 	case MENU_ACTION_SHOW_HIDE:
 		if (GWMH_TASK_ICONIFIED (current_task->gwmh_task)) {
+			gwmh_desk_set_current_area (task->gwmh_task->desktop,
+						    task->gwmh_task->harea,
+						    task->gwmh_task->varea);
 			gwmh_task_show (current_task->gwmh_task);
 			gwmh_task_show (current_task->gwmh_task);
 		}
