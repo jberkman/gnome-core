@@ -1124,7 +1124,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Font */
 	l = aligned_label (_("Font:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, 0, 0);
 	prefs->font_entry = gtk_entry_new ();
 	gtk_entry_set_text (GTK_ENTRY (prefs->font_entry),
 			    gtk_object_get_user_data (GTK_OBJECT (term)));
@@ -1132,7 +1132,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->font_entry), "changed",
 			    GTK_SIGNAL_FUNC (font_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->font_entry,
-			  2, 3, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, 0, 0);
 	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
 				      GTK_EDITABLE (prefs->font_entry));
 
@@ -1150,11 +1150,11 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_object_set_user_data (GTK_OBJECT(prefs->font_entry), GTK_OBJECT(picker)); 
 
 	gtk_table_attach (GTK_TABLE (table), picker,
-			  3, 5, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  3, 5, FONT_ROW, FONT_ROW+1, GTK_FILL, 0, 0, 0);
 	/* Terminal class */
 	l = aligned_label (_("Terminal Class"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, 0, 0);
 	prefs->class_box = gtk_combo_new ();
 	iter = gnome_config_init_iterator_sections ("/Terminal");
 	while (gnome_config_iterator_next (iter, &some_class, NULL)){
@@ -1177,7 +1177,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (GTK_COMBO (prefs->class_box)->entry), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->class_box,
-			  2, 3, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, 0, 0);
 	
 	/* Toggle the use of bold */
 	
@@ -1194,7 +1194,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	                    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE(table), prefs->use_bold_checkbox,
 	                  2, 3, BOLDTOGGLE_ROW, BOLDTOGGLE_ROW+1, GTK_FILL, 0,
-	                  GNOME_PAD, GNOME_PAD);
+	                  0, 0);
 
 	/* Blinking status */
 	prefs->blink_checkbox = gtk_check_button_new_with_label (_("Blinking cursor"));
@@ -1203,7 +1203,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->blink_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->blink_checkbox,
-			  2, 3, BLINK_ROW, BLINK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, BLINK_ROW, BLINK_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Show menu bar */
 	prefs->menubar_checkbox = gtk_check_button_new_with_label (_("Hide menu bar"));
@@ -1212,7 +1212,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->menubar_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
-			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Toggle the bell */
 	prefs->bell_checkbox = gtk_check_button_new_with_label (_("Silence Terminal bell"));
@@ -1221,7 +1221,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->bell_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->bell_checkbox,
-			  2, 3, BELL_ROW, BELL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, BELL_ROW, BELL_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Swap keys */
 	prefs->swapkeys_checkbox = gtk_check_button_new_with_label (_("Swap DEL/Backspace"));
@@ -1230,7 +1230,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->swapkeys_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->swapkeys_checkbox,
-			  2, 3, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, SWAPKEYS_ROW, SWAPKEYS_ROW+1, GTK_FILL, 0, 0, 0);
 	
 	/* --login by default */
 	prefs->login_by_default_checkbox = gtk_check_button_new_with_label (_("Use --login by default"));
@@ -1239,19 +1239,19 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->login_by_default_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->login_by_default_checkbox,
-			  2, 3, LOGIN_ROW, LOGIN_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, LOGIN_ROW, LOGIN_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Word selection class */
 	l = aligned_label (_("Select-by-word characters"));
 	gtk_table_attach (GTK_TABLE (table), l,
-                          1, 2, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+                          1, 2, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, 0, 0);
 	prefs->wordclass_entry = gtk_entry_new();
 	gtk_entry_set_text (GTK_ENTRY (prefs->wordclass_entry),
 			    cfg->wordclass);
 	gtk_signal_connect (GTK_OBJECT (prefs->wordclass_entry), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->wordclass_entry,
-			  2, 3, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, WORDCLASS_ROW, WORDCLASS_ROW+1, GTK_FILL, 0, 0, 0);
 	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
 				      GTK_EDITABLE (prefs->wordclass_entry));
 
@@ -1268,11 +1268,11 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	frame = gtk_frame_new (_("Background type"));
 	gtk_table_attach (GTK_TABLE (table), frame,
 			  1, 3, BACKGROUND_ROW, BACKGROUND_ROW+1, 
-			  GTK_FILL | GTK_EXPAND, 0, GNOME_PAD, GNOME_PAD);
+			  GTK_FILL | GTK_EXPAND, 0, 0, 0);
 
 	subtable = gtk_table_new (4, 2, FALSE);
-	gtk_container_set_border_width (GTK_CONTAINER (subtable), GNOME_PAD_SMALL);
-	gtk_table_set_row_spacings (GTK_TABLE (subtable), GNOME_PAD);
+	gtk_container_set_border_width (GTK_CONTAINER (subtable), 0);
+	gtk_table_set_row_spacings (GTK_TABLE (subtable), 0);
 	gtk_container_add (GTK_CONTAINER (frame), subtable);
 
 	r = gtk_radio_button_new_with_label (NULL, _("None"));
@@ -1291,16 +1291,16 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (subtable), r,
 			  0, 1, 1, 2,
 			  GTK_FILL, 0, 0, 0);
-	gtk_table_set_row_spacing (GTK_TABLE (subtable), 1, GNOME_PAD_SMALL);
+	gtk_table_set_row_spacing (GTK_TABLE (subtable), 1, 0);
 	
 	/* Background pixmap filename */
-	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_table_attach (GTK_TABLE (subtable), hbox,
 			  0, 2, 2, 3,
 			  GTK_FILL | GTK_EXPAND, 0, 0, 0);
 
 	prefs->pixmap_label = gtk_label_new (_("Pixmap file:"));
-	gtk_box_pack_start (GTK_BOX (hbox), prefs->pixmap_label, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), prefs->pixmap_label, FALSE, FALSE, GNOME_PAD);
 
 	prefs->pixmap_file_entry = gnome_file_entry_new ("pixmap",_("Browse"));
 	prefs->pixmap_entry =
@@ -1321,7 +1321,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (subtable), prefs->pixmap_scrollable_checkbox,
 			  0, 1, 3, 4,
-			  GTK_FILL, 0, 0, 0);
+			  GTK_FILL, 0, GNOME_PAD, 0);
 #endif
 
 	/* Transparency */
@@ -1344,7 +1344,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	 * is actually set to EXPAND - col spanning cells like the
 	 * third row don't count in the table's algorithm :-(
 	 */
-	hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_table_attach (GTK_TABLE (subtable), hbox,
 #ifdef ZVT_BACKGROUND_SCROLL
 			  1, 2, 5, 6,
@@ -1360,7 +1360,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->shaded_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->shaded_checkbox,
-			  1, 2, SHADED_ROW, SHADED_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD_SMALL);
+			  1, 2, SHADED_ROW, SHADED_ROW+1, GTK_FILL, 0, 0, 0);
 
 	check_image_options_sensitivity (prefs);
 
@@ -1372,38 +1372,38 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Color palette */
 	l = aligned_label (_("Color scheme:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, 0, 0);
 	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 						  color_scheme, cfg->color_type, GTK_SIGNAL_FUNC (set_active));
 	gtk_object_set_user_data (GTK_OBJECT (prefs->color_scheme), GINT_TO_POINTER (cfg->color_type));
 	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
-			  2, 6, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 6, COLORPAL_ROW, COLORPAL_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Foreground, background buttons */
 	prefs->fore_label = aligned_label (_("Foreground color:"));
 	gtk_table_attach (GTK_TABLE (table), prefs->fore_label,
-			  1, 2, FORECOLOR_ROW, FORECOLOR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, FORECOLOR_ROW, FORECOLOR_ROW+1, GTK_FILL, 0, 0, 0);
 	prefs->palette[16] = gnome_color_picker_new ();
 	gtk_table_attach (GTK_TABLE (table), b1 = prefs->palette[16],
-			  2, 3, FORECOLOR_ROW, FORECOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, FORECOLOR_ROW, FORECOLOR_ROW+1, 0, 0, 0, GNOME_PAD_SMALL);
 	gtk_signal_connect (GTK_OBJECT (b1), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->palette[16]);
 
 	prefs->back_label = aligned_label (_("Background color:"));
 	gtk_table_attach (GTK_TABLE (table), prefs->back_label,
-			  1, 2, BACKCOLOR_ROW, BACKCOLOR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, BACKCOLOR_ROW, BACKCOLOR_ROW+1, GTK_FILL, 0, 0, 0);
 	prefs->palette[17] = gnome_color_picker_new ();
 	gtk_table_attach (GTK_TABLE (table), b2 = prefs->palette[17],
-			  2, 3, BACKCOLOR_ROW, BACKCOLOR_ROW+1, 0, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, BACKCOLOR_ROW, BACKCOLOR_ROW+1, 0, 0, 0, GNOME_PAD_SMALL);
 	gtk_signal_connect (GTK_OBJECT (b2), "destroy", GTK_SIGNAL_FUNC (free_cs), prefs->palette[17]);
 	l = aligned_label (_("Color palette:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, BACKCOLOR_ROW+1, BACKCOLOR_ROW+2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, BACKCOLOR_ROW+1, BACKCOLOR_ROW+2, GTK_FILL, 0, 0, 0);
 	prefs->palette_label = l;
 
 	paltable = gtk_table_new(8,2,FALSE);
 	gtk_table_attach (GTK_TABLE (table), paltable,
 			  2, 3, BACKCOLOR_ROW+1, BACKCOLOR_ROW+2, GTK_FILL, 0,
-			  GNOME_PAD, GNOME_PAD);
+			  0, 0);
 	for (i=0;i<18;i++) {
 		if (i<16) {
 			prefs->palette[i] = gnome_color_picker_new();
@@ -1419,11 +1419,11 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* default foreground/backgorund selector */
 	l = aligned_label (_("Fore/Background Colour:"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, 0, 0);
 	prefs->def_fore_back = create_option_menu_data (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 							fore_back_table, cfg->color_set, GTK_SIGNAL_FUNC (set_active));
 	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
-			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, 0, 0);
 
 	check_color_sensitivity (prefs);
 
@@ -1435,25 +1435,25 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	/* Scrollbar position */
 	l = aligned_label (_("Scrollbar position"));
 	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  1, 2, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, 0, GNOME_PAD);
 	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
 					       scrollbar_position_list,
 					       cfg->scrollbar_position, GTK_SIGNAL_FUNC (set_active));
 	gtk_object_set_user_data(GTK_OBJECT(prefs->scrollbar), GINT_TO_POINTER(cfg->scrollbar_position));
 	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
-			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Scroll back */
 	l = aligned_label (_("Scrollback lines"));
         gtk_table_attach (GTK_TABLE (table), l, 1, 2, SCROLLBACK_ROW, SCROLLBACK_ROW+1, 
-			  GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  GTK_FILL, 0, 0, 0);
 	adj = (GtkAdjustment *) gtk_adjustment_new ((gfloat)cfg->scrollback, 1.0, 
 						    100000.0, 1.0, 5.0, 0.0);
 	prefs->scrollback_spin = gtk_spin_button_new (adj, 0, 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->scrollback_spin), "changed",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->scrollback_spin, 2, 3, SCROLLBACK_ROW, 
-			  SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  SCROLLBACK_ROW+1, GTK_FILL, 0, 0, 0);
 	gnome_dialog_editable_enters (GNOME_DIALOG (prefs->prop_win),
 				      GTK_EDITABLE (prefs->scrollback_spin));
 
@@ -1464,7 +1464,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->scroll_kbd_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->scroll_kbd_checkbox, 2, 3, 
-			  KBDSCROLL_ROW, KBDSCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  KBDSCROLL_ROW, KBDSCROLL_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* Scroll on output checkbox */
 	prefs->scroll_out_checkbox = gtk_check_button_new_with_label (_("Scroll on output"));
@@ -1473,7 +1473,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->scroll_out_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	gtk_table_attach (GTK_TABLE (table), prefs->scroll_out_checkbox, 2, 3, 
-			  OUTSCROLL_ROW, OUTSCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+			  OUTSCROLL_ROW, OUTSCROLL_ROW+1, GTK_FILL, 0, 0, 0);
 
 	/* connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",

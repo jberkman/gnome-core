@@ -1,3 +1,8 @@
+2000-05-11  Miguel de Icaza  <miguel@helixcode.com>
+
+	* gnome-terminal.c (preferences_cmd): Make padding less intensive
+	in the terminal preferences dialog box.
+
 2000-05-11  Dan Winship  <danw@helixcode.com>
 
 	* Makefile.am: Note that corba.c depends on Terminal.h so it will
