@@ -11,6 +11,10 @@ extern GtkWidget *main_window;
    a change that could be applied.  */
 void property_changed (void);
 
+/* A property sheet should call this function when the user has
+   clicked on the apply button. */
+void property_applied (void);
+
 /* This is what an application's main() should call.  It isn't named
    main() since that doesn't always work well in libraries.  */
 int property_main (char *app_id, int argc, char *argv[]);

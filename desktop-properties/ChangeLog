@@ -1,3 +1,23 @@
+1998-04-30  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* property-screensaver.cc (screensaver_write): 
+	* property-mouse.c (mouse_write): 
+	* property-keyboard.c (keyboard_write): 
+
+	* property-background.c (background_write): Remember to call
+	gnome_config_sync().
+
+	* property-keyboard.c (keyboard_apply): 
+	* property-mouse.c (mouse_apply): 
+	* property-screensaver.cc (screensaver_apply): 
+	* property-background.c (background_apply): Call property_applied().
+
+	* main.c (property_applied): New function that should be called by
+	property sheets when changes are applied.  They should call this
+	when they receive the GNOME_PROPERTY_APPLY request in addition to
+	doing their application stuff.  (This function sets a flag that
+	indicates that the state should be saved when the program exits).
+
 1998-04-30  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* property-background.c (image_dnd_drop): Drag and Drop frenezy!

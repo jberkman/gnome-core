@@ -30,9 +30,21 @@ background_properties_SOURCES =	\
 	xlockmore.h		\
 	xlockparse.ll
 
-LDADD = \
+background_properties_LDADD = \
 	$(GNOME_LIBDIR)					\
 	-lImlib						\
+	$(GNOMEUI_LIBS)					\
+        @XF86MISC_LIBS@					\
+	$(INTLLIBS)
+
+mouse_properties_LDADD = \
+	$(GNOME_LIBDIR)					\
+	$(GNOMEUI_LIBS)					\
+        @XF86MISC_LIBS@					\
+	$(INTLLIBS)
+
+keyboard_properties_LDADD = \
+	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
         @XF86MISC_LIBS@					\
 	$(INTLLIBS)

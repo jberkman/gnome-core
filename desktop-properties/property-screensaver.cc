@@ -440,6 +440,7 @@ screensaver_write ()
 	gnome_config_set_string ("/Desktop/ScreenSaver/screensaver",
 				 css->screensaver_name);
 	gnome_config_set_string ("/Desktop/ScreenSaver/mode", css->mode_name);
+	gnome_config_sync ();
 
 	return 1;
 }
@@ -448,6 +449,7 @@ static gint
 screensaver_apply ()
 {
 	css->apply ();
+	property_applied ();
 }
 
 static gint

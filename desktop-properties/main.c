@@ -47,6 +47,12 @@ property_changed (void)
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (display_config->property_box));
 }
 
+void
+property_applied (void)
+{
+	state_changed = 1;
+}
+
 static gint
 deleteFn (GtkWidget *widget, gpointer *data)
 {

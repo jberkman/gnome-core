@@ -72,6 +72,7 @@ static void keyboard_write(void)
 	gnome_config_set_int("/Desktop/Keyboard/rate", keyboard_rate);
 	gnome_config_set_bool("/Desktop/Keyboard/click", click_on_keypress);
 	gnome_config_set_int("/Desktop/Keyboard/clickvolume", click_volume);
+	gnome_config_sync ();
 }
 
 static void keyboard_apply(void)
@@ -89,6 +90,8 @@ static void keyboard_apply(void)
 
 	kbdcontrol.key_click_percent = click_on_keypress ? click_volume : 0;
 	XChangeKeyboardControl(GDK_DISPLAY(), KBKeyClickPercent, &kbdcontrol);
+
+	property_applied ();
 }
 
 static void

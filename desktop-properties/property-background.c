@@ -805,6 +805,7 @@ background_apply ()
 	fillPreview = FALSE;
 	fill_monitor ((gpointer)FALSE);
 	fillPreview = TRUE;
+	property_applied ();
 }
 
 static void
@@ -831,6 +832,8 @@ background_write ()
 	gnome_config_set_string ("/Desktop/Background/wallpaper",
 				 (bgType == BACKGROUND_SIMPLE) ? "none" : wpFileName);
 	gnome_config_set_int ("/Desktop/Background/wallpaperAlign", wpType);
+
+	gnome_config_sync ();
 }
 
 static void

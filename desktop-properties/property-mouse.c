@@ -89,6 +89,7 @@ mouse_write (void)
   gnome_config_set_int ("/Desktop/Mouse/acceleration", mouse_acceleration);
   gnome_config_set_int ("/Desktop/Mouse/threshold", mouse_thresh);
   gnome_config_set_bool ("/Desktop/Mouse/right-to-left", mouse_rtol);
+  gnome_config_sync ();
 }
 
 static void
@@ -116,6 +117,8 @@ mouse_apply (void)
     }
 
   XChangePointerControl (GDK_DISPLAY (), True, True, num, den, mouse_thresh);
+
+  property_applied ();
 }
 
 /* Run when the left- or right-handed radiobutton is clicked.  */
