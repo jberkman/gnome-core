@@ -1,3 +1,7 @@
+1999-11-30  Pablo Saratxaga <pablo@mandrakesoft.com>
+	* da/Makefile,da/Makefile.in: removed uneeded files (those are 
+	created at configure time from Makefile.am)
+
 1999-11-12  Tuomas Kuosmanen  <tigert@gimp.org>
 
 	* gnome-terminal.c (new_terminal_cmd): https:// is also a valid
