@@ -287,6 +287,7 @@ create_mail_widgets ()
 	da = gtk_drawing_area_new ();
 	gtk_widget_pop_colormap ();
 	gtk_widget_pop_visual ();
+	gtk_widget_ref (da);
 	gtk_drawing_area_size (GTK_DRAWING_AREA(da), 48, 48);
 	gtk_signal_connect (GTK_OBJECT(da), "expose_event", (GtkSignalFunc)icon_expose, 0);
 	gtk_widget_set_events(GTK_WIDGET(da),GDK_EXPOSURE_MASK);
@@ -295,6 +296,7 @@ create_mail_widgets ()
 	/* The label */
 	label = gtk_label_new ("");
 	gtk_widget_show (label);
+	gtk_widget_ref (label);
 	
 	if (fname && WANT_BITMAPS (report_mail_mode)) {
 		mailcheck_load_animation (fname);
@@ -380,15 +382,14 @@ close_callback (GtkWidget *widget, void *data)
 void
 load_new_pixmap_callback (GtkWidget *widget, void *data)
 {
-	gtk_container_remove (GTK_CONTAINER (bin), containee);
 	gtk_widget_hide (containee);
+	gtk_container_remove (GTK_CONTAINER (bin), containee);
 	
 	if (selected_pixmap_name == mailcheck_text_only) {
 		report_mail_mode = REPORT_MAIL_USE_TEXT;
 		containee = label;
 		if(animation_file) g_free(animation_file);
 		animation_file = NULL;
-		mail_check_timeout (0);
 	} else {
 		char *fname = g_copy_strings ("mailcheck/", selected_pixmap_name, NULL);
 		char *full;
@@ -401,6 +402,7 @@ load_new_pixmap_callback (GtkWidget *widget, void *data)
 		if(animation_file) g_free(animation_file);
 		animation_file = full;
 	}
+	mail_check_timeout (0);
 	gtk_widget_set_uposition (GTK_WIDGET (containee), 0, 0);
 	gtk_container_add (GTK_CONTAINER (bin), containee);
 	gtk_widget_show (containee);
@@ -552,6 +554,7 @@ main(int argc, char **argv)
 
 	plug = gtk_plug_new (winid);
 
+	mailcheck_text_only = _("Text only");
 	mailcheck = create_mail_widgets ();
 	gtk_widget_show(mailcheck);
 	gtk_container_add (GTK_CONTAINER (plug), mailcheck);
@@ -575,3 +578,4 @@ main(int argc, char **argv)
 
 	return 0;
 }
+
