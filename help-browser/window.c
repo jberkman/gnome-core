@@ -49,6 +49,9 @@ struct _helpWindow {
     /* The entry box that shows the URL */
     GtkWidget *entryBox;
 
+    /* status bar */
+    GtkWidget *statusBar;
+
     /* Passed to us by the main program */
     GtkSignalFunc about_cb;
     GtkSignalFunc new_window_cb;
@@ -73,6 +76,8 @@ static void help_backward(GtkWidget *w, HelpWindow win);
 static void help_contents(GtkWidget *w, HelpWindow win);
 static void help_onhelp(GtkWidget *w, HelpWindow win);
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
+			    HelpWindow win);
+static void anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowToc (GtkWidget *w, HelpWindow win);
@@ -201,13 +206,24 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
         g_message("TAG CLICKED: %s", cbs->href);
 
-	visitURL(win, cbs->href);
+	helpWindowShowURL(win, cbs->href);
 
 	update_toolbar(win);
 	setCurrent(win);
 }
 
-static void help_forward(GtkWidget *w, HelpWindow win) {
+static void
+anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
+{
+	gtk_statusbar_pop(GTK_STATUSBAR(win->statusBar), 1);
+	if (cbs->href) {
+		gtk_statusbar_push(GTK_STATUSBAR(win->statusBar),1,cbs->href);
+	}
+}
+
+static void
+help_forward(GtkWidget *w, HelpWindow win)
+{
 	gchar *ref;
 	gint pos;
 
@@ -224,7 +240,9 @@ static void help_forward(GtkWidget *w, HelpWindow win) {
 	setCurrent(win);
 }
 
-static void help_backward(GtkWidget *w, HelpWindow win) {
+static void
+help_backward(GtkWidget *w, HelpWindow win)
+{
 	gchar *ref;
 	gint pos;
 
@@ -241,11 +259,15 @@ static void help_backward(GtkWidget *w, HelpWindow win) {
 	setCurrent(win);
 }
 
-static void help_contents(GtkWidget *w, HelpWindow win) {
+static void
+help_contents(GtkWidget *w, HelpWindow win)
+{
 	return;
 }
 
-static void help_onhelp(GtkWidget *w, HelpWindow win) {
+static void
+help_onhelp(GtkWidget *w, HelpWindow win)
+{
 	gchar *p, *q;
 
 	p = gnome_help_file_path("help-browser", "help-browser.html");
@@ -348,7 +370,8 @@ makeEntryArea(HelpWindow w)
 
 /* Public functions */
 
-void helpWindowQueueMark(HelpWindow w)
+void
+helpWindowQueueMark(HelpWindow w)
 {
     gint pos;
 
@@ -358,22 +381,26 @@ void helpWindowQueueMark(HelpWindow w)
     queue_mark_current(w->queue, pos ? pos : 1);
 }
 
-void helpWindowQueueAdd(HelpWindow w, gchar *ref)
+void
+helpWindowQueueAdd(HelpWindow w, gchar *ref)
 {
     queue_add(w->queue, ref, 1);
 }
 
-gchar *helpWindowCurrentRef(HelpWindow w)
+gchar
+*helpWindowCurrentRef(HelpWindow w)
 {
     return w->currentRef;
 }
 
-void helpWindowHistoryAdd(HelpWindow w, gchar *ref)
+void
+helpWindowHistoryAdd(HelpWindow w, gchar *ref)
 {
     addToHistory(w->history, ref);
 }
 
-void helpWindowHTMLSource(HelpWindow w, gchar *s, gchar *ref)
+void
+helpWindowHTMLSource(HelpWindow w, gchar *s, gchar *ref)
 {
     /* First set the current ref (it may be used to load images) */
     if (w->currentRef) {
@@ -386,17 +413,20 @@ void helpWindowHTMLSource(HelpWindow w, gchar *s, gchar *ref)
     gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), s);
 }
 
-void helpWindowJumpToAnchor(HelpWindow w, gchar *s)
+void
+helpWindowJumpToAnchor(HelpWindow w, gchar *s)
 {
     gnome_helpwin_jump_to_anchor(GNOME_HELPWIN(w->helpWidget), s);
 }
 
-void helpWindowJumpToLine(HelpWindow w, gint n)
+void
+helpWindowJumpToLine(HelpWindow w, gint n)
 {
     gnome_helpwin_jump_to_line(GNOME_HELPWIN(w->helpWidget), n);
 }
 
-void helpWindowClose(HelpWindow win)
+void
+helpWindowClose(HelpWindow win)
 {
     gtk_widget_destroy(win->app);
 
@@ -449,15 +479,23 @@ helpWindowNew(GtkSignalFunc about_callback,
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();
 	gtk_widget_show(w->helpWidget);
-	
+
+	/* add a status bar */
+	w->statusBar = gtk_statusbar_new();
+	gtk_widget_show(w->statusBar);
+
 	/* trap clicks on tags so we can stick requested link in browser */
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "activate",
 			   GTK_SIGNAL_FUNC(xmhtml_activate), w);
+
+	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "anchor_track",
+					     GTK_SIGNAL_FUNC(anchorTrack), w);
 
 	/* size should be auto-determined, or read from gnomeconfig() */
 	gtk_widget_set_usize(GTK_WIDGET(w->helpWidget), 800, 600);
 
 	gtk_box_pack_start(GTK_BOX(vbox), w->helpWidget, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), w->statusBar, FALSE, FALSE, 0);
 	gnome_app_set_contents(GNOME_APP(w->app), vbox);
 
 	/* HACKHACKHACK this will grab images via http */
@@ -512,6 +550,10 @@ helpWindowShowURL(HelpWindow win, gchar *ref)
 
 		gtk_entry_set_text(GTK_ENTRY(win->entryBox), win->currentRef);
 		return;
+	} else {
+		/* clear the status bar */
+printf("popping status bar\n");
+		gtk_statusbar_pop(GTK_STATUSBAR(win->statusBar), 1);
 	}
 	update_toolbar(win);
 	setCurrent(win);

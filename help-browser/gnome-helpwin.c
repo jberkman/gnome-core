@@ -125,6 +125,12 @@ gnome_helpwin_get_type(void)
 }
 
 
+static void
+arm_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs) {
+
+	printf("In activate with ref = |%s|\n",cbs->href);
+	fflush(stdout);
+}
 
 GtkWidget *
 gnome_helpwin_new(void)
