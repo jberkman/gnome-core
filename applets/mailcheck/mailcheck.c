@@ -130,6 +130,7 @@ next_frame (void *data)
 	if (nframe == 0)
 		nframe = 1;
 	gtk_widget_draw (da, NULL);
+	return TRUE;
 }
 
 static int
