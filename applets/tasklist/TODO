@@ -11,3 +11,7 @@
 6.  fix tasklist width being hardcoded to max
 	of 1024; some people have higher res,
 	and a short tasklist looks odd.
+7.  add option to not show transient windows
+8.  add option to make tasklist "greedy".  ie
+	to have the tasklist fixed width, but
+	to however much space is available.
