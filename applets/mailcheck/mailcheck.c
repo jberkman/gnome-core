@@ -462,7 +462,7 @@ mailcheck_notification_frame (void)
 }
 
 void
-mailcheck_properties (void)
+mailcheck_properties (AppletWidget *applet, gpointer data)
 {
 	GtkWidget *f;
 	GtkDialog *d;
@@ -510,13 +510,6 @@ destroy_applet(GtkWidget *widget, gpointer data)
 }
 
 
-static void
-properties_corba_callback(int id, gpointer data)
-{
-	mailcheck_properties();
-}
-
-
 int
 main(int argc, char **argv)
 {
@@ -557,11 +550,11 @@ main(int argc, char **argv)
 			   GTK_SIGNAL_FUNC(applet_session_save),
 			   NULL);
 
-	gnome_panel_applet_register_callback(APPLET_WIDGET(applet)->applet_id,
-					     "properties",
-					     _("Properties"),
-					     properties_corba_callback,
-					     NULL);
+	applet_widget_register_callback(APPLET_WIDGET(applet),
+					"properties",
+					_("Properties"),
+					mailcheck_properties,
+					NULL);
 
 	applet_widget_gtk_main ();
 
