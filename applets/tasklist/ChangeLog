@@ -1,3 +1,8 @@
+Mon Mar 12 14:52:32 2001  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.c: when sorting tasks and the groups are the same
+	  sort by the x window id to make sure tasks don't jump around.
+
 2001-03-12  Anders Carlsson  <andersca@codefactory.se>
 
 	* tasklist_applet.gnorba: change location_info to point to

@@ -34,14 +34,25 @@ tlsort (gconstpointer data1, gconstpointer data2)
 	sa = la->task_group ? la->group_name : (la->group ? la->group->group_name : la->gwmh_task->name);
 	sb = lb->task_group ? lb->group_name : (lb->group ? lb->group->group_name : lb->gwmh_task->name);
 
-	if (sa && sb)
-		return g_strcasecmp (sa, sb);
-	else if (sa)
+	if (sa && sb) {
+		int cmp = g_strcasecmp (sa, sb);
+		/* if the same, then sort by the window id, this is arbitrary
+		 * but makes tasks of the same group stay in the same order */
+		if (cmp == 0) {
+			if (la->gwmh_task->xwin > lb->gwmh_task->xwin)
+				return 1;
+			else
+				return -1;
+		} else {
+			return cmp;
+		}
+	} else if (sa) {
 		return 1;
-	else if (sb)
+	} else if (sb) {
 		return -1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 static void
