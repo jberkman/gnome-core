@@ -570,7 +570,7 @@ helpWindowClose(HelpWindow win)
 
 static void init_accel(HelpWindow win)
 {
-#ifdef HAVE_DEVGTK
+#ifdef GTK_HAVE_ACCEL_GROUP
     GtkAccelGroup *accelGroup;
 #else
     GtkAcceleratorTable *accelTable;
@@ -586,7 +586,7 @@ static void init_accel(HelpWindow win)
 		       GTK_SIGNAL_FUNC(pageDown), win);
     gtk_signal_connect(GTK_OBJECT(win->accelWidget), "enter",
 		       GTK_SIGNAL_FUNC(focusEnter), win);
-#ifdef HAVE_DEVGTK    
+#ifdef GTK_HAVE_ACCEL_GROUP
     accelGroup = gtk_object_get_data(GTK_OBJECT(win->app),
 				     "GtkAccelGroup");
     gtk_widget_add_accelerator(win->accelWidget,
