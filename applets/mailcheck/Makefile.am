@@ -1,4 +1,4 @@
-pixmapdir = $(datadir)/pixmaps
+pixmapdir = $(datadir)/pixmaps/mailcheck
 
 INCLUDES = 			\
 	-I../../.. 		\
@@ -12,6 +12,6 @@ libpanel_mailcheck_la_SOURCES = 	\
 	mailcheck.c
 
 
-pixmap_DATA = email.xpm
+pixmap_DATA = email.xpm email-e.xpm
 EXTRA_DIST = $(pixmap_DATA)
 
