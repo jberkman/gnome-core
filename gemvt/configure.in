@@ -173,15 +173,14 @@ MC_IF_VAR_EQ(gnome_cv_use_gnome, yes,
 	AC_MSG_RESULT(no)
 )
 GEMVT_LD_EXTRA=""
-MC_IF_VAR_EQ(gnome_cv_use_gnome, yes,
-	AC_CHECK_LIB(intl, bindtextdomain, GEMVT_LD_EXTRA="-lintl", ,)
-	AC_CHECK_LIB(gdk_imlib,
-		gdk_imlib_create_image_from_xpm_data,
-		GEMVT_LD_EXTRA="-lgdk_imlib $GEMVT_LD_EXTRA", ,)
-	GEMVT_LD_EXTRA="-lgnomeui -lgnome $GEMVT_LD_EXTRA"
-,
-)
-
+dnl MC_VAR_IF_EQ causes problems for GNOME_INIT, so code with a straight 
+dnl `if test ... then ... fi'.
+if test x$gnome_cv_use_gnome = xyes; then
+  AM_ACLOCAL_INCLUDE(../macros)
+  GNOME_INIT
+  AC_CHECK_LIB(intl, bindtextdomain, GEMVT_LD_EXTRA="-lintl", ,)
+  GEMVT_LD_EXTRA="$GNOMEUI_LIBS $GEMVT_LD_EXTRA"
+fi
 
 dnl Automake @VARIABLE@ exports.
 AC_SUBST(x_libs)

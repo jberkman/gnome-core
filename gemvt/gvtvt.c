@@ -22,7 +22,8 @@
 #include	"gem-b.xpm"
 #include	<string.h>
 
-
+/* the process envp */
+extern char **environ;
 
 
 /* -- defines --- */
