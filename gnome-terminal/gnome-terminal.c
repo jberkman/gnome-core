@@ -30,7 +30,8 @@ char *geometry = 0;
 
 
 /* The color set */
-enum color_set_enum { COLORS_WHITE_ON_BLACK,
+enum color_set_enum {
+	COLORS_WHITE_ON_BLACK,
 	COLORS_BLACK_ON_WHITE,
 	COLORS_GREEN_ON_BLACK,
 	COLORS_BLACK_ON_LIGHT_YELLOW,
@@ -206,6 +207,8 @@ gushort *red, *blue, *green;
 static void
 set_color_scheme (ZvtTerm *term, int color_type)
 {
+	GdkColor c;
+	
 	switch (color_type){
 	case 0:
 		red = linux_red;
@@ -275,6 +278,9 @@ set_color_scheme (ZvtTerm *term, int color_type)
 		break;
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
+	c.pixel = term->colors [17];
+	gdk_window_set_background (GTK_WIDGET (term)->parent->window, &c);
+				   
 	gtk_widget_queue_draw (GTK_WIDGET (term));
 }
 
@@ -479,8 +485,8 @@ switch_terminal_class (ZvtTerm *term, struct terminal_config * newcfg)
 	}
 
 	mbox = gnome_message_box_new(_("You have switched the class of this window. Do you\n "
-				    "want to reconfigure this window to match the default\n"
-				    "configuration of the new class?"),
+				       "want to reconfigure this window to match the default\n"
+				       "configuration of the new class?"),
 				 GNOME_MESSAGE_BOX_QUESTION,
                                  GNOME_STOCK_BUTTON_YES,
                                  GNOME_STOCK_BUTTON_NO, GNOME_STOCK_BUTTON_CANCEL, NULL);
@@ -1164,7 +1170,8 @@ new_terminal_cmd (char **cmd)
 	if (cfg.scrollbar_position != SCROLLBAR_HIDDEN)
 		gtk_widget_show (scrollbar);
 
-	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 0);
+	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 3);
+	
 	gnome_app_set_contents (GNOME_APP (app), hbox);
 
 	/*
