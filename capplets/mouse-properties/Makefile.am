@@ -14,8 +14,10 @@ mouse_properties_capplet_LDADD = ../../control-center/libcapplet.la \
 install-exec-hook:
 	cd $(bindir) && rm -f mouse-properties-init; $(LN_S) mouse-properties-capplet mouse-properties-init
 
+
 EXTRA_DIST = \
 	mouse-properties.desktop
 
+
 sysdir = $(datadir)/control-center/Inputdevs
-sys_DATA = mouse-properties.desktop
+sys_DATA = mouse-properties.desktop 

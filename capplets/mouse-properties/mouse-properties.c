@@ -42,6 +42,7 @@ GtkObject *thresh_adjust;
 GtkObject *accel_adjust;
 static GtkWidget *capplet;
 static GtkWidget *lbutton, *rbutton;
+
 static void
 mouse_read (void)
 {
@@ -243,6 +244,8 @@ mouse_setup (void)
                             GTK_SIGNAL_FUNC (mouse_revert), NULL);
         gtk_signal_connect (GTK_OBJECT (capplet), "ok",
                             GTK_SIGNAL_FUNC (mouse_write), NULL);
+        gtk_signal_connect (GTK_OBJECT (capplet), "cancel",
+                            GTK_SIGNAL_FUNC (mouse_revert), NULL);
         gtk_signal_connect (GTK_OBJECT (lbutton), "clicked",
                             GTK_SIGNAL_FUNC (button_toggled),
                             (gpointer) 1);
@@ -314,7 +317,6 @@ main (int argc, char **argv)
                 return;
         }
 
-        gnome_capplet_init ("mouse-properties", NULL, argc, argv, 0, NULL);
         
         mouse_read ();
         mouse_setup();
