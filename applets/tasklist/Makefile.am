@@ -5,7 +5,8 @@ INCLUDES = -I. -I$(srcdir) 				\
 	-I$(top_builddir)/panel \
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"	\
 	-I$(includedir) $(GNOME_INCLUDEDIR)		\
-	-DVERSION=\""$(VERSION)"\"
+	-DVERSION=\""$(VERSION)"\" \
+	@PIXBUF_CFLAGS@
 
 bin_PROGRAMS = tasklist_applet
 
@@ -17,7 +18,7 @@ tasklist_applet_SOURCES = tasklist_applet.c \
 tasklist_applet_LDADD = ../../panel/libpanel_applet.la \
 		     $(GNOME_LIBDIR) $(ORB_LIBS)         \
 		     $(GNOMEUI_LIBS) $(GNORBA_LIBS)      \
-		     $(INTLLIBS)
+		     $(INTLLIBS) @PIXBUF_LIBS@
 
 EXTRA_DIST = \
 	pixmaps.h \

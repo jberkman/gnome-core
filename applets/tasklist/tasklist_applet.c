@@ -1,4 +1,5 @@
 #include <config.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include "tasklist_applet.h"
 #include "unknown.xpm"
 
@@ -23,8 +24,7 @@ GtkWidget *handle; /* The handle box */
 GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
 GList *tasks; /* The list of tasks used */
-GdkPixmap *unknown_icon; /* Unknown icon */
-GdkBitmap *unknown_mask; /* Unknown mask */
+GdkPixbuf *unknown_icon; /* Unknown icon */
 
 gint vert_height=0; /* Vertical height, used for resizing */
 gint horz_width=0;  /* Horizontal width, used for resizing */
@@ -211,7 +211,28 @@ draw_task (TasklistTask *task)
 	}
 
 	if (Config.show_mini_icons) {
-		if (task->pixmap) {
+		if (unknown_icon->art_pixbuf->has_alpha) {
+			gdk_draw_rgb_32_image (area->window,
+					       area->style->white_gc,
+					       task->x + 3, 
+					       task->y + (task->height - 16) / 2,
+					       16, 16,
+					       GDK_RGB_DITHER_NORMAL,
+					       unknown_icon->art_pixbuf->pixels,
+					       unknown_icon->art_pixbuf->rowstride);
+		}
+		else {
+			gdk_draw_rgb_image (area->window,
+					    area->style->black_gc,
+					    task->x + 3, 
+					    task->y + (task->height - 16) / 2,
+					    16, 16,
+					    GDK_RGB_DITHER_NORMAL,
+					    unknown_icon->art_pixbuf->pixels,
+					    unknown_icon->art_pixbuf->rowstride);
+		}
+#if 0
+	  		if (task->pixmap) {
 			if (task->mask) {
 				gdk_gc_set_clip_mask (area->style->black_gc, 
 						      task->mask);
@@ -245,6 +266,8 @@ draw_task (TasklistTask *task)
 					 16, 16);
 			gdk_gc_set_clip_mask (area->style->black_gc, NULL);
 		}
+#endif
+
 	}
 }
 
@@ -705,6 +728,14 @@ main (gint argc, gchar *argv[])
 			    VERSION,
 			    argc, argv,
 			    NULL, 0, NULL);
+
+	gdk_rgb_set_verbose (TRUE);
+
+	gdk_rgb_init ();
+
+	gtk_widget_set_default_colormap (gdk_rgb_get_cmap ());
+	gtk_widget_set_default_visual (gdk_rgb_get_visual ());
+
 	gwmh_init ();
 	gwmh_task_notifier_add (task_notifier, NULL);
 	gwmh_desk_notifier_add (desk_notifier, NULL);
@@ -714,8 +745,10 @@ main (gint argc, gchar *argv[])
 	read_config ();
 
 	/* FIXME: Move this elsewhere */
-	unknown_icon = gdk_pixmap_create_from_xpm_d (area->window, &unknown_mask,
+	/*	unknown_icon = gdk_pixmap_create_from_xpm_d (area->window, &unknown_mask,
 						     NULL, unknown_xpm);
+	*/
+	unknown_icon = gdk_pixbuf_new_from_xpm_data (&unknown_xpm);
 
 	applet_widget_gtk_main ();
 

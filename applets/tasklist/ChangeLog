@@ -1,3 +1,7 @@
+1999-11-14  Anders Carlsson  <andersca@gnu.org>
+
+	* tasklist_applet.c: Use GdkPixbuf for drawing mini icons.
+
 1999-11-13  Anders Carlsson  <andersca@gnu.org>
 
 	* tasklist_applet.c (cb_button_press_event): Don't switch desktops
