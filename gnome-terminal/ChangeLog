@@ -1,9 +1,17 @@
+1999-09-17  Raja R Harinath  <harinath@cs.umn.edu>
+
+	* no/Makefile.am (gnome-terminal/index.html): Revert unlogged
+	change.  If building in the source tree, it may not be safe to `cp
+	$(srcdir)/foo .' -- don't know what bugs will be poked by copying
+	a file onto itself. 
+
 1999-09-14  Michael Zucchi  <zucchi@zedzone.mmc.com.au>
 
 	* Merged gnome-core-1-0 to HEAD.  Doh, did this the wrong way
 	around, no matter I guess.
 
 1999-09-13  Cody Russell <bratsche@dfw.net>
+
 	* gnome-terminal.c: Changed GnomeUIInfo gnome_terminal_menu so
 	that the underscores are removed. e.g., "_File" -> "File". They
 	weren't working before, so they were misleading.

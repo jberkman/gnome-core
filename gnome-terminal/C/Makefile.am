@@ -11,6 +11,8 @@ all: index.html
 index.html: gnome-terminal/index.html
 	-cp gnome-terminal/index.html .
 
+# the wierd srcdir trick is because the db2html from the Cygnus RPMs
+# cannot handle relative filenames
 gnome-terminal/index.html: $(srcdir)/gnome-terminal.sgml
 	-srcdir=`cd $(srcdir) && pwd`; \
 	db2html $$srcdir/gnome-terminal.sgml
