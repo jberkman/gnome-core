@@ -1,3 +1,11 @@
+Thu Sep 23 22:27:34 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c (gwmh_task_set_area): 
+	* gwmh.c (gwmh_task_set_desktop): since most window managers didn't
+	actually follow the spec to honour a client message for workspace and
+	are changes, we have to violate the spec here as well, and modify the
+	properties directly (besides sending the client message) ;(
+
 Thu Sep 23 21:06:50 1999  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.[hc]: 

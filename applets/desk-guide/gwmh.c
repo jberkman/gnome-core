@@ -2061,6 +2061,26 @@ gwmh_task_set_area (GwmhTask *task,
 
   gwmh_sync ();
   gwmh_freeze_syncs ();
+
+  if (1) /* ugly hack for buggy window managers */
+    {
+      long data[2];
+      
+      gdk_error_trap_push ();
+      
+      data[0] = desktop;
+      if (desktop != task->desktop)
+	XChangeProperty (GDK_DISPLAY (), task->xwin, GWMHA_WIN_WORKSPACE,
+			 XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, 1);
+
+      data[0] = harea;
+      data[1] = varea;
+      XChangeProperty (GDK_DISPLAY (), task->xwin, GWMHA_WIN_AREA,
+		       XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, 2);
+
+      gdk_error_trap_pop ();
+    }
+
   if (desktop != task->desktop)
     send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
 			    GWMHA_WIN_WORKSPACE,
@@ -2070,6 +2090,7 @@ gwmh_task_set_area (GwmhTask *task,
 			  GWMHA_WIN_AREA,
 			  SubstructureNotifyMask,
 			  3, harea, varea, CurrentTime);
+
   gwmh_thaw_syncs ();
 }
 
@@ -2084,6 +2105,20 @@ gwmh_task_set_desktop (GwmhTask *task,
   if (desktop >= gwmh_desk.n_desktops || task->desktop == desktop)
     return;
   
+  if (1) /* ugly hack for buggy window managers */
+    {
+      long data[2];
+      
+      gdk_error_trap_push ();
+      
+      data[0] = desktop;
+      if (desktop != task->desktop)
+	XChangeProperty (GDK_DISPLAY (), task->xwin, GWMHA_WIN_WORKSPACE,
+			 XA_CARDINAL, 32, PropModeReplace, (unsigned char*) data, 1);
+
+      gdk_error_trap_pop ();
+    }
+
   send_client_message_32 (GDK_ROOT_WINDOW (), task->xwin,
 			  GWMHA_WIN_WORKSPACE,
 			  SubstructureNotifyMask,
