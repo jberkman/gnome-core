@@ -1169,11 +1169,10 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 #define DEFINE_TERMINAL_MENU(name,text,cmd) \
 \
 static GnomeUIInfo name [] = {							 \
-	GNOMEUIINFO_ITEM_NONE (N_("_New terminal"), NULL, new_terminal),         \
+        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),         \
 /*	GNOMEUIINFO_ITEM_NONE (N_("_Save properties as Defaults"), NULL, save_preferences_cmd),	 */\
 	GNOMEUIINFO_SEPARATOR,\
 	GNOMEUIINFO_ITEM_NONE (text, NULL, cmd),\
-	GNOMEUIINFO_ITEM_STOCK (N_("_Properties..."), NULL, preferences_cmd, GNOME_STOCK_MENU_PROP), \
 	/* GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd), */\
 	GNOMEUIINFO_SEPARATOR, \
 	GNOMEUIINFO_ITEM_NONE (N_("_Close terminal"),    NULL, close_terminal_cmd), 	\
@@ -1183,19 +1182,21 @@ static GnomeUIInfo name [] = {							 \
 DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_hide_menubar, N_("_Hide menubar"), hide_menu_cmd);
 DEFINE_TERMINAL_MENU (gnome_terminal_terminal_menu_show_menubar, N_("_Show menubar"), show_menu_cmd);
 	
-static GnomeUIInfo gnome_terminal_about_menu [] = {
-	GNOMEUIINFO_ITEM_STOCK (N_("_About..."), NULL,
-			       about_terminal_cmd, GNOME_STOCK_MENU_ABOUT),
-#if 0
-	GNOMEUIINFO_SEPARATOR, 
-	GNOMEUIINFO_HELP ("_Terminal"),
-#endif
+static GnomeUIInfo gnome_terminal_help_menu [] = {
+	GNOMEUIINFO_HELP ("gnome-terminal"),
+	GNOMEUIINFO_MENU_ABOUT_ITEM(about_terminal_cmd, NULL),
+	GNOMEUIINFO_END
+};
+
+static GnomeUIInfo gnome_terminal_settings_menu [] = {
+        GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
 	GNOMEUIINFO_END
 };
 
 static GnomeUIInfo gnome_terminal_menu [] = {
 	GNOMEUIINFO_SUBTREE (N_("Terminal"), &gnome_terminal_terminal_menu_hide_menubar),
-	GNOMEUIINFO_SUBTREE (N_("Help"),     &gnome_terminal_about_menu),
+	GNOMEUIINFO_MENU_SETTINGS_TREE(gnome_terminal_settings_menu),
+	GNOMEUIINFO_MENU_HELP_TREE(gnome_terminal_help_menu),
 	GNOMEUIINFO_END
 };
 

@@ -1,8 +1,25 @@
 1999-01-07  Nat Friedman  <nat@nat.org>
 
+	* gnome-terminal.c Changed gnome_terminal_about_menu to
+ 	gnome_terminal_help_menu.
+
+	Use the GNOMEUIINFO_MENU_ABOUT_ITEM macro.
+
+	Added the settings menu, and moved the Properties menu item to it
+ 	and renamed it to Preferences.
+
+1999-01-07  Nat Friedman  <nat@nat.org>
+
 	* gnome-terminal.c (new_terminal_cmd): Set the window policy to
  	auto-shrink.
 
+	Changed gnome_terminal_about_menu to gnome_terminal_help_menu.
+
+	Use the GNOMEUIINFO_MENU_ABOUT_ITEM macro.
+
+	Added the settings menu, and moved the Properties menu item to it
+ 	and renamed it to Preferences.
+	
 1999-01-07  Christopher Blizzard  <blizzard@appliedtheory.com>
 
 	* gnome-terminal.c: add the ability to set the title on the
