@@ -14,7 +14,6 @@ enum {
 	REVERT_SIGNAL,
 	OK_SIGNAL,
         CANCEL_SIGNAL,
-        HELP_SIGNAL,
         NEW_MULTI_CAPPLET,
         LAST_SIGNAL
 };
@@ -28,7 +27,6 @@ void _capplet_widget_server_try(gint id);
 void _capplet_widget_server_revert(gint id);
 void _capplet_widget_server_ok(gint id);
 void _capplet_widget_server_cancel(gint id);
-void _capplet_widget_server_help(gint id);
 void _capplet_widget_server_new_multi_capplet(gint id, gint capid);
 
 
@@ -106,14 +104,6 @@ capplet_widget_class_init (CappletWidgetClass *klass)
 			       			 cancel),
                                gtk_marshal_NONE__NONE,
                                GTK_TYPE_NONE, 0);
-	capplet_widget_signals[HELP_SIGNAL] =
-		gtk_signal_new("help",
-			       GTK_RUN_LAST,
-			       object_class->type,
-			       GTK_SIGNAL_OFFSET(CappletWidgetClass,
-			       			 help),
-                               gtk_marshal_NONE__NONE,
-                               GTK_TYPE_NONE, 0);
 	capplet_widget_signals[NEW_MULTI_CAPPLET] =
 		gtk_signal_new("new_multi_capplet",
 			       GTK_RUN_LAST,
@@ -127,7 +117,6 @@ capplet_widget_class_init (CappletWidgetClass *klass)
         klass->try = NULL;
         klass->revert = NULL;
         klass->ok = NULL;
-        klass->help = NULL;
         klass->new_multi_capplet = NULL;
 }
 static void
@@ -215,12 +204,6 @@ _capplet_widget_server_cancel(gint id)
 {
         GtkWidget *capplet = get_widget_by_id (id);
         gtk_signal_emit_by_name(GTK_OBJECT (capplet) ,"cancel");
-}
-void
-_capplet_widget_server_help(gint id)
-{
-        GtkWidget *capplet = get_widget_by_id (id);
-        gtk_signal_emit_by_name(GTK_OBJECT (capplet) ,"help");
 }
 void
 _capplet_widget_server_new_multi_capplet(gint id, gint capid)

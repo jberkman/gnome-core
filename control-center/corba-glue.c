@@ -61,7 +61,7 @@ control_center_corba_gtk_init(gint *argc, char **argv)
 {
         PortableServer_ObjectId objid = {0, sizeof("control_center_interface"), "control_center_interface"};
         PortableServer_POA poa;
-
+        CORBA_Object *server;
         CORBA_exception_init(&ev);
         //        gnome_init("desktop-manager", NULL, *argc, argv, 0, NULL);
         //        orb = CORBA_ORB_init(argc, argv, "orbit-local-orb", &ev);
@@ -76,12 +76,28 @@ control_center_corba_gtk_init(gint *argc, char **argv)
                                                       &poa_control_center_servant, &ev);
 
         if (!control_center) {
-                g_error ("We cannot get objref\n");
+                g_error ("Unable to initialize CORBA.\naborting...\n");
                 exit (1);
         }
         ior = CORBA_ORB_object_to_string(orb, control_center, &ev);
-       
-        CORBA_Object_release(control_center, &ev);
+        /*
+        server = gnome_name_service_get ();
+        switch(goad_server_register (server,
+                                     control_center,
+                                     "Control Center",
+                                     "control_center:1.0",
+                                     &ev)) {
+        case -2:
+                g_error ("There is a Control Center already running.\naborting...\n");
+                exit (1);
+        case -1:
+                g_error ("There was trouble with the name server.\naborting...\n");
+                exit (1);
+        default:
+                g_print ("registered!!!\n");
+        }
+        CORBA_Object_release(server, &ev);
+        */
 }
 
 void

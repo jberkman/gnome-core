@@ -94,6 +94,9 @@ exec_capplet (node_data *data)
         /*argv[3] = "--gtk-module=gle";*/
         capplet_list = g_list_prepend (capplet_list, data);
         gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
+        g_free (argv[0]);
+        g_free (argv[1]);
+        g_free (argv[2]);
 }
 void
 launch_capplet (node_data *data)
@@ -115,9 +118,9 @@ launch_capplet (node_data *data)
                         gtk_container_border_width (GTK_CONTAINER (container), 5);
                         gtk_container_add (GTK_CONTAINER (container), notebook);
                         gtk_widget_show (notebook);
-                }
-        
-                vbox = gtk_vbox_new(FALSE, 5);
+                } 
+
+                vbox = gtk_vbox_new(FALSE, 0);
                 data->socket = gtk_socket_new ();
                 separator = gtk_hseparator_new ();
                 bbox = gtk_hbutton_box_new ();
@@ -154,8 +157,8 @@ launch_capplet (node_data *data)
                 gtk_container_border_width (GTK_CONTAINER (frame), GNOME_PAD_SMALL);
                 gtk_container_add (GTK_CONTAINER (frame), data->socket);
                 gtk_box_pack_start (GTK_BOX (vbox), frame, TRUE, TRUE, 0);
-                gtk_box_pack_end (GTK_BOX (vbox), bbox, FALSE, FALSE, 5);
-                gtk_box_pack_end (GTK_BOX (vbox), separator, FALSE, FALSE, 0);
+                gtk_box_pack_end (GTK_BOX (vbox), bbox, FALSE, FALSE, 0);
+                gtk_box_pack_end (GTK_BOX (vbox), separator, FALSE, FALSE, GNOME_PAD_SMALL);
                 data->label = gtk_label_new (data->gde->name);
                 gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox, data->label);
                 gtk_widget_show_all (vbox);
@@ -206,7 +209,6 @@ void close_capplet (GtkWidget *widget, gpointer data)
         nd->modified = FALSE;
         capplet_list = g_list_remove (capplet_list, nd);
         if (nd->capplet) {
-                /* FIXME: need to handle multi_capplets here... */
                 CORBA_Object_release (nd->capplet, &ev);
                 nd->capplet = NULL;
         }
@@ -226,5 +228,5 @@ void close_capplet (GtkWidget *widget, gpointer data)
 void help_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
-        GNOME_capplet_help (nd->capplet,nd->id, &ev);
+        //GNOME_capplet_help (nd->capplet,nd->id, &ev);
 }

@@ -96,9 +96,6 @@ create_exit_dialog (GList *apps)
         gnome_dialog_button_connect (GNOME_DIALOG (retval), 0, exit_dialog_ok_callback, NULL);
         gnome_dialog_button_connect (GNOME_DIALOG (retval), 1, exit_dialog_cancel_callback, NULL);
 
-
-
-        
         /* and put it all together */
         gtk_box_pack_start (GTK_BOX (right_vbox), label, FALSE, FALSE, 5);
         gtk_box_pack_start (GTK_BOX (right_vbox), list, FALSE, FALSE, 5);
@@ -124,7 +121,8 @@ create_window ()
         GtkWidget *retval;
         GtkWidget *tree;
         GdkPixmap *temp_splash;
-
+        GtkWidget *sw;
+        
         /* create the app */
         retval = gnome_app_new ("control-center", "Control Center");
 	gtk_signal_connect (GTK_OBJECT (retval), "delete_event",
@@ -138,6 +136,9 @@ create_window ()
         gtk_paned_handle_size (GTK_PANED (hpane), 10);
         gtk_paned_gutter_size (GTK_PANED (hpane), 10);
         tree = generate_tree();
+        sw = gtk_scrolled_window_new (GTK_CLIST (tree)->hadjustment, GTK_CLIST (tree)->vadjustment);
+        gtk_widget_set_usize (sw, 175, 275);
+        gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
         container = gtk_frame_new(NULL);
         gtk_frame_set_shadow_type (GTK_FRAME (container), GTK_SHADOW_NONE);;
         splash_screen = gtk_drawing_area_new ();
@@ -146,9 +147,10 @@ create_window ()
         status_bar = gtk_statusbar_new();
 
         /* we put it all together... */
-        gtk_paned_add1 (GTK_PANED (hpane), tree);
+        gtk_container_add (GTK_CONTAINER (sw), tree);
+        gtk_paned_add1 (GTK_PANED (hpane), sw);
+        gtk_paned_add2 (GTK_PANED (hpane), container); 
         gtk_container_add (GTK_CONTAINER (container), splash_screen);
-        gtk_paned_add2 (GTK_PANED (hpane), container);
         gtk_box_pack_end (GTK_BOX (vbox), status_bar, FALSE, FALSE, 0);
         gtk_box_pack_end (GTK_BOX (vbox), hpane, TRUE, TRUE, 0);
         gnome_app_set_contents(GNOME_APP(retval), vbox);

@@ -35,7 +35,6 @@ struct _CappletWidgetClass
         void (* revert) 	(CappletWidget *capplet);
         void (* ok) 		(CappletWidget *capplet);
         void (* cancel)		(CappletWidget *capplet);
-        void (* help)	 	(CappletWidget *capplet);
         void (* new_multi_capplet) 	(CappletWidget *capplet);
 };
 

@@ -30,13 +30,11 @@ static void server_try (PortableServer_Servant servant, CORBA_long id, CORBA_Env
 static void server_revert (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
 static void server_ok (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
 static void server_cancel (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
-static void server_help (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev);
 static void server_new_multi_capplet(GNOME_capplet _obj, CORBA_long id, CORBA_long newid, CORBA_unsigned_long newxid, CORBA_long newcapid, CORBA_Environment * ev);
 extern void _capplet_widget_server_try(gint id);
 extern void _capplet_widget_server_revert(gint id);
 extern void _capplet_widget_server_ok(gint id);
 extern void _capplet_widget_server_cancel(gint id);
-extern void _capplet_widget_server_help(gint id);
 extern void _capplet_widget_server_new_multi_capplet(gint id, gint capid);
 
 static struct poptOption cap_options[] = {
@@ -61,7 +59,6 @@ POA_GNOME_capplet__epv capplet_epv =
         (gpointer)&server_revert,
         (gpointer)&server_ok,
         (gpointer)&server_cancel,
-        (gpointer)&server_help,
         (gpointer)&server_new_multi_capplet
 };
 POA_GNOME_capplet__vepv poa_capplet_vepv = { &base_epv, &capplet_epv };
@@ -113,11 +110,6 @@ static void
 server_cancel (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
 {
         _capplet_widget_server_cancel (id);
-}
-static void
-server_help (PortableServer_Servant servant, CORBA_long id, CORBA_Environment * ev)
-{
-        _capplet_widget_server_help (id);
 }
 static void
 server_new_multi_capplet(GNOME_capplet _obj, CORBA_long id, CORBA_long newid, CORBA_unsigned_long newxid, CORBA_long newcapid, CORBA_Environment * ev)

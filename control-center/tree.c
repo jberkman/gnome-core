@@ -210,11 +210,13 @@ generate_tree ()
         /* First thing we want to do is to check directories to create the menus */
         
         gtk_clist_set_row_height(GTK_CLIST (retval),20);
+        gtk_ctree_set_line_style (GTK_CTREE (retval), GTK_CTREE_LINES_SOLID);
+        gtk_ctree_set_expander_style (GTK_CTREE (retval), GTK_CTREE_EXPANDER_CIRCULAR);
         gtk_clist_set_column_width(GTK_CLIST (retval), 0, 150);
-        /*gtk_clist_set_policy (GTK_CLIST (retval), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);*/
-        gtk_ctree_set_line_style (GTK_CTREE (retval), GTK_CTREE_LINES_DOTTED);
+
         gtk_ctree_set_indent (GTK_CTREE (retval), 10);
-        gtk_widget_set_usize (retval, 200, 375);
+        gtk_clist_set_column_auto_resize (GTK_CLIST (retval), 0, TRUE);
+        //gtk_widget_set_usize (retval, 200, 375);
         gtk_clist_set_selection_mode(GTK_CLIST(retval), GTK_SELECTION_BROWSE);
         gtk_signal_connect( GTK_OBJECT (retval),"tree_select_row", GTK_SIGNAL_FUNC (selected_row_callback), NULL);
 
@@ -266,7 +268,6 @@ selected_row_callback (GtkWidget *widget, GtkCTreeNode *node, gint column)
         else
                 gtk_statusbar_push (GTK_STATUSBAR (status_bar), 1, (gde->name));
 
-        if (event && event->type == GDK_2BUTTON_PRESS)
+        if (event) //&& event->type == GDK_2BUTTON_PRESS)
                 launch_capplet (data);
-
 }
