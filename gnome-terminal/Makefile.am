@@ -9,7 +9,7 @@ INCLUDES = 			\
 LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
-	-lzvt -lutil
+	-lzvt $(UTIL_LIB)				\
 	$(INTLLIBS)
 
 
@@ -28,4 +28,3 @@ CFLAGS += -Wall
 
 utildir = $(datadir)/apps/Utilities
 util_DATA = gnome-terminal.desktop
-
