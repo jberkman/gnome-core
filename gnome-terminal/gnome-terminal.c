@@ -81,10 +81,21 @@ about_terminal_cmd (void)
 }
 
 static void
+close_app (GtkWidget *app) {
+        terminals = g_list_remove(terminals, app);
+
+	gtk_widget_destroy(app);
+
+	if(terminals == NULL)
+	       gtk_main_quit();
+}
+    
+
+static void
 close_terminal_cmd (void *unused, void *data)
 {
 	GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (data));
-	
+
 	terminals = g_list_remove (terminals, top);
 	gtk_widget_destroy (gtk_widget_get_toplevel (GTK_WIDGET (data)));
 	if (terminals == NULL)
@@ -617,6 +628,7 @@ new_terminal (void)
 
 	app = gnome_app_new ("Terminal", "Terminal");
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
+
 #ifdef ZVT_USES_MINIMAL_ALLOC
 	gtk_window_set_policy  (GTK_WINDOW (app), 1, 1, 1);
 #else
@@ -638,7 +650,10 @@ new_terminal (void)
 	zvt_term_set_blink (term, blink);
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
-	
+
+	gtk_signal_connect(GTK_OBJECT(app), "delete_event",
+			   GTK_SIGNAL_FUNC(close_app), term);
+
 	gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
 	
 	/* Decorations */
