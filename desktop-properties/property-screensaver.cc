@@ -295,8 +295,8 @@ ConfigScreenSaver::ConfigScreenSaver (GnomePropertyConfigurator *c)
 {
 	config = c;
 	curMode = NULL;
-	ssavers = g_hash_table_new (g_hash_function_gcharp,
-				    g_hash_compare_gcharp);
+	ssavers = g_hash_table_new (g_str_hash,
+				    g_str_equal);
 	
 
 	register_screensavers ();

@@ -2,7 +2,6 @@
 #define __SCREENSAVER_H__
 
 #include <stddef.h>
-#include "ghash.h"
 #include <gtk/gtk.h>
 
 enum {
@@ -47,8 +46,8 @@ struct ScreenSaver {
 	ScreenSaver (gchar *n, gchar *c) {
 		name = g_strdup (n);
 		comment = g_strdup (c);
-		modes = g_hash_table_new (g_hash_function_gcharp,
-					  g_hash_compare_gcharp);
+		modes = g_hash_table_new (g_str_hash,
+					  g_str_equal);
 		modesL = NULL;
 	}
 

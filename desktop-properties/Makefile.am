@@ -26,8 +26,6 @@ background_properties_SOURCES =	\
 	xlockparse.ll		\
 	gnome-desktop.h		\
 	screensaver.h		\
-	ghash.c			\
-	ghash.h			\
 	app-background.c
 
 LDADD = \

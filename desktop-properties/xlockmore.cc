@@ -126,7 +126,7 @@ XLockMore::forkAndExec () {
 }
 
 static gint
-deleteSetupWin (GtkWidget *w, GdkEvent *, XLockMore *xm)
+deleteSetupWin (GtkWidget *w, GdkEvent *ev, XLockMore *xm)
 {
 	xm->kill (&xm->sPID);
 	gtk_widget_destroy (xm->setupWin);
@@ -157,6 +157,7 @@ XLockMore::prepareSetupWindow ()
 				    GTK_SIGNAL_FUNC (deleteSetupWin), this);
 		gtk_signal_connect (GTK_OBJECT (main_window), "destroy",
 				    GTK_SIGNAL_FUNC (destroySetupWin), this);
+		g_print("Here we go for %p\n", this);
 
 		setupNotebook = gtk_notebook_new ();
 
