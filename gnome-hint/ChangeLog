@@ -1,3 +1,8 @@
+Sat Oct 02 22:24:49 1999  George Lebl  <jirka@5z.com>
+
+	* gnome-hint.c: add the default hint as the first hint in the
+	  list and just use that fact later
+
 Sat Oct 02 22:16:32 1999  George Lebl  <jirka@5z.com>
 
 	* gnome-hint.c: load the hints even the first time so that prev

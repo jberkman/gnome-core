@@ -139,23 +139,24 @@ read_in_hints(void)
 	g_free(name);
 	closedir(dir);
 	
-	/*we read it all in reverse in fact, so now we just put it back*/
-	hintlist = g_list_reverse(hintlist);
+	if(hintlist)
+		/*we read it all in reverse in fact,
+		  so now we just put it back*/
+		hintlist = g_list_reverse(hintlist);
+	
+	/*add the default hint*/
+	hintlist = g_list_prepend(hintlist,default_hint());
+	hintnum++;
 }
 
-static char *
+static void
 pick_random_hint(void)
 {
-	if(hintnum==0)
-		return default_hint();
-	
 	srandom(time(NULL));
 	
 	/*the random is not truly random thanks to me %'ing it,
 	  but you know what ... who cares*/
 	curhint = g_list_nth(hintlist,random()%hintnum);
-	
-	return curhint->data;
 }
 
 static void
@@ -291,14 +292,11 @@ main(int argc, char *argv[])
 	
 	read_in_hints();
 	if(gnome_config_get_bool("/gnome-hint/stuff/first_run=TRUE")) {
-		hint = default_hint();
 		curhint = hintlist;
 	} else {
-		if(!hintlist)
-			hint = default_hint();
-		else
-			hint = pick_random_hint();
+		pick_random_hint();
 	}
+	hint = curhint->data;
 
 	gnome_config_set_bool("/gnome-hint/stuff/first_run",FALSE);
 	gnome_config_sync();
