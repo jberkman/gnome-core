@@ -1450,6 +1450,9 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in)
 	zvt_term_set_blink (term, cfg->blink);
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
+	zvt_term_set_background (term,
+				 cfg->background_pixmap?cfg->pixmap_file:NULL,
+				 cfg->transparent, cfg->shaded);
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
 
@@ -1544,16 +1547,20 @@ load_session (GnomeClient *client)
 {
 	int num_terms, i;
 	gboolean def;
+	gchar *section;
 
-	gnome_config_push_prefix (gnome_client_get_config_prefix (client));
-
+	section=gnome_client_get_config_prefix (client);
+	gnome_config_push_prefix (section);
 	num_terms = gnome_config_get_int_with_default ("dummy/num_terms", &def);
 	if (def || ! num_terms)
 		return FALSE;
 
 	for (i = 0; i < num_terms; ++i){
 		char buffer[50], *geom, **argv;
+		struct terminal_config *cfg;
+		char *class;
 		int argc;
+		gchar *prefix;
 
 		sprintf (buffer, "%d/geometry", i);
 		geom = gnome_config_get_string (buffer);
@@ -1561,16 +1568,25 @@ load_session (GnomeClient *client)
 		sprintf (buffer, "%d/command", i);
 		gnome_config_get_vector (buffer, &argc, &argv);
 
-#if 0
-/* FIXME */
-		geometry = geom;
-		new_terminal_cmd (argv, &cfg);
-#endif
+		sprintf (buffer, "%d/class=Default", i);
+		class=gnome_config_get_string(buffer);
+
+		sprintf (buffer, "%d/",i);
+		prefix=alloca(strlen(section) + strlen(buffer) + 1);
+		strcpy(prefix,section);
+		strcat(prefix,buffer);
+		printf("loading configuration from %s\n",prefix);
+		cfg=load_config(class,prefix);
+		new_terminal_cmd (argv, cfg);
+		g_free(cfg);
+		g_free(class);
 
 		g_free (geom);
 		g_strfreev (argv);
+		gnome_config_push_prefix(section);
 	}
 
+	gnome_config_pop_prefix();
 	return TRUE;
 }
 
@@ -1588,18 +1604,18 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		GList *list;
 
 		gnome_config_clean_file (section);
-		gnome_config_push_prefix (section);
 
 		i = 0;
 		for (list = terminals; list != NULL; list = list->next){
-			
+		  
 		        char buffer [50], *geom;
 			char *prefix;
 			struct terminal_config *cfg;			
 			ZvtTerm *term;
 
 			GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (list->data));
-
+			
+			gnome_config_push_prefix (section);
 			sprintf (buffer, "%d/geometry", i);
 			geom = gnome_geometry_string (top->window);
 			gnome_config_set_string (buffer, geom);
@@ -1612,23 +1628,26 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 			term=ZVT_TERM(gtk_object_get_data(GTK_OBJECT(list->data), "term"));
 			cfg=gtk_object_get_data (GTK_OBJECT (term), "config");
 
-			printf("Saving preferences for terminal %d, with prefix %s\n",i,prefix);
-			save_preferences(list->data,term,cfg,prefix);
+			sprintf(buffer, "%d/class", i);
+			gnome_config_set_string(buffer,cfg->class);
 
 			if (top == initial_term){
 				int n;
-				for (n = 0; initial_command[n]; ++n)
-					;
+				for (n = 0; initial_command[n]; ++n);
 				sprintf (buffer, "%d/command", i);
 				gnome_config_set_vector (buffer, n,
 							 initial_command);
 			}
 
+			save_preferences(list->data,term,cfg,prefix);
 			++i;
 		}
 		gnome_config_set_int ("dummy/num_terms", i);
 
+#if 0 /* save_prefences above implicitly pops the prefix.  
+	 This is broken, but oh well */
 		gnome_config_pop_prefix ();
+#endif
 		gnome_config_sync ();
 
 
@@ -1786,69 +1805,69 @@ main_terminal_program (int argc, char *argv [], char **environ)
 
 	if (getenv ("GNOME_TERMINAL_CLASS"))
 		class = g_strconcat ("Class-", getenv ("GNOME_TERMINAL_CLASS"), 
-				    NULL);
+				     NULL);
 	else if (strcmp (program_name, "gnome-terminal"))
 		class = g_strconcat ("Class-", program_name, NULL);
 	else
 		class = g_strdup ("Config");
-
+	
 	cmdline_config = g_new0 (struct terminal_config, 1);
-
+	
 	cb_options[0].descrip = (char *)cmdline_config;
-
+	
 	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
 				   cb_options, 0, &ctx);
-
-	if(cmdline_config->user_back_str)
-	   gdk_color_parse(cmdline_config->user_back_str,
-			   &cmdline_config->user_back);
-
-	if(cmdline_config->user_fore_str)
-	   gdk_color_parse(cmdline_config->user_fore_str,
-			   &cmdline_config->user_fore);
-
-	if (cmdline_config->class){
-		free (class);
-		class = g_strdup (cmdline_config->class);
-	}
 
 	if (discard_section){
 		gnome_config_clean_file (discard_section);
 		return 0;
 	}
-
+	
+	if(cmdline_config->user_back_str)
+		gdk_color_parse(cmdline_config->user_back_str,
+				&cmdline_config->user_back);
+	
+	if(cmdline_config->user_fore_str)
+		gdk_color_parse(cmdline_config->user_fore_str,
+				&cmdline_config->user_fore);
+	
+	if (cmdline_config->class){
+		free (class);
+		class = g_strdup (cmdline_config->class);
+	}
+	
 	client = gnome_master_client ();
 	gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
 			    GTK_SIGNAL_FUNC (save_session), argv[0]);
 	gtk_signal_connect (GTK_OBJECT (client), "die",
 			    GTK_SIGNAL_FUNC (die), NULL);
-
+	
 	{
-	  char *prefix = g_malloc (strlen (class) + 20);
-	  sprintf (prefix, "/Terminal/%s/", class);
-	  default_config = load_config (class,prefix);
-	  g_free (class);
-	  g_free (prefix);
+		char *prefix = g_malloc (strlen (class) + 20);
+		sprintf (prefix, "/Terminal/%s/", class);
+		default_config = load_config (class,prefix);
+		g_free (class);
+		g_free (prefix);
 	}
-
+	
 	/* now to override the defaults */
 	if (cmdline_config->font){
-	    	free (default_config->font);
+		free (default_config->font);
 		default_config->font = g_strdup (cmdline_config->font);
 	}
-
+	
 	if (cmdline_config->have_user_colors){
 		default_config->color_set = cmdline_config->color_set;
 		default_config->user_fore = cmdline_config->user_fore;
 		default_config->user_back = cmdline_config->user_back;
 		default_config->color_set = COLORS_CUSTOM;
 	}
-
+	
 	default_config->invoke_as_login_shell =
 		cmdline_config->invoke_as_login_shell;
-
+	
 	terminal_config_free (cmdline_config);
-
+	
 	clone = gnome_cloned_client ();
 	if (! clone || ! load_session (clone))
 		new_terminal_cmd (initial_command, default_config);
