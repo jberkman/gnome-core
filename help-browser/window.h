@@ -15,13 +15,14 @@ typedef struct _helpWindow *HelpWindow;
 typedef void (*HelpWindowCB)(HelpWindow win);
 
 HelpWindow helpWindowNew(gchar *name,
+			 gint x, gint y, gint width, gint height,
 			 HelpWindowCB about_callback,
 			 HelpWindowCB new_window_callback,
 			 HelpWindowCB close_window_callback,
 			 HelpWindowCB set_current_callback,
 			 HelpWindowCB config_callback);
 void helpWindowClose(HelpWindow win);
-void helpWindowShowURL(HelpWindow win, gchar *ref);
+void helpWindowShowURL(HelpWindow win, gchar *ref, gboolean useCache);
 void helpWindowSetHistory(HelpWindow win, History history);
 void helpWindowSetToc(HelpWindow win, Toc toc);
 void helpWindowSetBookmarks(HelpWindow win, Bookmarks bookmarks);
@@ -34,6 +35,7 @@ void helpWindowQueueAdd(HelpWindow w, gchar *ref);
 void helpWindowHistoryAdd(HelpWindow w, gchar *ref);
 
 gchar *helpWindowCurrentRef(HelpWindow w);
+gchar *helpWindowHumanRef(HelpWindow w);
 
 void helpWindowHTMLSource(HelpWindow w, gchar *s, gint len,
 			  gchar *ref, gchar *humanRef);

@@ -31,6 +31,7 @@
 #include "left_arrow.xpm"
 #include "contents.xpm"
 #include "help.xpm"
+#include "reload.xpm"
 
 #define IMAGE_TEMPFILE "/tmp/gnome-help-browser.tmpfile"
 
@@ -50,6 +51,8 @@ struct _helpWindow {
     /* The current page reference */
     gchar *currentRef;
     gchar *humanRef;
+
+    gboolean useCache;
 
     /* The entry box that shows the URL */
     GtkWidget *entryBox;
@@ -87,6 +90,7 @@ static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void anchorTrack(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
+static void reload_page(GtkWidget *w, HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowBookmarks (GtkWidget *w, HelpWindow win);
 static void ghelpShowToc (GtkWidget *w, HelpWindow win);
@@ -147,6 +151,8 @@ GnomeUIInfo toolbar[] = {
 		     help_backward, right_arrow_xpm),
     GNOMEUIINFO_ITEM("Forward", "Go to the next location in the history list",
 		     help_forward, left_arrow_xpm),
+    GNOMEUIINFO_SEPARATOR,
+    GNOMEUIINFO_ITEM("Reload", "Reload", reload_page, reload_xpm),
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_ITEM("Help", "Help on Help", help_onhelp, help_xpm),
     GNOMEUIINFO_SEPARATOR,
@@ -238,7 +244,7 @@ xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
         g_message("TAG CLICKED: %s", cbs->href);
 
-	helpWindowShowURL(win, cbs->href);
+	helpWindowShowURL(win, cbs->href, TRUE);
 
 	update_toolbar(win);
 	setCurrent(win);
@@ -303,10 +309,33 @@ help_onhelp(GtkWidget *w, HelpWindow win)
 	strcpy(q,"file:");
 	strcat(q, p);
 	g_free(p);
-	helpWindowShowURL(win, q);
+	helpWindowShowURL(win, q, TRUE);
 
 	setCurrent(win);
 }
+
+static void
+reload_page(GtkWidget *w, HelpWindow win)
+{
+    gchar *s;
+    gchar buf[BUFSIZ];
+	
+    /* Do a little shorthand processing */
+    s = win->humanRef;
+    if (!s || *s == '\0') {
+	return;
+    } else if (*s == '/') {
+	snprintf(buf, sizeof(buf), "file:%s", s);
+    } else {
+	strncpy(buf, s, sizeof(buf));
+    }
+    
+    g_message("RELOAD PAGE: %s", buf);
+    /* make html widget believe we want to reload */
+    gtk_xmhtml_source(GTK_XMHTML(win->helpWidget), "");
+    helpWindowShowURL(win, buf, FALSE);
+    setCurrent(win);
+}	
 
 static void
 entryChanged(GtkWidget *w, HelpWindow win)
@@ -324,7 +353,7 @@ entryChanged(GtkWidget *w, HelpWindow win)
 	strncpy(buf, s, sizeof(buf));
     }
     
-    helpWindowShowURL(win, buf);
+    helpWindowShowURL(win, buf, TRUE);
     setCurrent(win);
 }
 
@@ -426,6 +455,12 @@ gchar
     return w->currentRef;
 }
 
+gchar
+*helpWindowHumanRef(HelpWindow w)
+{
+    return w->humanRef;
+}
+
 void
 helpWindowHistoryAdd(HelpWindow w, gchar *ref)
 {
@@ -487,6 +522,7 @@ helpWindowClose(HelpWindow win)
 
 HelpWindow
 helpWindowNew(gchar *name,
+	      gint x, gint y, gint width, gint height,
 	      HelpWindowCB about_callback,
 	      HelpWindowCB new_window_callback,
 	      HelpWindowCB close_window_callback,
@@ -556,7 +592,14 @@ helpWindowNew(gchar *name,
 				   NULL,NULL,NULL);
 
 	/* size should be auto-determined, or read from gnomeconfig() */
-	gtk_widget_set_usize(GTK_WIDGET(w->app), 600, 450); 
+	if (width && height)
+		gtk_widget_set_usize(GTK_WIDGET(w->app), width, height); 
+	else
+		gtk_widget_set_usize(GTK_WIDGET(w->app), 600, 450); 
+
+	if (x != y)
+		gtk_widget_set_uposition(GTK_WIDGET(w->app), x, y);
+
 	gtk_window_set_policy(GTK_WINDOW(w->app), TRUE, TRUE, FALSE);
 	gtk_widget_show(w->app);
 	gtk_widget_grab_focus (GTK_WIDGET (w->entryBox));
@@ -601,11 +644,12 @@ helpWindowGetCache(HelpWindow win)
 }
 
 void
-helpWindowShowURL(HelpWindow win, gchar *ref)
+helpWindowShowURL(HelpWindow win, gchar *ref, gboolean useCache)
 {
 	gchar err[1024];
 
-	if (visitURL(win, ref)) {
+	win->useCache = useCache;
+	if (visitURL(win, ref, useCache)) {
 		GtkWidget *msg;
 
 		snprintf(err, sizeof(err), "Error loading document:\n\n%s",
@@ -623,6 +667,7 @@ helpWindowShowURL(HelpWindow win, gchar *ref)
 	}
 	update_toolbar(win);
 	setCurrent(win);
+	win->useCache = TRUE;
 
 	/* XXX This should work, but it doesn't */
 	/* printf("TITLE: %s\n", XmHTMLGetTitle(win->helpWidget)); */
@@ -653,7 +698,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	gint fd;
 
 	win = gtk_object_get_data(GTK_OBJECT(html_widget), "HelpWindow");
-	obj = docObjNew(ref);
+	obj = docObjNew(ref, win->useCache);
 	docObjResolveURL(obj, helpWindowCurrentRef(win));
 	if (strstr(docObjGetAbsoluteRef(obj), "file:")) {
 	    info = XmHTMLImageDefaultProc(html_widget,

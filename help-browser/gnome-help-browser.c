@@ -49,7 +49,7 @@ void messageHandler(gchar *s);
 void warningHandler(gchar *s);
 void errorHandler(gchar *s);
 void setErrorHandlers(void);
-static HelpWindow makeHelpWindow(void);
+static HelpWindow makeHelpWindow(gint x, gint y, gint w, gint h);
 static void initConfig(void);
 static void saveConfig(void);
 static GnomeClient *newGnomeClient(void);
@@ -113,7 +113,13 @@ static Bookmarks bookmarkWindow;
 GList *windowList = NULL;
 
 /* This is the name of the help URL from the command line.  */
-static char *helpURL = NULL;
+static gchar *helpURL = NULL;
+
+/* requested size/positiion of initial help browser */
+static gint defposx=0;
+static gint defposy=0;
+static gint defwidth =0;
+static gint defheight=0;
 
 int
 main(gint argc, gchar *argv[])
@@ -126,8 +132,9 @@ main(gint argc, gchar *argv[])
     bindtextdomain (PACKAGE, GNOMELOCALEDIR);
     textdomain (PACKAGE);
 
-    /* smClient = newGnomeClient(); */
+/* uncomment line below to have session manager support */
     smClient = NULL;
+/*    smClient = newGnomeClient(); */
 
     gnome_init(NAME, &parser, argc, argv, 0, NULL);
 
@@ -146,10 +153,10 @@ main(gint argc, gchar *argv[])
     tocWindow = newToc(manPath, infoPath, ghelpPath, tocCallback);
     bookmarkWindow = newBookmarks(bookmarkCallback, NULL, bookmarkFile);
 
-    window = makeHelpWindow();
+    window = makeHelpWindow(defposx, defposy, defwidth, defheight );
 
     if (helpURL)
-	    helpWindowShowURL(window, argv[1]);
+	    helpWindowShowURL(window, helpURL, TRUE);
     else {
 	    /* really broken, should be a ghelp: type URL */
 	    gchar *p, *q;
@@ -159,7 +166,7 @@ main(gint argc, gchar *argv[])
 		    q = g_malloc(strlen(p)+10);
 		    strcpy(q, "file:");
 		    strcat(q, p);
-		    helpWindowShowURL(window, q);
+		    helpWindowShowURL(window, q, TRUE);
 		    g_free(q);
 	    }
     }
@@ -175,11 +182,12 @@ main(gint argc, gchar *argv[])
 }
 
 static HelpWindow
-makeHelpWindow()
+makeHelpWindow(gint x, gint y, gint w, gint h)
 {
     HelpWindow window;
     
-    window = helpWindowNew(NAME, aboutCallback, newWindowCallback,
+    window = helpWindowNew(NAME, defposx, defposy, defwidth, defheight,
+			   aboutCallback, newWindowCallback,
 			   closeWindowCallback, setCurrentCallback,
 			   configCallback);
     helpWindowSetHistory(window, historyWindow);
@@ -195,13 +203,35 @@ makeHelpWindow()
 static error_t
 parseAnArg (int key, char *arg, struct argp_state *state)
 {
-  /* FIXME: should actually handle these arguments.  */
-  if (key == 'x' || key == 'y' || key == 'w' || key == 'h')
-    return 0;
+	gint val;
+	
+	if (key == 'x' || key == 'y' || key == 'w' || key == 'h') {
+		val = strtol(arg, NULL, 10);
+
+		switch (key) {
+		case 'x':
+			defposx = val;
+			break;
+		case 'y':
+			defposy = val;
+			break;
+		case 'w':
+			defwidth  = val;
+			break;
+		case 'h':
+			defheight = val;
+			break;
+		default:
+			break;
+		}
+		return 0;
+	}
+
   if (key != ARGP_KEY_ARG)
     return ARGP_ERR_UNKNOWN;
   if (helpURL)
     argp_usage (state);
+
   helpURL = arg;
   return 0;
 }
@@ -234,28 +264,28 @@ newWindowCallback(HelpWindow win)
 {
     HelpWindow window;
     
-    window = makeHelpWindow();
+    window = makeHelpWindow(0,0,0,0);
 }
 
 static void
 historyCallback (gchar *ref)
 {
     g_message("HISTORY: %s", ref);
-    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref);
+    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref, TRUE);
 }
 
 static void
 bookmarkCallback (gchar *ref)
 {
     g_message("BOOKMARKS: %s", ref);
-    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref);
+    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref, TRUE);
 }
 
 static void
 tocCallback (gchar *ref) 
 {
     g_message("TOC: %s", ref);
-    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref);
+    helpWindowShowURL((HelpWindow)g_list_last(windowList)->data, ref, TRUE);
 }
 
 static void
@@ -363,12 +393,15 @@ save_state (GnomeClient        *client,
 	s = alloca(20);
 	snprintf(s, 20, "%d", ysize);
         argv[i++] = s;
+	s = alloca(512);
+	snprintf(s, 512, "%s", helpWindowHumanRef(win));
+	argv[i++] = s;
 
-	s = alloca(80);
-	snprintf(s, 80, "restart command is");
+	s = alloca(512);
+	snprintf(s, 512, "restart command is");
 	for (j=0; j<i; j++) {
-		strcat(s, " ");
-		strcat(s, argv[j]);
+		strncat(s, " ", 511);
+		strncat(s, argv[j], 511);
 	}
 	g_message("%s", s);
 	
@@ -392,12 +425,17 @@ session_die (gpointer client_data)
 static GnomeClient
 *newGnomeClient()
 {
+	gchar *buf[1024];
+
 	GnomeClient *client;
 
         client = gnome_client_new_default();
 
 	if (!client)
 		return NULL;
+
+	getcwd((char *)buf,sizeof(buf));
+	gnome_client_set_current_directory(client, (char *)buf);
 
         gtk_object_ref(GTK_OBJECT(client));
         gtk_object_sink(GTK_OBJECT(client));

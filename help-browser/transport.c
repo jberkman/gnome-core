@@ -29,7 +29,7 @@ transport( docObj obj, DataCache cache )
     gint  rc;
     gint len;
 
-    if (cache) {
+    if (docObjUseCache(obj) && cache) {
 	url = docObjGetDecomposedUrl(obj);
 	sprintf(key, "%s://%s%s", url->access, url->host, url->path);
 	p = lookupInDataCacheWithLen(cache, key, &len);

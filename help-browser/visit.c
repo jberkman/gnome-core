@@ -11,30 +11,31 @@
 
 static gint visitDocument( HelpWindow win, docObj obj );
 static void displayHTML( HelpWindow win, docObj obj );
-static gint _visitURL( HelpWindow win, gchar *ref, gboolean save );
+static gint _visitURL( HelpWindow win, gchar *ref, gboolean save, 
+		       gboolean useCache);
 
 gint
-visitURL( HelpWindow win, gchar *ref )
+visitURL( HelpWindow win, gchar *ref, gboolean useCache )
 {
-	return _visitURL(win, ref, TRUE);
+	return _visitURL(win, ref, TRUE, useCache);
 }
 
 gint
 visitURL_nohistory(HelpWindow win, gchar *ref )
 {
-	return _visitURL(win, ref, FALSE);
+	return _visitURL(win, ref, FALSE, TRUE);
 }
 
 /* most people will call this - it allocates a docObj type and loads   */
 /* the page. Currently it frees the docObj afterwards, no history kept */
 static gint
-_visitURL( HelpWindow win, gchar *ref, gboolean save )
+_visitURL( HelpWindow win, gchar *ref, gboolean save, gboolean useCache )
 {
 	docObj obj;
 
 	/* !!! This is the entire lifespan of all the docObjs */
 	
-	obj = docObjNew(ref);
+	obj = docObjNew(ref, useCache);
 
 	helpWindowQueueMark(win);
 	

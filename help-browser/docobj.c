@@ -23,6 +23,7 @@ struct _docObj {
     gint convDataLen;
     gboolean  freeraw;
     gboolean  freeconv;
+    gboolean  useCache;
 
     /* Transport info */
     TransportMethod   transportMethod;
@@ -30,7 +31,7 @@ struct _docObj {
 };
 
 docObj
-docObjNew(gchar *ref)
+docObjNew(gchar *ref, gboolean useCache)
 {
 	docObj p;
 
@@ -47,6 +48,7 @@ docObjNew(gchar *ref)
 	p->convDataLen = 0;
 	p->freeraw  = FALSE;
 	p->freeconv = FALSE;
+	p->useCache = useCache;
 	
 	p->transportMethod = TRANS_UNRESOLVED;
 	p->transportFunc = transportUnknown;
@@ -201,4 +203,10 @@ void docObjSetConvData(docObj obj, guchar *s, gint len, gboolean freeit)
     obj->convData = s;
     obj->convDataLen = len;
     obj->freeconv = freeit;
+}
+
+gboolean
+docObjUseCache(docObj obj)
+{
+	return obj->useCache;
 }

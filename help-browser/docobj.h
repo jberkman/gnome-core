@@ -8,7 +8,7 @@
 typedef struct _docObj *docObj;
 typedef gint(*TransportFunc) (docObj obj);
 
-docObj docObjNew(gchar *ref);
+docObj docObjNew(gchar *ref, gboolean useCache);
 void docObjFree(docObj obj);
 void docObjResolveURL(docObj obj, gchar *currentRef);
 
@@ -20,6 +20,7 @@ gchar *docObjGetAbsoluteRef(docObj obj);
 gchar *docObjGetMimeType(docObj obj);
 DecomposedUrl docObjGetDecomposedUrl(docObj obj);
 TransportFunc docObjGetTransportFunc(docObj obj);
+gboolean docObjUseCache(docObj obj);
 
 void docObjSetMimeType(docObj obj, gchar *s);
 
