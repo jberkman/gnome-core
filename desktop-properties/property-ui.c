@@ -65,10 +65,12 @@ static void buttonbox_style_cb(GtkWidget * menuitem, gint style)
   property_changed();
 }
 
-static void statusbar_dialog_cb(GtkWidget * button, gpointer ignored)
+static void checkbutton_cb    ( GtkWidget * button, 
+                                void ( * set_func ) (gboolean) )
 {
   gboolean b = GTK_TOGGLE_BUTTON(button)->active;
-  gnome_preferences_set_statusbar_dialog (b);
+
+  (* set_func) (b);
   property_changed();
 }
 
@@ -112,8 +114,8 @@ ui_setup (void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
                               gnome_preferences_get_statusbar_dialog());
   gtk_signal_connect(GTK_OBJECT(button), "toggled",
-                     GTK_SIGNAL_FUNC(statusbar_dialog_cb),
-                     NULL);
+                     GTK_SIGNAL_FUNC(checkbutton_cb),
+                     gnome_preferences_set_statusbar_dialog);
 
   gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
 
@@ -122,7 +124,31 @@ ui_setup (void)
      */ 
 
   gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
-				  vbox, gtk_label_new (_("Dialogs")));
+                                  vbox, gtk_label_new (_("Dialogs")));
+  gtk_widget_show_all(vbox);
+
+  vbox = gtk_vbox_new(TRUE, GNOME_PAD);
+  
+  button = 
+    gtk_check_button_new_with_label(_("Menubars are detachable"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_preferences_get_menubar_handlebox());
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(checkbutton_cb),
+                     gnome_preferences_set_menubar_handlebox);
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  button = 
+    gtk_check_button_new_with_label(_("Toolbars are detachable"));
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), 
+                              gnome_preferences_get_toolbar_handlebox());
+  gtk_signal_connect(GTK_OBJECT(button), "toggled",
+                     GTK_SIGNAL_FUNC(checkbutton_cb),
+                     gnome_preferences_set_toolbar_handlebox);
+  gtk_box_pack_start ( GTK_BOX(vbox), button, FALSE, FALSE, GNOME_PAD );
+
+  gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
+                                  vbox, gtk_label_new (_("Application")));
   gtk_widget_show_all(vbox);
 }
 
@@ -150,11 +176,21 @@ ui_action (GnomePropertyRequest req)
   return 1;
 }
 
+/* Um, well... */
+static gint
+noop_action (GnomePropertyRequest req)
+{
+  return 1;
+}
+
 void
 ui_register (GnomePropertyConfigurator *c)
 {
   config = c;
   gnome_property_configurator_register (config, ui_action);
+  /* Without this there's no handler for page two; ui_action can't be reused
+     because it does the setup twice. Blah. */
+  gnome_property_configurator_register (config, noop_action);
 }
 
 
