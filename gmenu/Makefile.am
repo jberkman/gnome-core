@@ -24,5 +24,5 @@ gmenu_LDADD = \
 
 EXTRA_DIST = gmenu.desktop top.xpm folder.xpm unknown.xpm
 
-sysdir = $(datadir)/gnome/apps/System
+sysdir = $(datadir)/gnome/apps/Settings
 sys_DATA = gmenu.desktop
