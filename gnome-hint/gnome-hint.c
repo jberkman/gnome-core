@@ -114,8 +114,14 @@ read_in_hints(void)
 	DIR *dir;
 	struct stat s;
 	struct dirent *dent;
+	char * name;
+       
+	/*add the default hint*/
+	hintlist = g_list_prepend(hintlist,default_hint());
+	hintnum++;
 
-	char * name = gnome_datadir_file("gnome/hints");
+	/* see if we find the directory with the hints */
+	name = gnome_datadir_file("gnome/hints");
 	if(!name)
 		return;
 	if(stat(name, &s) != 0 ||
@@ -130,6 +136,7 @@ read_in_hints(void)
 		return;
 	}
 
+	/* read the directory file by file */
 	while((dent = readdir(dir)) != NULL) {
 		char *file;
 		/* Skip over dot files */
@@ -149,10 +156,6 @@ read_in_hints(void)
 		/*we read it all in reverse in fact,
 		  so now we just put it back*/
 		hintlist = g_list_reverse(hintlist);
-	
-	/*add the default hint*/
-	hintlist = g_list_prepend(hintlist,default_hint());
-	hintnum++;
 }
 
 static void
@@ -436,6 +439,10 @@ get_motd(void)
 static void
 window_realize(GtkWidget *win)
 {
+	/* this is done because on startup gnome-hint needs to be on
+	   top without other starting apps overlaying it, since it's
+	   what the user should see (especially on the first run) so
+	   we can't have it obscured */
 	gnome_win_hints_set_layer(win,WIN_LAYER_ONTOP);
 }
 

@@ -1,3 +1,9 @@
+Fri Oct 22 15:45:30 1999  George Lebl  <jirka@5z.com>
+
+	* gnome-hint.c: always add the default hint before trying to
+	  read other files so that it's there even if we can't read any
+	  hints, plus some comments are added for clarity
+
 Mon Oct 04 01:47:39 1999  George Lebl  <jirka@5z.com>
 
 	* gnome-hint.c, gnome-hint-properties.c: support message of the
