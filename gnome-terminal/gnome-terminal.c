@@ -1689,6 +1689,7 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 
 
 		args[argc++] = (char *) client_data;
+		/*		args[argc++] = "/arsenic/u1/mvachhar/bin/myterm";*/
 /* FIXME */
 #if 0
 		args[argc++] = "--font";
@@ -1716,15 +1717,6 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 		gnome_client_set_discard_command (client, 3, args);
 	}
 
-	return TRUE;
-}
-
-static gint
-die (GnomeClient *client, gpointer client_data)
-{
-#if 0
-	close_all_cmd ();
-#endif
 	return TRUE;
 }
 
@@ -1834,10 +1826,11 @@ parse_an_arg (poptContext state,
 	}
 }
 
-static void
+static gint
 session_die (gpointer client_data)
 {
         gtk_main_quit ();
+	return TRUE;
 }
 
 static int
