@@ -16,6 +16,7 @@
     <cmd name="About"          _label="_About..." pixtype="stock" pixname="About"/>
 
     <cmd name="SecureKeyboard" _label="_Secure keyboard" type="toggle"/>
+    <cmd name="CopyURL"        _label="Copy _link location"/>
     <cmd name="OpenURL"        _label="_Open in browser"/>
   </commands>
 
@@ -53,6 +54,7 @@
       <menuitem name="SecureKeyboard" verb=""/>
       <menuitem name="Reset" verb=""/>
       <menuitem name="Clear" verb=""/>
+      <menuitem name="CopyURL" verb=""/>
       <menuitem name="OpenURL" verb=""/>
     </popup>
   </popups>

@@ -1,3 +1,10 @@
+2001-09-05  jacob berkman  <jacob@ximian.com>
+
+	* gnome-terminal.xml: 
+	* gnome-terminal.c (copy_url_cmd): add a `copy link location'
+	thing to the right click menu - should it use a different
+	clipboard thing though?
+
 2001-09-04  jacob berkman  <jacob@ximian.com>
 
 	* gnome-terminal.c: make it compile against current gnome-libs

@@ -32,6 +32,7 @@
 
 #include <gtk/gtkcolorseldialog.h>
 #include <gtk/gtkcombo.h>
+#include <gtk/gtkclipboard.h>
 #include <gtk/gtkdnd.h>
 #include <gtk/gtkentry.h>
 #include <gtk/gtkmain.h>
@@ -1616,12 +1617,25 @@ toggle_secure_keyboard_cmd (BonoboUIComponent *uic,
 }
 
 static void
-load_url_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
+copy_url_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
 	char *url;
 
 	url = gtk_object_get_data (GTK_OBJECT (term), "matchstr");
 	if (url) {
+		gtk_clipboard_set_text (
+			gtk_clipboard_get (GDK_SELECTION_PRIMARY), 
+			url, -1);
+	}
+}
+
+static void
+load_url_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
+{
+	char *url;
+
+	url = gtk_object_get_data (GTK_OBJECT (term), "matchstr");
+	if (url && strlen (url)) {
 #warning FIXME
 		gnome_url_show(url, NULL);
 	}
@@ -1650,6 +1664,7 @@ static BonoboUIVerb terminal_verbs[] = {
 	BONOBO_UI_UNSAFE_VERB ("ColorSelector", color_cmd),
 	BONOBO_UI_UNSAFE_VERB ("UsersGuide", help_cmd),
 	BONOBO_UI_UNSAFE_VERB ("About", about_terminal_cmd),
+	BONOBO_UI_UNSAFE_VERB ("CopyURL", copy_url_cmd),
 	BONOBO_UI_UNSAFE_VERB ("OpenURL", load_url_cmd),
 	BONOBO_UI_VERB_END
 };
@@ -1998,6 +2013,9 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	}
 
 	menu = gtk_menu_new ();
+
+	bonobo_ui_component_set_prop (uic, "/commands/CopyURL",
+				      "hidden", match ? "0" : "1", NULL);
 
 	bonobo_ui_component_set_prop (uic, "/commands/OpenURL",
 				      "hidden", match ? "0" : "1", NULL);
