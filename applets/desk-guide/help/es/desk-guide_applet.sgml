@@ -17,7 +17,7 @@
       <holder>John Fleck</holder>
     </copyright>
 
-    <legalnotice>
+    <legalnotice id="legalnotice">
       <para> Se otorga permiso para copiar, distribuir y/o modificar este documento según los terminos de la Licencia de documentación libre de GNU, ya sea la versión 1.1 o cualquier versión posterior publicada por la Free Software  Foundation. Una copia de la licencia se puede encontrar<ulink type="http" url="http://www.gnu.org/copyleft/fdl.html">aquí</ulink>.</para>
   
     </legalnotice>
