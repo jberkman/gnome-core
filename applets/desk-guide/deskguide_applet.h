@@ -27,7 +27,7 @@
 #define DESK            (gwmh_desk_get_config ())
 #define N_DESKTOPS      (DESK->n_desktops)
 #define N_HAREAS        (DESK->n_hareas)
-#define N_VAREAS        (DESK->n_Vareas)
+#define N_VAREAS        (DESK->n_vareas)
 #define CURRENT_DESKTOP (DESK->current_desktop)
 
 typedef struct _ConfigItem ConfigItem;

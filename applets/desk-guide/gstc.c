@@ -121,12 +121,31 @@ gstc_parent_delete_watch (GdkWindow *window)
   GstcParent *sparent;
 
   g_return_if_fail (window != NULL);
-return;
+
   sparent = gstc_parent_from_window (window);
   if (sparent)
     sparent->ref_count--;
   if (sparent && !sparent->ref_count)
     {
+      GdkWindowPrivate *private = (GdkWindowPrivate*) sparent->window;
+
+      /* reset event mask */
+      gdk_error_trap_push ();
+      if (!private->destroyed && private->window_type == GDK_WINDOW_FOREIGN)
+	{
+	  XWindowAttributes attribs = { 0, };
+
+	  XGetWindowAttributes (private->xdisplay,
+				private->xwindow,
+				&attribs);
+	  XSelectInput (private->xdisplay,
+			private->xwindow,
+			attribs.your_event_mask &
+			~(StructureNotifyMask | FocusChangeMask | PropertyChangeMask));
+	}
+      gdk_flush ();
+      gdk_error_trap_pop ();
+      
       gdk_window_remove_filter (sparent->window, gstc_parent_event_monitor, sparent);
       g_free (sparent->children);
       gdk_window_unref (sparent->window);
@@ -153,8 +172,9 @@ gstc_parent_add_child (GstcParent *sparent,
     }
   if (ci >= 0)
     {
-      g_warning (G_GNUC_PRETTY_FUNCTION "(): can't add known window %ld",
-		 xchild);
+      g_warning (G_GNUC_PRETTY_FUNCTION "(): can't add known window %ld to %ld",
+		 xchild,
+		 GSTC_PARENT_XWINDOW (sparent));
       return;
     }
 
@@ -270,7 +290,6 @@ gstc_parent_event_monitor (GdkXEvent *gdk_xevent,
   XEvent *xevent = gdk_xevent;
   GstcParent *sparent = sparent_pointer;
   Window xparent = GDK_WINDOW_XWINDOW (sparent->window);
-  GdkFilterReturn filter_return = GDK_FILTER_CONTINUE;
 
   g_return_val_if_fail (g_slist_find (gstc_parents, sparent), GDK_FILTER_CONTINUE);
 
@@ -317,5 +336,5 @@ gstc_parent_event_monitor (GdkXEvent *gdk_xevent,
       break;
     }
 
-  return filter_return;
+  return GDK_FILTER_CONTINUE;
 }

@@ -1,3 +1,102 @@
+Thu Sep 23 21:06:50 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.[hc]: 
+	* gwmh.[hc]:
+	* gstc.[hc]: foooof. after 14h of hacking and debuging,
+	desk-guide is actually able to deal with non-gnome compliant
+	window managers. it performs all neccessary tasks, such as fetching
+	client list etc... itself. deep magic ;)
+	as a neat side effect, desk-guide can actually manage the desk solely
+	now if no window manager is at all present.
+	probably the first and only pager that capable ;)
+	window manager switching works fine in general, i.e. between comlpiant
+	window managers as well as non-compliant ones, back and forth. there
+	are just a few very old twm-based cripples that cause gdk to crash by
+	destroying windows immediatedly after a ConfigureEvent arrived.
+	i changed the intial error dialog to an alert dialog that strongly
+	recommends compliant wms, but we may actually remove this dialog now.
+
+Thu Sep 23 20:24:42 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.[hc]: added detected_gnome_wm field to the desk structure,
+	so users can figure if we have a compliant window manager. this
+	value may now change during a programs lifetime, i added appropriate
+	"reboot" hooks to the gwmh code to be triggered upon window manager
+	changes. detected_gnome_wm should always be checked by interested
+	applications if the notification mask contains GWMH_DESK_INFO_BOOTUP.
+
+	* gwmh.c (task_delete):
+	* gstc.c (gstc_parent_delete_watch): 
+	carefully reset event masks on foreign windows.
+
+Thu Sep 23 19:12:45 1999  Tim Janik  <timj@gtk.org>
+
+	* ok, got the last bits worked out for non gnome compliant window
+	managers, basically, we have to do everything ourselves, i.e.
+	guess what the actuall client list is. this would be easy if there
+	were no window manager at all, but with all the decorations floating
+	around, it's hard to tell what an actuall task is.
+	hopefully the current heuristics proove to be usefull in the common
+	case.
+
+Thu Sep 23 17:25:39 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c: reset GWMHA atoms if no GNOME comlainant window manager
+	is present, that way we don't get bogus proprtty values.
+
+Thu Sep 23 14:06:17 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.[hc]: added GWMH_DESK_INFO_FORCE_EVERYTHING value, so the
+	user can forcefully update everything (happens upon gwmh_init()
+	as well).
+
+	* deskguide_applet.c (main): queue a GWMH_DESK_INFO_FORCE_EVERYTHING
+	update if we don't know the window manager, so the newly setup
+	notifiers get called.
+
+Thu Sep 23 13:46:28 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: added bug-fix configure option to workaround
+	window managers that move their decoration windows instead of the
+	application window upon XMoveWindow(), occurs with at least
+	AfterStep, Enlightenment, FVWM and IceWM.
+
+Thu Sep 23 10:43:43 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c (gwmh_task_update): translate frame and window coordinates to
+	current desk when updating geometries.
+
+Thu Sep 23 09:50:42 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmdesktop.c (gwmh_desktop_motion): constrain movement area to our
+	window plus a threshold border of 5 pixels.
+	(gwm_desktop_button_release): abort task moves.
+
+	* gwmdesktop.c (gwm_desktop_button_press): only show tasks and change
+	desktop+area on button1. tasks can be moved now with button2.
+	(policy suggested by owen).
+	
+	* gwmdesktop.c (gwm_desktop_draw): fixed a minor offset problem with
+	setting x/y_origin.
+
+Thu Sep 23 08:33:58 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_create_desk_widgets): don't poke around
+	indelicately in foreign class structures, use gwm_desktop_class_config()
+	now. set desired area size from newly added configuration options.
+
+	* gwmdesktop.[hc] (gwm_desktop_class_config): new function to set global
+	class configuration, will automatically update all existing widgets.
+
+	* deskguide_applet.c (gp_init_gui): changed packaging so we don't expand
+	the desktop widgets by default and with that destroy the constrained
+	aspect ratios.
+
+Thu Sep 23 05:35:41 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c: internationalized the configuration option
+	array (Andreas Persenius <ndap@swipnet.se>).
+
 1999-09-18  Matthias Warkus  <mawa@iname.com>
 
 	* *.png: Transparency added to pixmaps.

@@ -15,8 +15,8 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <config.h>	/* PACKAGE, i18n */
 #include "deskguide_applet.h"
-#include <config.h>	/* PACKAGE */
 #include "gwmdesktop.h"
 
 
@@ -51,47 +51,64 @@ static GtkWidget	*gp_desk_box = NULL;
 static GtkWidget	*gp_desk_widget[MAX_DESKTOPS] = { NULL, };
 static guint             gp_n_desk_widgets = 0;
 static GdkWindow	*gp_atom_window = NULL;
+static GtkOrientation    gp_orientation = GTK_ORIENTATION_HORIZONTAL;
 static guint		 GP_TYPE_HBOX = 0;
 static guint		 GP_TYPE_VBOX = 0;
 static guint		 GP_ARROW_DIR = 0;
 static gchar		*DESK_GUIDE_NAME = NULL;
 
 static ConfigItem gp_config_items[] = {
-  CONFIG_SECTION (tooltip_settings,			  "Tooltips"),
+  CONFIG_SECTION (tooltip_settings,			 	N_ ("Tooltips")),
   CONFIG_BOOL (desktips,	TRUE,
-	       "Enable Desktop Names"),
+	       N_ ("Enable Desktop Names")),
   CONFIG_RANGE (desktips_delay,	10,	1,	5000,
-		"Desktop Name Popup Delay [ms]"),
+		N_ ("Desktop Name Popup Delay [ms]")),
   CONFIG_BOOL (tooltips,	TRUE,
-	       "Enable Tooltips"),
+	       N_ ("Enable Tooltips")),
   CONFIG_RANGE (tooltips_delay,	500,	1,	5000,
-		"Tooltips Delay [ms]"),
-  CONFIG_SECTION (layout,				  "Layout"),
+		N_ ("Tooltips Delay [ms]")),
+  CONFIG_SECTION (layout,				  	N_ ("Layout")),
   CONFIG_BOOL (switch_arrow,	FALSE,
-	       "Switch Arrow"),
+	       N_ ("Switch Arrow")),
   CONFIG_BOOL (current_only,	FALSE,
-	       "Show only current Desktop"),
+	       N_ ("Show only current Desktop")),
   CONFIG_BOOL (show_pager,	TRUE,
-	       "Show Desktop Pager"),
+	       N_ ("Show Desktop Pager")),
   
-  CONFIG_PAGE ("Tasks"),
-  CONFIG_SECTION (task_visibility,			  "Visibility"),
+  CONFIG_PAGE (N_ ("Tasks")),
+  CONFIG_SECTION (task_visibility,			  	N_ ("Visibility")),
   CONFIG_BOOL (show_hidden_tasks,	TRUE,
-	       "Show `HIDDEN' Tasks"),
+	       N_ ("Show `HIDDEN' Tasks")),
   CONFIG_BOOL (show_shaded_tasks,	TRUE,
-	       "Show `SHADED' Tasks"),
+	       N_ ("Show `SHADED' Tasks")),
   CONFIG_BOOL (show_skip_winlist,	FALSE,
-	       "Show `SKIP-WINLIST' Tasks"),
+	       N_ ("Show `SKIP-WINLIST' Tasks")),
   CONFIG_BOOL (show_skip_taskbar,	FALSE,
-	       "Show `SKIP-TASKBAR' Tasks"),
-  CONFIG_SECTION (cosmetics,				  "Cosmetics"),
+	       N_ ("Show `SKIP-TASKBAR' Tasks")),
+  CONFIG_SECTION (cosmetics,				  	N_ ("Cosmetics")),
   CONFIG_BOOL (raise_grid,		FALSE,
-	       "Raise Area Grid Above Tasks"),
-  //  CONFIG_SECTION ("", NULL),
+	       N_ ("Raise Area Grid Above Tasks")),
+  /*  CONFIG_SECTION ("", NULL), */
   
-  CONFIG_PAGE ("Advanced Options"),
+  CONFIG_PAGE (N_ ("Geometry")),
+  CONFIG_SECTION (horizontal,                        	     	N_ ("Horizontal Layout")),
+  CONFIG_RANGE (area_height,	44,	4,	256,
+		N_ ("Desktop Height [pixels]")),
+  CONFIG_BOOL (div_by_vareas,		TRUE,
+	       N_ ("Divide Height By Number Of Vertical Areas")),
+  CONFIG_SECTION (vertical,                        	     	N_ ("Vertical Layout")),
+  CONFIG_RANGE (area_width,	44,	4,	256,
+		N_ ("Desktop width [pixels]")),
+  CONFIG_BOOL (div_by_hareas,		TRUE,
+	       N_ ("Divide Width By Number Of Horizontal Areas")),
+
+  CONFIG_PAGE (N_ ("Advanced Options")),
   CONFIG_BOOL (double_buffer,	TRUE,
-	       "Draw desktops double buffered"),
+	       N_ ("Draw Desktops Double Buffered")),
+  CONFIG_SECTION (bug_fixes,                        	     	N_ ("Bug Fixes")),
+  CONFIG_BOOL (skip_movement_offset,		FALSE,
+	       N_ ("Window Manager Moves Decoration Window Instead\n"
+		   "(AfterStep, Enlightenment, FVWM, IceWM)")),
 };
 static guint  gp_n_config_items = (sizeof (gp_config_items) /
 				   sizeof (gp_config_items[0]));
@@ -99,7 +116,7 @@ static guint  gp_n_config_items = (sizeof (gp_config_items) /
 
 /* --- FIXME: bug workarounds --- */
 GNOME_Panel_OrientType fixme_panel_orient = 0;
-#define applet_widget_get_panel_orient(x)	(fixme_panel_orient)
+/* #define applet_widget_get_panel_orient(x)	(fixme_panel_orient) */
 static void fixme_applet_widget_get_panel_orient (gpointer               dummy,
 						  GNOME_Panel_OrientType orient)
 {
@@ -120,7 +137,7 @@ main (gint   argc,
 		      argc, argv,
 		      NULL, 0, NULL);
   
-  DESK_GUIDE_NAME = _("GNOME Desktop Guide (Pager)");
+  DESK_GUIDE_NAME = _ ("GNOME Desktop Guide (Pager)");
   
   /* setup applet widget
    */
@@ -131,27 +148,17 @@ main (gint   argc,
     g_error ("Unable to create applet widget");
   gtk_widget_ref (gp_applet);
   
-  /* main container
-   */
-  gp_container = gtk_widget_new (GTK_TYPE_ALIGNMENT,
-				 "signal::destroy", gtk_widget_destroyed, &gp_container,
-				 "child", gtk_type_new (GTK_TYPE_WIDGET),
-				 NULL);
-  applet_widget_add (APPLET_WIDGET (gp_applet), gp_container);
-  
   /* bail out for non GNOME window managers
    */
   if (!gwmh_init ())
     {
       GtkWidget *dialog;
-      gchar *error_msg =
-	      _( "You are not running a GNOME "
-		 "Compliant Window Manager.\n"
-		 "GNOME support by the window\n"
-		 "manager is a requirement for "
-		 "the Desk Guide to work properly." );
+      gchar *error_msg = _ ("You are not running a GNOME Compliant\n"
+			    "Window Manager. GNOME support by the \n"
+			    "window manager is strongly recommended\n"
+			    "for proper Desk Guide operation.");
       
-      dialog = gnome_error_dialog (_("Desk Guide Error"));
+      dialog = gnome_error_dialog (_ ("Desk Guide Alert"));
       gtk_box_pack_start (GTK_BOX (GNOME_DIALOG (dialog)->vbox),
 			  gtk_widget_new (GTK_TYPE_LABEL,
 					  "visible", TRUE,
@@ -166,8 +173,16 @@ main (gint   argc,
 			  TRUE, TRUE, 5);
       gnome_dialog_run (GNOME_DIALOG (dialog));
       
-      // gtk_exit (1);
+      /* gtk_exit (1); */
     }
+  
+  /* main container
+   */
+  gp_container = gtk_widget_new (GTK_TYPE_ALIGNMENT,
+				 "signal::destroy", gtk_widget_destroyed, &gp_container,
+				 "child", gtk_type_new (GTK_TYPE_WIDGET),
+				 NULL);
+  applet_widget_add (APPLET_WIDGET (gp_applet), gp_container);
   
   /* notifiers and callbacks
    */
@@ -183,13 +198,13 @@ main (gint   argc,
   applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
 					 "about",
 					 GNOME_STOCK_MENU_ABOUT,
-					 _("About..."),
+					 _ ("About..."),
 					 (AppletCallbackFunc) gp_about,
 					 NULL);
   applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
 					 "properties",
 					 GNOME_STOCK_MENU_PROP,
-					 _("Properties..."),
+					 _ ("Properties..."),
 					 (AppletCallbackFunc) gp_config_popup,
 					 NULL);
   
@@ -365,16 +380,24 @@ gp_desk_notifier (gpointer	   func_data,
 		  GwmhDeskInfoMask change_mask)
 {
   guint i;
-  
-  /* keep number of desktop widgets in sync with desk */
-  for (i = desk->n_desktops; i < gp_n_desk_widgets; i++)
-    gtk_widget_destroy (gp_desk_widget[i]);
-  gp_create_desk_widgets ();
 
-  if (gp_n_desk_widgets && BOOL_CONFIG (current_only))
-    gwm_desktop_set_index (GWM_DESKTOP (gp_desk_widget[0]),
-			   desk->current_desktop);
-  
+  if (change_mask & GWMH_DESK_INFO_BOOTUP)
+    {
+      gp_destroy_gui ();
+      gp_init_gui ();
+    }
+  else
+    {
+      /* keep number of desktop widgets in sync with desk */
+      for (i = desk->n_desktops; i < gp_n_desk_widgets; i++)
+	gtk_widget_destroy (gp_desk_widget[i]);
+      gp_create_desk_widgets ();
+      
+      if (gp_n_desk_widgets && BOOL_CONFIG (current_only))
+	gwm_desktop_set_index (GWM_DESKTOP (gp_desk_widget[0]),
+			       desk->current_desktop);
+    }
+
   return TRUE;
 }
 
@@ -405,11 +428,28 @@ gp_destroy_gui (void)
 static void
 gp_create_desk_widgets (void)
 {
+  gdouble area_size;
+
   if (N_DESKTOPS > MAX_DESKTOPS)
     g_error ("MAX_DESKTOPS limit reached, adjust source code");
 
   if (!gp_desk_box)
     return;
+
+  /* configure Desktop widget class for us */
+  area_size = (gp_orientation == GTK_ORIENTATION_HORIZONTAL
+	       ? RANGE_CONFIG (area_height)
+	       : RANGE_CONFIG (area_width));
+  if (gp_orientation == GTK_ORIENTATION_HORIZONTAL && BOOL_CONFIG (div_by_vareas))
+    area_size /= (gdouble) N_VAREAS;
+  if (gp_orientation == GTK_ORIENTATION_VERTICAL && BOOL_CONFIG (div_by_hareas))
+    area_size /= (gdouble) N_HAREAS;
+  gwm_desktop_class_config (gtk_type_class (GWM_TYPE_DESKTOP),
+			    BOOL_CONFIG (double_buffer),
+			    gp_orientation,
+			    area_size,
+			    BOOL_CONFIG (raise_grid),
+			    BOOL_CONFIG (skip_movement_offset));
 
   gp_n_desk_widgets = 0;
   if (BOOL_CONFIG (show_pager))
@@ -503,12 +543,9 @@ static void
 gp_init_gui (void)
 {
   GtkWidget *button, *abox;
-  GwmDesktopClass *class;
   gboolean arrow_at_end = FALSE;
+  GtkWidget *main_box;
   
-  class = gtk_type_class (GWM_TYPE_DESKTOP);
-  class->double_buffer = BOOL_CONFIG (double_buffer);
-  class->raised_grid = BOOL_CONFIG (raise_grid);
   gtk_widget_set_usize (gp_container, 0, 0);
   switch (applet_widget_get_panel_orient (APPLET_WIDGET (gp_applet)))
     {
@@ -518,7 +555,7 @@ gp_init_gui (void)
       GP_ARROW_DIR = GTK_ARROW_UP;
       gtk_widget_set (gp_container,
 		      NULL);
-      class->orientation = GTK_ORIENTATION_HORIZONTAL;
+      gp_orientation = GTK_ORIENTATION_HORIZONTAL;
       arrow_at_end = FALSE;
       break;
     case ORIENT_DOWN:
@@ -527,7 +564,7 @@ gp_init_gui (void)
       GP_ARROW_DIR = GTK_ARROW_DOWN;
       gtk_widget_set (gp_container,
 		      NULL);
-      class->orientation = GTK_ORIENTATION_HORIZONTAL;
+      gp_orientation = GTK_ORIENTATION_HORIZONTAL;
       arrow_at_end = TRUE;
       break;
     case ORIENT_LEFT:
@@ -536,7 +573,7 @@ gp_init_gui (void)
       GP_ARROW_DIR = GTK_ARROW_LEFT;
       gtk_widget_set (gp_container,
 		      NULL);
-      class->orientation = GTK_ORIENTATION_VERTICAL;
+      gp_orientation = GTK_ORIENTATION_VERTICAL;
       arrow_at_end = FALSE;
       break;
     case ORIENT_RIGHT:
@@ -545,7 +582,7 @@ gp_init_gui (void)
       GP_ARROW_DIR = GTK_ARROW_RIGHT;
       gtk_widget_set (gp_container,
 		      NULL);
-      class->orientation = GTK_ORIENTATION_VERTICAL;
+      gp_orientation = GTK_ORIENTATION_VERTICAL;
       arrow_at_end = TRUE;
       break;
     }
@@ -563,15 +600,13 @@ gp_init_gui (void)
   
   /* main container
    */
-  gp_desk_box = gtk_widget_new (GP_TYPE_HBOX,
-				"visible", TRUE,
-				"spacing", 0,
-				"signal::destroy", gtk_widget_destroyed, &gp_desk_box,
-				"parent", gp_container,
-				NULL);
+  main_box = gtk_widget_new (GP_TYPE_HBOX,
+			     "visible", TRUE,
+			     "spacing", 0,
+			     "parent", gp_container,
+			     NULL);
   
-  
-  /* arrow button
+  /* provide box for arrow and button
    */
   abox = gtk_widget_new (GP_TYPE_VBOX,
 			 "visible", TRUE,
@@ -579,9 +614,27 @@ gp_init_gui (void)
 			 NULL);
   (BOOL_CONFIG (switch_arrow)
    ? gtk_box_pack_end
-   : gtk_box_pack_start) (GTK_BOX (gp_desk_box), abox, FALSE, TRUE, 0);
+   : gtk_box_pack_start) (GTK_BOX (main_box), abox, FALSE, TRUE, 0);
+
+  /* provide desktop widget container
+   */
+  gp_desk_box = gtk_widget_new (GP_TYPE_HBOX,
+				"visible", TRUE,
+				"spacing", 0,
+				"signal::destroy", gtk_widget_destroyed, &gp_desk_box,
+				"parent", gtk_widget_new (GTK_TYPE_ALIGNMENT,
+							  "visible", TRUE,
+							  "xscale", 0.0,
+							  "yscale", 0.0,
+							  "parent", main_box,
+							  NULL),
+				NULL);
+  
+  /* add arrow and button
+   */
   button = gtk_widget_new (GTK_TYPE_BUTTON,
 			   "visible", TRUE,
+			   "can_focus", FALSE,
 			   "child", gtk_widget_new (GTK_TYPE_ARROW,
 						    "arrow_type", GP_ARROW_DIR,
 						    "visible", TRUE,
@@ -601,6 +654,7 @@ gp_init_gui (void)
    : gtk_box_pack_start) (GTK_BOX (abox), button, FALSE, TRUE, 0);
   button = gtk_widget_new (GTK_TYPE_BUTTON,
 			   "visible", TRUE,
+			   "can_focus", FALSE,
 			   "label", "?",
 			   "signal::button_press_event", gp_widget_button_popup_config, GUINT_TO_POINTER (1),
 			   "signal::button_press_event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
@@ -669,7 +723,7 @@ gp_config_add_boolean (GtkWidget  *vbox,
   
   widget = gtk_widget_new (GTK_TYPE_CHECK_BUTTON,
 			   "visible", TRUE,
-			   "label", _(item->name),
+			   "label", _ (item->name),
 			   "active", GPOINTER_TO_INT (item->value),
 			   "signal::toggled", gp_config_toggled, item,
 			   NULL);
@@ -710,10 +764,9 @@ gp_config_add_range (GtkWidget  *vbox,
   label = gtk_widget_new (GTK_TYPE_LABEL,
 			  "visible", TRUE,
 			  "xalign", 0.0,
-			  "label", _(item->name),
+			  "label", _ (item->name),
 			  "parent", hbox,
 			  NULL);
-  // gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, TRUE, 0);
   spinner = gtk_spin_button_new (GTK_ADJUSTMENT (adjustment), 0, 0);
   gtk_widget_show (spinner);
   gtk_object_set_user_data (GTK_OBJECT (adjustment), spinner);
@@ -776,10 +829,10 @@ gp_config_create_page (GSList		*item_slist,
       item_slist = node->next;
       g_slist_free_1 (node);
       
-      page_name = _(item->name);
+      page_name = _ (item->name);
     }
   else
-    page_name = _("Global");
+    page_name = _ ("Global");
   
   page = gtk_widget_new (GTK_TYPE_VBOX,
 			 "visible", TRUE,
@@ -798,7 +851,7 @@ gp_config_create_page (GSList		*item_slist,
       g_slist_free_1 (node);
       
       if (item->min == -2 && item->max == -2)			/* section */
-	vbox = gp_config_add_section (GTK_BOX (page), _(item->name));
+	vbox = gp_config_add_section (GTK_BOX (page), _ (item->name));
       else if (item->min == -1 && item->max == -1)		/* boolean */
 	{
 	  if (!vbox)
@@ -813,7 +866,7 @@ gp_config_create_page (GSList		*item_slist,
 	}
     }
   
-  gnome_property_box_append_page (pbox, page, gtk_label_new (_(page_name)));
+  gnome_property_box_append_page (pbox, page, gtk_label_new (_ (page_name)));
   
   return item_slist;
 }
@@ -836,7 +889,7 @@ gp_config_popup (void)
       
       dialog = gnome_property_box_new ();
       gtk_widget_set (dialog,
-		      "title", _("Desk Guide Settings"),
+		      "title", _ ("Desk Guide Settings"),
 		      "signal::apply", gp_destroy_gui, NULL,
 		      "signal::apply", gp_config_apply_tmp_values, NULL,
 		      "signal::apply", gp_init_gui, NULL,

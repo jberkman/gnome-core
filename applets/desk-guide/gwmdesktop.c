@@ -26,8 +26,8 @@
 #define xbm_area_width 4
 #define xbm_area_height 4
 static const gchar xbm_area_bits[] = {
-  0x03, 0x03, 0x0C, 0x0C,	/* checker board */
-  /* 0x08, 0x04, 0x02, 0x01, */	/* stripe */
+  0x03, 0x03, 0x0C, 0x0C,       /* checker board */
+  /* 0x08, 0x04, 0x02, 0x01, */ /* stripe */
 };
 
 
@@ -37,8 +37,8 @@ enum {
   SIGNAL_LAST
 };
 typedef gboolean (*SignalCheckTask) (GtkObject *object,
-				     GwmhTask  *task,
-				     gpointer   user_data);
+                                     GwmhTask  *task,
+                                     gpointer   user_data);
 
 
 /* --- structures --- */
@@ -50,38 +50,40 @@ typedef struct
 
 
 /* --- prototypes --- */
-static void	gwm_desktop_class_init	  (GwmDesktopClass    *klass);
-static void	gwm_desktop_init	  (GwmDesktop	      *desktop);
-static void	gwm_desktop_destroy	  (GtkObject	      *object);
-static gboolean gwm_desktop_desk_notifier (gpointer            func_data,
-					   GwmhDesk           *desk,
-					   GwmhDeskInfoMask    change_mask);
-static gboolean gwm_desktop_task_notifier (gpointer	       func_data,
-					   GwmhTask           *task,
-					   GwmhTaskNotifyType  ntype,
-					   GwmhTaskInfoMask    imask);
-static void     gwm_desktop_map           (GtkWidget          *widget);
-static void     gwm_desktop_realize       (GtkWidget          *widget);
-static void     gwm_desktop_size_allocate (GtkWidget          *widget,
-					   GtkAllocation      *allocation);
-static void     gwm_desktop_unrealize     (GtkWidget          *widget);
-static void	gwm_desktop_size_request  (GtkWidget          *widget,
-					   GtkRequisition     *requisition);
-static gboolean	gwm_desktop_expose	  (GtkWidget          *widget,
-					   GdkEventExpose     *event);
-static void	gwm_desktop_draw	  (GtkWidget          *widget,
-					   GdkRectangle	      *area);
-static gboolean	gwm_desktop_button_press  (GtkWidget          *widget,
-					   GdkEventButton     *event);
-static gboolean gwmh_desktop_motion	  (GtkWidget          *widget,
-					   GdkEventMotion     *event);
+static void     gwm_desktop_class_init     (GwmDesktopClass    *klass);
+static void     gwm_desktop_init           (GwmDesktop         *desktop);
+static void     gwm_desktop_destroy        (GtkObject          *object);
+static gboolean gwm_desktop_desk_notifier  (gpointer            func_data,
+					    GwmhDesk           *desk,
+					    GwmhDeskInfoMask    change_mask);
+static gboolean gwm_desktop_task_notifier  (gpointer            func_data,
+					    GwmhTask           *task,
+					    GwmhTaskNotifyType  ntype,
+					    GwmhTaskInfoMask    imask);
+static void     gwm_desktop_map            (GtkWidget          *widget);
+static void     gwm_desktop_realize        (GtkWidget          *widget);
+static void     gwm_desktop_size_allocate  (GtkWidget          *widget,
+					    GtkAllocation      *allocation);
+static void     gwm_desktop_unrealize      (GtkWidget          *widget);
+static void     gwm_desktop_size_request   (GtkWidget          *widget,
+					    GtkRequisition     *requisition);
+static gboolean gwm_desktop_expose         (GtkWidget          *widget,
+					    GdkEventExpose     *event);
+static void     gwm_desktop_draw           (GtkWidget          *widget,
+					    GdkRectangle       *area);
+static gboolean gwm_desktop_button_press   (GtkWidget          *widget,
+					    GdkEventButton     *event);
+static gboolean gwm_desktop_button_release (GtkWidget          *widget,
+					    GdkEventButton     *event);
+static gboolean gwmh_desktop_motion        (GtkWidget          *widget,
+					    GdkEventMotion     *event);
 
 
 /* --- static variables --- */
 static gpointer         parent_class = NULL;
 static GwmDesktopClass *gwm_desktop_class = NULL;
 static guint            gwm_desktop_signals[SIGNAL_LAST] = { 0 };
-static GQuark		quark_grab_area = 0;
+static GQuark           quark_grab_area = 0;
 
 
 /* --- functions --- */
@@ -94,14 +96,14 @@ gwm_desktop_get_type (void)
     {
       GtkTypeInfo desktop_info =
       {
-	"GwmDesktop",
-	sizeof (GwmDesktop),
-	sizeof (GwmDesktopClass),
-	(GtkClassInitFunc) gwm_desktop_class_init,
-	(GtkObjectInitFunc) gwm_desktop_init,
+        "GwmDesktop",
+        sizeof (GwmDesktop),
+        sizeof (GwmDesktopClass),
+        (GtkClassInitFunc) gwm_desktop_class_init,
+        (GtkObjectInitFunc) gwm_desktop_init,
         /* reserved_1 */ NULL,
-	/* reserved_2 */ NULL,
-	(GtkClassInitFunc) NULL,
+        /* reserved_2 */ NULL,
+        (GtkClassInitFunc) NULL,
       };
       
       desktop_type = gtk_type_unique (GTK_TYPE_DRAWING_AREA, &desktop_info);
@@ -112,9 +114,9 @@ gwm_desktop_get_type (void)
 
 static void
 gwm_desktop_marshal_check_task (GtkObject    *object,
-				GtkSignalFunc func,
-				gpointer      func_data,
-				GtkArg       *args)
+                                GtkSignalFunc func,
+                                gpointer      func_data,
+                                GtkArg       *args)
 {
   SignalCheckTask sfunc = (SignalCheckTask) func;
   gboolean *retval = GTK_RETLOC_BOOL (args[1]);
@@ -146,21 +148,24 @@ gwm_desktop_class_init (GwmDesktopClass *class)
   widget_class->expose_event = gwm_desktop_expose;
   widget_class->draw = gwm_desktop_draw;
   widget_class->button_press_event = gwm_desktop_button_press;
+  widget_class->button_release_event = gwm_desktop_button_release;
   widget_class->motion_notify_event = gwmh_desktop_motion;
 
+  class->double_buffer = TRUE;
   class->orientation = GTK_ORIENTATION_HORIZONTAL;
   class->area_size = 22;
-  class->double_buffer = TRUE;
   class->raised_grid = FALSE;
+  class->move_to_frame_offset = FALSE;
+  class->objects = NULL;
   class->check_task = NULL;
 
   gwm_desktop_signals[SIGNAL_CHECK_TASK] =
     gtk_signal_new ("check_task",
-		    GTK_RUN_LAST,
-		    object_class->type,
-		    GTK_SIGNAL_OFFSET (GwmDesktopClass, check_task),
-		    gwm_desktop_marshal_check_task,
-		    GTK_TYPE_BOOL, 1, GTK_TYPE_POINTER);
+                    GTK_RUN_LAST,
+                    object_class->type,
+                    GTK_SIGNAL_OFFSET (GwmDesktopClass, check_task),
+                    gwm_desktop_marshal_check_task,
+                    GTK_TYPE_BOOL, 1, GTK_TYPE_POINTER);
   gtk_object_class_add_signals (object_class, gwm_desktop_signals, SIGNAL_LAST);
 }
 
@@ -171,6 +176,8 @@ gwm_desktop_init (GwmDesktop *desktop)
   GwmhDesk *desk = gwmh_desk_get_config ();
 
   GTK_WIDGET_UNSET_FLAGS (desktop, GTK_NO_WINDOW);
+
+  gwm_desktop_class->objects = g_slist_prepend (gwm_desktop_class->objects, desktop);
 
   desktop->index = 0;
   desktop->harea = 0;
@@ -183,12 +190,10 @@ gwm_desktop_init (GwmDesktop *desktop)
   desktop->tooltips = NULL;
   
   gtk_widget_set_events (widget,
-			 GDK_BUTTON_PRESS_MASK |
-			 GDK_BUTTON_RELEASE_MASK |
-			 GDK_BUTTON1_MOTION_MASK |
-			 GDK_EXPOSURE_MASK |
-			 GDK_ENTER_NOTIFY_MASK |
-			 GDK_LEAVE_NOTIFY_MASK);
+                         GDK_BUTTON_PRESS_MASK |
+                         GDK_BUTTON_RELEASE_MASK |
+                         GDK_BUTTON2_MOTION_MASK |
+                         GDK_EXPOSURE_MASK);
 
   gwmh_desk_notifier_add (gwm_desktop_desk_notifier, desktop);
   gwmh_task_notifier_add (gwm_desktop_task_notifier, desktop);
@@ -202,6 +207,8 @@ gwm_desktop_destroy (GtkObject *object)
   g_return_if_fail (object != NULL);
 
   desktop = GWM_DESKTOP (object);
+
+  gwm_desktop_class->objects = g_slist_remove (gwm_desktop_class->objects, desktop);
 
   gwmh_desk_notifier_remove_func (gwm_desktop_desk_notifier, desktop);
   gwmh_task_notifier_remove_func (gwm_desktop_task_notifier, desktop);
@@ -232,14 +239,14 @@ gwm_desktop_realize (GtkWidget *widget)
   GTK_WIDGET_CLASS (parent_class)->realize (widget);
 
   desktop->bitmap = gdk_bitmap_create_from_data (widget->window,
-						 xbm_area_bits,
-						 xbm_area_width,
-						 xbm_area_height);
+                                                 xbm_area_bits,
+                                                 xbm_area_width,
+                                                 xbm_area_height);
   if (class->double_buffer)
     desktop->pixmap = gdk_pixmap_new (widget->window,
-				      widget->allocation.width,
-				      widget->allocation.height,
-				      -1);
+                                      widget->allocation.width,
+                                      widget->allocation.height,
+                                      -1);
 }
 
 static void
@@ -255,7 +262,7 @@ gwm_desktop_map (GtkWidget *widget)
 
 static void
 gwm_desktop_size_allocate (GtkWidget     *widget,
-			   GtkAllocation *allocation)
+                           GtkAllocation *allocation)
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
 
@@ -265,9 +272,9 @@ gwm_desktop_size_allocate (GtkWidget     *widget,
     {
       gdk_pixmap_unref (desktop->pixmap);
       desktop->pixmap = gdk_pixmap_new (widget->window,
-					widget->allocation.width,
-					widget->allocation.height,
-					-1);
+                                        widget->allocation.width,
+                                        widget->allocation.height,
+                                        -1);
       gtk_widget_queue_draw (widget);
     }
 }
@@ -288,9 +295,61 @@ gwm_desktop_unrealize (GtkWidget *widget)
   GTK_WIDGET_CLASS (parent_class)->unrealize (widget);
 }
 
+void
+gwm_desktop_class_config (GwmDesktopClass *class,
+                          gboolean         double_buffer,
+                          GtkOrientation   orientation,
+                          guint            area_size,
+                          gboolean         raised_grid,
+                          gboolean         move_to_frame_offset)
+{
+  g_return_if_fail (GWM_IS_DESKTOP_CLASS (class));
+  
+  double_buffer = double_buffer ? TRUE : FALSE;
+  raised_grid = raised_grid ? TRUE : FALSE;
+  orientation = CLAMP (orientation, GTK_ORIENTATION_HORIZONTAL, GTK_ORIENTATION_VERTICAL);
+  move_to_frame_offset = move_to_frame_offset ? TRUE : FALSE;
+  if (double_buffer != class->double_buffer ||
+      orientation != class->orientation ||
+      area_size != class->area_size ||
+      raised_grid != class->raised_grid ||
+      move_to_frame_offset != class->move_to_frame_offset)
+    {
+      GSList *slist;
+      
+      class->double_buffer = double_buffer;
+      class->orientation = orientation;
+      class->area_size = area_size;
+      class->raised_grid = raised_grid;
+      class->move_to_frame_offset = move_to_frame_offset;
+      
+      for (slist = class->objects; slist; slist = slist->next)
+        {
+          GtkWidget *widget = slist->data;
+          GwmDesktop *desktop = GWM_DESKTOP (widget);
+          
+          if (!GTK_WIDGET_REALIZED (desktop))
+            continue;
+          
+          if (class->double_buffer && !desktop->pixmap)
+            desktop->pixmap = gdk_pixmap_new (widget->window,
+                                              widget->allocation.width,
+                                              widget->allocation.height,
+                                              -1);
+          else if (!class->double_buffer && desktop->pixmap)
+            {
+              gdk_pixmap_unref (desktop->pixmap);
+              desktop->pixmap = NULL;
+            }
+          
+          gtk_widget_queue_resize (widget);
+        }
+    }
+}
+
 static void
 gwm_desktop_size_request (GtkWidget      *widget,
-			  GtkRequisition *requisition)
+                          GtkRequisition *requisition)
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
   GwmDesktopClass *class = GWM_DESKTOP_GET_CLASS (desktop);
@@ -322,7 +381,7 @@ gwm_desktop_size_request (GtkWidget      *widget,
 
 GtkWidget*
 gwm_desktop_new (guint        index,
-		 GtkTooltips *tooltips)
+                 GtkTooltips *tooltips)
 {
   GtkWidget *desktop;
 
@@ -344,7 +403,7 @@ gwm_desktop_new (guint        index,
 
 void
 gwm_desktop_set_index (GwmDesktop *desktop,
-		       guint       index)
+                       guint       index)
 {
   GtkWidget *widget = GTK_WIDGET (desktop);
   GwmhDesk *desk = gwmh_desk_get_config ();
@@ -355,15 +414,15 @@ gwm_desktop_set_index (GwmDesktop *desktop,
 
   desktop->index = index;
   gwmh_desk_guess_desktop_area (desktop->index,
-				&desktop->harea,
-				&desktop->varea);
+                                &desktop->harea,
+                                &desktop->varea);
   desktop->last_desktop = desk->current_desktop;
 
   if (desktop->tooltips)
     gtk_tooltips_set_tip (desktop->tooltips,
-			  widget,
-			  desk->desktop_names[index],
-			  NULL);
+                          widget,
+                          desk->desktop_names[index],
+                          NULL);
   
   
   g_list_free (desktop->task_list);
@@ -374,7 +433,7 @@ gwm_desktop_set_index (GwmDesktop *desktop,
       GwmhTask *task = node->data;
       
       if (task->desktop == desktop->index)
-	desktop->task_list = g_list_prepend (desktop->task_list, task);
+        desktop->task_list = g_list_prepend (desktop->task_list, task);
     }
 
   gtk_widget_queue_resize (widget);
@@ -382,8 +441,8 @@ gwm_desktop_set_index (GwmDesktop *desktop,
 
 static gboolean
 gwm_desktop_desk_notifier (gpointer         func_data,
-			   GwmhDesk        *desk,
-			   GwmhDeskInfoMask change_mask)
+                           GwmhDesk        *desk,
+                           GwmhDeskInfoMask change_mask)
 {
   GwmDesktop *desktop = GWM_DESKTOP (func_data);
   GtkWidget *widget = GTK_WIDGET (desktop);
@@ -391,32 +450,32 @@ gwm_desktop_desk_notifier (gpointer         func_data,
   if (desktop->last_desktop != desk->current_desktop)
     {
       if (desktop->last_desktop == desktop->index)
-	gtk_widget_queue_draw (widget);
+        gtk_widget_queue_draw (widget);
       desktop->last_desktop = desk->current_desktop;
       if (desktop->last_desktop == desktop->index)
-	gtk_widget_queue_draw (widget);
+        gtk_widget_queue_draw (widget);
     }
 
   if (change_mask & (GWMH_DESK_INFO_N_DESKTOPS |
-		     GWMH_DESK_INFO_N_AREAS |
-		     GWMH_DESK_INFO_CLIENT_LIST))
+                     GWMH_DESK_INFO_N_AREAS |
+                     GWMH_DESK_INFO_CLIENT_LIST))
     gwm_desktop_set_index (desktop, MIN (desktop->index, desk->n_desktops - 1));
   else
     {
       if ((change_mask & GWMH_DESK_INFO_DESKTOP_NAMES) &&
-	  desktop->tooltips)
-	gtk_tooltips_set_tip (desktop->tooltips,
-			      widget,
-			      desk->desktop_names[desktop->index],
-			      NULL);
+          desktop->tooltips)
+        gtk_tooltips_set_tip (desktop->tooltips,
+                              widget,
+                              desk->desktop_names[desktop->index],
+                              NULL);
       
       if ((change_mask & GWMH_DESK_INFO_CURRENT_AREA) &&
-	  desk->current_desktop == desktop->index)
-	{
-	  desktop->harea = desk->current_harea;
-	  desktop->varea = desk->current_varea;
-	  gtk_widget_queue_draw (widget);
-	}
+          desk->current_desktop == desktop->index)
+        {
+          desktop->harea = desk->current_harea;
+          desktop->varea = desk->current_varea;
+          gtk_widget_queue_draw (widget);
+        }
     }
 
   return TRUE;
@@ -424,9 +483,9 @@ gwm_desktop_desk_notifier (gpointer         func_data,
 
 static gboolean
 gwm_desktop_task_notifier (gpointer           func_data,
-			   GwmhTask          *task,
-			   GwmhTaskNotifyType ntype,
-			   GwmhTaskInfoMask   imask)
+                           GwmhTask          *task,
+                           GwmhTaskNotifyType ntype,
+                           GwmhTaskInfoMask   imask)
 {
   GwmDesktop *desktop = GWM_DESKTOP (func_data);
   GtkWidget *widget = GTK_WIDGET (desktop);
@@ -434,39 +493,39 @@ gwm_desktop_task_notifier (gpointer           func_data,
   if (ntype == GWMH_NOTIFY_NEW)
     {
       if (task->desktop == desktop->index)
-	{
-	  desktop->task_list = g_list_append (desktop->task_list, task);
-	  desktop->grab_task = NULL;
-	  gtk_widget_queue_draw (widget);
-	}
+        {
+          desktop->task_list = g_list_append (desktop->task_list, task);
+          desktop->grab_task = NULL;
+          gtk_widget_queue_draw (widget);
+        }
     }
   else if (ntype == GWMH_NOTIFY_INFO_CHANGED && imask)
     {
       if (task->desktop == desktop->index)
-	{
-	  if (imask & GWMH_TASK_INFO_DESKTOP)
-	    {
-	      desktop->task_list = g_list_append (desktop->task_list, task);
-	      desktop->grab_task = NULL;
-	    }
-	  gtk_widget_queue_draw (widget);
-	}
+        {
+          if (imask & GWMH_TASK_INFO_DESKTOP)
+            {
+              desktop->task_list = g_list_append (desktop->task_list, task);
+              desktop->grab_task = NULL;
+            }
+          gtk_widget_queue_draw (widget);
+        }
       else if ((imask & GWMH_TASK_INFO_DESKTOP) &&
-	       task->last_desktop == desktop->index)
-	{
-	  desktop->task_list = g_list_remove (desktop->task_list, task);
-	  desktop->grab_task = NULL;
-	  gtk_widget_queue_draw (widget);
-	}
+               task->last_desktop == desktop->index)
+        {
+          desktop->task_list = g_list_remove (desktop->task_list, task);
+          desktop->grab_task = NULL;
+          gtk_widget_queue_draw (widget);
+        }
     }
   else if (ntype == GWMH_NOTIFY_DESTROY)
     {
       if (task->desktop == desktop->index)
-	{
-	  desktop->task_list = g_list_remove (desktop->task_list, task);
-	  desktop->grab_task = NULL;
-	  gtk_widget_queue_draw (widget);
-	}
+        {
+          desktop->task_list = g_list_remove (desktop->task_list, task);
+          desktop->grab_task = NULL;
+          gtk_widget_queue_draw (widget);
+        }
     }
 
   return TRUE;
@@ -474,81 +533,91 @@ gwm_desktop_task_notifier (gpointer           func_data,
 
 static gboolean
 gwm_desktop_button_press (GtkWidget      *widget,
-			  GdkEventButton *event)
+                          GdkEventButton *event)
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
   GwmhDesk *desk = gwmh_desk_get_config ();
-  gboolean handled = FALSE;
+  gint xthick = widget->style->klass->xthickness;
+  gint ythick = widget->style->klass->ythickness;
+  gint width = widget->allocation.width;
+  gint height = widget->allocation.height;
+  gint x = event->x;
+  gint y = event->y;
+  GList *node;
 
   desktop->grab_task = NULL;
+
+  if (x < xthick || x >= width - xthick ||
+      y < ythick || y >= height - ythick)
+    return FALSE;
+  if (event->button >= 3)
+    return FALSE;
+
   if (event->button == 1)
     {
-      GList *node;
-      gint xthick = widget->style->klass->xthickness;
-      gint ythick = widget->style->klass->ythickness;
-      gint width = widget->allocation.width;
-      gint height = widget->allocation.height;
-      gint x = event->x - xthick;
-      gint y = event->y - xthick;
+      gint tx = x, ty = y, tw = width, th = height;
 
-      for (node = g_list_last (desktop->task_list); node; node = node->prev)
-	{
-	  GwmhTask *task = node->data;
-	  GrabArea *grab_area = gwmh_task_get_qdata (task, quark_grab_area);
-
-	  if (grab_area &&
-	      (event->x >= grab_area->x &&
-	       event->x < grab_area->x + grab_area->width) &&
-	      (event->y >= grab_area->y &&
-	       event->y < grab_area->y + grab_area->height))
-	    {
-	      gwmh_task_show (task);
-	      if (task->desktop == desk->current_desktop)
-		{
-		  desktop->grab_task = task;
-		  desktop->x_comp = desktop->x_spixels * (event->x - grab_area->x);
-		  desktop->y_comp = desktop->y_spixels * (event->y - grab_area->y);
-		  desktop->x_comp += task->frame_x - task->win_x;
-		  desktop->y_comp += task->frame_y - task->win_y;
-		}
-	      break;
-	    }
-	}
-
-      if (x > xthick && x < width - 2 * xthick &&
-	  y > ythick && y < height - 2 * ythick)
-	{
-	  x -= xthick;
-	  y -= ythick;
-	  width -= xthick * 2;
-	  height -= ythick * 2;
-	  x = x / (width / desk->n_hareas);
-	  y = y / (height / desk->n_vareas);
-	  if (!(event->state & GDK_CONTROL_MASK) ||
-	      desktop->index != desk->current_desktop)
-	    gwmh_desk_set_current_area (desktop->index, x, y);
-	}
-      
-      handled = TRUE;
+      tx -= xthick;
+      ty -= ythick;
+      tw -= xthick * 2;
+      th -= ythick * 2;
+      tx /= (tw / desk->n_hareas);
+      ty /= (th / desk->n_vareas);
+      gwmh_desk_set_current_area (desktop->index, tx, ty);
     }
   
-  return handled;
+  for (node = g_list_last (desktop->task_list); node; node = node->prev)
+    {
+      GwmhTask *task = node->data;
+      GrabArea *grab_area = gwmh_task_get_qdata (task, quark_grab_area);
+      
+      if (grab_area &&
+          (x >= grab_area->x &&
+           x < grab_area->x + grab_area->width) &&
+          (y >= grab_area->y &&
+           y < grab_area->y + grab_area->height))
+        {
+          if (event->button == 1)
+            gwmh_task_show (task);
+          if (event->button == 2)
+            {
+              gwmh_task_raise (task);
+              desktop->grab_task = task;
+              desktop->x_comp = desktop->x_spixels * (grab_area->x - x);
+              desktop->y_comp = desktop->y_spixels * (grab_area->y - y);
+	      if (gwm_desktop_class->move_to_frame_offset)
+		{
+		  desktop->x_comp += task->win_x - task->frame_x;
+		  desktop->y_comp += task->win_y - task->frame_y;
+		}
+            }
+          break;
+        }
+    }
+
+  return TRUE;
 }
 
 static gboolean
 gwmh_desktop_motion (GtkWidget      *widget,
-		     GdkEventMotion *event)
+                     GdkEventMotion *event)
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
-  GwmhTask *task = desktop->grab_task;
+  GwmhTask *task;
+  gint x = event->x, y = event->y;
+
+  x = CLAMP (x, -5, widget->allocation.width + 4);
+  y = CLAMP (y, -5, widget->allocation.height + 4);
+
+  task = desktop->grab_task;
 
   if (task && !GWMH_TASK_UPDATE_QUEUED (task))
     {
       gdk_window_move (task->gdkwindow,
-		       (event->x - desktop->x_origin) *
-		       desktop->x_spixels - desktop->x_comp,
-		       (event->y - desktop->y_origin) *
-		       desktop->y_spixels - desktop->y_comp);
+		       desktop->x_comp +
+                       desktop->x_spixels * (x - desktop->x_origin),
+                       desktop->y_comp +
+                       desktop->y_spixels * (y - desktop->y_origin));
       gdk_flush ();
     }
 
@@ -556,8 +625,19 @@ gwmh_desktop_motion (GtkWidget      *widget,
 }
 
 static gboolean
+gwm_desktop_button_release (GtkWidget       *widget,
+			    GdkEventButton  *event)
+{
+  GwmDesktop *desktop = GWM_DESKTOP (widget);
+
+  desktop->grab_task = NULL;
+  
+  return TRUE;
+}
+
+static gboolean
 gwm_desktop_expose (GtkWidget      *widget,
-		    GdkEventExpose *event)
+                    GdkEventExpose *event)
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
 
@@ -565,21 +645,21 @@ gwm_desktop_expose (GtkWidget      *widget,
       GTK_WIDGET_REDRAW_PENDING (widget) ||
       GTK_WIDGET_RESIZE_NEEDED (widget))
     gtk_widget_queue_draw_area (widget,
-				event->area.x, event->area.y,
-				event->area.width, event->area.height);
+                                event->area.x, event->area.y,
+                                event->area.width, event->area.height);
   else
     gdk_draw_pixmap (widget->window,
-		     widget->style->fg_gc[GTK_STATE_NORMAL],
-		     desktop->pixmap,
-		     0, 0, 0, 0,
-		     -1, -1);
+                     widget->style->fg_gc[GTK_STATE_NORMAL],
+                     desktop->pixmap,
+                     0, 0, 0, 0,
+                     -1, -1);
 
   return TRUE;
 }
 
 static void
 gwm_desktop_draw (GtkWidget    *widget,
-		  GdkRectangle *area)
+                  GdkRectangle *area)
 {
   GwmDesktop *desktop = GWM_DESKTOP (widget);
   GtkObject *object = GTK_OBJECT (desktop);
@@ -611,11 +691,11 @@ gwm_desktop_draw (GtkWidget    *widget,
 
   /* clear out */
   gtk_draw_box (style,
-		window,
-		GTK_STATE_ACTIVE,
-		current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
-		0, 0,
-		-1, -1);
+                window,
+                GTK_STATE_ACTIVE,
+                current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+                0, 0,
+                -1, -1);
   
   /* create gc for current area and draw its background */
   if (desk->n_hareas * desk->n_vareas > 1)
@@ -629,12 +709,12 @@ gwm_desktop_draw (GtkWidget    *widget,
       x = xthick + desktop->harea * area_width;
       y = ythick + desktop->varea * area_height;
       gdk_draw_rectangle (window, gc, TRUE,
-			  x, y,
-			  area_width,
-			  area_height);
+                          x, y,
+                          area_width,
+                          area_height);
       gdk_gc_set_fill (gc, GDK_SOLID);
-      desktop->x_origin = x - xthick / 2;
-      desktop->y_origin = y - ythick / 2;
+      desktop->x_origin = x;
+      desktop->y_origin = y;
     }
 
   /* draw grid, take 1 */
@@ -642,17 +722,17 @@ gwm_desktop_draw (GtkWidget    *widget,
     {
       /* draw grid */
       for (x = 1; x < desk->n_hareas; x++)
-	gtk_draw_vline (style, window,
-			GTK_WIDGET_STATE (widget),
-			ythick,
-			ythick + area_height * desk->n_vareas - ythick / 2,
-			xthick + x * area_width - xthick / 2);
+        gtk_draw_vline (style, window,
+                        GTK_WIDGET_STATE (widget),
+                        ythick,
+                        ythick + area_height * desk->n_vareas - ythick / 2,
+                        xthick + x * area_width - xthick / 2);
       for (y = 1; y < desk->n_vareas; y++)
-	gtk_draw_hline (style, window,
-			GTK_WIDGET_STATE (widget),
-			xthick,
-			xthick + area_width * desk->n_hareas - xthick / 2,
-			ythick + y * area_height - ythick / 2);
+        gtk_draw_hline (style, window,
+                        GTK_WIDGET_STATE (widget),
+                        xthick,
+                        xthick + area_width * desk->n_hareas - xthick / 2,
+                        ythick + y * area_height - ythick / 2);
     }
   
   /* draw tasks */
@@ -667,10 +747,10 @@ gwm_desktop_draw (GtkWidget    *widget,
 
       gtk_signal_emit (object, gwm_desktop_signals[SIGNAL_CHECK_TASK], task, &show_task);
       if (!show_task)
-	{
-	  gwmh_task_set_qdata_full (task, quark_grab_area, NULL, NULL);
-	  continue;
-	}
+        {
+          gwmh_task_set_qdata_full (task, quark_grab_area, NULL, NULL);
+          continue;
+        }
 
       grab_area = g_new (GrabArea, 1);
 
@@ -693,20 +773,20 @@ gwm_desktop_draw (GtkWidget    *widget,
 
 #if 0
       g_print ("draw task %p %d, %d, %d, %d\n",
-	       task,
-	       grab_area->x,
-	       grab_area->y,
-	       grab_area->width,
-	       grab_area->height);
+               task,
+               grab_area->x,
+               grab_area->y,
+               grab_area->width,
+               grab_area->height);
 #endif
 
       gtk_draw_box (style, window,
-		    GWMH_TASK_FOCUSED (task) ? GTK_STATE_PRELIGHT : GTK_STATE_NORMAL,
-		    GWMH_TASK_FOCUSED (task) ? GTK_SHADOW_OUT : GTK_SHADOW_ETCHED_IN,
-		    grab_area->x,
-		    grab_area->y,
-		    grab_area->width,
-		    grab_area->height);
+                    GWMH_TASK_FOCUSED (task) ? GTK_STATE_PRELIGHT : GTK_STATE_NORMAL,
+                    GWMH_TASK_FOCUSED (task) ? GTK_SHADOW_OUT : GTK_SHADOW_ETCHED_IN,
+                    grab_area->x,
+                    grab_area->y,
+                    grab_area->width,
+                    grab_area->height);
     }
 
   /* draw grid, take 2 */
@@ -714,33 +794,33 @@ gwm_desktop_draw (GtkWidget    *widget,
     {
       /* draw grid */
       for (x = 1; x < desk->n_hareas; x++)
-	gtk_draw_vline (style, window,
-			GTK_WIDGET_STATE (widget),
-			ythick,
-			ythick + area_height * desk->n_vareas - ythick / 2,
-			xthick + x * area_width - xthick / 2);
+        gtk_draw_vline (style, window,
+                        GTK_WIDGET_STATE (widget),
+                        ythick,
+                        ythick + area_height * desk->n_vareas - ythick / 2,
+                        xthick + x * area_width - xthick / 2);
       for (y = 1; y < desk->n_vareas; y++)
-	gtk_draw_hline (style, window,
-			GTK_WIDGET_STATE (widget),
-			xthick,
-			xthick + area_width * desk->n_hareas - xthick / 2,
-			ythick + y * area_height - ythick / 2);
+        gtk_draw_hline (style, window,
+                        GTK_WIDGET_STATE (widget),
+                        xthick,
+                        xthick + area_width * desk->n_hareas - xthick / 2,
+                        ythick + y * area_height - ythick / 2);
     }
 
   /* draw border */
   gtk_draw_shadow (style,
-		   window,
-		   GTK_STATE_ACTIVE,
-		   current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
-		   0, 0,
-		   -1, -1);
+                   window,
+                   GTK_STATE_ACTIVE,
+                   current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+                   0, 0,
+                   -1, -1);
 
   if (window == desktop->pixmap)
     gdk_draw_pixmap (widget->window,
-		     widget->style->fg_gc[GTK_STATE_NORMAL],
-		     desktop->pixmap,
-		     0, 0, 0, 0,
-		     -1, -1);
+                     widget->style->fg_gc[GTK_STATE_NORMAL],
+                     desktop->pixmap,
+                     0, 0, 0, 0,
+                     -1, -1);
   
   gdk_flush ();
 }

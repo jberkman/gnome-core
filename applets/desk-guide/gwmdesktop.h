@@ -21,7 +21,7 @@
 #ifndef __GWM_DESKTOP_H__
 #define __GWM_DESKTOP_H__
 
-#include	"gwmh.h"
+#include        "gwmh.h"
 
 
 #ifdef __cplusplus
@@ -30,59 +30,69 @@ extern "C" {
 
 
 /* --- Gtk+ type macros --- */
-#define	GWM_TYPE_DESKTOP	    (gwm_desktop_get_type ())
-#define	GWM_DESKTOP(object)	    (GTK_CHECK_CAST ((object), GWM_TYPE_DESKTOP, GwmDesktop))
-#define	GWM_DESKTOP_CLASS(klass)    (GTK_CHECK_CLASS_CAST ((klass), GWM_TYPE_DESKTOP, GwmDesktopClass))
-#define	GWM_IS_DESKTOP(object)	    (GTK_CHECK_TYPE ((object), GWM_TYPE_DESKTOP))
-#define	GWM_IS_DESKTOP_CLASS(klass) (GTK_CHECK_CLASS_TYPE ((klass), GWM_TYPE_DESKTOP))
+#define GWM_TYPE_DESKTOP            (gwm_desktop_get_type ())
+#define GWM_DESKTOP(object)         (GTK_CHECK_CAST ((object), GWM_TYPE_DESKTOP, GwmDesktop))
+#define GWM_DESKTOP_CLASS(klass)    (GTK_CHECK_CLASS_CAST ((klass), GWM_TYPE_DESKTOP, GwmDesktopClass))
+#define GWM_IS_DESKTOP(object)      (GTK_CHECK_TYPE ((object), GWM_TYPE_DESKTOP))
+#define GWM_IS_DESKTOP_CLASS(klass) (GTK_CHECK_CLASS_TYPE ((klass), GWM_TYPE_DESKTOP))
 #define GWM_DESKTOP_GET_CLASS(obj)  ((GwmDesktopClass*) (((GtkObject*) (obj))->klass))
 
 
 /* --- structures & typedefs --- */
-typedef	struct	_GwmDesktop		GwmDesktop;
-typedef	struct	_GwmDesktopClass	GwmDesktopClass;
+typedef struct  _GwmDesktop             GwmDesktop;
+typedef struct  _GwmDesktopClass        GwmDesktopClass;
 struct _GwmDesktop
 {
   GtkDrawingArea parent_object;
   
-  guint		 index;
+  guint          index;
   guint          harea, varea;
-  guint		 last_desktop;
-  GList		*task_list;
+  guint          last_desktop;
+  GList         *task_list;
   
   GdkBitmap     *bitmap;
-  GdkPixmap	*pixmap;
-  GtkTooltips	*tooltips;
+  GdkPixmap     *pixmap;
+  GtkTooltips   *tooltips;
 
   /* grab motion */
-  guint16 	 x_spixels;
-  guint16 	 y_spixels;
-  guint16        x_origin;
-  guint16        y_origin;
+  gint16         x_spixels;
+  gint16         y_spixels;
+  gint16         x_origin;
+  gint16         y_origin;
   gint16         x_comp;
   gint16         y_comp;
-  GwmhTask	*grab_task;
+  GwmhTask      *grab_task;
 };
 struct _GwmDesktopClass
 {
   GtkDrawingAreaClass  parent_class;
 
+  guint          double_buffer : 1;
   GtkOrientation orientation;
-  guint	         area_size;
-  guint		 double_buffer : 1;
-  guint		 raised_grid : 1;
+  guint          area_size;
+  guint          raised_grid : 1;
+  guint          move_to_frame_offset : 1;
 
-  gboolean	(*check_task)	(GwmDesktop	*desktop,
-				 GwmhTask	*task);
+  GSList        *objects;
+
+  gboolean      (*check_task)   (GwmDesktop     *desktop,
+                                 GwmhTask       *task);
 };
 
 
 /* --- prototypes --- */
-GtkType		gwm_desktop_get_type	(void);
-GtkWidget*	gwm_desktop_new		(guint	      index,
-					 GtkTooltips *tooltips);
-void		gwm_desktop_set_index	(GwmDesktop  *desktop,
-					 guint	      index);
+GtkType         gwm_desktop_get_type     (void);
+GtkWidget*      gwm_desktop_new          (guint        index,
+                                          GtkTooltips *tooltips);
+void            gwm_desktop_set_index    (GwmDesktop  *desktop,
+                                          guint        index);
+
+void            gwm_desktop_class_config (GwmDesktopClass *klass,
+                                          gboolean         double_buffer,
+                                          GtkOrientation   orientation,
+                                          guint            area_size,
+                                          gboolean         raised_grid,
+					  gboolean	   move_to_frame_offset);
 
 
 #ifdef __cplusplus

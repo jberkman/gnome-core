@@ -27,6 +27,13 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
+
+/* --- defines --- */
+#define TASK_XROOT(task)	   (GSTC_PARENT_XWINDOW ((task)->sroot))
+#define GDK_WINDOW_IS_FOREIGN(w)   (((GdkWindowPrivate*) (w))->window_type == GDK_WINDOW_FOREIGN)
+#define GDK_WINDOW_IS_DESTROYED(w) (((GdkWindowPrivate*) (w))->destroyed)
+
+
 /* --- preinitialized Atoms --- */
 gulong GWMHA_WIN_SUPPORTING_WM_CHECK = 0;
 gulong GWMHA_WIN_PROTOCOLS = 0;
@@ -53,12 +60,7 @@ static const struct {
   gulong      *atom;
   const gchar *atom_name;
 } gwmh_atoms[] = {
-  { &GWMHA_WIN_SUPPORTING_WM_CHECK,	"_WIN_SUPPORTING_WM_CHECK", },
   { &GWMHA_WIN_PROTOCOLS,		"_WIN_PROTOCOLS", },
-  { &GWMHA_WIN_LAYER,			"_WIN_LAYER", },
-  { &GWMHA_WIN_STATE,			"_WIN_STATE", },
-  { &GWMHA_WIN_HINTS,			"_WIN_HINTS", },
-  { &GWMHA_WIN_APP_STATE,		"_WIN_APP_STATE", },
   { &GWMHA_WIN_EXPANDED_SIZE,	        "_WIN_EXPANDED_SIZE", },
   { &GWMHA_WIN_ICONS,		        "_WIN_ICONS", },
   { &GWMHA_WIN_WORKSPACE,		"_WIN_WORKSPACE", },
@@ -67,6 +69,12 @@ static const struct {
   { &GWMHA_WIN_CLIENT_LIST,		"_WIN_CLIENT_LIST", },
   { &GWMHA_WIN_AREA,			"_WIN_AREA", },
   { &GWMHA_WIN_AREA_COUNT,		"_WIN_AREA_COUNT", },
+#define N_GWMHA_IGNORE_ATOMS (9)
+  { &GWMHA_WIN_LAYER,			"_WIN_LAYER", },
+  { &GWMHA_WIN_APP_STATE,		"_WIN_APP_STATE", },
+  { &GWMHA_WIN_STATE,			"_WIN_STATE", },
+  { &GWMHA_WIN_HINTS,			"_WIN_HINTS", },
+  { &GWMHA_WIN_SUPPORTING_WM_CHECK,	"_WIN_SUPPORTING_WM_CHECK", },
   { &XA_WM_STATE,			"WM_STATE", },
   { &XA_WM_PROTOCOLS,			"WM_PROTOCOLS", },
   { &XA_WM_DELETE_WINDOW,		"WM_DELETE_WINDOW", },
@@ -110,15 +118,20 @@ static GwmhTask*	task_new		  (GdkWindow	      *gdkwindow);
 static void		task_delete		  (GwmhTask	     *task);
 static gboolean		client_list_sync	  (Window            *xwindows,
 						   guint              n_xwindows);
-static GdkFilterReturn	task_event_monitor	  (GdkXEvent   *gdk_xevent,
-						   GdkEvent    *event,
-						   gpointer     task_pointer);
-static GdkFilterReturn	root_event_monitor	  (GdkXEvent   *gdk_xevent,
-						   GdkEvent    *event,
-						   gpointer     gdk_root);
+static GdkFilterReturn	task_event_monitor	  (GdkXEvent         *gdk_xevent,
+						   GdkEvent          *event,
+						   gpointer           task_pointer);
+static GdkFilterReturn	root_event_monitor	  (GdkXEvent         *gdk_xevent,
+						   GdkEvent          *event,
+						   gpointer           gdk_root);
+static gpointer		hack_a_client_list	  (Display           *display,
+						   Window             xroot,
+						   guint             *_n_clients);
 
 
 /* --- variables --- */
+static Window           gwmh_gnome_wm_win = None;
+static gboolean         gwmh_need_reboot = FALSE;
 static GHookList        gwmh_desk_hook_list = { 0, };
 static GHookList        gwmh_task_hook_list = { 0, };
 static GSList          *gwmh_task_queue = NULL;
@@ -136,6 +149,7 @@ static GwmhDesk         gwmh_desk = {
   0	/* current_harea */,
   0	/* current_varea */,
   NULL	/* client_list */,
+  FALSE /* detected_gnome_wm */,
 };
 
 
@@ -174,46 +188,36 @@ gwmh_freeze_syncs (void)
 gboolean
 gwmh_init (void)
 {
-  Window xroot = GDK_ROOT_WINDOW ();
+  static volatile guint n_init_calls = 0;
+  XWindowAttributes attribs = { 0, };
   guint32 *property_data;
-  gboolean gnome_wm = FALSE;
   guint size = 0;
   guint i;
 
-  if (!gwmh_desk_hook_list.is_setup)
+  n_init_calls++;
+  if (n_init_calls == 1)
     {
-      XWindowAttributes attribs = { 0, };
       GdkWindow *window;
 
       /* initialize hook lists */
       g_hook_list_init (&gwmh_desk_hook_list, sizeof (GHook));
       g_hook_list_init (&gwmh_task_hook_list, sizeof (GHook));
-
-      /* setup preinitialized atoms */
-      for (i = 0; i < sizeof (gwmh_atoms) / sizeof (gwmh_atoms[0]); i++)
-	*gwmh_atoms[i].atom = gdk_atom_intern (gwmh_atoms[i].atom_name, FALSE);
       
       /* setup the root window event monitor */
-      window = gdk_window_ref_from_xid (xroot);
+      window = gdk_window_ref_from_xid (GDK_ROOT_WINDOW ());
       if (!window)
 	g_error (G_GNUC_PRETTY_FUNCTION "(): window id %ld invalid? bad bad...",
-		 xroot);
+		 GDK_ROOT_WINDOW ());
       gdk_window_add_filter (window,
 			     root_event_monitor,
 			     window);
-      XGetWindowAttributes (GDK_WINDOW_XDISPLAY (window),
-			    GDK_WINDOW_XWINDOW (window),
-			    &attribs);
-      XSelectInput (GDK_WINDOW_XDISPLAY (window),
-		    GDK_WINDOW_XWINDOW (window),
-		    attribs.your_event_mask |
-		    PropertyChangeMask);
-      gdk_flush ();
     }
-  
-  /* initialize desk structure */
+
+  /* *first* kill remaining tasks with notification */
   while (gwmh_desk.client_list)
     task_delete (gwmh_desk.client_list->data);
+
+  /* initialize desk structure */
   for (i = 0; i < gwmh_desk.n_desktops; i++)
     g_free (gwmh_desk.desktop_names[i]);
   gwmh_desk.n_desktops = 1;
@@ -234,10 +238,30 @@ gwmh_init (void)
       gwmh_harea_cache[i] = 0;
       gwmh_varea_cache[i] = 0;
     }
-  gwmh_desk_notify (GWMH_DESK_INFO_ALL);
+  gwmh_desk.current_desktop = 0;
+  gwmh_desk.current_harea = 0;
+  gwmh_desk.current_varea = 0;
+  gwmh_desk.detected_gnome_wm = FALSE;
 
-  /* check for a GNOME window manager */
+  /* setup preinitialized atoms */
+  for (i = 0; i < sizeof (gwmh_atoms) / sizeof (gwmh_atoms[0]); i++)
+    *gwmh_atoms[i].atom = gdk_atom_intern (gwmh_atoms[i].atom_name, FALSE);
+  
   gdk_error_trap_push ();
+
+  /* set event mask for events on root window */
+  XGetWindowAttributes (GDK_DISPLAY (),
+			GDK_ROOT_WINDOW (),
+			&attribs);
+  XSelectInput (GDK_DISPLAY (),
+		GDK_ROOT_WINDOW (),
+		attribs.your_event_mask |
+		StructureNotifyMask |
+		PropertyChangeMask);
+  gdk_flush ();
+  
+  /* check for a GNOME window manager */
+  gwmh_gnome_wm_win = None;
   property_data = get_typed_property_data (GDK_DISPLAY (),
 					   GDK_ROOT_WINDOW (),
 					   GWMHA_WIN_SUPPORTING_WM_CHECK,
@@ -253,18 +277,34 @@ gwmh_init (void)
 					       GWMHA_WIN_SUPPORTING_WM_CHECK,
 					       XA_CARDINAL,
 					       &size, 32);
-      gnome_wm = wm_check_data && wm_check_data[0] == check_window;
+      if (wm_check_data && wm_check_data[0] == check_window)
+	gwmh_gnome_wm_win = check_window;
       g_free (wm_check_data);
+      g_free (property_data);
     }
-  g_free (property_data);
-  
+  gwmh_desk.detected_gnome_wm = gwmh_gnome_wm_win != None;
+
+  /* we ignore certain GWMH properties if there's no GNOME compliant wm
+   * mostly, so we don't get fooled by stale properties
+   */
+  if (!gwmh_gnome_wm_win)
+    for (i = 0; i < N_GWMHA_IGNORE_ATOMS; i++)
+      *gwmh_atoms[i].atom = None;
+
   gwmh_syncs_frozen = 0;
   gwmh_sync ();
+
   gdk_error_trap_pop ();
 
-  gwmh_desk_queue_update (GWMH_DESK_INFO_ALL);
+  /* in case handlers are already setup, they need to know about wm changes,
+   * and our new structure setup
+   */
+  gwmh_desk_notify (GWMH_DESK_INFO_ALL | GWMH_DESK_INFO_BOOTUP);
 
-  return gnome_wm;
+  /* and recheck everything from queue handler */
+  gwmh_desk_queue_update (GWMH_DESK_INFO_FORCE_EVERYTHING);
+
+  return gwmh_gnome_wm_win;
 }
 
 static GdkWindow*
@@ -530,15 +570,17 @@ get_task_root_and_frame (GwmhTask *task)
 
   if (!task->sroot || GSTC_PARENT_XWINDOW (task->sroot) != xparent)
     {
+      GdkWindow *window;
+
       if (task->sroot)
 	{
 	  gstc_parent_delete_watch (task->sroot);
 	  task->sroot = NULL;
 	}
+
       if (xparent)
 	{
-	  GdkWindow *window = gdk_window_ref_from_xid (xparent);
-
+	  window = gdk_window_ref_from_xid (xparent);
 	  task->sroot = gstc_parent_add_watch (window);
 	  gdk_window_unref (window);
 	}
@@ -553,17 +595,22 @@ get_task_root_and_frame (GwmhTask *task)
 	  task->gdkframe = NULL;
 	}
 
-      task->xframe = xframe;
-
-      if (task->xframe)
-	task->gdkframe = gdk_window_ref_from_xid (task->xframe);
-      if (task->gdkframe)
+      if (xframe)
 	{
+	  XWindowAttributes attribs = { 0, };
+
+	  task->xframe = xframe;
+	  task->gdkframe = gdk_window_ref_from_xid (task->xframe);
+
 	  gdk_window_add_filter (task->gdkframe, task_event_monitor, task);
 	  /* select events */
 	  gdk_error_trap_push ();
+	  XGetWindowAttributes (GDK_DISPLAY (),
+				task->xframe,
+				&attribs);
 	  XSelectInput (GDK_DISPLAY (),
 			task->xframe,
+			attribs.your_event_mask |
 			StructureNotifyMask);
 	  gwmh_sync ();
 	  gdk_error_trap_pop ();
@@ -582,10 +629,28 @@ root_event_monitor (GdkXEvent *gdk_xevent,
     {
       GwmhDeskInfoMask imask;
 
+    case MapNotify:
+    case UnmapNotify:
+    case CirculateNotify:
+    case ReparentNotify:
+    case DestroyNotify:
+      if (!gwmh_gnome_wm_win)
+	gwmh_desk_queue_update (GWMH_DESK_INFO_CLIENT_LIST);
+      if (gwmh_gnome_wm_win == xevent->xdestroywindow.window)
+	{
+	  gwmh_need_reboot = TRUE;
+	  gwmh_desk_queue_update (GWMH_DESK_INFO_FORCE_EVERYTHING);
+	}
+      break;
     case PropertyNotify:
       imask = gwmh_property_atom2info (xevent->xproperty.atom, FALSE);
       if (imask)
 	gwmh_desk_queue_update (imask);
+      if (xevent->xproperty.atom == GWMHA_WIN_SUPPORTING_WM_CHECK)
+        {
+	  gwmh_need_reboot = TRUE;
+	  gwmh_desk_queue_update (GWMH_DESK_INFO_FORCE_EVERYTHING);
+	}
       break;
     default:
       break;
@@ -601,12 +666,11 @@ task_event_monitor (GdkXEvent *gdk_xevent,
 {
   GwmhTask *task = task_pointer;
   XEvent *xevent = gdk_xevent;
+  GwmhTaskInfoMask imask = 0;
   GwmhTaskInfoMask ichanges = 0;
   
   switch (xevent->type)
     {
-      GwmhTaskInfoMask imask;
-      
     case ConfigureNotify:
       if (xevent->xconfigure.window == task->xwin)
 	{
@@ -645,19 +709,30 @@ task_event_monitor (GdkXEvent *gdk_xevent,
       break;
     case PropertyNotify:
       imask = gwmh_property_atom2info (xevent->xproperty.atom, TRUE);
-      if (imask)
-	gwmh_task_queue_update (task, imask);
       break;
     case ReparentNotify:
       /* refetch frame and root window */
-      gwmh_task_queue_update (task, GWMH_TASK_INFO_DESKTOP | GWMH_TASK_INFO_AREA);
+      imask = GWMH_TASK_INFO_DESKTOP | GWMH_TASK_INFO_AREA;
+      /* fall through */
+    case MapNotify:
+    case UnmapNotify:
+    case CirculateNotify:
+    case DestroyNotify:
+      if (!gwmh_gnome_wm_win)
+	{
+	  imask = GWMH_TASK_INFO_ALL;
+	  gwmh_desk_queue_update (GWMH_DESK_INFO_CLIENT_LIST);
+	}
       break;
     default:
       break;
     }
-  
-  if (ichanges)
-    gwmh_task_queue_full (task, 0, ichanges);
+
+  if (!gwmh_gnome_wm_win && (ichanges || imask))
+    imask = GWMH_TASK_INFO_ALL;
+
+  if (imask || ichanges)
+    gwmh_task_queue_full (task, imask, ichanges);
 
   return GDK_FILTER_CONTINUE;
 }
@@ -714,6 +789,7 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
   Display *xdisplay = GDK_WINDOW_XDISPLAY (window);
   Window xwindow = GDK_WINDOW_XWINDOW (window);
   GwmhDeskInfoMask ichanges = 0;
+  gboolean force_everything = FALSE;
   
   gdk_error_trap_push ();
   
@@ -886,24 +962,33 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
   
   if (imask & GWMH_DESK_INFO_CLIENT_LIST)
     {
-      gint size = 0;
+      gint n_tasks, size = 0;
       Window *task_data;
-      
-      task_data = get_typed_property_data (xdisplay, xwindow,
-					   GWMHA_WIN_CLIENT_LIST,
-					   XA_CARDINAL,
-					   &size, 32);
-      if (client_list_sync (task_data, size / 4))
+
+      if (!gwmh_gnome_wm_win)
+	task_data = hack_a_client_list (xdisplay, xwindow, &n_tasks);
+      else
+	{
+	  task_data = get_typed_property_data (xdisplay, xwindow,
+					       GWMHA_WIN_CLIENT_LIST,
+					       XA_CARDINAL,
+					       &size, 32);
+	  n_tasks = size / 4;
+	}
+      if (client_list_sync (task_data, n_tasks))
 	ichanges |= GWMH_DESK_INFO_CLIENT_LIST;
       g_free (task_data);
     }
   
   gdk_error_trap_pop ();
 
+  force_everything = (imask & GWMH_DESK_INFO_HACK_FLAG) != 0;
+
   gwmh_desk_update_queued &= ~imask;
   
-  if (ichanges & (GWMH_DESK_INFO_CURRENT_DESKTOP |
-		  GWMH_DESK_INFO_CURRENT_AREA))
+  if ((ichanges & (GWMH_DESK_INFO_CURRENT_DESKTOP |
+		   GWMH_DESK_INFO_CURRENT_AREA)) ||
+      force_everything)
     {
       GList *node;
 
@@ -911,13 +996,17 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
 	{
 	  GwmhTask *task = node->data;
 
-	  if (GWMH_TASK_STICKY (task))
+	  if (force_everything)
+	    gwmh_task_queue_update (task, GWMH_TASK_INFO_ALL);
+	  else if (GWMH_TASK_STICKY (task))
 	    gwmh_task_queue_update (task, (GWMH_TASK_INFO_DESKTOP |
 					   GWMH_TASK_INFO_AREA));
 	}
     }
 
-  if (ichanges)
+  if (force_everything)
+    gwmh_desk_notify (GWMH_DESK_INFO_ALL);
+  else if (ichanges)
     gwmh_desk_notify (ichanges);
 }
 
@@ -936,7 +1025,8 @@ gwmh_task_update (GwmhTask        *task,
   desk_imask_queued = gwmh_desk_update_queued & (GWMH_DESK_INFO_N_DESKTOPS |
 						 GWMH_DESK_INFO_N_AREAS |
 						 GWMH_DESK_INFO_CURRENT_DESKTOP |
-						 GWMH_DESK_INFO_CURRENT_AREA);
+						 GWMH_DESK_INFO_CURRENT_AREA |
+						 GWMH_DESK_INFO_HACK_FLAG);
   if (desk_imask_queued)
     gwmh_desk_update (desk_imask_queued);
 
@@ -972,6 +1062,11 @@ gwmh_task_update (GwmhTask        *task,
       Window xframe = task->xframe;
       
       get_task_root_and_frame (task);
+      if (!task->xframe || !task->sroot)
+	{
+	  task_delete (task);
+	  return;
+	}
       if (task->xframe != xframe ||
 	  (task->sroot ? GSTC_PARENT_XWINDOW (task->sroot) : 0) != !xroot)
 	imask |= (GWMH_TASK_INFO_DESKTOP |
@@ -1006,6 +1101,10 @@ gwmh_task_update (GwmhTask        *task,
       focused = task->xwin == focus;
       if (focused != GWMH_TASK_FOCUSED (task))
 	{
+	  if (task->focused)
+	    g_message ("%ssetting focus according to XGetInputFocus() for %ld",
+		       !focused ? "re" : "",
+		       task->xwin);
 	  task->focused = focused;
 	  ichanges |= GWMH_TASK_INFO_FOCUSED;
 	}
@@ -1149,6 +1248,11 @@ gwmh_task_update (GwmhTask        *task,
 			&x, &y,
 			&width, &height,
 			&border, &depth);
+	  XTranslateCoordinates (xdisplay, task->xframe,
+				 TASK_XROOT (task),
+				 0, 0,
+				 &x, &y,
+				 &dummy_win);
 	  if (task->frame_x != x || task->frame_y != y ||
 	      task->frame_width != width || task->frame_height != height)
 	    {
@@ -1165,11 +1269,16 @@ gwmh_task_update (GwmhTask        *task,
 	  y = 0;
 	  width = 0;
 	  height = 0;
-	  XGetGeometry (xdisplay, xwindow,
+	  XGetGeometry (xdisplay, task->xwin,
 			&dummy_win,
 			&x, &y,
 			&width, &height,
 			&border, &depth);
+	  XTranslateCoordinates (xdisplay, task->xwin,
+				 TASK_XROOT (task),
+				 0, 0,
+				 &x, &y,
+				 &dummy_win);
 	  if (task->win_x != x || task->win_y != y ||
 	      task->win_width != width || task->win_height != height)
 	    {
@@ -1214,6 +1323,14 @@ gwmh_task_update (GwmhTask        *task,
 static gboolean
 gwmh_idle_handler (gpointer data)
 {
+  if (gwmh_need_reboot)
+    {
+      gwmh_need_reboot = FALSE;
+      gwmh_idle_handler_id = 0;
+      gwmh_init ();
+      return FALSE;
+    }
+  
   if (gwmh_desk_update_queued)
     gwmh_desk_update (gwmh_desk_update_queued);
 
@@ -1476,7 +1593,39 @@ task_new (GdkWindow *window)
 static void
 task_delete (GwmhTask *task)
 {
+  GSList *list, *wlist = NULL;
+
   g_return_if_fail (g_list_find (gwmh_desk.client_list, task));
+
+  /* reset event masks for still existing windows */
+  wlist = g_slist_prepend (wlist, gdk_window_ref_from_xid (task->xframe));
+  wlist = g_slist_prepend (wlist, gdk_window_ref_from_xid (task->xwin));
+  gdk_error_trap_push ();
+  for (list = wlist; list; list = list->next)
+    {
+      GdkWindow *window = list->data;
+
+      if (window)
+	{
+	  if (GDK_WINDOW_IS_FOREIGN (window) &&
+	      !GDK_WINDOW_IS_DESTROYED (window))
+	    {
+	      XWindowAttributes attribs = { 0, };
+
+	      XGetWindowAttributes (GDK_WINDOW_XDISPLAY (window),
+				    GDK_WINDOW_XWINDOW (window),
+				    &attribs);
+	      XSelectInput (GDK_WINDOW_XDISPLAY (window),
+			    GDK_WINDOW_XWINDOW (window),
+			    attribs.your_event_mask &
+			    ~(StructureNotifyMask | FocusChangeMask | PropertyChangeMask));
+	    }
+	  gdk_window_unref (window);
+	}
+    }
+  gwmh_sync ();
+  g_slist_free (wlist);
+  gdk_error_trap_pop ();
 
   gwmh_task_notify (task, GWMH_NOTIFY_DESTROY, 0);
   g_datalist_clear (&task->datalist);
@@ -2100,6 +2249,116 @@ gwmh_task_list_stack_sort (GList *task_list)
       node->next = stacked_tasks;
       stacked_tasks = task_list;
     }
-
+  
   return stacked_tasks;
+}
+
+static gboolean
+check_client (Display *display,
+	      Window   xwindow,
+	      Atom     state_atom)
+{
+  gboolean valid_client = TRUE;
+
+  if (valid_client)
+    {
+      Atom dummy1;
+      int format = 0;
+      unsigned long dummy2, nitems = 0, *prop = NULL;
+      
+      XGetWindowProperty (display, xwindow, state_atom, 0, 1024, False, state_atom,
+			  &dummy1, &format, &nitems, &dummy2, (unsigned char **) &prop);
+      if (prop)
+	{
+	  valid_client = format == 32 && nitems > 0 && (prop[0] == NormalState ||
+							prop[0] == IconicState);
+	  XFree (prop);
+	}
+    }
+
+  if (valid_client)
+    {
+      XWindowAttributes attributes = { 0, };
+
+      XGetWindowAttributes (display, xwindow, &attributes);
+      valid_client = (attributes.class == InputOutput &&
+		      attributes.map_state == IsViewable);
+    }
+
+  if (valid_client)
+    {
+      XWMHints *hints = XGetWMHints (display, xwindow);
+      
+      valid_client &= hints && (hints->flags & InputHint) && hints->input;
+      if (hints)
+	XFree (hints);
+    }
+  
+  return valid_client;
+}
+
+static Window
+find_input_client (Display *display,
+		   Window   xwindow,
+		   Atom     state_atom)
+{
+  Window dummy1, dummy2, *children = NULL;
+  unsigned int n_children = 0;
+  guint i;
+  
+  if (check_client (display, xwindow, state_atom))
+    return xwindow;
+  
+  if (!XQueryTree (display, xwindow, &dummy1, &dummy2, &children, &n_children) || !children)
+    return None;
+  
+  for (i = 0; i < n_children; i++)
+    {
+      xwindow = find_input_client (display, children[i], state_atom);
+      if (xwindow)
+	break;
+    }
+  
+  XFree (children);
+  
+  return xwindow;
+}
+
+static gpointer
+hack_a_client_list (Display *display,
+		    Window   xroot,
+		    guint   *_n_clients)
+{
+  Window xwindow, dummy, *children = NULL;
+  unsigned int n_children = 0;
+  guint i, n_clients = 0;
+  guint32 *clients = NULL;
+  
+  *_n_clients = 0;
+  
+  gdk_error_trap_push ();
+
+  if (!XQueryTree (display, xroot, &xwindow, &dummy, &children, &n_children) || !children)
+    return NULL;
+  
+  for (i = 0; i < n_children; i++)
+    {
+      xwindow = find_input_client (display,
+				   children[i],
+				   XInternAtom (display, "WM_STATE", False));
+      if (xwindow)
+	{
+	  n_clients++;
+	  clients = g_renew (guint32, clients, n_clients);
+	  clients[n_clients - 1] = xwindow;
+	}
+    }
+  
+  XFree (children);
+  
+  *_n_clients = n_clients;
+
+  gdk_error_trap_pop ();
+  
+  return clients;
 }

@@ -171,6 +171,8 @@ struct _GwmhDesk
   guint   current_varea;
 
   GList  *client_list;
+
+  guint   detected_gnome_wm : 1;
 };
 struct _GwmhTask
 {
@@ -231,7 +233,11 @@ typedef enum
 					   GWMH_DESK_INFO_N_AREAS |
 					   GWMH_DESK_INFO_CURRENT_DESKTOP |
 					   GWMH_DESK_INFO_CURRENT_AREA |
-					   GWMH_DESK_INFO_CLIENT_LIST)
+					   GWMH_DESK_INFO_CLIENT_LIST),
+  GWMH_DESK_INFO_HACK_FLAG		= 1 << 6,
+  GWMH_DESK_INFO_FORCE_EVERYTHING	= (GWMH_DESK_INFO_HACK_FLAG |
+					   GWMH_DESK_INFO_ALL),
+  GWMH_DESK_INFO_BOOTUP			= 1 << 7
 } GwmhDeskInfoMask;
 typedef enum
 {
