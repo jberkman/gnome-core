@@ -29,6 +29,9 @@ int scrollback;
 /* Initial geometry */
 char *geometry = 0;
 
+/* The color mode */
+int color_type;
+
 /* Scrollbar position */
 enum {
 	SCROLLBAR_LEFT, SCROLLBAR_RIGHT, SCROLLBAR_HIDDEN
@@ -47,6 +50,8 @@ typedef struct {
 	GtkWidget *prop_win;
 	GtkWidget *blink_checkbox;
 	GtkWidget *font_entry;
+	GtkWidget *color_scheme;
+	GtkWidget *scrollbar;
 } preferences_t;
 
 void new_terminal (void);
@@ -111,13 +116,71 @@ aligned_label (char *str)
 	return l;
 }
 
+gushort linux_red[] = {0x0000,0xaaaa,0x0000,0xaaaa,0x0000,0xaaaa,0x0000,0xaaaa,
+			0x5555,0xffff,0x5555,0xffff,0x5555,0xffff,0x5555,0xffff};
+gushort linux_grn[] = {0x0000,0x0000,0xaaaa,0x5555,0x0000,0x0000,0xaaaa,0xaaaa,
+			0x5555,0x5555,0xffff,0xffff,0x5555,0x5555,0xffff,0xffff};
+gushort linux_blu[] = {0x0000,0x0000,0x0000,0x0000,0xaaaa,0xaaaa,0xaaaa,0xaaaa,
+			0x5555,0x5555,0x5555,0x5555,0xffff,0xffff,0xffff,0xffff};
+
+gushort xterm_grn[] = {0x0000,0xaaaa,0x0000,0xaaaa,0x0000,0xaaaa,0x0000,0xaaaa,
+		       0x5555,0xffff,0x5555,0xffff,0x5555,0xffff,0x5555,0xffff};
+gushort xterm_blu[] = {0x0000,0x0000,0xaaaa,0x5555,0x0000,0x0000,0xaaaa,0xaaaa,
+		       0x5555,0x5555,0xffff,0xffff,0x5555,0x5555,0xffff,0xffff};
+gushort xterm_red[] = {0x0000,0x0000,0x0000,0x0000,0xaaaa,0xaaaa,0xaaaa,0xaaaa,
+		       0x5555,0x5555,0x5555,0x5555,0xffff,0xffff,0xffff,0xffff};
+
+gushort rxvt_red[] = {0x0000,0xaaaa,0x0000,0xaaaa,0x0000,0xaaaa,0x0000,0xaaaa,
+		      0x5555,0xffff,0x5555,0xffff,0x5555,0xffff,0x5555,0xffff};
+gushort rxvt_blu[] = {0x0000,0x0000,0xaaaa,0x5555,0x0000,0x0000,0xaaaa,0xaaaa,
+		      0x5555,0x5555,0xffff,0xffff,0x5555,0x5555,0xffff,0xffff};
+gushort rxvt_grn[] = {0x0000,0x0000,0x0000,0x0000,0xaaaa,0xaaaa,0xaaaa,0xaaaa,
+		      0x5555,0x5555,0x5555,0x5555,0xffff,0xffff,0xffff,0xffff};
+
+static void
+set_color_scheme (ZvtTerm *term, int color_type)
+{
+	switch (color_type){
+	case 0:
+		zvt_term_set_color_scheme (term, linux_red, linux_grn, linux_blu);
+		break;
+	case 1:
+		zvt_term_set_color_scheme (term, xterm_red, xterm_grn, xterm_blu);
+		break;
+	case 2:
+		zvt_term_set_color_scheme (term, rxvt_red, rxvt_grn, rxvt_blu);
+		break;
+	}
+}
+
 static void
 apply_changes (GtkWidget *widget, int page, ZvtTerm *term)
 {
+	int scrollpos;
 	preferences_t *prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
-
+	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
+	GtkWidget *box       = scrollbar->parent;
+	
 	zvt_term_set_font_name (term, gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
 	zvt_term_set_blink (term, GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active);
+	color_type = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->color_scheme));
+	scrollpos  = (int) gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
+
+	/* sve the global variables */
+	blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
+	if (font)
+		g_free (font);
+	font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
+	scrollbar_position = scrollpos;
+
+	set_color_scheme (term, color_type);
+	if (scrollpos == SCROLLBAR_HIDDEN)
+		gtk_widget_hide (scrollbar);
+	else {
+		gtk_box_reorder_child (GTK_BOX (box), scrollbar,
+				       scrollpos == SCROLLBAR_LEFT ? 0 : 1);
+		gtk_widget_show (scrollbar);
+	}
 }
 
 static void
@@ -161,21 +224,51 @@ prop_changed_zvt (void *data, char *font_name)
 	gtk_entry_set_position (GTK_ENTRY (prefs->font_entry), 0);
 }
 
+typedef struct {
+	GtkWidget        *menu;
+	GnomePropertyBox *box;
+	int              idx;
+} lambda_t;
+
+static void
+set_active (GtkWidget *widget, lambda_t *t)
+{
+	gtk_object_set_user_data (GTK_OBJECT (t->menu), (void *) t->idx);
+	gnome_property_box_changed (t->box);
+}
+
+static void
+free_lambda (GtkWidget *w, void *l)
+{
+	g_free (l);
+}
+		    
 static GtkWidget *
-create_option_menu (char **menu_list, int item)
+create_option_menu (GnomePropertyBox *box, char **menu_list, int item)
 {
 	GtkWidget *omenu;
 	GtkWidget *menu;
-
+	lambda_t *t;
+	int i = 0;
+       
 	omenu = gtk_option_menu_new ();
 	menu = gtk_menu_new ();
 	while (*menu_list){
 		GtkWidget *entry;
 
+		t = g_new (lambda_t, 1);
+		t->idx  = i;
+		t->menu = omenu;
+		t->box  = box;
 		entry = gtk_menu_item_new_with_label (_(*menu_list));
+		gtk_signal_connect (GTK_OBJECT (entry), "activate",
+				    GTK_SIGNAL_FUNC (set_active), t);
+		gtk_signal_connect (GTK_OBJECT (entry), "destroy",
+				    GTK_SIGNAL_FUNC (free_lambda), t);
 		gtk_widget_show (entry);
 		gtk_menu_append (GTK_MENU (menu), entry);
 		menu_list++;
+		i++;
 	}
 	gtk_option_menu_set_menu (GTK_OPTION_MENU (omenu), menu);
 	gtk_option_menu_set_history (GTK_OPTION_MENU (omenu), item);
@@ -219,8 +312,9 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	l = aligned_label (_("Color scheme:"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, 1, 2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	o = create_option_menu (color_scheme, 0);
-	gtk_table_attach (GTK_TABLE (table), o,
+	prefs->color_scheme = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
+						  color_scheme, 0);
+	gtk_table_attach (GTK_TABLE (table), prefs->color_scheme,
 			  2, 3, 1, 2, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	
 	/* Font */
@@ -245,8 +339,10 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	l = aligned_label (_("Scrollbar position"));
 	gtk_table_attach (GTK_TABLE (table), l,
 			  1, 2, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	o = create_option_menu (scrollbar_position_list, scrollbar_position);
-	gtk_table_attach (GTK_TABLE (table), o,
+	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win),
+					       scrollbar_position_list,
+					       scrollbar_position);
+	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
 			  2, 3, 2, 3, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* Blinking status */
@@ -271,6 +367,16 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 static void
 save_preferences (GtkWidget *widget, ZvtTerm *term)
 {
+	if (font)
+		gnome_config_set_string ("/Terminal/Config/font", font);
+	gnome_config_set_string ("/Terminal/Config/scrollpos",
+				 scrollbar_position == SCROLLBAR_LEFT ? "left" :
+				 scrollbar_position == SCROLLBAR_RIGHT ? "right" : "hidden");
+	gnome_config_set_bool   ("/Terminal/Config/blinking", blink);
+	gnome_config_set_int    ("/Terminal/Config/scrollbacklines", scrollback);
+	gnome_config_set_string ("/Terminal/Config/color_scheme",
+				 color_type == 0 ? "linux" : (color_type == 1 ? "xterm" : "rxvt"));
+	gnome_config_sync ();
 }
 
 static GnomeUIInfo gnome_terminal_terminal_menu [] = {
@@ -348,6 +454,7 @@ new_terminal (void)
 	static int winid_pos;
 	char buffer [40];
 	char *shell, *name;
+	int i = 0;
 
 	/* Setup the environment for the gnome-terminals:
 	 *
@@ -356,7 +463,6 @@ new_terminal (void)
 	 * WINDOWID spot is reserved for the xterm compatible variable.
 	 */
 	if (!env_copy){
-		int i = 0;
 		char **p;
 		
 		for (p = env; *p; p++)
@@ -371,19 +477,20 @@ new_terminal (void)
 		}
 		env_copy [i++] = "COLORTERM=gnome-terminal";
 		winid_pos = i++;
+		env_copy [winid_pos] = "TEST";
 		env_copy [i] = NULL;
 	}
 
-	app = gnome_app_new ("GnomeTerminal", "Terminal");
+	app = gnome_app_new ("Terminal", "Terminal");
 	gtk_window_set_wmclass (GTK_WINDOW (app), "GnomeTerminal", "GnomeTerminal");
 	gtk_widget_realize (app);
 	terminals = g_list_prepend (terminals, app);
 
 	/* Setup the Zvt widget */
 	term = ZVT_TERM (zvt_term_new ());
+	gtk_widget_show (GTK_WIDGET (term));
 	zvt_term_set_scrollback (term, scrollback);
 	gnome_term_set_font (term, font);
-
 	zvt_term_set_blink (term, blink);
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
@@ -392,17 +499,20 @@ new_terminal (void)
 	
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
+	gtk_widget_show (hbox);
 	get_shell_name (&shell, &name);
 
-	if (scrollbar_position != SCROLLBAR_HIDDEN){
-		scrollbar = gtk_vscrollbar_new (GTK_ADJUSTMENT (term->adjustment));
-		GTK_WIDGET_UNSET_FLAGS (scrollbar, GTK_CAN_FOCUS);
+	scrollbar = gtk_vscrollbar_new (GTK_ADJUSTMENT (term->adjustment));
+	gtk_object_set_data (GTK_OBJECT (term), "scrollbar", scrollbar);
+	GTK_WIDGET_UNSET_FLAGS (scrollbar, GTK_CAN_FOCUS);
+	
+	if (scrollbar_position == SCROLLBAR_LEFT)
+		gtk_box_pack_start (GTK_BOX (hbox), scrollbar, 0, 1, 0);
+	else
+		gtk_box_pack_end (GTK_BOX (hbox), scrollbar, 0, 1, 0);
+	if (scrollbar_position != SCROLLBAR_HIDDEN)
+		gtk_widget_show (scrollbar);
 
-		if (scrollbar_position == SCROLLBAR_LEFT)
-			gtk_box_pack_start (GTK_BOX (hbox), scrollbar, 0, 1, 0);
-		else
-			gtk_box_pack_end (GTK_BOX (hbox), scrollbar, 0, 1, 0);
-	}			
 	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 0);
 	gnome_app_set_contents (GNOME_APP (app), hbox);
 
@@ -423,7 +533,8 @@ new_terminal (void)
 		/* Only the first window gets --geometry treatment for now */
 		geometry = NULL;
 	}
-	gtk_widget_show_all (app);
+	gtk_widget_show (app);
+	set_color_scheme (term, color_type);
 
 	switch (zvt_term_forkpty (term)){
 	case -1:
@@ -454,17 +565,25 @@ terminal_load_defaults (void)
 		scrollbar_position = SCROLLBAR_RIGHT;
 	else
 		scrollbar_position = SCROLLBAR_HIDDEN;
+	p = gnome_config_get_string ("/Terminal/Config/color_scheme=linux");
+	if (strcasecmp (p, "linux") == 0)
+		color_type = 0;
+	else if (strcasecmp (p, "xterm") == 0)
+		color_type = 1;
+	else
+		color_type = 2;
 	blink = gnome_config_get_bool ("/Terminal/Config/blinking=0");
 }
 
 /* Keys for the ARGP parser, should be negative */
 enum {
-	FONT_KEY    = -1,
-	NOLOGIN_KEY = -2,
-	LOGIN_KEY   = -3
+	FONT_KEY     = -1,
+	NOLOGIN_KEY  = -2,
+	LOGIN_KEY    = -3,
+	GEOMETRY_KEY = -4
 };
 
-Static struct argp_option argp_options [] = {
+static struct argp_option argp_options [] = {
 	{ "font",     FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"),                    0 },
 	{ "nologin",  NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
 	{ "login",    LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
