@@ -68,5 +68,5 @@ install-data-local:
 	cd $(sample_helpdir); \
 	     ln -fs sample-help.html index.html
 
-helpdir = $(datadir)/apps
-help_DATA = gnome-help.desktop
+sysdir = $(datadir)/apps
+sys_DATA = gnome-help.desktop
