@@ -64,6 +64,8 @@ get_saver_frame ()
 
         /* left side -- with list */
 	swindow = gtk_scrolled_window_new (NULL, NULL);
+        gtk_widget_set_usize (swindow, 150, -1 );
+
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (swindow),
 					GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
         list = get_and_set_mode();
