@@ -1,6 +1,5 @@
 INCLUDES = 			\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\" \
-	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 	-I$(includedir) $(GNOME_INCLUDEDIR)		\
 	-DGNOME_DATADIR=\""$(datadir)"\"
 
@@ -35,8 +34,7 @@ gmenu_SOURCES =	\
 
 gmenu_LDADD = \
 	$(GNOME_LIBDIR)					\
-	$(GNOMEUI_LIBS)					\
-	$(INTLLIBS)
+	$(GNOMEUI_LIBS)
 
 BUILT_SOURCES = $(ICON_ENTRY_HACK_SRCLIST)
 

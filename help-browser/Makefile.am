@@ -8,7 +8,6 @@ endif
 
 INCLUDES = 							\
 	-I$(includedir)						\
-	-I$(top_srcdir)/intl -I$(top_builddir)/intl		\
 	$(GNOME_INCLUDEDIR)					\
 	-DGNOME_PREFIX=\""$(prefix)\"" 	\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""	\
@@ -26,8 +25,7 @@ LDADD = \
 	$(GNOMEUI_LIBS)		\
 	$(GNORBA_LIBS)		\
 	$(GNOME_LIBDIR)		\
-	$(ORBIT_LIBS)		\
-        $(INTLLIBS)
+	$(ORBIT_LIBS)
 
 bin_PROGRAMS = gnome-help-browser  gnome-help-caller
 

@@ -2,13 +2,11 @@
 
 INCLUDES = 			\
 	-I$(includedir)		\
-	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 	$(GNOME_INCLUDEDIR)	
 
 LDADD = \
 	$(GNOME_LIBDIR)					\
-	$(GNOMEUI_LIBS)					\
-	$(INTLLIBS)
+	$(GNOMEUI_LIBS)
 
 bin_PROGRAMS = gnome-info2html
 

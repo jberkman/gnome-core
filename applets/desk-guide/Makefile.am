@@ -7,7 +7,6 @@ EXTRA_DIST =	\
 # SUBDIRS = help
 # 
 # INCLUDES = -I. -I$(srcdir) 				\
-# 	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 # 	-I$(srcdir)/../../panel				\
 # 	-I$(top_builddir)/panel \
 # 	-DGNOMELOCALEDIR=\""$(datadir)/locale"\"	\
@@ -22,8 +21,7 @@ EXTRA_DIST =	\
 # deskguide_applet_LDADD = ../../panel/libpanel_applet.la \
 # 		     $(GNOME_LIBDIR) $(ORB_LIBS)        \
 # 		     $(GNOMEUI_LIBS) $(GNORBA_LIBS)     \
-# 		     @PIXBUF_LIBS@			\
-# 		     $(INTLLIBS)
+# 		     @PIXBUF_LIBS@
 # 
 # EXTRA_DIST = \
 # 	gstc.h \

@@ -5,8 +5,6 @@
 
 INCLUDES = 						\
 	-I$(includedir)					\
-	-I$(top_srcdir)/intl				\
-	-I$(top_builddir)/intl				\
 	$(GNOME_TERMINAL_CFLAGS)			\
 	-DGNOME_TERMINAL_PREFIX=\""$(prefix)"\"		\
 	-DGNOME_TERMINAL_DATADIR=\""$(datadir)"\" 	\
@@ -14,8 +12,7 @@ INCLUDES = 						\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""
 
 LDADD = \
-	$(GNOME_TERMINAL_LIBS)	\
-	$(INTLLIBS)
+	$(GNOME_TERMINAL_LIBS)
 
 bin_PROGRAMS = gnome-terminal
 

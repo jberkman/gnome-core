@@ -1,15 +1,12 @@
 INCLUDES = 			\
 	-I$(includedir)		\
-	-I$(top_srcdir)/intl	\
-	-I$(top_builddir)/intl	\
 	$(GNOME_INCLUDEDIR)	\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""
 
 LDADD = \
 	$(GNOME_LIBDIR)					\
 	$(GNOMEUI_LIBS)					\
-	$(GNOME_XML_LIB)				\
-	$(INTLLIBS)
+	$(GNOME_XML_LIB)
 
 bin_PROGRAMS = gnome-hint gnome-hint-properties-capplet
 
@@ -20,8 +17,7 @@ gnome_hint_properties_capplet_SOURCES = gnome-hint-properties.c
 
 gnome_hint_properties_capplet_LDADD = \
 	$(GNOME_LIBDIR)		\
-	$(GNOME_CAPPLET_LIBS)	\
-	$(INTLLIBS)
+	$(GNOME_CAPPLET_LIBS)
 
 utildir = $(datadir)/gnome/apps/Utilities
 util_DATA = gnome-hint.desktop

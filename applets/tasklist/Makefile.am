@@ -1,7 +1,6 @@
 SUBDIRS = help
 
 INCLUDES = -I. -I$(srcdir) 				\
-	-I$(top_srcdir)/intl -I$(top_builddir)/intl	\
 	-I$(srcdir)/../../panel				\
 	-I$(srcdir)/../desk-guide			\
 	-I$(top_builddir)/panel \
@@ -41,7 +40,7 @@ tasklist_applet_LDADD = 			\
 	../../panel/libpanel_applet.la 		\
 	$(GNOME_LIBDIR) $(ORB_LIBS)		\
 	$(GNOMEUI_LIBS) $(GNORBA_LIBS)		\
-	$(INTLLIBS) @PIXBUF_LIBS@
+	@PIXBUF_LIBS@
 
 EXTRA_DIST = 			\
 	tasklist_applet.gnorba 	\
