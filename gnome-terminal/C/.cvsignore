@@ -3,3 +3,4 @@ Makefile
 Makefile.in
 index.html
 gnome-terminal.junk
+*.ced
