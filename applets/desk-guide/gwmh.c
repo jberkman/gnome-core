@@ -215,7 +215,7 @@ gwmh_init (void)
   static volatile guint n_init_calls = 0;
   XWindowAttributes attribs = { 0, };
   guint32 *property_data;
-  guint size = 0;
+  gint size = 0;
   guint i;
 
   n_init_calls++;
@@ -439,8 +439,8 @@ get_typed_property_data (Display *xdisplay,
 
 	      if (count && tlist && tlist[0])
 		{
-		  mem = g_strdup (tlist[0]);
-		  *size_p = strlen (mem);
+		  mem = (guint8 *)g_strdup (tlist[0]);
+		  *size_p = strlen ((char *)mem);
 		}
 	      if (tlist)
 		gdk_free_text_list (tlist);
@@ -611,7 +611,7 @@ get_task_root_and_frame (GwmhTask *task)
 {
   Window *children = NULL, xframe = 0;
   Window xwin = task->xwin, xparent = xwin, xroot = xwin;
-  int size = 0;
+  guint size = 0;
   
   gdk_error_trap_push ();
 
@@ -1080,7 +1080,8 @@ gwmh_desk_update (GwmhDeskInfoMask imask)
   
   if (imask & GWMH_DESK_INFO_CLIENT_LIST)
     {
-      gint n_tasks, size = 0;
+      guint n_tasks = 0;
+      gint size = 0;
       guint32 *task_ids;
 
       if (!gwmh_gnome_wm_win)
@@ -1382,7 +1383,8 @@ gwmh_task_update (GwmhTask        *task,
   if (imask & GWMH_TASK_INFO_ALLOCATION)
     {
       Window dummy_win;
-      guint border, depth, x = 0, y = 0, width = 0, height = 0;
+      gint x = 0, y = 0;
+      guint border, depth, width = 0, height = 0;
       
       if (imask & GWMH_TASK_INFO_FRAME_GEO)
 	{
@@ -2158,7 +2160,8 @@ gwmh_task_get_mini_icon (GwmhTask   *task,
   guint32 *atomdata;
   Window xwindow = task->xwin;
   Window root;
-  int x, y, b, width, height, depth;
+  int x, y;
+  guint b, width, height, depth;
   gint size;
   Display *xdisplay;
 

@@ -70,7 +70,7 @@ gstc_parent_add_watch (GdkWindow *window)
     {
       XWindowAttributes attribs = { 0, };
       Window xroot = None, xparent = None, *children = NULL;
-      int n_children = 0;
+      guint n_children = 0;
       guint i;
 
       gdk_error_trap_push ();
