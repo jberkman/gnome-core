@@ -4,8 +4,6 @@
 
 #include <config.h>
 #include "gmenu.h"
-#include "up.xpm"
-#include "down.xpm"
 
 gchar *SYSTEM_APPS;
 gchar *SYSTEM_PIXMAPS;
@@ -85,9 +83,9 @@ GnomeUIInfo toolbar[] = {
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_CUT, 0, 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
 	{ GNOME_APP_UI_ITEM, N_("Move up"), N_("Move selected menu up"), move_up_cb, NULL, NULL,
-	  GNOME_APP_PIXMAP_DATA, up_xpm, 0, 0, NULL },
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_UP, 0, 0, NULL },
 	{ GNOME_APP_UI_ITEM, N_("Move down"), N_("Move selected menu down"), move_down_cb, NULL, NULL,
-	  GNOME_APP_PIXMAP_DATA, down_xpm, 0, 0, NULL },
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_DOWN, 0, 0, NULL },
 	GNOMEUIINFO_SEPARATOR,
 	{ GNOME_APP_UI_ITEM, N_("Properties"), N_("Edit selected menu item properties"), edit_pressed_cb, NULL, NULL,
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_PROPERTIES, 0, 0, NULL },

@@ -1,3 +1,8 @@
+Wed Sep 30 17:52:55 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c: Use stock up/down buttons.
+	* up/down.xpm: Removed for reason above.
+
 Sat Sep 26 13:24:23 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.c: Removed a warning.

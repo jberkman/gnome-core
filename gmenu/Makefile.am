@@ -18,7 +18,7 @@ gmenu_LDADD = \
 	$(GNOMEUI_LIBS)					\
 	$(INTLLIBS)
 
-EXTRA_DIST = gmenu.desktop top.xpm folder.xpm unknown.xpm up.xpm down.xpm
+EXTRA_DIST = gmenu.desktop top.xpm folder.xpm unknown.xpm
 
 sysdir = $(datadir)/apps/System
 sys_DATA = gmenu.desktop
