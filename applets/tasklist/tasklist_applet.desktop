@@ -9,6 +9,8 @@ Name[no]=Oppgaveliste
 Name[pl]=Lista zadañ
 Name[pt_BR]=Lista de tarefas
 Name[sv]=Programlist
+Name[zh_TW.Big5]=¤u§@¦Cªí
+Name[zh_CN.GB2312]=¹¤×÷ÁÐ±í
 Comment=GNOME Tasklist
 Comment[cs]=Seznam úloh/procesù pro Gnome
 Comment[de]=GNOMEs Taskliste
@@ -19,6 +21,8 @@ Comment[no]=GNOME oppgaveliste
 Comment[pl]=Lista zadañ dla GNOME
 Comment[pt_BR]=Lista de tarefas do GNOME
 Comment[sv]=Programlist för GNOME
+Comment[zh_TW.Big5]=GNOME ¤u§@¦Cªí
+Comment[zh_CN.GB2312]=GNOME ¹¤×÷ÁÐ±í
 Exec=tasklist_applet --activate-goad-server=tasklist_applet
 Icon=gnome-tasklist.png
 Terminal=0
