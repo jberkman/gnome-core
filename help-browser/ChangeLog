@@ -1,3 +1,9 @@
+2000-04-08  Larry Ewing  <lewing@helixcode.com>
+
+	* window.c (on_set_base): make sure we strip references from
+	baseURL so that we don't carry them into the next load.  Should
+	fix the problem with image url's having references appended to them.
+	
 2000-04-04  Jacob Berkman  <jacob@helixcode.com>
 
 	* gnome-help-browser.c: look in $(prefix) for man and info pages

@@ -1127,10 +1127,14 @@ static HTMLURL *baseURL;
 static void
 on_set_base (GtkHTML *html, const gchar *url, gpointer data)
 {
+	HTMLURL *tmpurl;
+	
 	if (baseURL)
 		html_url_destroy (baseURL);
-	g_message ("new base: %s", url);
-	baseURL = html_url_new (url);
+
+	tmpurl = html_url_new (url);
+	baseURL = html_url_dup (tmpurl, HTML_URL_DUP_NOREFERENCE);
+	html_url_destroy (tmpurl);
 }
 
 static gchar *
