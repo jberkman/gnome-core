@@ -1,6 +1,7 @@
 1998-12-01  Jeff Garzik  <jgarzik@pobox.com>
 
-	* html.c: Silenced gcc prototype and ambiguity warnings.
+	* gnome-info2html/html.c:
+	Silenced gcc prototype and ambiguity warnings.
 
 1998-11-29  Herbert Valerio Riedel  <hvr@hvrlab.ml.org>
 
