@@ -1,3 +1,8 @@
+Mon Feb 16 00:47:03 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* main.c (property_main): Pass actual argc, argv to
+	gnome_client_new.
+
 Sun Feb 15 23:04:00 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* property-background.c: Include <gdk/gdkx.h>.

@@ -160,7 +160,7 @@ property_main (int argc, char *argv [])
 			init = 1;
 	}
 
-	client = gnome_client_new (new_argc, new_argv);
+	client = gnome_client_new (argc, argv);
 
 	/* If this startup is the result of a previous session, we try
 	   to acquire the token that would let us set the current
