@@ -1,3 +1,7 @@
+1998-05-01  Marc Ewing  <marc@redhat.com>
+
+	* Changed g_error()'s to g_warnings()'s
+
 1998-05-01  Michael Fulbright  <msf@redhat.com>
 
 	* Makefile.am: removed references to sample-help*

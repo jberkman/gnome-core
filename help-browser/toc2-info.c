@@ -196,7 +196,7 @@ gint expandInfoTable(GList *table, gchar *name)
 	e = g_malloc(sizeof(*e));
 	s = strchr(c, ':');
 	if (!s) {
-	    g_error("ran out of indirect entries");
+	    g_warning("ran out of indirect entries");
 	    break;
 	}
 	*s = '\0';
@@ -204,7 +204,7 @@ gint expandInfoTable(GList *table, gchar *name)
 	c = s + 1;
 	s = strchr(c, '\n');
 	if (!s) {
-	    g_error("ran out of indirect entries");
+	    g_warning("ran out of indirect entries");
 	    break;
 	}
 	*s = '\0';
@@ -216,7 +216,7 @@ gint expandInfoTable(GList *table, gchar *name)
 
     /* Find the tag table */
     if (!(c = strstr(c, "\nTag Table:\n(Indirect)\n"))) {
-	g_error("missing tag table");
+	g_warning("missing tag table");
 	if (indirect) {
 	    g_list_foreach(indirect, (GFunc)g_free, NULL);
 	    g_list_free(indirect);
@@ -231,7 +231,7 @@ gint expandInfoTable(GList *table, gchar *name)
 	c += 6;
 	s = strchr(c, 0x7f);
 	if (!s) {
-	    g_error("Invalid table entry");
+	    g_warning("Invalid table entry");
 	    break;
 	}
 	*s = '\0';
@@ -240,7 +240,7 @@ gint expandInfoTable(GList *table, gchar *name)
 	c = s + 1;
 	s = strchr(c, '\n');
 	if (!s) {
-	    g_error("Ran out of indirect entries!");
+	    g_warning("Ran out of indirect entries!");
 	    break;
 	}
 	*s = '\0';

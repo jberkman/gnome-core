@@ -42,11 +42,11 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 		close(fromProg[1]);
 			
 		execvp(argv[0], argv);
-		g_error("couldn't exec %s", argv[0]);
+		g_warning("couldn't exec %s", argv[0]);
 		_exit(1);
 	}
 	if (progPID < 0) {
-	        g_error("couldn't fork %s", argv[0]);
+	        g_warning("couldn't fork %s", argv[0]);
 		return -1;
 	}
 		
@@ -105,7 +105,7 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	signal(SIGPIPE, oldhandler);
 
 	if (writeBytesLeft) {
-		g_error("failed to write all data to %s", argv[0]);
+		g_warning("failed to write all data to %s", argv[0]);
 		g_free(outbuf);
 		return -1;
 	}
@@ -114,7 +114,7 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 #if 0
 	waitpid(progPID, &status, 0);
 	if (!WIFEXITED(status) || WEXITSTATUS(status)) {
-		g_error("getOutputFrom(): %s failed", argv[0]);
+		g_warning("getOutputFrom(): %s failed", argv[0]);
 		g_free(outbuf);
 		return -1;
 	}

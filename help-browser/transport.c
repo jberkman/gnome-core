@@ -144,12 +144,12 @@ transportHTTP( docObj obj )
     
     if (isdigit(hostname[0])) {
 	if (!inet_aton(hostname, &serverAddress)) {
-	    g_error("unable to resolve host: %s", hostname);
+	    g_warning("unable to resolve host: %s", hostname);
 	    return -1;
 	}
     } else {
 	if (getHostByName(hostname, &serverAddress)) {
-	    g_error("unable to resolve host: %s", hostname);
+	    g_warning("unable to resolve host: %s", hostname);
 	    return -1;
 	}
     }
@@ -161,7 +161,7 @@ transportHTTP( docObj obj )
     sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (connect(sock, (struct sockaddr *) &destPort, sizeof(destPort))) {
-	g_error("unable to connect to host: %s", hostname);
+	g_warning("unable to connect to host: %s", hostname);
 	return -1;
     }
 
