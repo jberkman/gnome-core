@@ -60,6 +60,10 @@ void        gnome_helpwin_goto           (GnomeHelpWin *help,  const char *filen
 void   	    gnome_helpwin_jump_to_anchor (GnomeHelpWin *w, gchar *a);
 void   	    gnome_helpwin_jump_to_line   (GnomeHelpWin *w, gint line);
 gint   	    gnome_helpwin_get_line       (GnomeHelpWin *w);
+
+void	    statusMsg			 (gchar *msg);
+void	    statusPerc			 (gfloat num);
+
 END_GNOME_DECLS
 
 

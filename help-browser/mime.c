@@ -23,6 +23,7 @@
 static void convertMan(docObj obj);
 static void convertHTML(docObj obj);
 static void convertNone(docObj obj);
+static void convertAll(docObj obj);
 static void convertINFO(docObj obj);
 static void convertText(docObj obj);
 
@@ -50,7 +51,6 @@ resolveMIME( docObj obj )
 	}
 
 	g_message("resolved mime type: %s", docObjGetMimeType(obj));
-
 }
 
 
@@ -67,10 +67,12 @@ convertMIME( docObj obj )
 		convertHTML(obj);
 	} else if (!strcmp(m, "application/x-info")) {
 		convertINFO(obj);
+#if 0
 	} else if (!strcmp(m, "text/plain")) {
 		convertText(obj);
+#endif
 	} else {
-		convertNone(obj);
+		convertAll(obj);
 	}
 }
 
@@ -123,6 +125,10 @@ convertText( docObj obj )
 	
 	docObjGetRawData(obj, &raw, &len);
 
+	/* Text conversion is not this easy -- you need to escape <, > and similar */
+
+	/* Text conversion is not this easy -- you need to escape <, > and similar */
+
 	s = g_malloc(len + 27);
 	memcpy(s, "<BODY><PRE>\n", 12);
 	memcpy(s + 12, raw, len);
@@ -142,6 +148,7 @@ convertMan( docObj obj )
 	gint outbuflen;
 	gint i;
 
+	statusMsg("Calling gnome-man2html...");
 	/* if converted data exists lets use it */
 	docObjGetConvData(obj, &outbuf, &len);
 	if (outbuf)
@@ -175,6 +182,7 @@ convertINFO( docObj obj )
 	guchar *raw, *outbuf;
 	gint len, outbuflen;
 
+	statusMsg("Calling gnome-info2html...");
 	/* if converted data exists lets use it */
 	docObjGetConvData(obj, &outbuf, &outbuflen);
 	if (outbuf)
@@ -216,4 +224,36 @@ convertINFO( docObj obj )
 	docObjSetConvData(obj, outbuf, outbuflen, TRUE);
 
 	g_free(basepath);
+}
+
+
+static void
+convertAll( docObj obj )
+{
+	char *argv[6];
+	gchar *s;
+	gchar *a;
+	gchar *base;
+	gchar *basepath;
+	guchar *raw, *outbuf;
+	gint len, outbuflen;
+
+	statusMsg("Calling external data conversion...");
+	/* if converted data exists lets use it */
+	docObjGetConvData(obj, &outbuf, &outbuflen);
+	if (outbuf)
+	    return;
+
+	argv[0] = "gnome-convert";
+	argv[1] = docObjGetMimeType(obj);
+	argv[2] = "text/html";
+	argv[3] = g_strdup(docObjGetAbsoluteRef(obj));
+	argv[4] = NULL;
+
+	g_message("filter: %s %s %s %s",
+		  argv[0],argv[1],argv[2],argv[3]);
+
+	docObjGetRawData(obj, &raw, &len);
+	getOutputFrom(argv, raw, len, &outbuf, &outbuflen);
+	docObjSetConvData(obj, outbuf, outbuflen, TRUE);
 }

@@ -18,7 +18,7 @@ LDADD = \
         $(INTLLIBS)
 
 
-bin_PROGRAMS = gnome-help-browser  gnome-help-caller
+bin_PROGRAMS = gnome-help-browser  gnome-help-caller gnome-download gnome-convert
 
 gnome_help_caller_SOURCES = \
 				$(ORBIT_HELP_CLIENT_SOURCES)   \
@@ -71,6 +71,7 @@ PIXMAPS = close.xpm contents.xpm help.xpm left_arrow.xpm right_arrow.xpm
 
 EXTRA_DIST = toc.c toc-man.c toc-ghelp.c toc-info.c \
 	     toc.h toc-man.h toc-ghelp.h toc-info.h \
+	     gnome-convert gnome-download \
 	     $(PIXMAPS) gnome-help.desktop help-browser.gnorba
 
 gnorbadir = $(sysconfdir)/CORBA/servers

@@ -1,3 +1,16 @@
+1999-03-23  Pavel Machek  <pavel@bug.ucw.cz>
+
+	* gnome-man2html/gnome-man2html.c (main): Bugfix: code used to
+	crash on empty input '\0' is really == NULL and you wanted "".
+
+	* gnome-man2html: FIXME: this really should not be linked against gtk.
+	
+1999-03-22  Pavel Machek  <pavel@bug.ucw.cz>
+
+	* transport.c (loadSock): Cleaned code a bit, fixed potential
+	segfaults if other side missbehaves and added possibility to call
+	gnome-download external script
+
 1999-11-18  Pablo Saratxaga <pablo@mandrakesoft.com>
 
 	* help/el/*: added a the Greek default page from gnome-core 1.0.*

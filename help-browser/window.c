@@ -106,7 +106,6 @@ static void pageUp(GtkWidget *w, HelpWindow win);
 static void pageDown(GtkWidget *w, HelpWindow win);
 static void spaceUp(GtkWidget *w, HelpWindow win);
 static void spaceDown(GtkWidget *w, HelpWindow win);
-static void focusEnter(GtkWidget *w, HelpWindow win);
 
 static void dndDrop(GtkWidget *widget, GdkDragContext *context, gint x, gint y,
 		    GtkSelectionData *data, guint info,
@@ -149,6 +148,31 @@ GnomeUIInfo filemenu[] = {
 	GNOMEUIINFO_END
 };
 
+GnomeUIInfo viewmenu[] = {
+	{ GNOME_APP_UI_ITEM, N_("_Back"), NULL, help_backward, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_BACK, 'B',
+	  GDK_SHIFT_MASK, NULL },
+	{ GNOME_APP_UI_ITEM, N_("_Forward"), NULL, help_forward, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_FORWARD, 'F',
+	  GDK_SHIFT_MASK, NULL },
+	GNOMEUIINFO_SEPARATOR,
+
+	{ GNOME_APP_UI_ITEM, N_("_Reload"), NULL, reload_page, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_REFRESH, 'R',
+	  0, NULL },
+
+	GNOMEUIINFO_SEPARATOR,
+	{ GNOME_APP_UI_ITEM, N_("_Index"), NULL, help_gotoindex, NULL, NULL,
+	  GNOME_APP_PIXMAP_NONE, NULL, 'I',
+	  0, NULL },
+
+	GNOMEUIINFO_END
+};
+
+/* Add this to gnome-convert 
++    s# (/[a-z]+/[a-z.-/]+)# <A HREF="file:$1">$1</A>#g;
+ */
+
 GnomeUIInfo helpmenu[] = {
   
     GNOMEUIINFO_HELP("help-browser"),
@@ -180,6 +204,7 @@ GnomeUIInfo settingsmenu[] = {
 GnomeUIInfo mainmenu[] = {
     GNOMEUIINFO_MENU_FILE_TREE(filemenu),
     GNOMEUIINFO_SUBTREE(N_("_Window"), windowmenu),
+    GNOMEUIINFO_SUBTREE(N_("_View"), viewmenu),
     GNOMEUIINFO_MENU_SETTINGS_TREE(settingsmenu),
     GNOMEUIINFO_MENU_HELP_TREE(helpmenu),
     GNOMEUIINFO_END
@@ -1000,4 +1025,42 @@ load_image(GtkWidget *html_widget, gchar *ref)
 		
 	docObjFree(obj);
 	return XmHTMLImageDefaultProc(html_widget, tmpnam, NULL, 0);
+}
+
+void
+statusMsg(gchar *msg)
+{
+    HelpWindow win;
+    extern GList *windowList;
+
+    if (!windowList) 
+      puts(msg);
+    else {
+      win = (HelpWindow)g_list_first(windowList)->data;
+      gnome_appbar_pop(GNOME_APPBAR(win->appBar));
+      gnome_appbar_push(GNOME_APPBAR(win->appBar), msg);
+      gnome_appbar_refresh(GNOME_APPBAR(win->appBar));
+      while (gtk_events_pending ())
+        gtk_main_iteration ();
+      gdk_flush();
+    }
+}
+
+/* Change first parameter of gnome_appbar_new for this to work */
+void
+statusPerc(gfloat percent)
+{
+    HelpWindow win;
+    extern GList *windowList;
+
+    if (!windowList) 
+      ;
+    else {
+      win = (HelpWindow)g_list_first(windowList)->data;
+      gnome_appbar_set_progress(GNOME_APPBAR(win->appBar), percent);
+      gnome_appbar_refresh(GNOME_APPBAR(win->appBar));
+      while (gtk_events_pending ())
+        gtk_main_iteration ();
+      gdk_flush();
+    }
 }

@@ -18,6 +18,8 @@
 #include "parseUrl.h"
 #include "misc.h"
 #include "cache.h"
+#include "gnome-helpwin.h"
+#include <math.h>
 
 static int getHostByName(const char *host, struct in_addr *address);
 
@@ -61,11 +63,6 @@ transport( docObj obj, DataCache cache )
     return 0;
 }
 
-gint
-transportUnknown( docObj obj )
-{
-	return -1;
-}
 
 gint
 transportFile( docObj obj )
@@ -76,8 +73,11 @@ transportFile( docObj obj )
 	guchar *mime;
 	gint len;
 
+ 	statusMsg("Loading local file...");
 	if (loadFileToBuf(docObjGetDecomposedUrl(obj)->path, &buf, &len)) 
-		return -1;
+	  /* Hack: if it is directory, we want to display its contents. As we do not want to
+	     do listings ourself, we let gnome-download handle them. */
+		return transportUnknown(obj);
 
 	/* Hack to handle .so in man pages */
 	mime = docObjGetMimeType(obj);
@@ -127,74 +127,43 @@ getHostByName(const char *host, struct in_addr *address)
     return 0;
 }
 
-gint
-transportHTTP( docObj obj )
+static int
+loadSock( docObj obj, int sock )
 {
-    struct sockaddr_in destPort;
-    struct in_addr serverAddress;
     gchar buf[BUFSIZ];
-    gchar *hostname;
     gchar *outbuf;
-    guchar *copy;
+    gchar *copy;
     gchar *s;
     gchar *mimeType, *mimeTypeEnd;
     int bytes;
     int outbuflen;
     gint copylen;
-    int sock;
-
-    hostname = docObjGetDecomposedUrl(obj)->host;
-    
-    if (isdigit(hostname[0])) {
-	if (!inet_aton(hostname, &serverAddress)) {
-	    g_warning("unable to resolve host: %s", hostname);
-	    return -1;
-	}
-    } else {
-	if (getHostByName(hostname, &serverAddress)) {
-	    g_warning("unable to resolve host: %s", hostname);
-	    return -1;
-	}
-    }
-    
-    destPort.sin_family = AF_INET;
-    destPort.sin_port = htons(80);
-    destPort.sin_addr = serverAddress;
-
-    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-    if (connect(sock, (struct sockaddr *) &destPort, sizeof(destPort))) {
-	g_warning("unable to connect to host: %s", hostname);
-	return -1;
-    }
-
-    if (sizeof (buf) == g_snprintf(buf, sizeof buf,
-				   "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n",
-				   docObjGetDecomposedUrl(obj)->path,
-				   docObjGetDecomposedUrl(obj)->host)) {
-        g_warning ("buffer too small");
-	return -1;
-    }
-    write(sock, buf, strlen(buf));
 
     /* This is not efficient */
     outbuf = NULL;
     outbuflen = 0;
     while ((bytes = read(sock, buf, sizeof(buf))) > 0) {
+        char printbuf[1024];
+	sprintf(printbuf, "Downloading: %d bytes", outbuflen);
+	statusMsg(printbuf);
+
 	outbuf = g_realloc(outbuf, outbuflen + bytes);
 	memcpy(outbuf + outbuflen, buf, bytes);
 	outbuflen += bytes;
     }
-    close(sock);
+    if (!outbuf)
+        return -1;
 
     if ((s = strstr(outbuf, "\n\n"))) {
 	*s = '\0';
 	s += 2;
     } else {
 	s = strstr(outbuf, "\r\n\r\n");
+	if (!s)			/* Other side failed to follow protocol */
+	   return -1;
 	*s = '\0';
 	s += 4;
-    }
+    } 
 
     /* Mime type */
     mimeType = strstr(outbuf, "Content-Type:");
@@ -214,6 +183,87 @@ transportHTTP( docObj obj )
 
     docObjSetRawData(obj, copy, copylen, TRUE);
     g_free(outbuf);
-
     return 0;
+}
+
+gint
+transportUnknown( docObj obj )
+{
+    int sock;
+    DecomposedUrl url;
+    gchar key[BUFSIZ];
+    guchar *p, *copy;
+    FILE *pipe;
+    gint res;
+
+    statusMsg("Calling external download...");
+
+    url = docObjGetDecomposedUrl(obj);
+    g_snprintf(key, sizeof key, "gnome-download %s", docObjGetAbsoluteRef(obj));
+
+    docObjSetMimeType(obj, "text/plain");
+    pipe = popen(key, "r");
+    sock = fileno(pipe);
+    res = loadSock(obj, sock);
+    pclose(pipe);
+    return res;
+}
+
+gint
+transportHTTP( docObj obj )
+{
+    struct sockaddr_in destPort;
+    struct in_addr serverAddress;
+    gchar buf[BUFSIZ];
+    gchar *hostname;
+    gchar *outbuf;
+    guchar *copy;
+    gchar *s;
+    gchar *mimeType, *mimeTypeEnd;
+    int bytes;
+    int outbuflen;
+    gint copylen;
+    int sock;
+    int res;
+
+    hostname = docObjGetDecomposedUrl(obj)->host;
+    
+    statusMsg("Resolving hostname...");
+    if (isdigit(hostname[0])) {
+	if (!inet_aton(hostname, &serverAddress)) {
+	    g_warning("unable to resolve host: %s", hostname);
+	    return -1;
+	}
+    } else {
+	if (getHostByName(hostname, &serverAddress)) {
+	    g_warning("unable to resolve host: %s", hostname);
+	    return -1;
+	}
+    }
+    
+    destPort.sin_family = AF_INET;
+    destPort.sin_port = htons(80);
+    destPort.sin_addr = serverAddress;
+
+    statusMsg("Connecting...");
+    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    if (connect(sock, (struct sockaddr *) &destPort, sizeof(destPort))) {
+	g_warning("unable to connect to host: %s", hostname);
+	return -1;
+    }
+
+    if (sizeof (buf) == g_snprintf(buf, sizeof buf,
+				   "GET %s HTTP/1.0\r\nHost: %s\r\n\r\n",
+				   docObjGetDecomposedUrl(obj)->path,
+				   docObjGetDecomposedUrl(obj)->host)) {
+        g_warning ("buffer too small");
+	return -1;
+    }
+    write(sock, buf, strlen(buf));
+    statusMsg("Transfering data...");
+    res = loadSock(obj, sock);
+    close(sock);
+
+    return res;
 }
