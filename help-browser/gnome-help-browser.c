@@ -51,7 +51,7 @@ static void historyCallback (gchar *ref, GtkWidget *w);
 XmImageInfo *load_image(GtkWidget *html_widget, gchar *ref);
 
 
-#define VERSION "0.1"
+#define VERSION "0.3"
 
 
 /* main GnomeApp widget */
@@ -72,6 +72,8 @@ GnomeUIInfo filemenu[] = {
 
 GnomeUIInfo helpmenu[] = {
 	{GNOME_APP_UI_ITEM, "About...", "Info about this program", about_cb,
+	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
+	{GNOME_APP_UI_SEPARATOR, NULL, NULL, NULL,
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
 	{GNOME_APP_UI_HELP, NULL, NULL, "help-browser", 
 	 GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL},
