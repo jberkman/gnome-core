@@ -2,6 +2,8 @@
 /*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
 /*###################################################################*/
 
+#include <config.h>
+
 #include "gmenu.h"
 
 static gint close_folder_dialog_cb(GtkWidget *b, gpointer data);

@@ -211,7 +211,7 @@ bell_setup(void)
 	/* Throw up a test button */
 
       	tbox = gtk_hbox_new(TRUE, 0);
-	tbutton = gtk_button_new_with_label("Test");
+	tbutton = gtk_button_new_with_label(_("Test"));
 	gtk_widget_set_usize(tbutton, 100, 30);
 	gtk_signal_connect(GTK_OBJECT (tbutton), "clicked",
 			   GTK_SIGNAL_FUNC (test_bell), NULL);

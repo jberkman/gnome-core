@@ -94,7 +94,7 @@ ui_setup (void)
 
   i = 0;
   while ( i < NUM_BUTTONBOX_STYLES ) {
-    menuitem = gtk_menu_item_new_with_label(buttonbox_style_names[i]);
+    menuitem = gtk_menu_item_new_with_label(_(buttonbox_style_names[i]));
     gtk_menu_append ( GTK_MENU(menu), menuitem );
     gtk_signal_connect ( GTK_OBJECT(menuitem), "activate", 
 			 GTK_SIGNAL_FUNC(buttonbox_style_cb), 

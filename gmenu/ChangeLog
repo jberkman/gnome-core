@@ -1,3 +1,7 @@
+1998-07-24  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
+
+	* edit.c, tree.c, dialogs.c: Include <config.h>.
+
 Tue Jul 21 00:39:15 1998  John Ellis  <johne@bellatlantic.net>
 
 	* gmenu.h, edit.c, dialogs.c: fixed bug that caused a segfault or

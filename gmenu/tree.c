@@ -2,6 +2,8 @@
 /*##                       gmenu (GNOME menu editor) 0.2.5         ##*/
 /*###################################################################*/
 
+#include <config.h>
+
 #include "gmenu.h"
 #include "top.xpm"
 

@@ -1,3 +1,11 @@
+1998-07-24  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
+
+	* property-bell.c (bell_setup): Marked one string for
+	translation.
+
+	* property-ui.c (ui_setup): Marked use of buttonbox_style_names
+	with _().
+
 Wed Jul 22 23:23:41 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* property-ui.c (ui_setup): Put label and optionmenu into an
