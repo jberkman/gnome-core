@@ -151,6 +151,12 @@ read_directory (gchar *directory)
                         g_string_free (name, TRUE);
                 }
         }
+        if (!retval->data) {
+                /* no .directory file.  Well, I guess we abort.  */
+                /* FIXME: i guess we should free memory now... */
+                return NULL;
+        }
+                
         if (retval->children == NULL) {
                 if (retval->data)
                         gnome_desktop_entry_free (retval->data);
@@ -172,10 +178,10 @@ generate_tree_helper (GtkCTree *ctree, GtkCTreeNode *parent, GNode *node)
                 if (i->data && ((GnomeDesktopEntry *)i->data)->name)
                         text[0] = ((GnomeDesktopEntry *)i->data)->name;
                 else
-                        text[0] = "foo";
+                        text[0] = "*MISSINGNAME*";
                 if (i->data && (!strcmp(((GnomeDesktopEntry *)i->data)->type,"Directory")))
                         child = gtk_ctree_insert_node (ctree,parent,NULL, text, 3, NULL, NULL,NULL,NULL,FALSE,FALSE);
-                else
+                else 
                         child = gtk_ctree_insert_node (ctree,parent,NULL, text, 3, NULL, NULL,NULL,NULL,TRUE,FALSE);
                 data = g_malloc (sizeof (node_data));
                 data->gde = (GnomeDesktopEntry *)i->data;

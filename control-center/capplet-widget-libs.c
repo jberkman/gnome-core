@@ -223,6 +223,7 @@ capplet_widget_corba_init(char *app_id,
                                unsigned int flags,
                                int *arg_index)
 {
+        error_t retval = 0;
         PortableServer_ObjectId objid = {0, sizeof("capplet_interface"), "capplet_interface"};
         PortableServer_POA poa;
 
@@ -264,9 +265,6 @@ capplet_widget_corba_init(char *app_id,
                 exit (1);
         }
         GNOME_control_center_register_capplet(control_center, id, capplet, &ev);
-
-        /* this will be -1 if we are not a multi-capplet.  
-         * Otherwise, it'll be the multi-capplets id.
-         */
-        return capid;
+        /* we need to get the error value from gnome_CORBA_init */
+        return retval;
 }
