@@ -1,6 +1,6 @@
 Makefile
 Makefile.in
 index.html
-tasklist
+tasklist-applet
 *.junk
-
+*.ced

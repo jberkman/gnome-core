@@ -2,3 +2,5 @@ Makefile.in
 Makefile
 gnome-terminal
 index.html
+*.junk
+*.ced
