@@ -35,6 +35,7 @@ background_properties_SOURCES =	\
 LDADD = \
 	$(GNOMEUI_LIBS)					\
         @XF86MISC_LIBS@					\
+	$(DL_LIB)					\
 	@LEXLIB@
 
 EXTRA_DIST = background.desktop keyboard.desktop mouse.desktop
