@@ -233,8 +233,13 @@ main(int argc, char *argv[])
 
     goad_server_register(NULL, browser_object, "gnome-help-browser", "object", &ev);
 
+    /* define if you need to debug output, else squelch it */
+#ifdef CREATE_LOGFILE
     output_fd = open("/tmp/gnome-help-browser.log", O_CREAT | O_WRONLY
 		     | O_APPEND, 0666);
+#else
+    output_fd = open("/dev/null", O_WRONLY, 0666);
+#endif
     setvbuf(stderr, 0, _IOLBF, 0);
     setvbuf(stdout, 0, _IOLBF, 0);
     dup2(output_fd, fileno(stdout));
