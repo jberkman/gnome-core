@@ -373,11 +373,11 @@ void edit_area_set_to(Desktop_Data *dd)
          */
 	if (dd->editable && strcmp(dd->path, user_apps_dir) == 0)
 		{
-		edit_area_set_as_top_menu(_("User menus"), edit);
+		edit_area_set_as_top_menu(_("Favorites"), edit);
 		}
 	if (dd->editable && strcmp(dd->path, system_apps_dir) == 0)
 		{
-		edit_area_set_as_top_menu(_("System menus"), edit);
+		edit_area_set_as_top_menu(_("System"), edit);
 		}
 }
 

@@ -407,7 +407,7 @@ void menu_tree_populate(GtkWidget *ctree)
 	buf = g_concat_dir_and_file(user_apps_dir, ".directory");
 	pixmap = new_top_pixmap_from_dentry_path(buf);
 	g_free(buf);
-	dd = desktop_data_new(user_apps_dir, _("User Menus"),
+	dd = desktop_data_new(user_apps_dir, _("Favorites"),
 			      _("Top of user menus"), pixmap);
 	node = menu_tree_insert_node(ctree, NULL, NULL, dd, TRUE);
 
@@ -415,7 +415,7 @@ void menu_tree_populate(GtkWidget *ctree)
 	buf = g_concat_dir_and_file(system_apps_dir, ".directory");
 	pixmap = new_top_pixmap_from_dentry_path(buf);
 	g_free(buf);
-	dd = desktop_data_new(system_apps_dir, _("System Menus"),
+	dd = desktop_data_new(system_apps_dir, _("Programs"),
 			      _("Top of system menus"), pixmap);
 	node = menu_tree_insert_node(ctree, NULL, NULL, dd, TRUE);
 

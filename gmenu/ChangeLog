@@ -1,3 +1,9 @@
+2000-02-10  Jacob Berkman  <jacob@helixcode.com>
+
+	* tree.c (menu_tree_populate): 
+	* edit.c (edit_area_set_to): sync the menu names with the 'new'
+	names in the HEAD panel
+
 1999-10-19  Ettore Perazzoli  <ettore@gnu.org>
 
 	* main.c (main): Set the infolabel's horizontal usize to 1 so that
