@@ -1,3 +1,7 @@
+Tue Jan 04 00:21:16 2000  George Lebl <jirka@5z.com>
+
+	* tasklist_applet.desktop: use the PanelApplet dentry type
+
 Tue Jan 04 00:07:56 2000  George Lebl <jirka@5z.com>
 
 	* tasklist_config.c: if the desktop is 800 exactly still start

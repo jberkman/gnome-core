@@ -31,7 +31,7 @@ Comment[uk]=GNOME óĞÉÓÏË ÚÁ×ÄÁÎØ
 Comment[wa]=Aplikete avou li djîveye des bouyes di GNOME
 Comment[zh_TW.Big5]=GNOME ¤u§@¦Cªí
 Comment[zh_CN.GB2312]=GNOME ¹¤×÷ÁĞ±í
-Exec=tasklist_applet --activate-goad-server=tasklist_applet
+Exec=tasklist_applet
 Icon=gnome-tasklist.png
 Terminal=0
-Type=Application
+Type=PanelApplet
