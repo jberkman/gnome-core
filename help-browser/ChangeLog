@@ -1,4 +1,4 @@
-1999-08-23  David A. Wheeler  <dwheeler@ida.org>
+2000-07-05  David A. Wheeler  <dwheeler@dwheeler.com>
 
 	* gnome-man2html/man2html.c: Several changes to improve
 	hypertext linking.  These include:
