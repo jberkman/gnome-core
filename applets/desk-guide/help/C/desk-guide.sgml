@@ -48,11 +48,12 @@
 
     <para><application>Desk Guide Applet</application> works
     hand-in-hand with the window manager, the piece of software such
-    as Sawmill or Enlightenment that handles the look and feel of your
-    windows - laying down borders, resizing the windows, placing
-    them, moving them and so on. The window manager is in charge of
-    the various desktops. <application>Desk Guide Applet</application>
-    handles the navigation.</para>
+    as Sawfish, formerly known as Sawmill, or Enlightenment that
+    handles the look and feel of your windows - laying down borders,
+    resizing the windows, placing them, moving them and so on. The
+    window manager is in charge of the various
+    desktops. <application>Desk Guide Applet</application> handles the
+    navigation.</para>
  
     <para><application>Desk Guide Applet</application> displays
     miniature versions of all your available desktops, including
@@ -67,7 +68,8 @@
       virtual desktops and the subdivided workspaces within
       them. <application>Enlightenment</application> divides your
       working area into "desktops," and then subdivides those into
-      "screens." <application>Sawmill</application> divides your
+      "screens." <application>Sawfish</application>, formerly known as
+      <application>Sawmill</application> divides your
       working area into "workspaces" and then subdivides those into
       columns and rows. <application>Desk Guide</application> applet
       calls the workspaces "desktops" and the areas within them
@@ -364,7 +366,8 @@
 	 <application>Enlightenment</application>,
 	 <application>FVWM</application>,
 	 <application>IceWM</application>, or
-	 <application>Sawmill</application>).</para>
+	 <application>Sawmill</application>, now known as
+	 <application>Sawfish</application>).</para>
 	</listitem>
 
 	<listitem>
