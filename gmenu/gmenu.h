@@ -70,6 +70,10 @@ gchar *correct_path_to_file(gchar *path1, gchar *path2, gchar *filename);
 
 GtkCTreeNode *find_file_in_tree(GtkCTree * ctree, char *path);
 void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, gint select);
+void tree_moved(GtkCTree *ctree, GtkCTreeNode *node, GtkCTreeNode *new_parent,
+			GtkCTreeNode *new_sibling, gpointer data);
+gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
+			GtkCTreeNode *new_parent, GtkCTreeNode *new_sibling);
 void move_down_cb(GtkWidget *w, gpointer data);
 void move_up_cb(GtkWidget *w, gpointer data);
 int is_node_editable(GtkCTreeNode *node);

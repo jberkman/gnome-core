@@ -9,6 +9,7 @@
 #include "top.xpm"
 
 static gint find_file_cb(gconstpointer a, gconstpointer b);
+static void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
 static void move_item_down(GtkCTreeNode *node);
 static void move_item_up(GtkCTreeNode *node);
 static void add_tree_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
@@ -86,6 +87,130 @@ void update_tree_highlight(GtkWidget *w, GtkCTreeNode *old, GtkCTreeNode *new, g
 		}
 	gtk_label_set(GTK_LABEL(pathlabel),current_path);
 
+}
+
+static void recalc_paths_cb (GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
+{
+	GtkCTreeNode *parent;
+	Desktop_Data *n;
+	Desktop_Data *p;
+	gchar *path;
+
+	parent = GTK_CTREE_ROW(node)->parent;
+	n = gtk_ctree_get_row_data(ctree, node);
+	p = gtk_ctree_get_row_data(ctree, parent);
+
+	path = g_strconcat(p->path, "/", n->path + g_filename_index(n->path), NULL);
+	g_free(n->path);
+	n->path = path;
+
+	/* now update current state */
+	if (node == current_node)
+		{
+		g_free(current_path);
+		current_path = g_strdup(p->path);
+		gtk_label_set(GTK_LABEL(pathlabel),current_path);
+		}
+}
+
+void tree_moved(GtkCTree *ctree, GtkCTreeNode *node, GtkCTreeNode *new_parent,
+			GtkCTreeNode *new_sibling, gpointer data)
+{
+	static GtkCTreeNode *old_parent;
+
+	if (data)
+		{
+		/* this happens before the move, we need this to get the original parent,
+		because we can't save or move anything until the node moves */
+		old_parent = GTK_CTREE_ROW(node)->parent;
+		}
+	else
+		{
+		/* this happens after the move */
+		Desktop_Data *node_data;
+		gchar *old_filename;
+		gchar *new_filename;
+		GtkCTreeNode *parent;
+
+		node_data = gtk_ctree_get_row_data(ctree, node);
+		old_filename = node_data->path;
+
+		parent = GTK_CTREE_ROW(node)->parent;
+
+		if (parent == old_parent)
+			{
+			/* nothing to physically move, only update order file */
+			save_order_of_dir(parent);
+			}
+		else
+			{
+			Desktop_Data *d = gtk_ctree_get_row_data(ctree, parent);
+			new_filename = g_strconcat(d->path, "/",
+					old_filename + g_filename_index(old_filename), NULL);
+
+			if (rename (old_filename, new_filename) < 0)
+				g_print("Failed to move file: %s\n", old_filename);
+
+			g_free(old_filename);
+			node_data->path = new_filename;
+
+			save_order_of_dir(old_parent);
+			save_order_of_dir(parent);
+
+			/* it would probably be easier to reread the menus, but I'm doing
+			it this way :)    --John */
+			if (node_data->isfolder)
+				{
+				gtk_ctree_pre_recursive(ctree, node, recalc_paths_cb, NULL);
+				}
+			}
+		}
+}
+
+gboolean tree_move_test_cb(GtkCTree *ctree, GtkCTreeNode *source_node,
+			GtkCTreeNode *new_parent, GtkCTreeNode *new_sibling)
+{
+	Desktop_Data *d;
+
+	if (source_node == topnode || source_node == usernode || source_node == systemnode ||
+			new_parent == NULL)
+		return FALSE;
+
+	if (gtk_ctree_is_ancestor(ctree, usernode, source_node))
+		{
+		if (new_parent != usernode && !gtk_ctree_is_ancestor(ctree, usernode, new_parent))
+			return FALSE;
+		}
+
+	if (gtk_ctree_is_ancestor(ctree, systemnode, source_node))
+		{
+		if (new_parent != systemnode && !gtk_ctree_is_ancestor(ctree, systemnode, new_parent))
+			return FALSE;
+		}
+
+	d = gtk_ctree_get_row_data(ctree, new_parent);
+	if (!d || !d->editable)
+		return FALSE;
+
+	d = gtk_ctree_get_row_data(ctree, source_node);
+	if (!d || !d->editable)
+		return FALSE;
+
+	/* and a final check to make sure a DIFFERENT file of the same name does not exist */
+	if (new_parent != GTK_CTREE_ROW(source_node)->parent)
+		{
+		gint index = g_filename_index(d->path);
+		GtkCTreeNode *node = GTK_CTREE_ROW(new_parent)->children;
+		while (node)
+			{
+			Desktop_Data *n = gtk_ctree_get_row_data(ctree, node);
+			if (!strcmp(d->path + index, n->path + g_filename_index(n->path)))
+				return FALSE;
+			node = GTK_CTREE_ROW(node)->sibling;
+			}
+		}
+
+	return TRUE;
 }
 
 static void move_item_down(GtkCTreeNode *node)
