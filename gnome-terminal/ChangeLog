@@ -1,5 +1,11 @@
 1998-11-11  Martin Baulig  <martin@home-of-linux.org>
 
+	* gnome-terminal.c: Use `invoke_as_login_shell' from the command
+ 	line config and not from the default config so this command line
+	parameter really works.
+
+1998-11-11  Martin Baulig  <martin@home-of-linux.org>
+
 	* gnome-terminal.c (gnome_terminal_about_menu): Comment the
 	GNOMEUIINFO_HELP out so we don't get the warning about a
 	missing help topics file.

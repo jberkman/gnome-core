@@ -1780,6 +1780,9 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->user_back = cmdline_config->user_back;
 	}
 
+	default_config->invoke_as_login_shell =
+		cmdline_config->invoke_as_login_shell;
+
 	terminal_config_free (cmdline_config);
 
 	clone = gnome_cloned_client ();
