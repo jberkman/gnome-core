@@ -1,3 +1,8 @@
+Sat Jun  6 02:35:49 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* property-mouse.c (mouse_read): Correctly rescale when mouse
+	acceleration outside our allowable range.
+
 1998-06-03  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* property-screensaver.cc (screensaver_write): Handle the case

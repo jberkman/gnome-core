@@ -50,6 +50,9 @@ mouse_read (void)
      We could handle this by showing the mouse buttons and letting the
      user drag-and-drop them to reorder.  But I'm not convinced this
      is worth it.  */
+  /* FIXME: this ignores the fact that a mouse with the weird little
+     roller generates B4 and B5 when the roller is moved.  That
+     shouldn't change when we remap the other mouse buttons.  */
   mouse_rtol = gnome_config_get_bool_with_default ("/Desktop/Mouse/right-to-left=false",
 						   &rtol_default);
   if (rtol_default)
@@ -61,20 +64,31 @@ mouse_read (void)
   if (mouse_thresh == -1 || mouse_acceleration == -1)
     {
       XGetPointerControl (GDK_DISPLAY (), &acc_num, &acc_den, &thresh);
-      /* Only support cases in our range.  If neither the numerator nor
-	 denominator is 1, then rescale.  */
-      if (acc_num != 1 && acc_den != 1)
-	acc_num = (int) ((double) acc_num / acc_den);
-
-      if (acc_num > MAX_ACCEL)
-	acc_num = MAX_ACCEL;
-      if (acc_den > MAX_ACCEL)
-	acc_den = MAX_ACCEL;
 
       if (mouse_thresh == -1)
 	mouse_thresh = thresh;
       if (mouse_acceleration == -1)
 	{
+	  /* Only support cases in our range.  If neither the numerator nor
+	     denominator is 1, then rescale.  */
+	  if (acc_num != 1 && acc_den != 1)
+	    {
+	      if (acc_num > acc_den)
+		{
+		  acc_num = (int) ((double) acc_num / acc_den);
+		  acc_den = 1;
+		}
+	      else
+		{
+		  acc_den = (int) ((double) acc_den / acc_num);
+		  acc_num = 1;
+		}
+	    }
+
+	  if (acc_num > MAX_ACCEL)
+	    acc_num = MAX_ACCEL;
+	  if (acc_den > MAX_ACCEL)
+	    acc_den = MAX_ACCEL;
 	  if (acc_den == 1)
 	    mouse_acceleration = acc_num + MAX_ACCEL - 1;
 	  else

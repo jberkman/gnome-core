@@ -11,5 +11,7 @@ screensaver
 
 - change double-click speed on mouse page
   this requires changes to gtk
+- add a way to indication that B1+B3 should generate B2.
+  this requires talking to the X server in some nonstandard way
 
 - need configurator to change language and other locale things
