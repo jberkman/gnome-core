@@ -582,7 +582,7 @@ ok_callback ()
         if (sd && waitmins) {
                 if (sd->dialog)
                         store_screensaver_data (sd);
-                command = g_string_new ("xscreensaver -timeout ");
+                command = g_string_new ("xscreensaver -no-splash -timeout ");
                 snprintf (temp, 5, "%d", waitmins );
                 g_string_append (command, temp);
                 g_string_append (command, " -nice ");
@@ -632,7 +632,7 @@ try_callback ()
         if (sd && waitmins) {
                 if (sd->dialog)
                         store_screensaver_data (sd);
-                command = g_string_new ("xscreensaver -timeout ");
+                command = g_string_new ("xscreensaver -no-splash -timeout ");
                 snprintf (temp, 5, "%d", waitmins );
                 g_string_append (command, temp);
                 g_string_append (command, " -nice ");

@@ -218,6 +218,7 @@ main (int argc, char **argv)
         gtk_signal_connect(GTK_OBJECT(capplet), "destroy", GTK_SIGNAL_FUNC(destroy_callback), NULL);
         gtk_signal_connect (GTK_OBJECT (capplet), "try", GTK_SIGNAL_FUNC (try_callback), NULL);
         gtk_signal_connect (GTK_OBJECT (capplet), "revert", GTK_SIGNAL_FUNC (revert_callback), NULL);
+        gtk_signal_connect (GTK_OBJECT (capplet), "cancel", GTK_SIGNAL_FUNC (revert_callback), NULL);
         gtk_signal_connect (GTK_OBJECT (capplet), "ok", GTK_SIGNAL_FUNC (ok_callback), NULL);
         gtk_signal_connect (GTK_OBJECT (monitor), "expose_event", (GtkSignalFunc) list_expose_callback, sd);  /* disabled for now */
         sd = NULL;
