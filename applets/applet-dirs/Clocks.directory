@@ -1,11 +1,13 @@
 [Desktop Entry]
 Name=Clocks
+Name[de]=Uhren
 Name[es]=Relojes
 Name[hu]=Órák
 Name[wa]=Ôrlodjes
 Comment=Clock applets
+Comment[de]=Uhrenapplets
 Comment[es]=Applets de relojes
 Comment[hu]=Órák
 Comment[wa]=Apliketes d' ôrlodjes
-Icon=gnome-folder.png
+Icon=gnome-clock.png
 Type=Directory
