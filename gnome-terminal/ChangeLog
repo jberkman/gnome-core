@@ -1,3 +1,7 @@
+1998-05-04    <msf@redhat.com>
+
+	* menu.c: commented out include of zvt/forkpty.h
+
 1998-05-03  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (new_terminal): Allow shrinking.  This makes

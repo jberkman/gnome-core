@@ -36,7 +36,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>		/* need the display for the font stuff */
 #include <zvt/zvtterm.h>
-#include <zvt/forkpty.h>
+/*#include <zvt/forkpty.h> */
 
 /* debug macro */
 #define d(x)
