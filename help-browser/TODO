@@ -1,19 +1,22 @@
+ - TOC
+   should set mime type
+   toc:
+   toc:{man,info,ghelp}
+   toc:man(x)
+
+ - fix LANG handling
+
  - cache
    cache mime types
    cace over rides
    disk cache
 
  - names
-   config panel
 
  - add configuration stuff:
-    filters, paths, etc
     toolbar preferences
-    history/cache sizes/filesnames
 
  - session management
-
- - fix error handling (back, etc)
 
  - work on DocBook output to generate topic.dat automatically (need to use
    special tags in DocBook to denote links which should go into the 'Help' 
@@ -21,15 +24,9 @@
  - Need to have help browser<->application communication for better
    integration into GNOME apps in the future
 
- - fix broken toc
-    use real path for ghelp
-    geometry and ui cleanups
-
  - fix history
     geometry - figure out how to set column widths and let first one expand
 
  - can back/forward buttons have dropdown history?
-
- - fix image loading callback to fit in to the scheme of things
 
  - make man2html & info (and other filters) loadable modules

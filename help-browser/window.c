@@ -39,7 +39,7 @@ struct _helpWindow {
     GtkWidget *app;
 
     /* Toolbar widgets - needed to set button states */
-    GtkWidget *tb_contents, *tb_back, *tb_forw;
+    GtkWidget *tb_back, *tb_forw;
 
     /* The HTML widget */
     GtkWidget *helpWidget;
@@ -82,7 +82,6 @@ static void delete_cb (GtkWidget *w, void *foo, HelpWindow win);
 static void new_window_cb (GtkWidget *w, HelpWindow win);
 static void help_forward(GtkWidget *w, HelpWindow win);
 static void help_backward(GtkWidget *w, HelpWindow win);
-static void help_contents(GtkWidget *w, HelpWindow win);
 static void help_onhelp(GtkWidget *w, HelpWindow win);
 static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
@@ -144,15 +143,12 @@ GnomeUIInfo mainmenu[] = {
 };
 
 GnomeUIInfo toolbar[] = {
-    GNOMEUIINFO_ITEM("Contents", "Show Contents", help_contents, contents_xpm),
-    GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_ITEM("Back", "Go to the previous location in the history list",
 		     help_backward, right_arrow_xpm),
     GNOMEUIINFO_ITEM("Forward", "Go to the next location in the history list",
 		     help_forward, left_arrow_xpm),
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_ITEM("Help", "Help on Help", help_onhelp, help_xpm),
-    GNOMEUIINFO_ITEM("Close", "Close Help Window", close_cb, close_xpm),
     GNOMEUIINFO_SEPARATOR,
     GNOMEUIINFO_ITEM("History", "Show History Window",
 		     ghelpShowHistory, contents_xpm),
@@ -296,12 +292,6 @@ help_backward(GtkWidget *w, HelpWindow win)
 }
 
 static void
-help_contents(GtkWidget *w, HelpWindow win)
-{
-	return;
-}
-
-static void
 help_onhelp(GtkWidget *w, HelpWindow win)
 {
 	gchar *p, *q;
@@ -321,8 +311,20 @@ help_onhelp(GtkWidget *w, HelpWindow win)
 static void
 entryChanged(GtkWidget *w, HelpWindow win)
 {
+    gchar *s;
+    gchar buf[BUFSIZ];
+    
     g_message("ENTRY BOX: %s", gtk_entry_get_text(GTK_ENTRY(w)));
-    helpWindowShowURL(win, gtk_entry_get_text(GTK_ENTRY(w)));
+
+    /* Do a little shorthand processing */
+    s = gtk_entry_get_text(GTK_ENTRY(w));
+    if (*s == '/') {
+	snprintf(buf, sizeof(buf), "file:%s", s);
+    } else {
+	strncpy(buf, s, sizeof(buf));
+    }
+    
+    helpWindowShowURL(win, buf);
     setCurrent(win);
 }
 
@@ -345,15 +347,14 @@ setCurrent(HelpWindow w)
 static void
 init_toolbar(HelpWindow w)
 {
-	toolbar[5].user_data = w->helpWidget;
-	toolbar[2].user_data = w->helpWidget;
-	toolbar[3].user_data = w->helpWidget;
+        toolbar[0].user_data = w->helpWidget;  /* Back */
+	toolbar[1].user_data = w->helpWidget;  /* Forw */
+	toolbar[3].user_data = w->helpWidget;  /* Help */
 	
 	gnome_app_create_toolbar_with_data(GNOME_APP(w->app), toolbar, w);
 
-	w->tb_contents = toolbar[0].widget;
-	w->tb_back = toolbar[2].widget;
-	w->tb_forw = toolbar[3].widget;
+	w->tb_back = toolbar[0].widget;
+	w->tb_forw = toolbar[1].widget;
 	
 	update_toolbar(w);
 }
@@ -361,9 +362,6 @@ init_toolbar(HelpWindow w)
 static void
 update_toolbar(HelpWindow w)
 {
-	/* we dont have mapping for 'contents' button yet */
-	if (w->tb_contents)
-		gtk_widget_set_sensitive(w->tb_contents, 0);
 	if (w->tb_back)
 		gtk_widget_set_sensitive(w->tb_back, queue_isprev(w->queue));
 	if (w->tb_forw)

@@ -1,3 +1,9 @@
+1998-03-12  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* Clean up toolbar a bit.
+
+	* In entry box, map "/..." to "file:/..."
+
 1998-03-11  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* Made history, cache, bookmarks reconfigurable.
