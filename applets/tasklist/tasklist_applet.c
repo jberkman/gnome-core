@@ -601,17 +601,6 @@ change_size (gboolean layout)
 		layout_tasklist ();
 }
 
-/* Called when the session should be saved */
-static gboolean
-cb_save_session (gpointer func_data,
-		 const gchar *privcfgpath,
-		 const gchar *globcfgpath)
-{
-	write_config ();
-
-	return FALSE;
-}
-
 /* Called when the panel's orient changes */
 static gboolean
 cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
@@ -656,7 +645,7 @@ create_applet (void)
 	gtk_signal_connect (GTK_OBJECT (applet), "change-orient",
 			    GTK_SIGNAL_FUNC (cb_change_orient), NULL);
 	gtk_signal_connect (GTK_OBJECT (applet), "save-session",
-			    GTK_SIGNAL_FUNC (cb_save_session), NULL);
+			    GTK_SIGNAL_FUNC (write_config), NULL);
 
 	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "about",

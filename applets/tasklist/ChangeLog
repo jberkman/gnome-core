@@ -1,3 +1,11 @@
+1999-09-16  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* tasklist_config.c (write_config): now the cb func
+
+	* tasklist_applet.c (create_applet): change the cb func
+
+	* tasklist_properties.c (cb_apply): don't save config here
+
 1999-09-16  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_menu.c: Added "Send to desktop" feature

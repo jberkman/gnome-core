@@ -17,9 +17,6 @@ cb_apply (GtkWidget *widget, gint page, gpointer data)
 	/* Copy the Property struct back to the Config struct */
 	memcpy (&Config, &PropsConfig, sizeof (TasklistConfig));
 
-	/* Save properties */
-	write_config ();
-
 	/* Redraw everything */
 	change_size (TRUE);
 

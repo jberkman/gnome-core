@@ -6,9 +6,13 @@ extern GtkWidget *applet;
 /* The configuration */
 TasklistConfig Config;
 
-void write_config (void)
+void write_config (gpointer data,
+		   const gchar *privcfgpath,
+		   const gchar *globcfgpath)
 {
-	gnome_config_push_prefix (APPLET_WIDGET (applet)->privcfgpath);
+	gnome_config_push_prefix (privcfgpath 
+				  ? privcfgpath
+				  : APPLET_WIDGET (applet)->privcfgpath);
 
 	gnome_config_set_bool ("tasklist/horz_fixed",
 			       Config.horz_fixed);
