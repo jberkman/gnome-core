@@ -3,11 +3,14 @@
    <title>El applet Desk Guide</title> 
 
    <para> 
-    El applet <application>Desk Guide</application>, que puede ver
-    en <xref linkend="deskguide-applet-fig">, es un applet que permite navegar visualmente por sus escritorios virtuales. Para añadir este applet a un  <interface>Panel</interface>, pulse el botón derecho de su ratón sobre el panel y escoja
+    El applet <application>Desk Guide</application>, que puede ver en 
+    <xref linkend="deskguide-applet-fig">, es un applet que permite navegar 
+    visualmente por sus escritorios virtuales. Para añadir este applet a un  
+    <interface>Panel</interface>, pulse el botón derecho de su ratón sobre el 
+    panel y escoja
          <menuchoice>
                <guimenu>applets</guimenu>
-               <guisubmenu>Utilidades</guisubmenu>
+               <guisubmenu>Utilerias</guisubmenu>
                <guimenuitem>Desk Guide</guimenuitem>
         </menuchoice>. 
    </para>
@@ -25,50 +28,62 @@
    <title>Uso</title>
 
 
-   <para><application>El applet Desk Guide </application> le ayuda a
-navegar por los escritorios virtuales de su sistema. El sistema
-<application>X Window</application>, junto con una pieza de software
-conocida como  "Gestor de ventanas"("window manager"), le permite crear
-varios escritorios virtuales donde organizar su trabajo, con diferentes
-aplicaciones en cada uno de ellos. Cada escritorio puede a su vez ser
-dividido por el gestor de ventanas en filas y columnas de espacios de
-trabajo, llamados "áreas de escritorio" ("Desk áreas"). <application>El
-applet Desk Guide </application>  es una herramienta navegacional para
-desplazarse por los diversos escritorios y "áreas", mostrando un mapa en
-miniatura de todos sus escritorios virtuales áreas en el panel de GNOME 
-que permite trasladarse entre ellos facilmente. </para>
+   <para><application>Desk Guide </application> le ayuda a
+    navegar por los escritorios virtuales de su sistema. El sistema
+    <application>X Window</application>, junto con una pieza de software
+    conocida como  "Gestor de ventanas"("window manager"), le permite crear
+    varios escritorios virtuales donde organizar su trabajo, con diferentes
+    aplicaciones en cada uno de ellos. El Gestor de ventanas puede volver a
+    dividir cada escritorio en filas y columnas de espacios de
+    trabajo, llamados "áreas de escritorio" ("Desk áreas"). <application>El
+    applet Desk Guide </application>  es una herramienta navegacional para
+    desplazarse por los diversos escritorios y "áreas", mostrando un mapa en
+    miniatura de todos sus escritorios virtuales y áreas en el panel de GNOME 
+    que permite trasladarse entre ellos facilmente.
+ </para>
 
-    <para>El applet <application> Desk Guide</application> trabaja codo
-con codo con el Gestor de ventanas, la pieza de software como Sawmill o
-Enlightenment que gestiona el aspecto y función de sus ventanas -
-mostrar el borde, cambiar el tamaño de las ventanas, situarlas,
-moverlas, etc. El Gestor de ventanas esta a cargo de los diversos
-escritorios. El applet <application>Desk Guide </application> se encarga
-de la navegación.</para>
+    <para> <application>Desk Guide</application> trabaja
+ codo
+    con codo con el Gestor de ventanas, la pieza de software como Sawfixh, 
+    anteriormente conocido como Sawmill, o Enlightenment que gestiona el aspecto 
+    y función de sus ventanas -
+    mostrar el borde de las ventanas, cambiar su tamaño, situarlas,
+    moverlas, etc. El Gestor de ventanas esta a cargo de los diversos
+    escritorios. <application>Desk Guide </application> se ocupa
+    de la navegación.</para>
  
     <para><application> El applet Desk Guide </application> muestra
-versiones en miniatura de todos los escritorios disponibles,
-representando con cajas vacías las aplicaciones que se
-ejecutan en cada ventana de escritorio. El escritorio activo se
-destaca sobre el resto. Para cambiar de escritorio pulse con el ratón 
-sobre su representación dentro del <application>applet Desk Guide
-</application>. </para>
+     versiones en miniatura de todos los escritorios disponibles, con rectangulos
+     representando el espacio que ocupa cada aplicacion. El escritorio
+     activo se destaca sobre el resto. Para cambiar de escritorio pulse con el 
+     ratón sobre su representación dentro de <application>Desk Guide</application>. 
+    </para>
+    <para>
+     Puede mover cualquier ventana dentro de <application>Desk Guide</application> 
+     hasta el escritorio y posición que desee pulsando sobre ella con el botón central
+     del ratón y arrastrandola sin soltar el botón. 
+    </para>
 
     <note>
-      <para>Cada Gestor de ventanas usa una jerga diferente para
- referirse a los escritorios virtuales y a los espacios de trabajo que los 
- subdividen. <application>Enlightenment</application> divide su área de trabajo
- en escritorios ("desktops"), que se subdividen en pantallas ("screens"). 
-<application>Sawmill</application> la divide en espacios de trabajo 
-("workspaces") que se subdividen en filas y columnas. El applet 
-<application>Desk Guide</application> denomina a los espacios de trabajo 
-escritorios ("desktops") y a las áreas interiores "viewports". Si desea 
-más información sobre la creación y gestión de espacios de trabajo virtuales
-dirijase a la documentación de su gestor de ventanas.</para>
-</note>
+      <para>Cada Gestor de ventanas usa una jerga diferente para referirse 
+        a los escritorios virtuales y a los espacios de trabajo que los 
+        subdividen. <application>Enlightenment</application> divide su área 
+        de trabajo en escritorios ("desktops"), que se subdividen en pantallas 
+        ("screens").  <application>Sawfish</application> antes conocido como
+        <application>Sawmill</application>, la divide en espacios 
+        de trabajo ("workspaces") que se subdividen en filas y columnas. El 
+        applet <application>Desk Guide</application> denomina a los espacios de
+        trabajo escritorios ("desktops") y a las áreas interiores "viewports". 
+        Si desea más información sobre la creación y gestión de espacios de 
+        trabajo virtuales dirijase a la documentación de su gestor de ventanas.
+      </para>
+    </note>
 
-    <para>Pulsando el ratón sobre la flecha a la izquierda del applet <application>Desk Guide</application> se muestra la ventana <interface>Lista de Tareas ("Task List")</interface>, que puede ver en<xref
-    linkend="deskguide-tasklist-applet-fig">.</para>
+    <para>Pulsando el ratón sobre la flecha a la izquierda del applet 
+     <application>Desk Guide</application> se muestra la ventana 
+     <interface>Lista de Tareas ("Task List")</interface>, que puede ver en
+     <xref
+ linkend="deskguide-tasklist-applet-fig">.</para>
 
  <figure id="deskguide-tasklist-applet-fig">
    <title>Desk Guide Task List</title>
@@ -80,26 +95,32 @@ dirijase a la documentación de su gestor de ventanas.</para>
    </figure>
 
     <para> La ventana muestra una lista de las aplicaciones que se están
-ejecutando en su ordenador. Pulsando el botón izquierdo sobre 
-cualquiera de las aplicaciones que muestra la 
-<interface>Lista de Tareas </interface> le dará el foco, es decir su ventana 
-se situara delante de las demás y toda entrada de teclado se dirigirá a 
-la aplicación que corre en esa ventana. Para volver a ocultar la ventana 
-de la <interface>Lista de Tareas</interface> pulse otra vez sobre la flecha 
-del applet <application>Desk Guide</application>.</para>
+     ejecutando en su ordenador. Pulsando el botón izquierdo sobre 
+cualquiera 
+     de las aplicaciones que muestra la 
+<interface>Lista de Tareas </interface>
+     le dará el foco, es decir su ventana se situara en primer plano y 
+     toda entrada de teclado se dirigirá a la aplicación que corre en esa 
+     ventana. Para volver a ocultar la ventana de la <interface>Lista de Tareas
+     </interface> pulse otra vez sobre la flecha del applet <application>Desk Guide</application>.
+    </para>
 
   </sect2>
 
    <sect2 id="deskguide-right-click">
-    <title>Opciones del menú desplegable del botón derecho</title>
+    <title>Opciones del menú emergente del botón derecho</title>
     <para> 
- Además de las opciones de menú estándar(vea <xref
-     linkend="deskguide-standard-right-click-items">), el menú desplegable del botón derecho tiene las siguientes opciones: 
+     Además de las opciones de menú estándar(vea <xref
+     linkend="deskguide-standard-right-click-items">), el menú emergente del 
+     botón derecho tiene las siguientes opciones: 
      <itemizedlist>         
       <listitem>
        <para>
-        <guimenuitem>Propiedades...</guimenuitem> &mdash; Esta opción abre el dialogo de <interface>Propiedades</interface> (vea
-        <xref linkend="deskguide-properties">) que le permite modificar la apariencia y comportamiento del applet.</para>
+        <guimenuitem>Propiedades...</guimenuitem> &mdash; Esta opción abre el 
+        dialogo de <interface>Propiedades</interface> (vea
+ <xref linkend="deskguide-properties">) 
+        que le permite modificar la apariencia y comportamiento del applet.
+       </para>
       </listitem>
     
       
@@ -111,7 +132,10 @@ del applet <application>Desk Guide</application>.</para>
     <title>Propiedades</title>
     <para>
      Puede configurar el applet <application>Desk Guide</application> pulsando
-   el botón derecho y escogiendo la opción <guimenuitem>Propiedades...</guimenuitem> dentro del menú. Así se abrirá el dialogo de <interface>Propiedades</interface>, con cuatro paginas diferentes que le dan acceso a varias opciones de configuración. -
+     el botón derecho y escogiendo la opción <guimenuitem>Propiedades...</guimenuitem> 
+     dentro del menú. Así se abrirá el dialogo de <interface>Propiedades</interface>, 
+     con cuatro paginas diferentes que le dan acceso a varias opciones de 
+     configuración. -
      <link linkend="deskguide-properties-display">pantalla</link>,
      <link linkend="deskguide-properties-tasks">tareas</link> <link
      linkend="deskguide-properties-geometry">geometria</link>, <link
@@ -121,7 +145,10 @@ del applet <application>Desk Guide</application>.</para>
    
     <sect3 id="deskguide-properties-display">
       <title>Propiedades - Pantalla</title>
-      <para>La primera ventana de <interface>Propiedaes </interface>, que se muestra en <xref linkend="deskguide-properties-fig">, le permite controlar la pantalla del applet <application>Desk Guide</application>.</para>
+      <para>La primera ventana de <interface>Propiedades </interface>, que se 
+       muestra en <xref linkend="deskguide-properties-fig">, le permite 
+       controlar la pantalla del applet <application>Desk Guide</application>.
+      </para>
  
     <figure id="deskguide-properties-fig">
      <title>Dialogo de Propiedades </title>
@@ -138,49 +165,62 @@ del applet <application>Desk Guide</application>.</para>
 
         <listitem>
           <para><guilabel>Flecha de cambio de la lista de tareas </guilabel>
-          &mdash; Cambia de lado la flecha de la lista de tareas del Desk Guide.</para>
+          &mdash; Cambia de lado la flecha de la lista de tareas de Desk Guide.</para>
         </listitem>
         <listitem>
           <para><guilabel>Mostrar el botón '?' de propiedades</guilabel>
-          &mdash; hace que se muestre un botón con interrogante en el applet que lanzara el dialogo de <interface>Propiedades</interface> al ser pulsado.</para>
+           &mdash; hace que se muestre un botón con un interrogante en el applet 
+           que lanzara el dialogo de <interface>Propiedades</interface> al ser 
+           pulsado.
+          </para>
         </listitem>
 
         <listitem>
-          <para><guilabel>Ver paginador de escritorio</guilabel> &mdash; Quita o pone en el applet el mapa que muestra sus escritorios y las aplicaciones que corren sobre ellos. </para>
+          <para><guilabel>Ver paginador del escritorio</guilabel> &mdash; Quita 
+            o pone en el applet el mapa que muestra sus escritorios y las 
+            aplicaciones que corren sobre ellos. </para>
         </listitem>
 
         <listitem>
-          <para><guilabel>Ver solo el escritorio corriente en el paginador</guilabel> &mdash; el applet se limita a mostrar el escritorio que se esta usando en cada momento con sus viewports activos. </para>
+          <para><guilabel>Ver solo el escritorio actual en el paginador</guilabel> 
+            &mdash; el applet solo mostrará el escritorio en el que se esta 
+           trabajando y sus viewports activos. </para>
         </listitem>
 
         <listitem>
           <para><guilabel>Suscitar la rejilla de las áreas encima de las tareas </guilabel>
-          &mdash; Si usa múltiples viewports (no solo múltiples
-          escritorios) con su gestor de ventanas, <application>Desk
-          Guide</application> dibuja una rejilla de viewport en el escritorio         activo. Puede dibujarla por encima o por debajo de las ventanas. </para>
+           &mdash; Si usa múltiples viewports (no solo múltiples  escritorios) con su Gestor 
+           de ventanas, <application>Desk
+            Guide</application> dibuja una rejilla de viewport en el escritorio 
+           activo. Puede dibujarla por encima o por debajo de las ventanas. 
+         </para>
         </listitem>
       
 
         <listitem>
-          <para><guilabel>Mostrar tooltips del paginador</guilabel> &mdash;
+          <para><guilabel>Mostrar los tooltips del paginador</guilabel> &mdash;
           Muestra tooltips relacionados con varios componentes de
           <application>Deskguide</application>. La flecha es el único widget
           que muestra un tooltip.</para> 
         </listitem>
 
         <listitem>
-          <para><guilabel>Demora para los tooltips del paginador [ms]</guilabel> &mdash;
-          retardo, en milisegundos, antes de mostrar un tooltip. Puede teclear
-          un número o usar las flechas para modificarlo.</para>
+          <para><guilabel>Demora para los tooltips del paginador [ms]</guilabel>
+           &mdash;
+ retardo, en milisegundos, antes de mostrar un tooltip. Puede
+           teclear
+ un número o usar las flechas para modificarlo.</para>
         </listitem>
 
         <listitem>
           <para><guilabel>Mostrar los nombres de escritorio en los tooltips </guilabel>
-          &mdash; Algunos gestores de ventanas, como
-          <application>Enlightenment</application>, permiten poner nombre a
-          los escritorios. Esta opción indica a
-          <application>Deskguide</application> que muestre tooltips
-          con el nombre del escritorio.</para> 
+           &mdash; Algunos gestores de ventanas, como
+ <application>Enlightenment</application>, 
+           permiten poner nombre a
+ los escritorios. Esta opción indica a
+ 
+           <application>Deskguide</application> que muestre tooltips
+           con el nombre del escritorio.</para> 
         </listitem>
 
         <listitem>
@@ -209,17 +249,25 @@ del applet <application>Desk Guide</application>.</para>
       <itemizedlist>
         <listitem>
           <para><guilabel>Ver las tareas escondidas (HIDDEN)</guilabel>, 
-        <guilabel>Ver las tareas enroiscadas (SHADED)</guilabel>,
+        <guilabel>Ver las tareas enrolladas (SHADED)</guilabel>,
          <guilabel>Ver las tareas que no aparecen en la lista de ventanas
-          (SKIP-WINLIST)</guilabel>, 
-	 <guilabel>Ver las tareas que no aparecen en la barra de tareas (SKIP-TASKBAR)</guilabel> 
-	&mdash; Estos cuatro elementos permiten a 
-        <application>Deskguide</application> enseñar las aplicaciones que se están 
-        ejecutando con "marcas" que normalmente las ocultarían de una aplicación como esta
-        Por ejemplo el   <application>panel</application> esta marcado como
-        HIDDEN, HIDE_FROM_WINLIST y HIDE_FROM_TASKBAR. Seleccionando todas esas opciones
-        conseguiríamos que <application>Deskguide</application> mostrara ese tipo de
-        aplicaciones.</para>
+ 
+                   (SKIP-WINLIST)</guilabel>, 
+    	 <guilabel>Ver las tareas que no aparecen en la barra de tareas
+ 
+                   (SKIP-TASKBAR)</guilabel> 
+        &mdash; Estas cuatro opciones contolan si
+ <application>Deskguide</application> 
+        ha de enseñar las aplicaciones que se están 
+ejecutando con "marcas" que 
+        normalmente las ocultarían de una aplicación como esta
+.  Por ejemplo el 
+        <application>panel</application> esta marcado como
+ HIDDEN, 
+        HIDE_FROM_WINLIST y HIDE_FROM_TASKBAR. Activando todas esas opciones
+        conseguiríamos que <application>Deskguide</application> mostrara ese 
+        tipo de
+ aplicaciones.</para>
         </listitem>
 
       </itemizedlist>
@@ -244,7 +292,7 @@ del applet <application>Desk Guide</application>.</para>
          establece la altura del escritorio. Esta desactivada por defecto, 
          y el tamaño del panel establece automáticamente la altura del 
          escritorio. Para activarlo se ha de desactivar el checkbox
-         <guilabel>Override la altura del escritorio con el tamaño del panel
+         <guilabel>Hacer depender la altura del escritorio del tamaño del panel
          </guilabel>.</para>
         </listitem>
       
@@ -252,8 +300,10 @@ del applet <application>Desk Guide</application>.</para>
       <listitem>
          <para><guilabel>Hacer depender la altura del escritorio del tamaño del panel
          </guilabel> &mdash; obliga a  <application>Desk
-         Guide</application> a ajustar su altura a la del panel automáticamente.
-         Su desactivación le permite modificar la altura manualmente con la opción
+ Guide</application> a 
+          ajustar su altura a la del panel automáticamente.
+ Su desactivación le 
+          permite modificar la altura manualmente con la opción
          <guilabel>Alto del Escritorio</guilabel> descrita anteriormente.</para>
         </listitem>
     
@@ -308,42 +358,54 @@ del applet <application>Desk Guide</application>.</para>
      </screenshot>
     </figure>
 
-      <para>Las opciones avanzadas permiten controlar el comportamiento de<application>DeskGuide</application> con Gestores de ventanas concretos, junto a otros parámetros.</para>
+      <para>Las opciones avanzadas permiten controlar el comportamiento de
+        <application>DeskGuide</application> con Gestores de ventanas concretos, 
+        junto a otros parámetros.</para>
 
       <itemizedlist>
 
         <listitem>
-         <para><guilabel>Dibujar los escritorios con doble buffering (recomendado)</guilabel> &mdash; controla el método que utiliza
-         <application>Desk Guide</application>  para dibujar los escritorios. Sin
-         el doble buffer, la pantalla puede parpadear en maquinas lentas.
-         Con el, puede apreciarse una bajada de rendimiento en conexiones por red.
+         <para><guilabel>Dibujar los escritorios con doble
+ buffering (recomendado)</guilabel> 
+          &mdash; controla el método que utiliza
+ <application>Desk Guide</application>
+          para dibujar los escritorios. 
+En una maquina lenta, la imagen de la 
+         pantalla puede parpadear sin el doble buffer. Por contra si trabaja
+         con una sistema X-Window remoto puede sufrir una disminución de 
+         rendimiento.
         </para>
         </listitem>
 
         <listitem>
-         <para><guilabel>El Gestor de Ventanas mueve en vez las decoraciones de la ventana</guilabel> 
-        &mdash; Si se activa, al mover una ventana con el botón central del ratón,
-         but the resulting window
-         position is off. Si no lo ve claro, active esta opción si usa uno de los
-         siguientes Gestores de Ventanas
+         <para><guilabel>El Gestor de Ventanas mueve en vez las decoraciones 
+        de la ventana</guilabel> 
+        &mdash; Activelo  si al mover una ventana con el botón central del 
+        ratón,
+ l posicion final no es correcta. Si no lo ve claro, active esta 
+        opción si usa uno de los
+ siguientes Gestores de Ventanas
          (<application>AfterStep</application>,
          <application>Enlightenment</application>,
          <application>FVWM</application>,
          <application>IceWM</application>, o
-         <application>Sawmill</application>).</para>
+         <application>Sawmill</application>, ahora conocido como
+         <application>Sawfish</application>).</para>
         </listitem>
 
         <listitem>
          <para><guilabel>El Gestor de Ventanas cambia el área activa
          en todos los escritorios</guilabel> &mdash; Si tiene más de un escritorio,
          con múltiples áreas de trabajo dentro de cada uno, esta opción le puede
-         servir para que cuando cambie cambie el área de trabajo en un escritorio el
-         Gestor de Ventanas haga lo propio en todos los demás.</para>
+         servir para que cuando cambie cambie el área de trabajo en un escritorio 
+         el
+  Gestor de Ventanas haga lo propio en todos los demás.</para>
         </listitem>
 
         <listitem>
          <para><guilabel>El Gestor de Ventanas espera que el paginador modifique
-         las propiedades area+escritorio</guilabel> &mdash; De momento no hace nada.</para>
+         las propiedades area+escritorio</guilabel> &mdash; De momento no hace 
+         nada.</para>
         </listitem>
     
   </itemizedlist>
@@ -357,15 +419,17 @@ del applet <application>Desk Guide</application>.</para>
       <listitem>
        <para>
         <guibutton>OK</guibutton> &mdash;
-        Pulsando <guibutton>OK</guibutton> se activarán los cambios en las propiedades
-        y se cerrara el dialogo de <interface>Propiedades</interface>.
+        Pulsando <guibutton>OK</guibutton> se activarán los cambios en las 
+        propiedades
+ y se cerrara el dialogo de <interface>Propiedades</interface>.
        </para>
       </listitem>
       <listitem>
        <para>
         <guibutton>Aplicar</guibutton> &mdash;
         Cada vez que se pulse <guibutton>Apply</guibutton> se activarán los cambios
-        de propiedades introducidos sin cerrar el dialogo de <interface>Propiedades</interface>.
+        de propiedades introducidos sin cerrar el dialogo de <interface>
+        Propiedades</interface>.
         Esta opción es muy útil para probar los efectos de los cambios
         introducidos  cuando aún se quiere seguir haciendo cambios.
        </para>
@@ -384,7 +448,8 @@ del applet <application>Desk Guide</application>.</para>
         <guibutton>Ayuda</guibutton> &mdash;
         Pulsando <guibutton>Ayuda</guibutton> se mostrará el manual de
         la aplicación, abriéndolo por la pagina del dialogo de
-        <interface>Propiedades</interface>.
+        <interface>Propiedades</interface>
+.
 
 
     
@@ -395,10 +460,10 @@ del applet <application>Desk Guide</application>.</para>
 </sect3>
 
  <sect3 id="deskguide-standard-right-click-items"> 
-    <title>Opciones estándar del menú desplegable.</title>
+    <title>Opciones estándar del menú emergente.</title>
     <para>
      Todos los applets han de disponer de las siguientes opciones en su
-     <guimenu>menu desplegable</guimenu> con el botón derecho:
+     <guimenu>menu emergente</guimenu> con el botón derecho:
      <variablelist>
       <varlistentry>
        <term>Quitar del panel</term>
@@ -414,12 +479,13 @@ del applet <application>Desk Guide</application>.</para>
        <term>Mover</term>
        <listitem>
         <para>
-         Después de seleccionar <guimenuitem>Mover</guimenuitem>, cambiar 
-         la apariencia del puntero del ratón (normalmente será una cruz con una punta de
-         flecha en cada dirección). El applet seguirá el movimiento que realice con el
-         ratón.         Cuando lo lleve a su posición definitiva pulse cualquier botón del ratón 
-         y el applet anclara  en esa posición. Tenga en cuenta que este método le sirve
-          para mover applets entre diferentes <interface>Paneles</interface>.
+         Después de seleccionar <guimenuitem>Mover</guimenuitem>, cambiará 
+         la apariencia del puntero del ratón (normalmente será una cruz con una 
+         punta de flecha en cada dirección). El applet seguirá el movimiento que 
+         realice con el ratón.  Cuando lo lleve a su posición definitiva pulse 
+         cualquier botón del ratón  y el applet anclara en esa posición. Tenga 
+         en cuenta que este método tambien sirve para mover applets entre 
+         diferentes <interface>Paneles</interface>.
         </para>
        </listitem>
       </varlistentry>
@@ -439,9 +505,12 @@ del applet <application>Desk Guide</application>.</para>
        <term>Acerca de</term>
        <listitem>
         <para>
-         La opción <guimenuitem>Acerca de ...</guimenuitem> abre una caja de dialogo
-         con diversa información  acerca del applet, normalmente incluye el nombre del
-         applet, la versión, el autor, Copyright, licencia, y descripción.
+         La opción <guimenuitem>Acerca de ...</guimenuitem> abre una caja de
+         dialogo
+ con diversa información  acerca del applet, normalmente incluye 
+         el nombre del
+ applet, la versión, el autor, Copyright, licencia, y 
+         descripción.
         </para>
        </listitem>
       </varlistentry>
@@ -450,7 +519,8 @@ del applet <application>Desk Guide</application>.</para>
        <term>Help</term>
        <listitem>
         <para>
-         La opción <guimenuitem>Ayuda</guimenuitem> nos lleva al manual de ayuda del applet. 
+         La opción <guimenuitem>Ayuda</guimenuitem> nos lleva al manual de ayuda 
+         del applet. 
         </para>
        </listitem>
       </varlistentry>
@@ -464,37 +534,42 @@ del applet <application>Desk Guide</application>.</para>
   
    <sect2 id="deskguide-applet-bugs">
     <title> Errores y Limitaciones conocidos</title>
-    <para>La opción <guilabel>El Gestor de ventanas espera que el paginador modifique las propiedades
-         area+escritorio</guilabel> de la ventana de <interface>Opciones avanzadas</interface> 
-        no hace nada de momento.
+    <para>La opción <guilabel>El Gestor de ventanas espera que el paginador 
+     modifique
+ las propiedades area+escritorio</guilabel> de la ventana de 
+     <interface>Opciones avanzadas</interface> 
+no hace nada de momento.
     
-    </para>
+</para>
    </sect2>
+
+    <!-- ==================== Authors =========================== --->
 
    <sect2 id="deskguide-applet-authors">
     <title>Autores</title>
     <para>
      Este applet fue escrito por Tim Janik
      <email>timj@gtk.org</email>.  La documentacin que esta leyendo 
-     la escribió John Fleck <email>jfleck@inkstain.net</email> y la tradujo 
-     como buenamente supo Javier Terradas<email>terry@ati.es</email>.</para>
+     la escribió John Fleck <email>jfleck@inkstain.net</email></para>
                 
+    <para>
+      Por favor env&iacute;e todos sus comentarios, sugerencias, y informes de errores
+      a la   <ulink url="http://bugs.gnome.org" type="http"> base de datos de 
+      seguimiento de errores de Gnome</ulink>. Podr&aacute; encontrar 
+      instrucciones para enviar informes de errores directamente accesibles en
+      <ulink url="http://bugs.gnome.org/Reporting.html" type="http">
+      http://bugs.gnome.org/Reporting.html</ulink>. Si esta usando
+      Gnome 1.1 o posterior, podr&aacute; usar tambi&eacute;n el comando
+      <command>bug-buddy</command> para enviar informes de errores. Esta disponible
+      en el submenu <guisubmenu>Utilidades</guisubmenu> de <guimenu>Menú principal</guimenu>.
+    </para>
 
     <para>
-      Por favor comunique cualquier error que encuentre en este applet al 
-      <ulink type="http" url="http://bugs.gnome.org">sistema de control de errores de GNOME 
-        </ulink>. Puede utilizar las instrucciones que encontrara en la web o
-        utilizar <application>bug-buddy</application> desde la línea de mandatos.
-        Si ha de indicar el paquete (package), ponga gnome-applets.
-    </para>
-    <para>
-    Este documento fue traducido por Javier Terradas Royo. Comentarios y/o
-   correcciones a (terry@ati.es). Versión alpha.
+    
+    Este documento fue traducido por Javier Terradas Royo. Comentarios y/o
+    correcciones a <email> terry@ati.es </email>. Versión beta.
     </para>
    </sect2>
 
   </sect1>
 
-
-
-

@@ -1,5 +1,5 @@
 <!DOCTYPE Article PUBLIC "-//GNOME//DTD DocBook PNG Variant V1.0//EN"[
-  <!entity deskguide.sgml SYSTEM "desk-guide.sgml">
+  <!entity deskguide.sgml SYSTEM "deskguide.sgml">
 ]>
 
 <article id="index" lang="es">
@@ -15,10 +15,6 @@
     <copyright>
       <year>2000</year>
       <holder>John Fleck</holder>
-    </copyright>
-    <copyright>
-      <year>2000</year>
-      <holder>Javier Terradas Royo (Traduccion al Castellano)</holder>
     </copyright>
 
     <legalnotice>
