@@ -685,7 +685,7 @@ helpWindowNew(gchar *name,
 	w->humanRef = NULL;
 	w->Title    = NULL;
 
-	w->app = gnome_app_new (name, "Gnome Help Browser");
+	w->app = gnome_app_new (name, _("Gnome Help Browser"));
 	gtk_window_set_wmclass (GTK_WINDOW (w->app), "GnomeHelpBrowser",
 				"GnomeHelpBrowser");
 	gtk_widget_realize (w->app);
@@ -805,10 +805,10 @@ helpWindowShowURL(HelpWindow win, gchar *ref,
 	if (visitURL(win, ref, useCache, addToQueue, TRUE)) {
 		GtkWidget *msg;
 
-		snprintf(err, sizeof(err), "Error loading document:\n\n%s",
+		snprintf(err, sizeof(err), _("Error loading document:\n\n%s"),
 			 ref);
 		msg = gnome_message_box_new(err, GNOME_MESSAGE_BOX_ERROR,
-					   "Ok", NULL);
+					   _("Ok"), NULL);
 		gnome_message_box_set_modal (GNOME_MESSAGE_BOX (msg));
 		gtk_widget_show(msg);
 
