@@ -65,7 +65,7 @@ docObjFree(docObj obj)
 	g_return_if_fail( obj != NULL );
 
 	g_free(obj->ref);
-	free(obj->absoluteRef);
+	g_free(obj->absoluteRef);
 	g_free(obj->humanRef);
 	g_free(obj->mimeType);
 	

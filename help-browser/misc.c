@@ -23,7 +23,6 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	      guchar **outbuf, gint *outbuflen)
 {
 	gint progPID;
-	gint progDead;
 	gint toProg[2];
 	gint fromProg[2];
 	gint status;
@@ -32,13 +31,24 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	guchar buf[8193];
 	guchar *tmpoutbuf;
 	gint    outpos;
+	gboolean out_closed = FALSE;
+
+	*outbuf = NULL;
+	*outbuflen = 0;
 
 	oldhandler = signal(SIGPIPE, SIG_IGN);
 	
-	pipe(toProg);
-	pipe(fromProg);
+	if(pipe(toProg) < 0) {
+		g_warning("couldn't make pipe");
+		return -1;
+	}
+	if(pipe(fromProg) < 0) {
+		g_warning("couldn't make pipe");
+		return -1;
+	}
 		
-	if (!(progPID = fork())) {
+	progPID = fork();
+	if (progPID == 0) {
 		close(toProg[1]);
 		close(fromProg[0]);
 		dup2(toProg[0], 0);   /* Make stdin the in pipe */
@@ -66,12 +76,8 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	outpos = 0;
 	tmpoutbuf = NULL;
 
-	progDead = 0;
-	do {
-		if (waitpid(progPID, &status, WNOHANG)) {
-			progDead = 1;
-		}
-			
+	out_closed = FALSE;
+	for(;;) {
 		/* write some data to the prog */
 		if (writeBytesLeft) {
 			gint n, r;
@@ -87,12 +93,13 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 			writeBytesLeft -= r;
 			writePtr += r;
 		} else {
+			out_closed = TRUE;
 			close(toProg[1]);
 		}
 
 		/* Read any data from prog */
 		bytes = read(fromProg[0], buf, sizeof(buf)-1);
-		while (bytes > 0) {
+		if(bytes > 0) {
 			if (tmpoutbuf)
 				tmpoutbuf=g_realloc(tmpoutbuf,outpos+bytes);
 			else
@@ -100,19 +107,32 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 
 			memcpy(tmpoutbuf+outpos, buf, bytes);
 			outpos += bytes;
-			bytes = read(fromProg[0], buf, sizeof(buf)-1);
 		}
-			
-		/* terminate when prog dies */
-	} while (!progDead);
+
+		if (waitpid(progPID, &status, WNOHANG))
+			break;
+	}
+
+	bytes = read(fromProg[0], buf, sizeof(buf)-1);
+	while(bytes > 0) {
+		if (tmpoutbuf)
+			tmpoutbuf=g_realloc(tmpoutbuf,outpos+bytes);
+		else
+			tmpoutbuf=g_malloc(bytes);
+
+		memcpy(tmpoutbuf+outpos, buf, bytes);
+		outpos += bytes;
+		bytes = read(fromProg[0], buf, sizeof(buf)-1);
+	}
 		
-	close(toProg[1]);
+	if( ! out_closed)
+		close(toProg[1]);
 	close(fromProg[0]);
 	signal(SIGPIPE, oldhandler);
 
 	if (writeBytesLeft) {
 		g_warning("failed to write all data to %s", argv[0]);
-		g_free(outbuf);
+		g_free(tmpoutbuf);
 		return -1;
 	}
 
@@ -121,7 +141,7 @@ getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	waitpid(progPID, &status, 0);
 	if (!WIFEXITED(status) || WEXITSTATUS(status)) {
 		g_warning("getOutputFrom(): %s failed", argv[0]);
-		g_free(outbuf);
+		g_free(tmpoutbuf);
 		return -1;
 	}
 #endif

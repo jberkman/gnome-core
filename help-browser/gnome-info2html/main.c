@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #include "data.h"
 #include "html.h"
@@ -158,7 +159,7 @@ main(int argc, char **argv)
 				if ( node->contents )
 					free(node->contents);
 				
-				free(node);
+				g_free(node);
 				BaseFilename = NULL;
 			}
 		}

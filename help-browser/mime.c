@@ -203,8 +203,8 @@ convertINFO( docObj obj )
 	gchar *a;
 	gchar *base;
 	gchar *basepath;
-	guchar *raw, *outbuf;
-	gint len, outbuflen;
+	guchar *raw = NULL, *outbuf = NULL;
+	gint len = 0, outbuflen = 0;
 
 	statusMsg("Calling gnome-info2html...");
 	/* if converted data exists lets use it */

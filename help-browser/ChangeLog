@@ -1,3 +1,22 @@
+Mon Jun 12 16:17:18 2000  George Lebl <jirka@5z.com>
+
+	* docobj.c (docObjFree): free stuff allocated with glib with g_free
+	  and other stuff with free
+
+	* gnome-info2html/main.c (main): more free/g_free confusion
+	  untangling
+
+	* gnome-man2html/gnome-man2html.c: apply patch from bug #3925
+
+	* mime.c (convertINFO): init pointers to NULL to be more paranoid
+
+	* misc.c (getOutputFrom): make out stuff NULL on error, don't
+	  free random memory.  fix up the pipe stuff a little bit so that
+	  it no longer SIGPIPES or hangs or other fun stuff
+
+	* parseUrl.c (DecomposedUrl): decomposing urls make a copy with
+	  g_strdup as we're really then freeing it with g_free
+
 2000-05-24  Dan Mueth <d-mueth@uchicago.edu>
 
 	* help/C/default-page.html: Removed line:
