@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Amusements
+Name[sl]=Zabava
 Name[ca]=Entreteniments
 Name[cs]=Zábavné
 Name[da]=Underholdning
@@ -29,6 +30,7 @@ Name[uk]=òÏÚ×ÁÇÉ
 Name[zh_CN.GB2312]=ÏûÇ²ÓéÀÖ
 Name[zh_TW.Big5]=®ø»º®T¼Ö
 Comment=Amusements
+Comment[sl]=Zabava
 Comment[ca]=Entreteniments de GNOME en format applet
 Comment[cs]=Aplety Gnome pro zábavu
 Comment[da]=Underholdnings-appletter

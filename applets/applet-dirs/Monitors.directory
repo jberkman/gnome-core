@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Monitors
+Name[sl]=Nadzorniki
 Name[ca]=Monitors
 Name[cs]=Monitory
 Name[da]=Overvågere
@@ -29,6 +30,7 @@ Name[uk]=íÏÎ¦ÔÏÒÉ
 Name[zh_CN.GB2312]=¼´Ê±¼à¿Ø
 Name[zh_TW.Big5]=§Y®ÉºÊ±±
 Comment=System Monitors (Processor, Diskspace, Memory, etc.)
+Comment[sl]=Sistemski nadzorniki (procesor, prostor na disku, pomnilnik, itd.)
 Comment[ca]=Monitors diversos del sistema
 Comment[cs]=Aplety zobrazujicí stav rùzných velièin v systému
 Comment[da]=Systemovervågere m.m. ...
