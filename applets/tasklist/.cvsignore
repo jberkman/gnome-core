@@ -6,4 +6,4 @@ Makefile
 gstc.c
 gwmh.c
 *.lo
-tasklist_applet.la
+libtasklist_applet.la
