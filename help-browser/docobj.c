@@ -117,8 +117,8 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	    obj->absoluteRef = g_strdup(obj->ref);
 	}
 
-	g_message("decomposed to: %s %s %s", decomp->access, 
-		  decomp->path, decomp->anchor);
+	g_message("decomposed to: %s %s %s %s", decomp->access, 
+		  decomp->host, decomp->path, decomp->anchor);
 
 	/* stupid test for transport types we currently understand */
 	if (!strncmp(decomp->access, "file", 4)) {

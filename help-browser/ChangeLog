@@ -1,5 +1,7 @@
 1998-02-25  Marc Ewing  <marc@germ.labs.redhat.com>
 
+	* added caching code
+
 	* added entry box
 
 	* use g_message() and g_error() instead of printf()

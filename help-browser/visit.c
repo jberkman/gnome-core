@@ -3,6 +3,7 @@
 #include "parseUrl.h"
 #include "docobj.h"
 #include "window.h"
+#include "cache.h"
 #include "mime.h"
 #include "transport.h"
 #include "visit.h"
@@ -26,7 +27,7 @@ static void
 visitDocument(HelpWindow win, docObj obj )
 {
 	docObjResolveURL(obj, helpWindowCurrentRef(win));
-	transport(obj);
+	transport(obj, helpWindowGetCache(win));
 	resolveMIME(obj);
 	convertMIME(obj);
 	displayHTML(win, obj);

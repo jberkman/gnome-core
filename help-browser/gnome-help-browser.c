@@ -23,6 +23,7 @@
 #include "window.h"
 #include "history.h"
 #include "toc.h"
+#include "cache.h"
 
 #define VERSION "0.3"
 
@@ -37,6 +38,7 @@ void setErrorHandlers(void);
 static HelpWindow currentHelpWindow;
 static History historyWindow;
 static GtkWidget *tocWindow;
+static DataCache cache;
 
 int
 main(int argc, char *argv[])
@@ -54,6 +56,9 @@ main(int argc, char *argv[])
 
     historyWindow = newHistory(0, (GSearchFunc)historyCallback, NULL); 
     helpWindowSetHistory(window, historyWindow);
+
+    cache = newDataCache(10000000, 0, (GCacheDestroyFunc)g_free);
+    helpWindowSetCache(window, cache);
 
     /* make the toc browser */
     tocWindow = createToc((GtkSignalFunc)tocCallback);

@@ -64,6 +64,11 @@ void destroyDataCache(DataCache cache)
 
 gpointer lookupInDataCache(DataCache cache, gchar *key)
 {
+    return lookupInDataCacheWithLen(cache, key, NULL);
+}
+
+gpointer lookupInDataCacheWithLen(DataCache cache, gchar *key, gint *len)
+{
     struct _data_cache_entry *hit;
     
     if (! (hit = g_hash_table_lookup(cache->hashTable, key))) {
@@ -75,6 +80,9 @@ gpointer lookupInDataCache(DataCache cache, gchar *key)
     cache->queue = g_list_remove(cache->queue, hit);
     cache->queue = g_list_append(cache->queue, hit);
 
+    if (len) {
+	*len = hit->size;
+    }
     return hit->value;
 }
 

@@ -51,6 +51,7 @@ struct _helpWindow {
     /* Passed to us by the main program */
     GtkSignalFunc about_cb;
     History history;
+    DataCache cache;
 };
 
 
@@ -351,6 +352,7 @@ helpWindowNew(GtkSignalFunc about_cb)
 	w->queue= queue_new();
 	w->about_cb = about_cb;
 	w->history = NULL;
+	w->cache = NULL;
 	w->currentRef = NULL;
 
 	/* XXX this needs to change.  The "app" needs to be */
@@ -409,6 +411,18 @@ helpWindowSetHistory(HelpWindow win, History history)
 }
 
 void
+helpWindowSetCache(HelpWindow win, DataCache cache)
+{
+    win->cache = cache;
+}
+
+DataCache
+helpWindowGetCache(HelpWindow win)
+{
+    return win->cache;
+}
+
+void
 helpWindowShowURL(HelpWindow win, gchar *ref)
 {
     visitURL(win, ref);
@@ -429,6 +443,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	guchar *buf=NULL;
 	gint   buflen;
 	gint   fd;
+	gint   cached = 0;
 
 	DecomposedUrl du;
 	
@@ -437,6 +452,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
 
 	win = gtk_object_get_data(GTK_OBJECT(html_widget), "HelpWindow");
 	du = decomposeUrlRelative(ref, win->currentRef, &p);
+	g_message("%s + %s = %s", ref, win->currentRef, p);
 	freeDecomposedUrl(du);
 	strcpy(theref, p);
 	g_message("loading image: %s", theref);
@@ -446,27 +462,36 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	} else {
 		tmpfile = "/tmp/gnome-help-browser.tmpfile";
 		
-		argv[0] = "lynx";
-		argv[1] = "-source";
-		argv[2] = theref;
-		argv[3] = NULL;
-		
-		getOutputFromBin(argv, NULL, 0, &buf, &buflen);
+		if (win->cache) {
+		    buf = lookupInDataCacheWithLen(win->cache, theref,
+						   &buflen);
+		}
 
+		if (buf) {
+		    g_message("cache hit: %s", theref);
+		    cached = 1;
+		} else {
+		    argv[0] = "lynx";
+		    argv[1] = "-source";
+		    argv[2] = theref;
+		    argv[3] = NULL;
+		
+		    getOutputFromBin(argv, NULL, 0, &buf, &buflen);
+		}
+		
 		fd = open(tmpfile, O_WRONLY | O_CREAT, 0666);
 		if (fd >= 0) {
-			write(fd, buf, buflen);
-			close(fd);
-			if (buf)
-				g_free(buf);
-			return XmHTMLImageDefaultProc(html_widget, 
-						      tmpfile, NULL, 0);
+		    write(fd, buf, buflen);
+		    close(fd);
 		}
+		
+		if (win->cache && !cached) {
+		    addToDataCache(win->cache, theref, buf, buflen);
+		}
+
+		return XmHTMLImageDefaultProc(html_widget, 
+					      tmpfile, NULL, 0);
 	}
 		
-	if (buf)
-		g_free(buf);
-
 	return NULL;
-
 }

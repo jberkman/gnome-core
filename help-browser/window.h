@@ -6,13 +6,15 @@
 
 #include "queue.h"
 #include "history.h"
+#include "cache.h"
 
 typedef struct _helpWindow *HelpWindow;
 
-/* Eventually this should return a window structure */
 HelpWindow helpWindowNew(GtkSignalFunc about_cb);
 void helpWindowShowURL(HelpWindow win, gchar *ref);
 void helpWindowSetHistory(HelpWindow win, History history);
+void helpWindowSetCache(HelpWindow win, DataCache cache);
+DataCache helpWindowGetCache(HelpWindow win);
 
 void helpWindowQueueAdd(HelpWindow w, gchar *ref);
 void helpWindowHistoryAdd(HelpWindow w, gchar *ref);
