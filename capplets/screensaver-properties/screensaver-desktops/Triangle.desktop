@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Triangle
+Name[es]=Triángulo
+Name[fr]=Triangle
 Name[no]=Triangel
 Comment=
 Exec=xscreensaver-command -activate

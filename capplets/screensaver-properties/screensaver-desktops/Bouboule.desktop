@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Bouboule
+Name[fr]=Bouboule
 Name[no]=Bouboule
 Comment=
 Exec=xscreensaver-command -activate

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Noseguy
+Name[es]=Narigudo
 Name[no]=Nesetype
 Comment=
 Exec=xscreensaver-command -activate

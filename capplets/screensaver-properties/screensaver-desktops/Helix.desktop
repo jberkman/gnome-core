@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Helix
+Name[es]=Hélice
+Name[fr]=Hélice
 Name[no]=Helix
 Comment=
 Exec=xscreensaver-command -activate

@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Spiral
+Name[es]=Espiral
+Name[fr]=Spirale
 Name[no]=Spiral
 Comment=
 Exec=xscreensaver-command -activate

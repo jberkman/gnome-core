@@ -24,20 +24,34 @@ Demo=ant -delay 2
 Name=Size
 Type=LRange
 LeftLabel=Small
+LeftLabel[es]=Pequeñas
+LeftLabel[fr]=Petites
 RightLabel=Large
+RightLabel[es]=Grandes
+RightLabel[fr]=Grandes
 Flag=-size
 ValType=I[1-20]=5
 Label=Size:
+Label[es]=Tamaño:
+Label[fr]=Taille:
 Comment=Changes the size of the ants.
+Comment[es]=Cambia el tamaño de las hormigas
+Comment[fr]=Change la taille des fourmis
 
 [Arg1]
 Name=Count
 Type=NRange
 LeftLabel=Ants:
+LeftLabel[es]=Hormigas:
+LeftLabel[fr]=Fourmis:
 Flag=-count
 ValType=I[1-10]=2
 Label=Number of ants.
+Label[es]=Cantidad de hormigas
+Label[fr]=Nombre de fourmis
 Comment=Changes the number of ants marching across the screen.
+Comment[es]=Cambia la cantidad de hormigas que deambulan por la pantalla
+Comment[fr]=Change le nombre de fourmis qui se belladent sur l'écran
 
 [Arg2]
 Name=Truchet
@@ -45,4 +59,8 @@ Type=Check
 Flag=-truchet
 Flag2=-no-truchet
 LeftLabel=Print the path that the ant took in the trail.
+LeftLabel[es]=Muestra las huellas dejadas por las hormigas
+LeftLabel[fr]=Affiche les empreintes laissées par les fourmis
 Comment=Determines whether or not the ant leaves a truchet in the path it leaves behind.
+Comment[es]=Determina si sí o no las hormigas van surcando un caminito por donde pasan.
+Comment[fr]=Determine si oui ou non les fourmis creusent un chemin lors de leur passage.

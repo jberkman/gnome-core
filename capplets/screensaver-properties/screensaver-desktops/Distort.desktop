@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Distort
 Name[es]=Distorción
+Name[fr]=Distortion
 Name[no]=Forvreng
 Comment=
 Exec=xscreensaver-command -activate

@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Halo
+Name[es]=Halo
+Name[fr]=Halo
 Name[no]=Halo
 Comment=
 Exec=xscreensaver-command -activate

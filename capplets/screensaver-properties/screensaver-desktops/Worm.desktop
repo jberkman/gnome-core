@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Worm
+Name[es]=Oruga
+Name[fr]=Chenille
 Name[no]=Orm
 Comment=
 Exec=xscreensaver-command -activate

@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Hypercube
+Name[es]=Hipercubo
+Name[fr]=Hypercube
 Name[no]=Hyperkube
 Comment=
 Exec=xscreensaver-command -activate

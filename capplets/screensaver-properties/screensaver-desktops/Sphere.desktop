@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Sphere
+Name[es]=Esfera
+Name[fr]=Sphère
 Name[no]=Sfære
 Comment=
 Exec=xscreensaver-command -activate

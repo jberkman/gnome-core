@@ -1,5 +1,7 @@
 [Desktop Entry]
 Name=Interference
+Name[es]=Interferencias
+Name[fr]=Interferences
 Name[no]=Forstyrrelser
 Comment=
 Exec=xscreensaver-command -activate
