@@ -321,7 +321,6 @@ launch_miniview (screensaver_data *sd)
         gchar *temp;
         gchar **argv;
         int p[2];
-        gint i;
 
         if (pid) {
                 kill (pid, SIGTERM);
@@ -344,10 +343,7 @@ launch_miniview (screensaver_data *sd)
                 return;
         }
         if (pid == 0) {
-                i = 0;
                 close (p[0]);
-                while (!i)
-                        ;
                 snprintf (xid, 11,"0x%x", GDK_WINDOW_XWINDOW (monitor->window));
                 temp = g_copy_strings (sd->demo, " ", sd->windowid, " ", xid, NULL);
                 argv = gnome_string_split (temp, " ", -1);
