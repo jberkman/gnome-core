@@ -40,6 +40,8 @@ PIXMAPS = close.xpm contents.xpm help.xpm left_arrow.xpm right_arrow.xpm
 EXTRA_DIST = gnome-help-browser-help.html \
 	     gnome-help-browser-topic.dat \
 	     default-page.html bg.xpm gnome-logo2.xpm \
+	     toc.c toc-man.c toc-ghelp.c toc-info.c \
+	     toc.h toc-man.h toc-ghelp.h toc-info.h \
 	     $(PIXMAPS) gnome-help.desktop
 
 help_browser_helpdir = $(datadir)/gnome/help/help-browser/C
