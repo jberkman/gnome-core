@@ -9,6 +9,7 @@ INCLUDES = 						\
 	-I$(top_builddir)/intl				\
 	$(GNOME_TERMINAL_CFLAGS)			\
 	-DGNOME_TERMINAL_PREFIX=\""$(prefix)"\"		\
+	-DGNOME_TERMINAL_DATADIR=\""$(datadir)"\" 	\
 	-DGNOME_TERMINAL_GLADEDIR=\""$(gladedir)"\"	\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""
 

@@ -1,3 +1,10 @@
+2001-10-10  Havoc Pennington  <hp@redhat.com>
+
+	* Makefile.am (INCLUDES): define a symbol for datadir
+
+	* gnome-terminal.c (new_terminal_cmd): pass datadir to 
+	bonobo_ui_util_set_ui
+
 2001-10-05  Michael Meeks  <michael@ximian.com>
 
 	* gnome-terminal.c (main_terminal_program): init via
