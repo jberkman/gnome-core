@@ -1,3 +1,8 @@
+1999-01-01  Tuomas Kuosmanen  <tigert@gimp.org>
+
+	* contents.xpm: Changed the pixmap so it is the same as 
+	gnome-stock 'index' icon.
+
 1998-12-17  Christopher Blizzard  <blizzard@appliedtheory.com>
 
 	* window.c (init_accel): Don't set up a new "grab_focus" signal
