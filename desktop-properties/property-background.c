@@ -1001,3 +1001,106 @@ background_register (GnomePropertyConfigurator *c)
 	background_imlib_init ();
 	gnome_property_configurator_register (config, background_action);
 }
+
+enum {
+	INIT_KEY      = -1,
+	WALLPAPER_KEY = -2,
+	COLOR_KEY     = -3,
+	ENDCOLOR_KEY  = -4,
+	ORIENT_KEY    = -5,
+	SOLID_KEY     = -6,
+	GRADIENT_KEY  = -7,
+	ALIGN_KEY     = -8
+};
+
+/* Options used by background properties.  */
+static struct argp_option arguments[] =
+{
+  { "init",                    -1,  NULL,        0, N_("Set parameters from saved state and exit"), 1 },
+  { "setwallpaper",  WALLPAPER_KEY, N_("IMAGE"), 0, N_("Sets the wallpaper to the value specified"), 1 },
+  { "color",         COLOR_KEY,     N_("COLOR"), 0, N_("Specifies the background color"), 1 },
+  { "endcolor",      ENDCOLOR_KEY,  N_("COLOR"), 0, N_("Specifies end background color for gradient"), 1 },
+  { "orient",        ORIENT_KEY,    N_("ORIENT"),0, N_("Gradient orientation: vertical or horizontal"), 1 },
+  { "solid",         SOLID_KEY,     NULL,        0, N_("Use a solid fill for the background"), 1 },
+  { "gradient",      GRADIENT_KEY,  NULL,        0, N_("Use a gradient fill for the background"), 1 },
+  { "wallpapermode", ALIGN_KEY,     N_("MODE"),  0, N_("Display wallpaper: tiled, centered, scaled or ratio"), 1 },
+  { NULL, 0, NULL, 0, NULL, 0 }
+};
+
+/* Forward decl of our parsing function.  */
+static error_t parse_func (int key, char *arg, struct argp_state *state);
+
+/* The parser used by this program.  */
+struct argp parser =
+{
+  arguments,
+  parse_func,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+
+static error_t
+parse_func (int key, char *arg, struct argp_state *state)
+{
+	char *align_keys [] = { "tiled", "centered", "scaled", "ratio" };
+	int i;
+	
+	switch (key){
+	case ARGP_KEY_ARG:
+		argp_usage (state);
+		return 0;
+
+	case INIT_KEY:
+		init = 1;
+		return 0;
+
+	case WALLPAPER_KEY:
+		gnome_config_set_string ("/Desktop/Background/wallpaper", arg);
+		init = need_sync = 1;
+		return 0;
+
+	case COLOR_KEY:
+		gnome_config_set_string ("/Desktop/Background/color1", arg);
+		init = need_sync = 1;
+		return 0;
+
+	case ENDCOLOR_KEY:
+		gnome_config_set_string ("/Desktop/Background/color2", arg);
+		gnome_config_set_string ("/Desktop/Background/simple", "gradient");
+		init = need_sync = 1;
+		return 0;
+
+	case ORIENT_KEY:
+		if (strcasecmp (arg, "vertical") == 0 || strcasecmp (arg, "horizontal") == 0){
+			gnome_config_set_string ("/Desktop/Background/gradient", arg);
+			init = need_sync = 1;
+			return 0;
+		} else
+			return ARGP_ERR_UNKNOWN;
+	case SOLID_KEY:
+		gnome_config_set_string ("/Desktop/Background/simple", "solid");
+		init = need_sync = 1;
+		return 0;
+
+	case GRADIENT_KEY:
+		gnome_config_set_string ("/Desktop/Background/simple", "gradient");
+		init = need_sync = 1;
+		return 0;
+
+	case ALIGN_KEY:
+		for (i = 0; i < 4; i++)
+			if (strcasecmp (align_keys [i], arg) == 0){
+				gnome_config_set_int ("/Desktop/Background/wallpaperAlign", i);
+				init = need_sync = 1;
+				return 0;
+			}
+		return ARGP_ERR_UNKNOWN;
+
+	default:
+		return ARGP_ERR_UNKNOWN;
+	}
+}
+
+

@@ -1,3 +1,11 @@
+1998-05-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* property-background.c (parse_func): Added command line parsing:
+	This lets you control the background from the command line
+	entirely. 
+	(args.c): New file.  Property configurators that do not require
+	any special argument handling include this one in their Makefiles.
+
 Sun May  3 11:33:33 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* main.c (property_main): If no previous session id, but `--init'

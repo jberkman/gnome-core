@@ -13,31 +13,8 @@ GnomePropertyConfigurator *display_config;
 /* This is true if we've ever changed the state with this program.  */
 static int state_changed = 0;
 
-
 /* True if we are running in initialize-then-exit mode.  */
-static int init = 0;
-
-/* Options used by this program.  */
-static struct argp_option arguments[] =
-{
-  { "init", -1, NULL, 0,
-    N_("Set parameters from saved state and exit"), 1 },
-  { NULL, 0, NULL, 0, NULL, 0 }
-};
-
-/* Forward decl of our parsing function.  */
-static error_t parse_func (int key, char *arg, struct argp_state *state);
-
-/* The parser used by this program.  */
-static struct argp parser =
-{
-  arguments,
-  parse_func,
-  NULL,
-  NULL,
-  NULL,
-  NULL
-};
+int init = 0;
 
 
 /* Enable the Apply button.  */
@@ -84,21 +61,6 @@ display_properties_setup (void)
 			    "destroy", (GtkSignalFunc) deleteFn, NULL);
 
 	gtk_widget_show (display_config->property_box);
-}
-
-static error_t
-parse_func (int key, char *arg, struct argp_state *state)
-{
-  if (key == ARGP_KEY_ARG)
-    {
-      /* This program has no command-line options.  */
-      argp_usage (state);
-    }
-  else if (key != -1)
-    return ARGP_ERR_UNKNOWN;
-
-  init = 1;
-  return 0;
 }
 
 int

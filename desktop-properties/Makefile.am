@@ -6,12 +6,14 @@ bin_PROGRAMS = mouse-properties keyboard-properties background-properties
 
 mouse_properties_SOURCES =	\
 	main.c			\
+	args.c			\
 	property-mouse.c	\
 	gnome-desktop.h		\
 	app-mouse.c
 
 keyboard_properties_SOURCES =	\
 	main.c			\
+	args.c			\
         property-keyboard.c	\
 	gnome-desktop.h		\
 	app-keyboard.c

@@ -3,6 +3,9 @@
 #include <config.h>
 #include "gnome-desktop.h"
 
+/* If true, we need to call gnome_config_sync () */
+int need_sync = 0;
+
 extern void background_register (GnomePropertyConfigurator *c);
 extern void screensaver_register (GnomePropertyConfigurator *c);
 
@@ -33,5 +36,10 @@ application_register (GnomePropertyConfigurator *pconf)
 int
 main (int argc, char *argv[])
 {
-  return (property_main ("background_properties", argc, argv));
+	int v;
+	
+	v = property_main ("background_properties", argc, argv);
+	if (need_sync)
+		gnome_config_sync ();
+	return v;
 }

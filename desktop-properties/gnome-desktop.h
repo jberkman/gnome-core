@@ -34,6 +34,13 @@ char *application_title (void);
    mutex.  */
 char *application_property (void);
 
+extern int init;
+
+extern int need_sync;
+
+/* Options used by this program.  */
+extern struct argp parser;
+
 END_GNOME_DECLS
 
 #endif
