@@ -32,6 +32,7 @@ void revert_button_callback(GtkWidget *widget, gpointer data);
 void ok_button_callback(GtkWidget *widget, gpointer data);
 void cancel_button_callback(GtkWidget *widget, gpointer data);
 void help_button_callback(GtkWidget *widget, gpointer data);
+void close_capplet (GtkWidget *widget, gpointer data);
 node_data *
 find_node_by_id (gint id)
 {
@@ -132,6 +133,8 @@ launch_capplet (node_data *data)
 void try_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
+        gtk_widget_set_sensitive (nd->try_button, FALSE);
+
         GNOME_capplet_try (nd->capplet,nd->id, &ev);
 }
 void revert_button_callback(GtkWidget *widget, gpointer data)
@@ -143,22 +146,31 @@ void ok_button_callback(GtkWidget *widget, gpointer data)
 {
         node_data *nd = (node_data *) data;
         GNOME_capplet_ok (nd->capplet,nd->id, &ev);
+        close_capplet (widget, data);
 }
 void cancel_button_callback(GtkWidget *widget, gpointer data)
 {
+        revert_button_callback (widget, data);
+        close_capplet (widget, data);
+}
+void close_capplet (GtkWidget *widget, gpointer data)
+{
         node_data *nd = (node_data *) data;
         GList *temp;
-        revert_button_callback (widget, data);
+
         gtk_notebook_remove_page (GTK_NOTEBOOK (notebook), nd->notetab_id);
         nd->id = -1;
-
+        nd->modified = FALSE;
         capplet_list = g_list_remove (capplet_list, nd);
+        if (nd->capplet) {
+                CORBA_Object_release (nd->capplet, &ev);
+                nd->capplet = NULL;
+        }
         for (temp = capplet_list; temp; temp = temp->next)
                 if (((node_data*)temp->data)->notetab_id > nd->notetab_id)
                         ((node_data*)temp->data)->notetab_id -=1;
                         
         if (--current_page == 0) {
-
                 gtk_container_remove (GTK_CONTAINER (container), notebook);
                 notebook = NULL;
                 gtk_container_border_width (GTK_CONTAINER (container), 5);

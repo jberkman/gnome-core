@@ -176,6 +176,7 @@ void
 _capplet_widget_server_try(gint id)
 {
         GtkWidget *capplet = get_widget_by_id (id);
+        CAPPLET_WIDGET (capplet)->changed = FALSE;
         gtk_signal_emit_by_name(GTK_OBJECT (capplet) ,"try");
 }
 void

@@ -135,6 +135,7 @@ orb_handle_connection(GIOPConnection *cnx, gint source, GdkInputCondition cond)
 void
 capplet_corba_gtk_main_quit (void)
 {
+        CORBA_Object_release (control_center, &ev);
         CORBA_ORB_shutdown(orb, CORBA_FALSE, &ev);
         gtk_main_quit();
 
