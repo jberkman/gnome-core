@@ -32,6 +32,7 @@ background_properties_SOURCES =	\
 
 LDADD = \
 	$(GNOME_LIBDIR)					\
+	-lgdk_imlib					\
 	$(GNOMEUI_LIBS)					\
         @XF86MISC_LIBS@					\
 	$(INTLLIBS)

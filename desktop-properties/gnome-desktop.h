@@ -9,15 +9,16 @@ BEGIN_GNOME_DECLS
 void register_extension (GtkWidget *title_widget, GtkWidget *content_widget,
 			 int (*callback)(GnomePropertyRequest));
 
-#define GNOME_MONITOR_WIDGET_X 20
-#define GNOME_MONITOR_WIDGET_Y 10
-#define GNOME_MONITOR_WIDGET_WIDTH 157
-#define GNOME_MONITOR_WIDGET_HEIGHT 111
-
 #define GNOME_PAD 10
 
-GtkWidget *get_monitor_preview_widget (GtkWidget *window);
+/* Keep these in sync with the monitor image */
 
+#define MONITOR_CONTENTS_X 20
+#define MONITOR_CONTENTS_Y 10
+#define MONITOR_CONTENTS_WIDTH 157
+#define MONITOR_CONTENTS_HEIGHT 111
+
+GtkWidget *get_monitor_preview_widget (void);
 
 /* A property sheet should call this function when the user has made
    a change that could be applied.  */

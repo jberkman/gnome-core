@@ -3,7 +3,8 @@
 #include <config.h>
 #include <stdio.h>
 
-#include "gnome.h"
+#include <gnome.h>
+#include <gdk_imlib.h>
 #include "gnome-desktop.h"
 
 
@@ -16,6 +17,9 @@ static GtkWidget *apply_button;
 
 /* This is true if we've ever changed the state with this program.  */
 static int state_changed = 0;
+
+static GdkImlibImage *monitor_image;
+
 
 /* True if we are running in initialize-then-exit mode.  */
 static int init = 0;
@@ -43,23 +47,34 @@ static struct argp parser =
 };
 
 
-
 GtkWidget *
-get_monitor_preview_widget (GtkWidget *window)
+get_monitor_preview_widget (void)
 {
 	GtkWidget *pwid;
-	GdkPixmap *pixmap, *mask;
-	GtkStyle  *style;
+	GdkPixmap *pixmap;
+	GdkBitmap *mask;
 	char *f;
-	
-	style = gtk_widget_get_style (window);
-	f = gnome_datadir_file ("pixmaps/monitor.xpm");
-	/* FIXME if f is 0, alert () */
-	pixmap = gdk_pixmap_create_from_xpm (window->window, &mask,
-					     &style->bg [GTK_STATE_NORMAL], f);
-	free (f);
+
+	if (!monitor_image) {
+		f = gnome_pixmap_file ("monitor.xpm");
+		monitor_image = gdk_imlib_load_image (f);
+		gdk_imlib_render (monitor_image,
+				  monitor_image->rgb_width,
+				  monitor_image->rgb_height);
+		g_free(f);
+	}
+
+	gtk_widget_push_visual (gdk_imlib_get_visual ());
+	gtk_widget_push_colormap (gdk_imlib_get_colormap ());
+
+	pixmap = gdk_imlib_copy_image (monitor_image);
+	mask = gdk_imlib_copy_mask (monitor_image);
 
 	pwid = gtk_pixmap_new (pixmap, mask);
+
+	gtk_widget_pop_colormap ();
+	gtk_widget_pop_visual ();
+
 	gtk_widget_show (pwid);
 
 	return pwid;
@@ -75,6 +90,11 @@ property_changed (void)
 static gint
 deleteFn (GtkWidget *widget, gpointer *data)
 {
+	if (monitor_image) {
+		gdk_imlib_destroy_image (monitor_image);
+		monitor_image = NULL;
+	}
+
 	gtk_widget_destroy (main_window);
 	gtk_main_quit ();
 
@@ -91,19 +111,19 @@ help (GtkWidget *w, gpointer *data)
 static void
 display_properties_action (GtkWidget *w, gint close)
 {
-  gnome_property_configurator_request_foreach (display_config,
-					       GNOME_PROPERTY_APPLY);
+	gnome_property_configurator_request_foreach (display_config,
+						     GNOME_PROPERTY_APPLY);
 
-  state_changed = 1;
-  gtk_widget_set_sensitive (apply_button, FALSE);
+	state_changed = 1;
+	gtk_widget_set_sensitive (apply_button, FALSE);
 
-  if (close)
-    {
-      gnome_property_configurator_request_foreach (display_config,
-						   GNOME_PROPERTY_WRITE);
-      gnome_config_sync ();
-      deleteFn (NULL, NULL);
-    }
+	if (close) {
+		gnome_property_configurator_request_foreach (display_config,
+							     GNOME_PROPERTY_WRITE);
+		gnome_config_sync ();
+
+		deleteFn (NULL, NULL);
+	}
 }
 
 void

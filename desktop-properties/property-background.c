@@ -14,8 +14,9 @@
 
 #include <gdk/gdkx.h>
 
-#include "gnome.h"
+#include <gnome.h>
 #include "gnome-desktop.h"
+
 
 static GnomePropertyConfigurator *config;
 
@@ -52,7 +53,6 @@ enum {
 	BACKGROUND_SIMPLE,
 	BACKGROUND_WALLPAPER,
 };
-
 
 static GdkColor  bgColor1, bgColor2;
 
@@ -184,23 +184,23 @@ fill_monitor (void)
 							  &bgColor1, wpFileName);
 			gdk_window_get_size (pix, &w, &h);
 			
-			for (yoff = 0; yoff < GNOME_MONITOR_WIDGET_HEIGHT;
+			for (yoff = 0; yoff < MONITOR_CONTENTS_HEIGHT;
 			     yoff += h)
-				for (xoff = 0; xoff < GNOME_MONITOR_WIDGET_WIDTH;
+				for (xoff = 0; xoff < MONITOR_CONTENTS_WIDTH;
 				     xoff += w) {
 					gdk_window_copy_area
 						(screen,
 						 monitor->style->black_gc,
-						 GNOME_MONITOR_WIDGET_X + xoff,
-						 GNOME_MONITOR_WIDGET_Y + yoff,
+						 MONITOR_CONTENTS_X + xoff,
+						 MONITOR_CONTENTS_Y + yoff,
 						 pix,
 						 0, 0,
-						 (xoff+w > GNOME_MONITOR_WIDGET_WIDTH)
+						 (xoff+w > MONITOR_CONTENTS_WIDTH)
 						 ?
-						 GNOME_MONITOR_WIDGET_WIDTH - xoff : w,
-						 (yoff+h > GNOME_MONITOR_WIDGET_HEIGHT)
+						 MONITOR_CONTENTS_WIDTH - xoff : w,
+						 (yoff+h > MONITOR_CONTENTS_HEIGHT)
 						 ?
-						 GNOME_MONITOR_WIDGET_HEIGHT - yoff : h
+						 MONITOR_CONTENTS_HEIGHT - yoff : h
 						 );
 
 				}
@@ -215,13 +215,13 @@ fill_monitor (void)
 			gtk_preview_put (GTK_PREVIEW (preview),
 					 screen,
 					 monitor->style->black_gc,
-					 GNOME_MONITOR_WIDGET_X,
-					 GNOME_MONITOR_WIDGET_Y,
+					 MONITOR_CONTENTS_X,
+					 MONITOR_CONTENTS_Y,
 					 0, 0,
-					 GNOME_MONITOR_WIDGET_WIDTH+
-					 GNOME_MONITOR_WIDGET_X,
-					 GNOME_MONITOR_WIDGET_HEIGHT+
-					 GNOME_MONITOR_WIDGET_Y);
+					 MONITOR_CONTENTS_WIDTH+
+					 MONITOR_CONTENTS_X,
+					 MONITOR_CONTENTS_HEIGHT+
+					 MONITOR_CONTENTS_Y);
 
 			if (bgType == BACKGROUND_WALLPAPER &&
 			    wpType == WALLPAPER_CENTERED) {
@@ -236,8 +236,8 @@ fill_monitor (void)
 								  wpFileName);
 
 				gdk_window_get_size (pix, &w, &h);
-				xoff = (GNOME_MONITOR_WIDGET_WIDTH - w) >> 1;
-				yoff = (GNOME_MONITOR_WIDGET_HEIGHT - h) >> 1;
+				xoff = (MONITOR_CONTENTS_WIDTH - w) >> 1;
+				yoff = (MONITOR_CONTENTS_HEIGHT - h) >> 1;
 				if (xoff < 0) xoff = 0;
 				if (yoff < 0) yoff = 0;
 				/* printf ("copy area\n"); */
@@ -248,23 +248,23 @@ fill_monitor (void)
 						 mask);
 					gdk_gc_set_clip_origin
 						(monitor->style->black_gc,
-						 GNOME_MONITOR_WIDGET_X + xoff,
-						 GNOME_MONITOR_WIDGET_Y + yoff);
+						 MONITOR_CONTENTS_X + xoff,
+						 MONITOR_CONTENTS_Y + yoff);
 				}
 
 				gdk_window_copy_area
 					(screen,
 					 monitor->style->black_gc,
-					 GNOME_MONITOR_WIDGET_X + xoff,
-					 GNOME_MONITOR_WIDGET_Y + yoff,
+					 MONITOR_CONTENTS_X + xoff,
+					 MONITOR_CONTENTS_Y + yoff,
 					 pix,
 					 0, 0,
-					 (xoff+w > GNOME_MONITOR_WIDGET_WIDTH)
+					 (xoff+w > MONITOR_CONTENTS_WIDTH)
 					 ?
-					 GNOME_MONITOR_WIDGET_WIDTH - xoff : w,
-					 (yoff+h > GNOME_MONITOR_WIDGET_HEIGHT)
+					 MONITOR_CONTENTS_WIDTH - xoff : w,
+					 (yoff+h > MONITOR_CONTENTS_HEIGHT)
 					 ?
-					 GNOME_MONITOR_WIDGET_HEIGHT - yoff : h
+					 MONITOR_CONTENTS_HEIGHT - yoff : h
 					 );
 				
 				if (mask) {
@@ -821,13 +821,13 @@ background_setup ()
 	hbox = gtk_hbox_new (TRUE, 0);
 	gtk_container_border_width (GTK_CONTAINER(hbox), GNOME_PAD);
 
-	monitor = get_monitor_preview_widget (config->notebook);
+	monitor = get_monitor_preview_widget ();
 	screen = GTK_PIXMAP (monitor)->pixmap;
 
 	preview = gtk_preview_new(GTK_PREVIEW_COLOR);
 	gtk_preview_size(GTK_PREVIEW(preview),
-			 GNOME_MONITOR_WIDGET_WIDTH,
-			 GNOME_MONITOR_WIDGET_HEIGHT);
+			 MONITOR_CONTENTS_WIDTH,
+			 MONITOR_CONTENTS_HEIGHT);
 	
 	gtk_box_pack_start (GTK_BOX(hbox), monitor, FALSE, FALSE, 0);
 

@@ -1,3 +1,6 @@
+1998-02-17  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* gnome-desktop.h: Moved the gnome_monitor stuff to property-background.c.
 Sun Mar  8 18:40:05 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* property-mouse.c (mouse_read): rtol_default now gboolean.

@@ -26,7 +26,7 @@
 #include	<string.h>
 
 #ifdef	HAVE_GNOME
-#  include	<libgnomeui/libgnomeui.h>
+#  include	<gnome.h>
 #endif	HAVE_GNOME
 
 #ifdef	HAVE_LIBGLE
@@ -114,7 +114,7 @@ main	(int	argc,
   /* Gtk+/GNOME/GLE initialization
    */
 #ifdef	HAVE_GNOME
-  gnome_init("gemvt", &argc, &argv);
+  gnome_init("gemvt", NULL, &argc, &argv, 0, NULL);
 #else	/* !HAVE_GNOME */
   gtk_init (&argc, &argv);
 #endif	/* !HAVE_GNOME */

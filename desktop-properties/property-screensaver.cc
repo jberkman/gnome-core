@@ -39,10 +39,10 @@ ConfigScreenSaver::select_mode (GtkWidget *, GdkEventButton *, SelectInfo *si)
 	si->m->run (SS_PREVIEW,
 		    (gint)(GTK_RANGE (si->th->nice)->adjustment->value),
 		    si->th->monitor,
-		    GNOME_MONITOR_WIDGET_X,
-		    GNOME_MONITOR_WIDGET_Y+6,
-		    GNOME_MONITOR_WIDGET_WIDTH,
-		    GNOME_MONITOR_WIDGET_HEIGHT);
+		    MONITOR_CONTENTS_X,
+		    MONITOR_CONTENTS_Y+6,
+		    MONITOR_CONTENTS_WIDTH,
+		    MONITOR_CONTENTS_HEIGHT);
 	property_changed ();
 }
 
@@ -277,10 +277,10 @@ runPreviewXLock (GtkWidget *w, ConfigScreenSaver *c)
 		c->curMode->run (SS_PREVIEW,
 				 (gint)(GTK_RANGE (c->nice)->adjustment->value),
 				 c->monitor,
-				 GNOME_MONITOR_WIDGET_X,
-				 GNOME_MONITOR_WIDGET_Y,
-				 GNOME_MONITOR_WIDGET_WIDTH,
-				 GNOME_MONITOR_WIDGET_HEIGHT);
+				 MONITOR_CONTENTS_X,
+				 MONITOR_CONTENTS_Y,
+				 MONITOR_CONTENTS_WIDTH,
+				 MONITOR_CONTENTS_HEIGHT);
 }
 
 static void
@@ -315,7 +315,7 @@ ConfigScreenSaver::setup ()
 	bottom = gtk_hbox_new (FALSE, GNOME_PAD);
 	gtk_container_border_width (GTK_CONTAINER (bottom), GNOME_PAD);
 
-	this->monitor = get_monitor_preview_widget (config->notebook);
+	this->monitor = get_monitor_preview_widget ();
 	gtk_signal_connect (GTK_OBJECT (monitor), "map",
 			    (GtkSignalFunc) runPreviewXLock, this);
 	gtk_signal_connect (GTK_OBJECT (monitor), "unmap",
@@ -340,7 +340,8 @@ ConfigScreenSaver::setup ()
 	gtk_widget_show (bottom);
 	gtk_widget_show (vbox);
 
-	gtk_list_select_item (GTK_LIST (mlist), curMode->lp);
+	if (curMode)
+		gtk_list_select_item (GTK_LIST (mlist), curMode->lp);
 
 	gtk_notebook_append_page (GTK_NOTEBOOK (config->notebook),
 				  vbox,
