@@ -156,12 +156,31 @@ static void edit_area_sync_to(Desktop_Data *dd, Edit_Area *ea)
 		}
 
 	gnome_dentry_edit_set_dentry(GNOME_DENTRY_EDIT(ea->dee), dentry);
-	gnome_desktop_entry_destroy(dentry);
+
+	/* ugly hack - cause warning otherwise because we didnt make a */
+	/*             real dentry above in case of directory          */
+	if (dd->isfolder) {
+	  g_free(dentry->name);
+	  g_free(dentry->type);
+	  g_free(dentry);
+	} else {
+	  gnome_desktop_entry_destroy(dentry);
+	}
 
 	g_free(ea->path);
 	ea->path = g_strdup(path);
 
-	if (ea->revert) gnome_desktop_entry_destroy(ea->revert);
+	/* same hack as above */
+	if (ea->revert)
+	  if (dentry->type && ea->revert->location) {
+	    gnome_desktop_entry_destroy(ea->revert);
+	  } else {
+	    if (ea->revert->name) g_free(ea->revert->name);
+	    if (ea->revert->icon) g_free(ea->revert->icon);
+	    if (ea->revert->type) g_free(ea->revert->type);
+	    g_free(ea->revert);
+	  }	  
+	  
 	ea->revert = gnome_dentry_get_dentry(GNOME_DENTRY_EDIT(ea->dee));
 
 	if (dd->isfolder)

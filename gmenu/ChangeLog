@@ -1,3 +1,12 @@
+1999-04-07  Michael Fulbright  <msf@majestic.labs.redhat.com>
+
+	* edit.c: hacked to not spit out so many warnings - it
+	is creating incomplete dentries by hand and when
+	gnome_desktop_entry_destroy() is called, location=NULL and
+	we get complaints from GNOME.
+
+	This needs to be addressed in a more complete way in the long term.
+
 1999-03-25  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* Makefile.am (gmenu_SOURCES): Put gmenu.h in the list of sources.
