@@ -1,3 +1,9 @@
+2001-02-25  Gediminas Paulauskas <menesis@delfi.lt>
+
+	* htmlurl.h: removed an enum which is in gtkhtml/htmlenums.h. include
+	that.
+	* window.c: gtkhtml include fixes, shut a couple of warnings.
+
 Sun Feb 04 20:35:16 2001  George Lebl <jirka@5z.com>
 
 	* Makefile.am: Apply patch from "Adam J. Richter" <adam@yggdrasil.com>

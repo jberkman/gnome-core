@@ -25,6 +25,7 @@
 #define _HTMLURL_H
 
 #include <glib.h>
+#include <gtkhtml/htmlenums.h>
 
 struct _HTMLURL {
 	gchar *protocol;
@@ -36,21 +37,6 @@ struct _HTMLURL {
 	gchar *reference;
 };
 typedef struct _HTMLURL HTMLURL;
-
-
-enum _HTMLURLDupFlags {
-	HTML_URL_DUP_ALL = 0,
-	HTML_URL_DUP_NOPROTOCOL = 1 << 0,
-	HTML_URL_DUP_NOUSERNAME = 1 << 1,
-	HTML_URL_DUP_NOPASSWORD = 1 << 2,
-	HTML_URL_DUP_NOHOSTNAME = 1 << 3,
-	HTML_URL_DUP_NOPORT = 1 << 4,
-	HTML_URL_DUP_NOPATH = 1 << 5,
-	HTML_URL_DUP_NOREFERENCE = 1 << 6,
-	HTML_URL_DUP_NOCGIARGS = 1 << 7
-};
-typedef enum _HTMLURLDupFlags HTMLURLDupFlags;
-
 
 
 HTMLURL *html_url_new (const gchar *s);
