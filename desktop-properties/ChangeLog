@@ -1,3 +1,8 @@
+1998-05-05  Michael Fulbright  <msf@redhat.com>
+
+	* property-mouse.c: fixed labels for Fast/Slow and Large/Small,
+	and made the right/left buttons work as expected
+
 1998-05-05  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* property-background.c: New functions that wrap fill_monitor()

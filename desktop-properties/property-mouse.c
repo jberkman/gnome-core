@@ -211,8 +211,8 @@ mouse_setup (void)
   rbutton = gtk_radio_button_new_with_label (gtk_radio_button_group (GTK_RADIO_BUTTON (lbutton)),
 					     _("Right handed"));
   gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON ((mouse_rtol
-						   ? rbutton
-						   : lbutton)), TRUE);
+						   ? lbutton
+						   : rbutton)), TRUE);
   gtk_signal_connect (GTK_OBJECT (lbutton), "clicked",
 		      GTK_SIGNAL_FUNC (button_toggled),
 		      (gpointer) 1);
@@ -238,7 +238,7 @@ mouse_setup (void)
   gtk_widget_show (table);
 
   adjust = gtk_adjustment_new (mouse_acceleration, 0, 2 * MAX_ACCEL + 1, 1, 1, 1);
-  make_scale (_("Acceleration"), _("Slow"), _("Fast"),
+  make_scale (_("Acceleration"), _("Fast"), _("Slow"),
 	      adjust, &mouse_acceleration, table, 0);
 
   sep = gtk_hseparator_new ();
@@ -250,7 +250,7 @@ mouse_setup (void)
   gtk_widget_show (sep);
 
   adjust = gtk_adjustment_new (mouse_thresh, 0, MAX_THRESH, 1, 1, 1);
-  make_scale (_("Threshold"), _("Small"), _("Large"),
+  make_scale (_("Threshold"), _("Large"), _("Small"),
 	      adjust, &mouse_thresh, table, 3);
 
   /* Done */
