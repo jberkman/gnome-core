@@ -1,6 +1,11 @@
-/*###################################################################*/
-/*##                       gmenu (GNOME menu editor) 0.3.1         ##*/
-/*###################################################################*/
+/*
+ * This file is a part of gmenu, the GNOME panel menu editor.
+ *
+ * File: gmenu.h
+ *
+ * This is the header file.
+ * 
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +20,8 @@
 
 	/* definitions */
 #define GMENU_VERSION_MAJOR 0
-#define GMENU_VERSION_MINOR 3
-#define GMENU_VERSION_REV 2
+#define GMENU_VERSION_MINOR 99
+#define GMENU_VERSION_REV 0
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data

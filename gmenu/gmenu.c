@@ -306,7 +306,7 @@ static void about_cb(GtkWidget *w, gpointer data)
 	authors[2] = NULL;
 
 	about = gnome_about_new ( _("GNOME menu editor"), version,
-			"(C) 1998,1999",
+			"(C) 1999",
 			authors,
 			_("Released under the terms of the GNU Public License.\n"
 			"GNOME menu editor."),
