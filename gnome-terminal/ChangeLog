@@ -1,5 +1,8 @@
 1999-05-28  Jacob Berkman  <jberkman@andrew.cmu.edu>
 
+	* gnome-terminal.c (show_pty_error_dialog): couple changes to
+	the previous patch
+
 	* .cvsignore: added .libs
 
 	* gnome-terminal.c (new_terminal_cmd): display an error dialog

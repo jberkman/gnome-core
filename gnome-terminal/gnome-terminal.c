@@ -1649,13 +1649,15 @@ term_change_pos(GtkWidget *widget)
 
 /* do this because there have been only 5 bug reports about this */
 static void
-show_pty_error_dialog ()
+show_pty_error_dialog (int errcode)
 {
 	char *tmpmsg, *errmsg;
 	GtkWidget *dialog;
 
-	tmpmsg = errno ? 
-		g_strdup_printf(_("The error was: %s"), g_strerror(errno)) : 
+	perror ("Error: unable to fork");
+
+	tmpmsg = errcode ? 
+		g_strdup_printf(_("The error was: %s"), g_strerror(errcode)) : 
 		_("If you are using Linux 2.2.x with glibc 2.1.x, this\n"
 		  "is probably due to incorrectly setup Unix98 ptys.\n\n"
 		  "Please read linux/Documentation/Changes for how to\n"
@@ -1671,7 +1673,7 @@ show_pty_error_dialog ()
 							
 	gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
 
-	if (errno) g_free(tmpmsg);
+	if (errcode) g_free(tmpmsg);
 	g_free(errmsg);
 }
 
@@ -1847,11 +1849,10 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 
 	gdk_window_set_hints (((GtkWidget *)app)->window,
 			      0, 0, 50, 50, 0, 0, GDK_HINT_MIN_SIZE);
-
+	errno = 0;
 	switch (zvt_term_forkpty (term, update_records)){
 	case -1:
-		show_pty_error_dialog();
-		perror("Error: unable to fork");
+		show_pty_error_dialog(errno);
 		/* should we exit maybe? */
 		return NULL;
 		
