@@ -62,6 +62,10 @@ gfloat    e_opt_number_of_desks = 6;
 
 GList    *backgrounds = NULL;
 
+Background *deskbg[32];
+GtkWidget  *deskbt[32];
+gint        curdesk = 0;
+
 FILE *eesh = NULL;
 
 static void
@@ -101,6 +105,35 @@ e_try (void)
 	     e_opt_saveunders
 	     );
   system(cmd);
+    {
+      gint i, d;
+      Background *bg;
+      gchar buf[256];
+      
+      for (i = 0; i < g_list_length(backgrounds); i++)
+	{
+	  if (g_list_nth(backgrounds, i))
+	    bg = (g_list_nth(backgrounds, i))->data;
+	  if (bg)
+	    {
+	      gint j;
+	      
+	      g_snprintf(cmd, sizeof(cmd), "eesh -e \"use_bg %s ",
+			 bg->name);
+	      for (j = 0; j < 32; j++)
+		{
+		  if (deskbg[j] == bg)
+		    {
+		      g_snprintf(buf, sizeof(buf), "%i ", j);
+		      strcat(cmd, buf);
+		    }
+		}
+	      strcat(cmd, "\"");
+	      printf("%s\n", cmd);
+	      system(cmd);
+	    }
+	}
+    }
 }
 
 static void
@@ -242,6 +275,43 @@ e_read (void)
     }
   pclose(eesh);
   eesh = NULL;
+    {
+      gint i, d;
+      Background *bg;
+      
+      for (i = 0; i < g_list_length(backgrounds); i++)
+	{
+	  if (g_list_nth(backgrounds, i))
+	    bg = (g_list_nth(backgrounds, i))->data;
+	  if (bg)
+	    {
+	      if (!eesh)
+		{
+		  g_snprintf(cmd, sizeof(cmd), "eesh -ewait \"uses_bg %s\"",
+			     bg->name);
+		  eesh = popen(cmd, "r");
+		  if (!eesh)
+		    return;
+		}
+	      fgets(buf, sizeof(buf), eesh);
+	      while (fgets(buf, sizeof(buf), eesh))
+		{
+		  if ((strlen(buf) > 0) && (buf[strlen(buf) - 1] == '\n'))
+		    buf[strlen(buf) - 1] = 0;
+		  if (sscanf(buf, "%i", &d) > 0)
+		    {
+		      if (d < 0)
+			d = 0;
+		      if (d > 31)
+			d = 31;
+		      deskbg[d] = bg;
+		    }
+		}
+	      pclose(eesh);
+	      eesh = NULL;
+	    }
+	}
+    }
 }
 
 static void
@@ -896,20 +966,36 @@ e_cb_bg_display(GtkWidget *widget, gint num)
   Background *bg = NULL;
   GdkPixmap *pmap;
   GtkWidget *area;
+  gint d;
     
   if (!(GTK_TOGGLE_BUTTON(widget)->active))
     return;
   area = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(widget), "area");
+  d = (gint)gtk_object_get_data(GTK_OBJECT(widget), "desk");
+  curdesk = d;
   pmap = gdk_pixmap_new(area->window, 128, 96, -1);
   gdk_window_set_back_pixmap(area->window, pmap, FALSE);
   gdk_flush();
-  if (g_list_nth(backgrounds, num))
-    bg = (g_list_nth(backgrounds, num))->data;
-  if (bg)
-    e_render_bg_onto(pmap, bg);
+  if (deskbg[d])
+    e_render_bg_onto(pmap, deskbg[d]);
   gdk_window_clear(area->window);
   gdk_pixmap_unref(pmap);
-  widget = NULL;  
+  widget = NULL;
+}
+
+static void
+e_cb_bg_sel(GtkWidget *widget, gpointer data)
+{
+  Background *bg;
+
+  bg = (Background *)gtk_object_get_data(GTK_OBJECT(widget), "bg");
+
+  printf("BLAH\n");
+  
+  if (!bg)
+    return;
+  deskbg[curdesk] = bg;
+  e_cb_bg_display(deskbt[curdesk], curdesk);
 }
 
 static void
@@ -971,7 +1057,7 @@ e_setup_desktops (GtkWidget *c)
 	{
 	  Background *bg = NULL;
 	  GdkPixmap *pmap;
-	  GtkWidget *l_hb, *l_label, *l_pixmap;
+	  GtkWidget *l_hb, *l_label, *l_pixmap, *l_item;
 	  
 	  pmap = gdk_pixmap_new(c->window, 128, 96, -1);
 	  gdk_flush();
@@ -979,18 +1065,24 @@ e_setup_desktops (GtkWidget *c)
 	    bg = (g_list_nth(backgrounds, i))->data;
 	  if (bg)
 	    e_render_bg_onto(pmap, bg);
+	  l_item = gtk_list_item_new();
+	  gtk_object_set_data(GTK_OBJECT(l_item), "bg", bg);
+	  gtk_widget_show(l_item);
 	  l_hb = gtk_hbox_new(FALSE, 1);
 	  gtk_container_border_width(GTK_CONTAINER(l_hb), 1);
 	  gtk_widget_show(l_hb);
+	  gtk_container_add(GTK_CONTAINER(l_item), l_hb);
 	  l_pixmap = gtk_pixmap_new(pmap, NULL);
 	  gtk_widget_show(l_pixmap);
 	  gtk_box_pack_start(GTK_BOX(l_hb), l_pixmap, FALSE, FALSE, 0);
 	  l_label = gtk_label_new(_("Memory required:\n4 Mb"));
 	  gtk_widget_show(l_label);
 	  gtk_box_pack_start(GTK_BOX(l_hb), l_label, FALSE, FALSE, 2);
+	  gtk_signal_connect(GTK_OBJECT(l_item), "select",
+		     GTK_SIGNAL_FUNC(e_cb_bg_sel), NULL);
 	  
 	  gdk_pixmap_unref(pmap);
-	  items = g_list_append(items, l_hb);
+	  items = g_list_append(items, l_item);
 	}
       gtk_list_append_items(GTK_LIST(list), items);
     }
@@ -1040,9 +1132,11 @@ e_setup_desktops (GtkWidget *c)
 	  GTK_TOGGLE_BUTTON(bt)->draw_indicator = 0;
 	  btl = g_list_append(btl, bt);
 	  gtk_table_attach_defaults(GTK_TABLE(table), bt, j, j + 1, i, i + 1);
+	  gtk_object_set_data(GTK_OBJECT(bt), "desk", (gpointer)((i * 8) + j));
 	  gtk_object_set_data(GTK_OBJECT(bt), "area", area);
 	  gtk_signal_connect(GTK_OBJECT(bt), "toggled",
 		     GTK_SIGNAL_FUNC(e_cb_bg_display), (gpointer)((i * 8) + j));
+	  deskbt[(i * 8) + j] = bt;
 	}
     }
   for (i = 0; i < 32; i ++)
@@ -1056,6 +1150,7 @@ e_setup_desktops (GtkWidget *c)
   e_add_widget_to_frame(frame2, table);
   gtk_widget_realize(area);
 
+  e_cb_bg_display(deskbt[curdesk], curdesk);
   capplet_widget_state_changed(CAPPLET_WIDGET(c), FALSE);
 }
 
@@ -1124,7 +1219,11 @@ int
 main (int argc, char **argv)
 {
   GtkWidget *capplet;
+  gint i;
   
+  for (i = 0; i < 32; i++)
+    deskbg[i] = NULL;
+
   e_read();
 
   gnome_capplet_init("Enlightenment Configuration", NULL, argc, argv, 0, NULL);
