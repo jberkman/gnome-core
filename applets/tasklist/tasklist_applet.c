@@ -622,6 +622,10 @@ real_layout_tasklist (Tasklist *tasklist, gboolean call_change_size)
 			int width;
 
 			width = tasklist->config.horz_taskwidth * num_cols + DRAG_HANDLE_SIZE;
+
+			if (width > tasklist->config.horz_width)
+				width = tasklist->config.horz_width;
+			
 			if (tasklist->config.horz_never_push)
 				clamp_size (tasklist, &width);
 

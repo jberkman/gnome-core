@@ -1,3 +1,12 @@
+2001-02-04  Anders Carlsson  <andersca@codefactory.se>
+
+	* tasklist_menu.c (cb_activate_task): Add function.
+	(create_task_item): Make it possible to click-drag in a menu
+	to activate a task.
+
+	* tasklist_applet.c (real_layout_tasklist): If width > specified,
+	set width = specified.
+
 2001-01-30  jacob berkman  <jacob@ximian.com>
 
 	* tasklist_menu.c (tasklist_group_popup):

@@ -186,10 +186,9 @@ add_menu_item (TasklistTask *task, gchar *name, GtkWidget *menu, MenuAction acti
 	}
 
 	gtk_object_set_data (GTK_OBJECT (menuitem), "task", task);
-
 	gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			    GTK_SIGNAL_FUNC (cb_menu), GINT_TO_POINTER (action));
-
+	
 	if (task->group && task->group->menu)
 		gtk_signal_connect_object (GTK_OBJECT (menuitem), "activate",
 					   GTK_SIGNAL_FUNC (gtk_menu_shell_deactivate),
@@ -485,6 +484,19 @@ restore_grabs(GtkWidget *w, gpointer data)
 }
 
 static gboolean
+cb_activate_task (GtkWidget *w, GdkEventButton *event, TasklistTask *task)
+{
+	gwmh_desk_set_current_area (task->gwmh_task->desktop,
+				    task->gwmh_task->harea,
+				    task->gwmh_task->varea);
+	gwmh_task_show (task->gwmh_task);
+	gwmh_task_raise (task->gwmh_task);
+	gwmh_task_focus (task->gwmh_task);
+
+	return FALSE;
+}
+
+static gboolean
 cb_show_popup (GtkWidget *w, GdkEventButton *event, TasklistTask *task)
 {
 	if (event->type != GDK_BUTTON_PRESS) return FALSE;
@@ -560,8 +572,11 @@ create_task_item (TasklistTask *task, TasklistTask *group)
 
 	gtk_object_set_data (GTK_OBJECT (task->menuitem), "task", task);
 
+	gtk_signal_connect (GTK_OBJECT (task->menuitem), "button_release_event",
+			    GTK_SIGNAL_FUNC (cb_activate_task), task);
 	gtk_signal_connect (GTK_OBJECT (task->menuitem), "button_press_event",
 			    GTK_SIGNAL_FUNC (cb_show_popup), task);
+
 	/* this is broken */
 #if 0
 	gtk_signal_connect (GTK_OBJECT (task->menuitem), "destroy",
