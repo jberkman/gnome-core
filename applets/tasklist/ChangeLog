@@ -1,3 +1,9 @@
+2001-02-14  Anders Carlsson  <andersca@codefactory.se>
+
+	* tasklist_menu.c (do_action): Don't segfault when trying to
+	kill programs that have already been killed once. 
+	This fixes bugzilla bug #10874.
+
 Tue Feb 13 05:00:44 2001  George Lebl <jirka@5z.com>
 
 	* tasklist_menu.c: make sure menu doesn't go off screen.

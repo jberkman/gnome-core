@@ -84,7 +84,7 @@ do_action (TasklistTask *task, gpointer data)
 					    GWMH_STATE_STICKY);
 		break;
 	case MENU_ACTION_KILL:
-		if (!tasklist->config.confirm_before_kill) {
+		if (!tasklist->config.confirm_before_kill && task->destroyed == FALSE) {
 			gwmh_task_kill (task->gwmh_task);
 			break;
 		}
@@ -98,8 +98,9 @@ do_action (TasklistTask *task, gpointer data)
 		
 		if (retval)
 			return TRUE;
-		
-		gwmh_task_kill(task->gwmh_task);
+
+		if (task->destroyed == FALSE)
+			gwmh_task_kill(task->gwmh_task);
 		break;
 	case MENU_ACTION_SHOW:
 		gwmh_desk_set_current_area (task->gwmh_task->desktop,
