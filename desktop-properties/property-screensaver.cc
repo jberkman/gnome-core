@@ -403,7 +403,8 @@ ConfigScreenSaver::apply ()
 				"-locker",
 				cmdLine,
 				NULL);
-                       g_error("Exec of xautolock failed!\n");
+                       g_warning("Exec of xautolock failed!\n");
+		       exit(1);
  		} else {
 			gnome_config_set_int ("/Desktop/ScreenSaver/xautolock_pid",
 					      pid);
