@@ -76,7 +76,7 @@ cb_menu (GtkWidget *widget, gpointer data)
 			GtkWidget *dialog;
 			gint retval;
 
-			dialog = gnome_message_box_new("Warning! Unsaved changes will be lost!\nProceed?",
+			dialog = gnome_message_box_new(_("Warning! Unsaved changes will be lost!\nProceed?"),
 						       GNOME_MESSAGE_BOX_WARNING,
 						       GNOME_STOCK_BUTTON_YES,
 						       GNOME_STOCK_BUTTON_NO,
