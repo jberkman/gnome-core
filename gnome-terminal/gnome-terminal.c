@@ -1351,7 +1351,7 @@ enum {
 };
 
 static struct argp_option argp_options [] = {
-	{ "class",      CLASS_KEY,    N_("CLASS"), 0, N_("Tmerinal class name"), 0 },
+	{ "class",      CLASS_KEY,    N_("CLASS"), 0, N_("Terminal class name"), 0 },
 	{ "font",       FONT_KEY,     N_("FONT"), 0, N_("Specifies font name"), 0 },
 	{ "nologin",    NOLOGIN_KEY,  NULL,       0, N_("Do not start up shells as login shells"), 0 },
 	{ "login",      LOGIN_KEY,    NULL,       0, N_("Start up shells as login shells"), 0 },
