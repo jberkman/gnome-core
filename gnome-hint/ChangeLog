@@ -1,3 +1,8 @@
+Sun Dec 17 15:28:29 2000  George Lebl <jirka@5z.com>
+
+	* gnome-hint.c: plug a leak based on a patch from "Juan Pablo Mendoza
+	  M." <pablo_juan@yahoo.com>, and a bit of cleanup
+
 2000-11-02  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* gnome-hints.desktop: Added "no" comment.

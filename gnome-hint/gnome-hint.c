@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <gnome-xml/tree.h>
 #include <gnome-xml/parser.h>
+#include <gnome-xml/xmlmemory.h>
 
 static GList *hintlist = NULL;
 static int hintnum = 0;
@@ -61,10 +62,11 @@ default_hint(void)
 
 /*find the language, but only look as far as gotlang*/
 static GList *
-find_lang(GList *langlist, GList *gotlang, char *lang)
+find_lang (GList *langlist, const GList *gotlang, const char *lang)
 {
-	while(langlist && langlist!=gotlang) {
-		if(strcmp(langlist->data,lang)==0)
+	while (langlist != NULL &&
+	       langlist != gotlang) {
+		if (strcmp (langlist->data, lang) == 0)
 			return langlist;
 		langlist = langlist->next;
 	}
@@ -73,7 +75,7 @@ find_lang(GList *langlist, GList *gotlang, char *lang)
 
 /*parse all children and pick out the best language one*/
 static char *
-get_i18n_string(xmlDocPtr doc, xmlNodePtr child, char *name)
+get_i18n_string (xmlDocPtr doc, xmlNodePtr child, const char *name)
 {
 	GList *langlist;
 	char *current;
@@ -90,17 +92,24 @@ get_i18n_string(xmlDocPtr doc, xmlNodePtr child, char *name)
 		if(!cur->name || strcmp(cur->name, name)!=0)
 			continue;
 		lang = xmlGetProp (cur, "xml:lang");
-		if(!lang) {
-			if(gotlang) continue;
-			if(current) free(current);
+		if (lang == NULL ||
+		    lang[0] == '\0') {
+			if (lang != NULL)
+				xmlFree (lang);
+			if (gotlang != NULL)
+				continue;
+			if (current != NULL)
+				xmlFree (current);
 			current = xmlNodeListGetString (doc, cur->childs, 1);
 		} else {
-			GList *l = find_lang(langlist,gotlang,lang);
-			if(l) {
-				if(current) free(current);
+			GList *ll = find_lang (langlist, gotlang, lang);
+			xmlFree (lang);
+			if (ll != NULL) {
+				if (current != NULL)
+					xmlFree (current);
 				current = xmlNodeListGetString (doc, cur->childs, 1);
-				gotlang = l;
-				if(l == langlist) /*we can't get any better then this*/
+				gotlang = ll;
+				if (ll == langlist) /*we can't get any better then this*/
 					break;
 			}
 		}
@@ -109,32 +118,34 @@ get_i18n_string(xmlDocPtr doc, xmlNodePtr child, char *name)
 }
 
 static void
-read_hints_from_file(char *file)
+read_hints_from_file (const char *file)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 	doc = xmlParseFile(file);
-	if(!doc) return;
+	if (doc == NULL)
+		return;
 	
-	if(!doc->root ||
-	   !doc->root->name ||
-	   strcmp(doc->root->name,"GnomeHints")!=0) {
-		xmlFreeDoc(doc);
+	if (doc->root == NULL ||
+	    doc->root->name == NULL ||
+	    strcmp (doc->root->name, "GnomeHints") != 0) {
+		xmlFreeDoc (doc);
 		return;
 	}
 
-	for(cur = doc->root->childs; cur; cur = cur->next) {
+	for (cur = doc->root->childs; cur; cur = cur->next) {
 		char *str;
-		if(!cur->name || strcmp(cur->name,"Hint")!=0)
+		if (cur->name == NULL ||
+		    strcmp (cur->name, "Hint") != 0)
 			continue;
-		str = get_i18n_string(doc, cur, "Content");
-		if(str) {
-			hintlist = g_list_prepend(hintlist,str);
+		str = get_i18n_string (doc, cur, "Content");
+		if (str != NULL) {
+			hintlist = g_list_prepend (hintlist, str);
 			hintnum++;
 		}
 	}
 	
-	xmlFreeDoc(doc);
+	xmlFreeDoc (doc);
 }
 
 static void
@@ -146,22 +157,22 @@ read_in_hints(void)
 	char * name;
        
 	/*add the default hint*/
-	hintlist = g_list_prepend(hintlist,default_hint());
+	hintlist = g_list_prepend (hintlist, default_hint());
 	hintnum++;
 
 	/* see if we find the directory with the hints */
-	name = gnome_datadir_file("gnome/hints");
-	if(!name)
+	name = gnome_datadir_file ("gnome/hints");
+	if (name == NULL)
 		return;
-	if(stat(name, &s) != 0 ||
-	   !S_ISDIR(s.st_mode)) {
-		g_free(name);
+	if (stat (name, &s) != 0 ||
+	    !S_ISDIR(s.st_mode)) {
+		g_free (name);
 		return;
 	}
 	
-	dir = opendir(name);
-	if(!dir) {
-		g_free(name);
+	dir = opendir (name);
+	if (dir == NULL) {
+		g_free (name);
 		return;
 	}
 
@@ -175,16 +186,16 @@ read_in_hints(void)
 		if(stat(file, &s) != 0 ||
 		   !S_ISREG(s.st_mode))
 			continue;
-		read_hints_from_file(file);
-		g_free(file);
+		read_hints_from_file (file);
+		g_free (file);
 	}
-	g_free(name);
-	closedir(dir);
+	g_free (name);
+	closedir (dir);
 	
-	if(hintlist)
+	if (hintlist != NULL)
 		/*we read it all in reverse in fact,
 		  so now we just put it back*/
-		hintlist = g_list_reverse(hintlist);
+		hintlist = g_list_reverse (hintlist);
 }
 
 static void
@@ -194,7 +205,7 @@ pick_random_hint(void)
 	
 	/*the random is not truly random thanks to me %'ing it,
 	  but you know what ... who cares*/
-	curhint = g_list_nth(hintlist,random()%hintnum);
+	curhint = g_list_nth (hintlist, random()%hintnum);
 }
 
 /*returns a newly allocated expanded string, or the original pointer
@@ -327,7 +338,7 @@ grow_text_if_necessary(void)
 }
 
 static void
-draw_on_canvas(GtkWidget *canvas, int is_fortune, int is_motd, char *hint)
+draw_on_canvas(GtkWidget *canvas, gboolean is_fortune, gboolean is_motd, const char *hint)
 {
 	GnomeCanvasItem *item;
 	
@@ -458,18 +469,22 @@ hints_clicked(GtkWidget *window, int button, gpointer data)
 {
 	switch(button) {
 	case 0:
-		if(!curhint) return;
+		if (curhint == NULL)
+			return;
 		curhint = curhint->prev;
-		if(!curhint) curhint = g_list_last(hintlist);
+		if (curhint == NULL)
+			curhint = g_list_last (hintlist);
 		gnome_canvas_item_set(hint_item,
 				      "text",(char *)curhint->data,
 				      NULL);
 		grow_text_if_necessary();
 		break;
 	case 1:
-		if(!curhint) return;
+		if (curhint == NULL)
+			return;
 		curhint = curhint->next;
-		if(!curhint) curhint = hintlist;
+		if (curhint == NULL)
+			curhint = hintlist;
 		gnome_canvas_item_set(hint_item,
 				      "text",(char *)curhint->data,
 				      NULL);
