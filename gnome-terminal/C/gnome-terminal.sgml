@@ -70,7 +70,7 @@
       <sect2 id="config-general">
 	<title>General options</title>
 	<para>
-	  Whilst most options are self-explanatory, some are discussed below
+	  While most options are self-explanatory, some are discussed below
 	  in more detail.
 	</para>
 	<variablelist>
