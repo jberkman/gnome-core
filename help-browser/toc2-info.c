@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include <glib.h>
 

@@ -1,3 +1,7 @@
+Sun Jul 19 18:53:48 1998  Tom Tromey  <tromey@cygnus.com>
+
+	* toc2-info.c: Include <stdlib.h>.
+
 Wed Jul 15 01:39:26 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* bookmarks.c: Include <stdlib.h>.
