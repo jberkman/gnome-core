@@ -18,6 +18,7 @@ void create_applet (void);
 TasklistTask *task_get_xy (gint x, gint y);
 GList *get_visible_tasks (void);
 
+GNOME_Panel_OrientType tasklist_orient; /* Tasklist orient */
 GtkWidget *handle; /* The handle box */
 GtkWidget *applet; /* The applet */
 GtkWidget *area; /* The drawing area used to display tasks */
@@ -260,8 +261,7 @@ layout_tasklist (void)
 			else
 				horz_width = 4;
 			
-			if (horz_width != Config.horz_width)
-				change_size (FALSE);
+			change_size (FALSE);
 			
 			gtk_widget_draw (area, NULL);
 			return;
@@ -341,8 +341,7 @@ layout_tasklist (void)
 		else
 			horz_width = num_cols * curwidth + 4;
 
-		if (horz_width != Config.horz_width)
-			change_size (FALSE);
+		change_size (FALSE);
 
 		break;
 
@@ -355,8 +354,7 @@ layout_tasklist (void)
 			else
 				vert_height = 4;
 			
-			if (vert_height != Config.vert_height)
-				change_size (FALSE);
+			change_size (FALSE);
 			
 			gtk_widget_draw (area, NULL);
 			return;
@@ -370,14 +368,13 @@ layout_tasklist (void)
 		
 		curx = 2;
 		cury = 2;
-		
+
 		if (Config.vert_fixed)
 			vert_height = Config.vert_height;
 		else
 			vert_height = curheight * num_rows + 4;
 		
-		if (vert_height != Config.vert_height)
-			change_size (FALSE);
+		change_size (FALSE);
 
 		while (temp_tasks) {
 			task = (TasklistTask *) temp_tasks->data;
@@ -616,6 +613,9 @@ change_size (gboolean layout)
 static gboolean
 cb_change_orient (GtkWidget *widget, GNOME_Panel_OrientType orient)
 {
+	
+	tasklist_orient = orient;
+
 	/* Change size accordingly */
 	change_size (TRUE);
 
