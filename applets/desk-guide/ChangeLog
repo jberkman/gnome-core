@@ -1,3 +1,11 @@
+Wed Nov  3 13:33:10 1999  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_init_gui): hide `?' properties button by default
+	to improve appearance with tiny panels.
+
+	* deskguide_applet.c (gp_widget_ignore_button): button press/click
+	cleanups.
+
 Sat Oct 30 13:10:16 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmh.c:

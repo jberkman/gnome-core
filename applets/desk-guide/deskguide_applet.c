@@ -71,6 +71,8 @@ static ConfigItem gp_config_items[] = {
   CONFIG_SECTION (sect_layout,				  	N_ ("Layout")),
   CONFIG_BOOL (switch_arrow,	FALSE,
 	       N_ ("Switch tasklist arrow")),
+  CONFIG_BOOL (show_properties_button,	FALSE,
+	       N_ ("Show properties `?' button")),
   CONFIG_BOOL (show_pager,	TRUE,
 	       N_ ("Show desktop pager")),
   CONFIG_BOOL (current_only,	FALSE,
@@ -562,55 +564,37 @@ gp_check_task_visible (GwmDesktop *desktop,
     return TRUE;
 }
 
-static inline gboolean
-gp_widget_button_popup_task_editor (GtkWidget      *widget,
-				    GdkEventButton *event,
-				    gpointer        data)
+static void
+gp_widget_button_popup_task_editor (GtkWidget *widget,
+				    gpointer   data)
 {
-  guint button = GPOINTER_TO_UINT (data);
-
-
-  if (event->button == button)
-    {
-      g_message ("Task Editor unimplemented yet!");
-      gdk_beep ();
-
-      return TRUE;
-    }
-  else
-    return FALSE;
+  g_message ("Task Editor unimplemented yet!");
+  gdk_beep ();
 }
 
 static inline gboolean
-gp_widget_button_popup_config (GtkWidget      *widget,
-			       GdkEventButton *event,
-			       gpointer        data)
+gp_widget_ignore_button (GtkWidget *widget,
+			 GdkEvent  *event,
+			 gpointer   data)
 {
   guint button = GPOINTER_TO_UINT (data);
 
-
-  if (event->button == button)
+  if (event->type == GDK_BUTTON_PRESS ||
+      event->type == GDK_2BUTTON_PRESS ||
+      event->type == GDK_3BUTTON_PRESS ||
+      event->type == GDK_BUTTON_RELEASE)
     {
-      gp_config_popup ();
-
-      return TRUE;
-    }
-  else
-    return FALSE;
-}
-
-static inline gboolean
-gp_widget_ignore_button (GtkWidget      *widget,
-			 GdkEventButton *event,
-			 gpointer        data)
-{
-  guint button = GPOINTER_TO_UINT (data);
+      GdkEventButton *bevent = &event->button;
   
-  if (event->button == button)
-    gtk_signal_emit_stop_by_name (GTK_OBJECT (widget),
-				  event->type == GDK_BUTTON_PRESS
-				  ? "button_press_event"
-				  : "button_release_event");
+      if (bevent->button == button)
+	{
+	  if (widget->parent)
+	    gtk_propagate_event (widget->parent, event);
+
+	  return TRUE;
+	}
+    }
+
   return FALSE;
 }
 
@@ -618,7 +602,7 @@ static void
 gp_init_gui (void)
 {
   static guint panel_sizes[] = { 24, 48, 64, 80 };
-  GtkWidget *button, *abox;
+  GtkWidget *button, *abox, *arrow;
   gboolean arrow_at_end = FALSE;
   GtkWidget *main_box;
   
@@ -709,18 +693,17 @@ gp_init_gui (void)
   
   /* add arrow and button
    */
+  arrow = gtk_widget_new (GTK_TYPE_ARROW,
+			  "arrow_type", GP_ARROW_DIR,
+			  "visible", TRUE,
+			  NULL);
   button = gtk_widget_new (GTK_TYPE_BUTTON,
 			   "visible", TRUE,
 			   "can_focus", FALSE,
-			   "child", gtk_widget_new (GTK_TYPE_ARROW,
-						    "arrow_type", GP_ARROW_DIR,
-						    "visible", TRUE,
-						    NULL),
-			   "signal::button_press_event", gp_widget_button_popup_task_editor, GUINT_TO_POINTER (1),
-			   "signal::button_press_event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
-			   "signal::button_release_event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
-			   "signal::button_press_event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
-			   "signal::button_release_event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
+			   "child", arrow,
+			   "signal::clicked", gp_widget_button_popup_task_editor, NULL,
+			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
+			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
 			   NULL);
   gtk_tooltips_set_tip (gp_tooltips,
 			button,
@@ -728,16 +711,14 @@ gp_init_gui (void)
 			NULL);
   (arrow_at_end
    ? gtk_box_pack_end
-   : gtk_box_pack_start) (GTK_BOX (abox), button, FALSE, TRUE, 0);
+   : gtk_box_pack_start) (GTK_BOX (abox), button, !BOOL_CONFIG (show_properties_button), TRUE, 0);
   button = gtk_widget_new (GTK_TYPE_BUTTON,
-			   "visible", TRUE,
+			   "visible", BOOL_CONFIG (show_properties_button),
 			   "can_focus", FALSE,
 			   "label", "?",
-			   "signal::button_press_event", gp_widget_button_popup_config, GUINT_TO_POINTER (1),
-			   "signal::button_press_event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
-			   "signal::button_release_event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
-			   "signal::button_press_event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
-			   "signal::button_release_event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
+			   "signal::clicked", gp_config_popup, NULL,
+			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (2),
+			   "signal::event", gp_widget_ignore_button, GUINT_TO_POINTER (3),
 			   NULL);
   gtk_tooltips_set_tip (gp_tooltips,
 			button,
