@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=GNOME Control Center
+Comment=The GNOME configuration tool.
+Exec=gnomecc
+Terminal=0
+Type=Application
