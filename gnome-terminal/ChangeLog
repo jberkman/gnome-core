@@ -9,6 +9,12 @@
 	(set_hints): Function to set the window hints using
 	gtk_window_set_geometry_hints().  Called when window realised or
 	fonts changed.
+	(main_terminal_program): Implement the -x and --execute options.
+	Runs programs the same way xterm does (sucking up the rest of the
+	command line without processing any switches).  Bug # 1446.
+	(cb_options): Added "x" and "execute" options to popt options
+	table, these are not used to get the option, just to show it in
+	help, and validate the input.
 
 1999-05-31  Michael Zucchi  <mzucchi@denr.sa.gov.au>
 

@@ -2133,6 +2133,9 @@ static struct poptOption cb_options [] = {
 	{ "command", 'e', POPT_ARG_STRING, NULL, COMMAND_KEY,
 	  N_("Execute this program instead of a shell"), N_("COMMAND")},
 
+	{ "execute", 'x', POPT_ARG_STRING, NULL, COMMAND_KEY,
+	  N_("Execute this program the same was as xterm does"), N_("COMMAND")},
+
 	{ "foreground", '\0', POPT_ARG_STRING, NULL, FORE_KEY,
 	  N_("Foreground color"), N_("COLOR")},
 
@@ -2243,6 +2246,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	char *program_name;
 	char *class;
 	struct terminal_config *default_config, *cmdline_config;
+	int i, j;
 
 	env = environ;
 	
@@ -2254,6 +2258,28 @@ main_terminal_program (int argc, char *argv [], char **environ)
 	cmdline_config = g_new0 (struct terminal_config, 1);
 	
 	cb_options[0].descrip = (char *)cmdline_config;
+
+	/* pre-scan for -x and --execute options */
+	for (i=1;i<argc;i++) {
+		if (!strcmp(argv[i], "-x") || !(strcmp(argv[i], "--execute"))) {
+			int last=i;
+			i++;
+			if (i==argc) {
+				/* no arg!? let popt whinge about usage */
+				break;
+			}
+			initial_command=malloc((argc-i+1)*sizeof(char *));
+			j = 0;
+			while (i<argc) {
+				initial_command[j] = argv[i];
+				i++; j++;
+			}
+			initial_command[j]=NULL;
+			/* 'fool' popt into thinking we have less args */
+			argc=last;
+			break;
+		}
+	}
 	
 	gnome_init_with_popt_table("Terminal", VERSION, argc, argv,
 				   cb_options, 0, NULL);
