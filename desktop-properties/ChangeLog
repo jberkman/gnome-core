@@ -1,3 +1,8 @@
+1998-06-12  Carsten Schaar  <nhadcasc@fs-maphy.uni-hannover.de>
+
+	* main.c (property_main): Use 'gnome_master_client' instead of
+ 	'gnome_client_new_default'.
+
 Sat Jun  6 02:35:49 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* property-mouse.c (mouse_read): Correctly rescale when mouse

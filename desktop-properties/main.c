@@ -82,8 +82,8 @@ property_main (char *app_id, int argc, char *argv [])
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 
-	client = gnome_client_new_default ();
 	gnome_init (app_id, &parser, argc, argv, 0, NULL);
+	client = gnome_master_client ();
 
 	/* Set this stuff for completeness' sake.  */
 	gnome_client_set_restart_command (client, 1, argv);
