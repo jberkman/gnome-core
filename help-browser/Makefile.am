@@ -39,7 +39,7 @@ PIXMAPS = close.xpm contents.xpm help.xpm left_arrow.xpm right_arrow.xpm
 
 EXTRA_DIST = gnome-help-browser-help.html \
 	     gnome-help-browser-topic.dat \
-	     default-page.html bg.xpm gnome-logo2.xpm \
+	     default-page.html bg.png gnome-logo2.png \
 	     toc.c toc-man.c toc-ghelp.c toc-info.c \
 	     toc.h toc-man.h toc-ghelp.h toc-info.h \
 	     $(PIXMAPS) gnome-help.desktop
@@ -52,8 +52,8 @@ install-data-local:
 	$(INSTALL_DATA)  $(srcdir)/gnome-help-browser-topic.dat \
 			 $(help_browser_helpdir)/topic.dat
 	$(INSTALL_DATA)  $(srcdir)/default-page.html $(help_browser_helpdir)/
-	$(INSTALL_DATA)  $(srcdir)/bg.xpm $(help_browser_helpdir)/
-	$(INSTALL_DATA)  $(srcdir)/gnome-logo2.xpm $(help_browser_helpdir)/
+	$(INSTALL_DATA)  $(srcdir)/bg.png $(help_browser_helpdir)/
+	$(INSTALL_DATA)  $(srcdir)/gnome-logo2.png $(help_browser_helpdir)/
 	cd $(help_browser_helpdir); \
 	     rm -f index.html; ln -s help-browser.html index.html
 

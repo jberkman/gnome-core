@@ -1,3 +1,9 @@
+Thu Sep 17 02:08:10 1998  John Ellis  <johne@bellatlantic.net>
+
+	* bg.xpm, gnome-logo2.xpm: Convert to png.
+	* default-page.html: Use said png's.
+	* Makefile.am: Change references of xpm to png.
+
 1998-27-07  Jaka Mocnik  <jaka.mocnik@kiss.uni-lj.si>
  	
 	* window.c: conditional compilation now checks for #defined symbol
