@@ -723,7 +723,8 @@ gp_widget_button_toggle_task_list (GtkWidget *widget,
 			     GDK_BUTTON_RELEASE_MASK),
 			    NULL,
 			    NULL,
-			    GDK_CURRENT_TIME) != 0)
+			    GDK_CURRENT_TIME) != 0 ||
+	  gdk_keyboard_grab (dialog->window, FALSE, GDK_CURRENT_TIME) != 0)
 	gtk_widget_hide (dialog);
     }
   else

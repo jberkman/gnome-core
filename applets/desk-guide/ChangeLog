@@ -1,3 +1,8 @@
+Wed Aug  9 02:25:08 2000  Tim Janik  <timj@gtk.org>
+
+	* deskguide_applet.c (gp_widget_button_toggle_task_list): grab keyboard
+	as well to cacth ESC for popdown.
+
 Wed Aug  9 02:04:05 2000  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_widget_button_toggle_task_list): popdown
