@@ -32,9 +32,8 @@
 #include "contents.xpm"
 
 #ifdef HELP_USE_GTKHTML
-#include <gtkhtml/gtkhtml.h>
+#include <gtkhtml/htmlurl.h>
 #include <errno.h>
-#include "htmlurl.h"
 void gtk_html_source (GtkHTML *html, char *url, char *source);
 #endif
 
@@ -746,14 +745,14 @@ helpWindowClose(HelpWindow win)
 
 static void init_accel(HelpWindow win)
 {
-#ifdef HELP_USE_GTKHTML
-    g_message ("Skipping accel init...");
-#else
     static gint page_up_signal = 0;
     static gint page_down_signal = 0;
     static gint up_signal = 0;
     static gint down_signal = 0;
 
+#ifdef HELP_USE_GTKHTML
+    g_message ("Skipping accel init...");
+#else
     GtkAccelGroup *accel_group = gtk_accel_group_get_default();
 
     if(!page_up_signal) {
@@ -1198,6 +1197,7 @@ static void
 url_requested (GtkHTML *html, const char *url, GtkHTMLStream *s, HelpWindow win)
 {
 	char *full_url = url;
+	GtkHTMLStreamStatus status;
 	docObj obj;
 	guchar *buf;
 	gint buflen;

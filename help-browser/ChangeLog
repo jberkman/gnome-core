@@ -1,4 +1,8 @@
-2001-02-25  Gediminas Paulauskas <menesis@delfi.lt>
+2001-02-26  jacob berkman  <jacob@ximian.com>
+
+	* reverting previous patch
+
+x2001-02-25  Gediminas Paulauskas <menesis@delfi.lt>
 
 	* htmlurl.h: removed an enum which is in gtkhtml/htmlenums.h. include
 	that.
