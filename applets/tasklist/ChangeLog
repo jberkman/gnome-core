@@ -1,3 +1,9 @@
+1999-09-17  Jacob Berkman  <jberkman@andrew.cmu.edu>
+
+	* tasklist_applet.h:
+	* tasklist_config.c (write_config): correctly
+	return FALSE
+
 1999-09-16  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_applet.c: Fixed a couple of memory leaks

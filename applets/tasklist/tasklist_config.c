@@ -6,7 +6,7 @@ extern GtkWidget *applet;
 /* The configuration */
 TasklistConfig Config;
 
-void write_config (gpointer data,
+gboolean write_config (gpointer data,
 		   const gchar *privcfgpath,
 		   const gchar *globcfgpath)
 {
@@ -48,6 +48,7 @@ void write_config (gpointer data,
 	gnome_config_sync ();
 	
 	gnome_config_pop_prefix ();
+	return FALSE;
 }
 
 void read_config (void)
