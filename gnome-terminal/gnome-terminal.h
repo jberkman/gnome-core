@@ -2,7 +2,7 @@
 #ifndef GNOME_TERMINAL_H
 #define GNOME_TERMINAL_H
 
-#include <orb/orbit.h>
+#include <orbit/orbit.h>
 #include <gtk/gtkwidget.h>
 
 /* no longer needed, as we use gnome_font_picker now */

@@ -1,13 +1,14 @@
 ## Process this file with automake to produce Makefile.in.
 
 # Documentation
-SUBDIRS = C de da es it no
+#SUBDIRS = C de da es it no
 
 INCLUDES = 						\
 	-I$(includedir)					\
 	-I$(top_srcdir)/intl				\
 	-I$(top_builddir)/intl				\
 	$(GNOME_TERMINAL_CFLAGS)			\
+	-DGNOME_TERMINAL_PREFIX=\""$(prefix)"\"		\
 	-DGNOME_TERMINAL_GLADEDIR=\""$(gladedir)"\"	\
 	-DGNOMELOCALEDIR=\""$(datadir)/locale\""
 
@@ -17,33 +18,38 @@ LDADD = \
 
 bin_PROGRAMS = gnome-terminal
 
-CORBA_GENERATED =		\
-	Terminal.h		\
-	Terminal-stubs.c	\
-	Terminal-skels.c	\
-	Terminal-common.c
+#CORBA_SOURCE = \
+#	GNOME_Terminal.h	\
+#	GNOME_Terminal-stubs.c	\
+#	GNOME_Terminal-skels.c	\
+#	GNOME_Terminal-common.c
 
-CLEANFILES += $(CORBA_GENERATED)
-BUILT_SOURCES = $(CORBA_GENERATED)
+#gnome_terminal_idl = \
+#	$(top_srcdir)/idl/GNOME_Terminal.idl
 
-$(CORBA_GENERATED) : $(top_srcdir)/idl/Terminal.idl
-	$(ORBIT_IDL) `gnome-config --cflags idl` $(top_srcdir)/idl/Terminal.idl
+#idl_flags = -I$(top_srcdir)/idl -I $(BONOBO_IDLDIR)
 
-corba.o: Terminal.h
+#$(CORBA_SOURCE) : $(gnome_terminal_idl)
+#	$(ORBIT_IDL) $(idl_flags) $(gnome_terminal_idl)
 
-gnome_terminal_SOURCES = 	\
+gnome_terminal_src = \
 	gnome-terminal.c	\
-	corba.c			\
-	gnome-terminal.h	\
-	$(CORBA_GENERATED)
+	gnome-terminal.h
 
-gnome_terminal_LDADD = $(LDADD)
+#	corba.c			\
 
-gnorbadir = $(sysconfdir)/CORBA/servers
-gnorba_DATA = gnome-terminal.gnorba
+gnome_terminal_SOURCES = \
+	$(gnome_terminal_src)
+
+#	$(CORBA_SOURCE)
+
+#$(gnome_terminal_OBJECTS): GNOME_Terminal.h
 
 utildir = $(datadir)/gnome/apps/System
 util_DATA = gnome-terminal.desktop
+
+uidir = $(datadir)/gnome/ui
+ui_DATA = gnome-terminal.xml
 
 gladedir   = $(datadir)/gnome-terminal/glade
 glade_DATA = gnome-terminal.glade
@@ -52,9 +58,17 @@ glade_msgs = gnome-terminal.glade.h
 man_MANS = gnome-terminal.1
 
 EXTRA_DIST =				\
-	$(gnorba_DATA) 			\
 	$(util_DATA)			\
 	$(glade_DATA)			\
 	$(glade_msgs)			\
-	$(man_MANS)
+	$(man_MANS)			\
+	$(ui_DATA)
 
+
+DONT_DIST_SOURCE = \
+	$(CORBA_SOURCE)
+
+dist-hook:
+	for file in $(DONT_DIST_SOURCE) ; do \
+	    rm -f $(distdir)/$$file ; \
+	done

@@ -13,6 +13,9 @@
  * John Harper, and Hans-Andreas Engel
  */
 #include <config.h>
+
+#include "gnome-terminal.h"
+
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
@@ -21,19 +24,53 @@
 #include <errno.h>
 #include <signal.h>
 
+#include <popt.h>
+
 #include <gdk/gdk.h>
-#include <gdk/gdkx.h>
 #include <gdk/gdkprivate.h>
-#include <gnome.h>
-#include <zvt/zvtterm.h>
-#include <orb/orbit.h>
-#include <libgnorba/gnorba.h>
-#include <libgnomeui/gnome-window-icon.h>
+#include <gdk/gdkx.h>
+
+#include <gtk/gtkcolorseldialog.h>
+#include <gtk/gtkcombo.h>
+#include <gtk/gtkdnd.h>
+#include <gtk/gtkentry.h>
+#include <gtk/gtkmain.h>
+#include <gtk/gtkmenu.h>
+#include <gtk/gtkmenuitem.h>
+#include <gtk/gtkmessagedialog.h>
+#include <gtk/gtkoptionmenu.h>
+#include <gtk/gtkselection.h>
+#include <gtk/gtksignal.h>
+#include <gtk/gtkspinbutton.h>
+#include <gtk/gtktogglebutton.h>
+#include <gtk/gtkvscrollbar.h>
+
+#include <libgnome/gnome-i18n.h>
+#include <libgnome/gnome-url.h>
+#include <libgnome/gnome-util.h>
+
+#include <libgnome/gnome-config.h>
+#define HAVE_GNOME_CONFIG 1
+
+#include <libgnomeui/gnome-client.h>
+#include <libgnomeui/gnome-color-picker.h>
+#ifdef HAVE_GNOME_FONT_PICKER
+#include <libgnomeui/gnome-font-picker.h>
+#endif
+#include <libgnomeui/gnome-window.h>
+
+#include <libzvt/libzvt.h>
+
+#include <bonobo/bonobo-main.h>
+#include <bonobo/bonobo-ui-main.h>
+#include <bonobo/bonobo-ui-util.h>
+#include <bonobo/bonobo-window.h>
+
+#ifdef HAVE_LIBGLADE
 #include <glade/glade.h>
+#endif
 
 #include <X11/Xatom.h>
-
-#include "gnome-terminal.h"
 
 /* In case old gnome-libs */
 #ifndef ZVT_TERM_DO_LASTLOG
@@ -102,13 +139,9 @@ struct terminal_config {
 	int scroll_out       :1;       		/* Scroll on output? */
 	int swap_keys        :1;       		/* Swap Delete/Backspace? */
 	int login_by_default :1;                /* do --login as default */
-#ifdef ZVT_BACKGROUND_SCROLL
 	int scroll_background:1; 		/* background will scroll */
-#endif
 	int use_bold         :1;		/* Use bold on bright colours */
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	int del_is_del       :1; 		/* Generates Delete DEL/^H? */
-#endif
 	enum palette_enum color_type; 			/* The color mode */
 	enum color_set_enum color_set;
 	char *font; 				/* Font used by the terminals */
@@ -122,9 +155,7 @@ struct terminal_config {
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int transparent;
 	int have_user_background;		/* Only used for command line parsing */
-#ifdef ZVT_BACKGROUND_SCROLL
 	int have_user_scroll_bg; 		/* Only used for command line parsing */
-#endif
 	int shaded;
 	int have_user_shaded;			/* Only used for command line parsing */
 	int background_pixmap;
@@ -160,9 +191,7 @@ typedef struct {
 	GtkWidget *scroll_kbd_checkbox;
 	GtkWidget *scroll_out_checkbox;
 	GtkWidget *swapkeys_checkbox;
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	GtkWidget *del_is_del_checkbox;
-#endif
 	GtkWidget *login_by_default_checkbox;
 	GtkWidget *use_bold_checkbox;
 	GtkWidget *wordclass_entry;
@@ -172,9 +201,7 @@ typedef struct {
 	GtkWidget *pixmap_entry;
 	GtkWidget *transparent_checkbox;
 	GtkWidget *shaded_checkbox;
-#ifdef ZVT_BACKGROUND_SCROLL
 	GtkWidget *pixmap_scrollable_checkbox;
-#endif
 	GtkWidget *menubar_checkbox;
         GtkWidget *bell_checkbox;
 	GtkWidget *font_entry;
@@ -208,40 +235,54 @@ typedef struct {
 # endif
 #endif
 
+#if 0 /* this is a bunch of crack rock */
 /*
  * Exported interfaces, for Gtk modules that hook
  * into the gnome terminal
  */
-void close_terminal_cmd   (void *unused, void *data);
-void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
-void color_cmd            (void);
-void toggle_menubar_cmd   (GtkWidget *widget, ZvtTerm *term);
-void paste_cmd            (GtkWidget *widget, ZvtTerm *term);
-void preferences_cmd      (GtkWidget *widget, ZvtTerm *term);
-void toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term);
+void close_terminal_cmd         (BonoboUIComponent *uic, gpointer data, const char *cname);
+void save_preferences_cmd       (BonoboUIComponent *uic, gpointer data, const char *cname);
+void color_cmd                  (BonoboUIComponent *uic, gpointer data, const char *cname);
+void toggle_menubar_cmd         (BonoboUIComponent *uic, gpointer data, const char *cname);
+void paste_cmd                  (BonoboUIComponent *uic, gpointer data, const char *cname);
+void preferences_cmd            (BonoboUIComponent *uic, gpointer data, const char *cname);
+void toggle_secure_keyboard_cmd (BonoboUIComponent *uic, gpointer data, const char *cname);
 
 GtkWidget *new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geometry, int termid);
 GtkWidget *new_terminal     (GtkWidget *widget, ZvtTerm *term);
+#endif
 
 static void parse_an_arg (poptContext state,
 			  enum poptCallbackReason reason,
 			  const struct poptOption *opt,
 			  const char *arg, void *data);
 
+#define USE_SET_HINTS 0
+#if USE_SET_HINTS
+#warning SETTING HINTS IS REDUNDANT
 static void set_hints (GtkWidget *widget);
+#endif
 
 static void
-about_terminal_cmd (void)
+hackity_hack (GtkWindow *app)
+{
+	app->need_default_size = TRUE;
+	gtk_widget_queue_resize (GTK_WIDGET (app));
+}
+
+static void
+about_terminal_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 {
         static GtkWidget *about = NULL;
 
         const gchar *authors[] = {
-	     N_("Zvt terminal widget: "
+	     N_("Zvt terminal widget: \n"
 		"    Michael Zucchi (zucchi@zedzone.mmc.com.au)"),
-	     N_("GNOME terminal: "
+	     N_("GNOME terminal: \n"
 		"    Miguel de Icaza (miguel@kernel.org)"),
 	     N_("    Erik Troan (ewt@redhat.com)"),
-		NULL
+	     N_("    Jacob Berkman (jacob@ximian.com)"),
+	     NULL
 	};
 
 	if (about != NULL)
@@ -255,13 +296,27 @@ about_terminal_cmd (void)
 	authors[0]=_(authors[0]);
 	authors[1]=_(authors[1]);
 	authors[2]=_(authors[2]);
+	authors[3]=_(authors[3]);
 #endif
 
+#if 0
         about = gnome_about_new (_("GNOME Terminal"), VERSION,
 				 "(C) 1998, 1999 the Free Software Foundation",
 				 authors,
 				 _("The GNOME terminal emulation program."),
 				 NULL);
+#else
+	about = gtk_message_dialog_new (NULL, GTK_DIALOG_NO_SEPARATOR,
+					GTK_MESSAGE_INFO, GTK_BUTTONS_OK,
+					_("GNOME Terminal Version %s\n\n"
+					  "%s\n%s\n%s\n%s\n\n"
+					  "The GNOME terminal emulation program.\n\n"
+					  "(C) 1998, 1999 the Free Software Foundation\n"
+					  "Copyright 2001 Ximian, Inc."),
+					VERSION, authors[0], authors[1], authors[2], authors[3]);
+	gtk_signal_connect (GTK_OBJECT (about), "response",
+			    GTK_SIGNAL_FUNC (gtk_widget_destroy), NULL);
+#endif
 	gtk_signal_connect (GTK_OBJECT (about), "destroy",
 			    GTK_SIGNAL_FUNC (gtk_widget_destroyed), &about);
         gtk_widget_show (about);
@@ -286,12 +341,12 @@ close_app (GtkWidget *app)
 	gtk_widget_destroy (app);
 
 	if (terminals == NULL)
-	       gtk_main_quit ();
+		bonobo_main_quit ();
 }
 
 
-void
-close_terminal_cmd (void *unused, void *data)
+static void
+close_terminal_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 {
 	GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (data));
 
@@ -318,18 +373,16 @@ gnome_term_set_font (ZvtTerm *term, char *font_name, const int use_bold)
 
 	font = gdk_font_load (font_name);
 	if (font) {
-#ifdef ZVT_TERM_EMBOLDEN_SUPPORT
-		if (zvt_term_get_capabilities(term) & ZVT_TERM_EMBOLDEN_SUPPORT &&
-		    use_bold)
+		if (use_bold)
 			zvt_term_set_fonts  (term, font, 0);
 		else
-#endif
 			zvt_term_set_fonts  (term, font, font);
 	}
 
+#if USE_SET_HINTS
 	if (GTK_WIDGET_REALIZED (term))
 		set_hints (GTK_WIDGET (term));
-
+#endif
 	s = gtk_object_get_user_data (GTK_OBJECT (term));
 	if (s)
 		g_free (s);
@@ -474,7 +527,7 @@ set_color_scheme (ZvtTerm *term, struct terminal_config *color_cfg)
 		break;
 	}
 	zvt_term_set_color_scheme (term, red, green, blue);
-	c.pixel = term->colors [17];
+	c = term->colors [17];
 
 	gdk_window_set_background (GTK_WIDGET (term)->window, &c);
 	gtk_widget_queue_draw (GTK_WIDGET (term));
@@ -495,6 +548,7 @@ load_config (char *class)
 	cfg->font = NULL;
 	cfg->class = g_strdup (class);
 
+#ifdef HAVE_GNOME_CONFIG
 	cfg->scrollback = gnome_config_get_int ("scrollbacklines=100");
 	cfg->font    = gnome_config_get_string ("font=" DEFAULT_FONT);
 	cfg->wordclass  = gnome_config_get_string ("wordclass=-A-Za-z0-9,./?%&#");
@@ -522,16 +576,12 @@ load_config (char *class)
 	cfg->bell              = gnome_config_get_bool ("bell_silenced=0");
 	cfg->blink             = gnome_config_get_bool ("blinking=0");
 	cfg->swap_keys         = gnome_config_get_bool ("swap_del_and_backspace=0");
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	cfg->del_is_del        = gnome_config_get_bool ("del_is_del=0");
-#endif
 
 	cfg->login_by_default  = gnome_config_get_bool ("login_by_default=0");
 	cfg->use_bold          = gnome_config_get_bool ("use_bold=true");
 
-#ifdef ZVT_BACKGROUND_SCROLL
 	cfg->scroll_background = gnome_config_get_bool ("scroll_background=0");
-#endif
 	/* Default colors in the case the color set is the custom one */
 	fore_color = gnome_config_get_string ("foreground=gray");
 	back_color = gnome_config_get_string ("background=black");
@@ -545,6 +595,58 @@ load_config (char *class)
 	cfg->shaded = gnome_config_get_bool ("shaded=false");
 	cfg->background_pixmap = gnome_config_get_bool ("background_pixmap=false");
 	cfg->pixmap_file = gnome_config_get_string ("pixmap_file");
+
+#else /* HAVE_GNOME_CONFIG */
+
+	cfg->scrollback = 4096;
+	cfg->font    = g_strdup (DEFAULT_FONT);
+	cfg->wordclass  = g_strdup ("wordclass=-A-Za-z0-9,./?%&#");
+	p = "right";
+	if (g_strcasecmp (p, "left") == 0)
+		cfg->scrollbar_position = SCROLLBAR_LEFT;
+	else if (g_strcasecmp (p, "right") == 0)
+		cfg->scrollbar_position = SCROLLBAR_RIGHT;
+	else
+		cfg->scrollbar_position = SCROLLBAR_HIDDEN;
+	p = "linux";
+	if (g_strcasecmp (p, "linux") == 0)
+		cfg->color_type = PALETTE_LINUX;
+	else if (g_strcasecmp (p, "xterm") == 0)
+		cfg->color_type = PALETTE_XTERM;
+	else if (g_strcasecmp (p, "rxvt") == 0)
+		cfg->color_type = PALETTE_RXVT;
+	else if (g_strcasecmp (p, "custom") == 0)
+		cfg->color_type = PALETTE_CUSTOM;
+	else
+		cfg->color_type = PALETTE_LINUX;
+	
+	cfg->keyboard_secured  = FALSE;
+	
+	cfg->bell              = FALSE;
+	cfg->blink             = TRUE;
+	cfg->swap_keys         = TRUE;
+	cfg->del_is_del        = FALSE;
+
+	cfg->login_by_default  = FALSE;
+	cfg->use_bold          = FALSE;
+
+	cfg->scroll_background = FALSE;
+	/* Default colors in the case the color set is the custom one */
+	fore_color = g_strdup ("gray");
+	back_color = g_strdup ("black");
+	cfg->color_set = 0;
+
+	cfg->menubar_hidden = TRUE;
+	cfg->scroll_key = TRUE;
+	cfg->scroll_out = FALSE;
+
+	cfg->transparent = FALSE;
+	cfg->shaded = FALSE;
+	cfg->background_pixmap = FALSE;
+	cfg->pixmap_file = NULL;
+
+#endif /* HAVE_GNOME_CONFIG */
+
 	cfg->window_title = NULL;
 	cfg->window_icon = NULL;
 
@@ -565,7 +667,12 @@ load_config (char *class)
 	}
 
 	/* load the palette, if none, then 'default' to safe (linux) pallete */
+#ifdef HAVE_GNOME_CONFIG
 	gnome_config_get_vector("palette", &colour_count, &colours);
+#else
+	colour_count = 0;
+	colours = NULL;
+#endif
 	for (i=0;i<18;i++) {
 		if (i<colour_count)
 			gdk_color_parse(colours[i], &cfg->palette[i]);
@@ -593,9 +700,7 @@ gather_changes (ZvtTerm *term)
 	newcfg->bell           = GTK_TOGGLE_BUTTON (prefs->bell_checkbox)->active;
 	newcfg->blink          = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
 	newcfg->swap_keys      = GTK_TOGGLE_BUTTON (prefs->swapkeys_checkbox)->active;
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	newcfg->del_is_del     = GTK_TOGGLE_BUTTON (prefs->del_is_del_checkbox)->active;
-#endif
 	newcfg->menubar_hidden = GTK_TOGGLE_BUTTON (prefs->menubar_checkbox)->active;
 	newcfg->scroll_out     = GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox)->active;
 	newcfg->scroll_key     = GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox)->active;
@@ -610,10 +715,8 @@ gather_changes (ZvtTerm *term)
 	newcfg->wordclass = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->wordclass_entry)));
 	newcfg->scrollbar_position = option_menu_get_history (GTK_OPTION_MENU (prefs->scrollbar));
 
-#ifdef ZVT_BACKGROUND_SCROLL
 	newcfg->scroll_background = GTK_TOGGLE_BUTTON (prefs->pixmap_scrollable_checkbox)->active
 		&& newcfg->background_pixmap;
-#endif
 
 	g_free (newcfg->font);
 	newcfg->font  = g_strdup (gtk_entry_get_text (GTK_ENTRY (prefs->font_entry)));
@@ -671,7 +774,7 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 {
 	GtkWidget *scrollbar = gtk_object_get_data (GTK_OBJECT (term), "scrollbar");
 	GtkWidget *box       = scrollbar->parent;
-	GnomeApp *app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	BonoboWindow *app = BONOBO_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	struct terminal_config *cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
 	terminal_config_free (cfg);
@@ -686,18 +789,12 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	zvt_term_set_del_key_swap (term, cfg->swap_keys);
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	zvt_term_set_del_is_del (term, cfg->del_is_del);
-#endif
 
 	if (zvt_pixmap_support && cfg->background_pixmap) {
 		int flags;
-#ifdef ZVT_BACKGROUND_SCROLL
 		flags = cfg->shaded?ZVT_BACKGROUND_SHADED:0;
 		flags |= cfg->scroll_background?ZVT_BACKGROUND_SCROLL:0;
-#else
-		flags = cfg->shaded;
-#endif
 		zvt_term_set_background (term,
 					 cfg->pixmap_file,
 					 cfg->transparent, flags);
@@ -719,14 +816,20 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	}
 
 	set_color_scheme (term, cfg);
-
-	if (cfg->menubar_hidden)
-		gtk_widget_hide (app->menubar->parent);
-	else
-		gtk_widget_show (app->menubar->parent);
+	
+	{
+		BonoboUIComponent *uic;
+		
+		uic = gtk_object_get_data (GTK_OBJECT (term), "uic");
+		bonobo_ui_component_set_prop (uic, "/menu", "hidden",
+					      cfg->menubar_hidden
+					      ? "1" : "0", NULL);
+	}
 
 	return 0;
 }
+
+static void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
 
 static void
 apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term)
@@ -748,7 +851,7 @@ apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term)
 }
 
 static void
-switch_terminal_cb (GnomeMessageBox *mbox, gint button, void *term)
+switch_terminal_cb (GtkDialog *mbox, gint button, void *term)
 {
 	struct terminal_config *newcfg, *loaded_cfg, *cfg;
 
@@ -758,11 +861,15 @@ switch_terminal_cb (GnomeMessageBox *mbox, gint button, void *term)
 	if (button == 0){
 		/* yes */
          	char *prefix = g_strdup_printf("/Terminal/%s/", newcfg->class);
+#ifdef HAVE_GNOME_CONFIG
 		gnome_config_push_prefix (prefix);
+#endif
 		loaded_cfg = load_config (newcfg->class);
 		apply_changes (term, loaded_cfg);
 		terminal_config_free (loaded_cfg);
+#ifdef HAVE_GNOME_CONFIG
 		gnome_config_pop_prefix ();
+#endif
 	} else if (button == 1){
 		/* no */
 		apply_changes (term, newcfg);
@@ -798,14 +905,15 @@ switch_terminal_class (ZvtTerm *term, struct terminal_config *newcfg)
 	    return;
 	}
 
-	mbox = gnome_message_box_new (_("You have switched the class of this window. Do you\n "
-				       "want to reconfigure this window to match the default\n"
-				       "configuration of the new class?"),
-				 GNOME_MESSAGE_BOX_QUESTION,
-                                 GNOME_STOCK_BUTTON_YES,
-                                 GNOME_STOCK_BUTTON_NO, GNOME_STOCK_BUTTON_CANCEL, NULL);
-
-	gtk_signal_connect (GTK_OBJECT (mbox), "clicked", GTK_SIGNAL_FUNC (switch_terminal_cb),
+	mbox = gtk_message_dialog_new (GTK_WINDOW (prefs->prop_win),
+				       GTK_DIALOG_NO_SEPARATOR,
+				       GTK_MESSAGE_QUESTION,
+				       GTK_BUTTONS_YES_NO,
+				       _("You have switched the class of this window. Do you\n "
+					 "want to reconfigure this window to match the default\n"
+					 "configuration of the new class?"));
+	
+	gtk_signal_connect (GTK_OBJECT (mbox), "response", GTK_SIGNAL_FUNC (switch_terminal_cb),
 			   term);
 	gtk_signal_connect (GTK_OBJECT (mbox), "destroy", GTK_SIGNAL_FUNC (switch_terminal_closed),
 			   term);
@@ -848,10 +956,8 @@ check_image_options_sensitivity (preferences_t *prefs)
 	gtk_widget_set_sensitive (prefs->pixmap_file_entry, has_background);
 	gtk_widget_set_sensitive (prefs->shaded_checkbox,
 				  has_background || has_transparency);
-#ifdef ZVT_BACKGROUND_SCROLL
 	gtk_widget_set_sensitive (prefs->pixmap_scrollable_checkbox,
 				  has_background);
-#endif
 }
 
 /*
@@ -862,8 +968,9 @@ prop_changed (GtkWidget *w, preferences_t *prefs)
 {
 	if (w != GTK_WIDGET (GTK_COMBO (prefs->class_box)->entry)) 
 		prefs->changed = 1;
+#ifdef HAVE_GNOME_PROPERTY_BOX
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (prefs->prop_win));
-
+#endif
 	check_image_options_sensitivity (prefs);
 }
 
@@ -878,6 +985,7 @@ font_changed (GtkWidget *w, preferences_t *prefs)
 {
 	char *font;
 	GtkWidget *peer;
+#ifdef HAVE_GNOME_FONT_PICKER
 	if (GNOME_IS_FONT_PICKER(w)){
 		font = gnome_font_picker_get_font_name (GNOME_FONT_PICKER(w));
 		peer = gtk_object_get_user_data (GTK_OBJECT(w));
@@ -888,6 +996,7 @@ font_changed (GtkWidget *w, preferences_t *prefs)
 		gnome_font_picker_set_font_name (GNOME_FONT_PICKER(peer), font);
 		prop_changed (w, prefs);
 	}
+#endif
 }
 
 
@@ -905,7 +1014,7 @@ prop_changed_zvt (void *data, char *font_name)
 */ 
 
 typedef struct {
-	GnomePropertyBox *box;
+	gpointer /* GnomePropertyBox */ box;
 	preferences_t	 *prefs;
 } lambda_t;
 
@@ -931,12 +1040,14 @@ set_active (GtkWidget *widget, lambda_t *t)
 {
 	check_color_sensitivity (t->prefs);
 	t->prefs->changed = 1;
+#ifdef HAVE_GNOME_PROPERTY_BOX
 	gnome_property_box_changed (GNOME_PROPERTY_BOX (t->box));
+#endif
 }
 
 static void
 create_option_menu_data (GtkWidget *omenu,
-			 GnomePropertyBox *box, preferences_t *prefs, char **menu_list, int item,
+			 gpointer /*GnomePropertyBox * */box, preferences_t *prefs, char **menu_list, int item,
 			 GtkSignalFunc func)
 {
 	GtkWidget *menu;
@@ -969,7 +1080,7 @@ create_option_menu_data (GtkWidget *omenu,
 }
 
 static void
-create_option_menu (GtkWidget *omenu, GnomePropertyBox *box, preferences_t *prefs, char **menu_list, int item, GtkSignalFunc func)
+create_option_menu (GtkWidget *omenu, /*GnomePropertyBox * */gpointer box, preferences_t *prefs, char **menu_list, int item, GtkSignalFunc func)
 {
 	create_option_menu_data (omenu, box, prefs, menu_list, item, func);
 }
@@ -1012,6 +1123,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	int i;
 	char *scheme[4] = { "linux", "xterm", "rxvt", "custom" };
 
+#ifdef HAVE_GNOME_CONFIG
 	if (cfg->font)
 		gnome_config_set_string ("font", cfg->font);
 	if (cfg->wordclass)
@@ -1023,9 +1135,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_bool   ("bell_silenced", cfg->bell);
 	gnome_config_set_bool   ("blinking", cfg->blink);
 	gnome_config_set_bool   ("swap_del_and_backspace", cfg->swap_keys);
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	gnome_config_set_bool   ("del_is_del", cfg->del_is_del);
-#endif
 	gnome_config_set_bool   ("login_by_default", cfg->login_by_default);
 	gnome_config_set_bool   ("use_bold", cfg->use_bold);
 	gnome_config_set_int    ("scrollbacklines", cfg->scrollback);
@@ -1038,9 +1148,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
 	gnome_config_set_bool   ("transparent", cfg->transparent);
 	gnome_config_set_bool   ("shaded", cfg->shaded);
-#ifdef ZVT_BACKGROUND_SCROLL
 	gnome_config_set_bool   ("scroll_background", cfg->scroll_background);
-#endif
 	gnome_config_set_bool   ("background_pixmap", cfg->background_pixmap);
 	gnome_config_set_string ("pixmap_file", cfg->pixmap_file);
 
@@ -1052,24 +1160,30 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 		g_free(colours[i]);
 
 	gnome_config_sync ();
+#endif
 }
 
-void
+static void
 save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	struct terminal_config *cfg = 
 		gtk_object_get_data (GTK_OBJECT (term), "config");
 	char *prefix = g_strdup_printf ("/Terminal/%s/", cfg->class);
 
+#ifdef HAVE_GNOME_CONFIG
 	gnome_config_push_prefix (prefix);
+#endif
 	g_free (prefix);
 	save_preferences (widget, term, cfg);
+#ifdef HAVE_GNOME_CONFIG
 	gnome_config_pop_prefix ();
+#endif
 }
 
 static void
 phelp_cb (GtkWidget *w, gint tab, gpointer data)
 {
+#ifdef HAVE_GNOME_HELP
 	GnomeHelpMenuEntry help_entry = { "gnome-terminal",
 					  "config.html" };
 	char *pages[] = { "config.html#CONFIG-GENERAL",
@@ -1079,11 +1193,13 @@ phelp_cb (GtkWidget *w, gint tab, gpointer data)
 	g_assert (tab < 4);
 	help_entry.path = pages[tab];
 	gnome_help_display(NULL, &help_entry);
+#endif
 }
 
-void
-preferences_cmd (GtkWidget *widget, ZvtTerm *term)
+static void
+preferences_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 {
+#ifdef HAVE_GLADE
 	GtkWidget *picker, *b1, *b2, *label, *r;
 	preferences_t *prefs;
 	GList *class_list = NULL;
@@ -1108,7 +1224,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			gtk_window_set_transient_for (GTK_WINDOW (prefs->prop_win),
 						      GTK_WINDOW (transient_parent));
 		/* Raise and possibly uniconify the property box */
-		gdk_window_show (prefs->prop_win->window);
+		gtk_window_present (prefs->prop_win->window);
 		return;
 	}
 
@@ -1187,11 +1303,6 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->use_bold_checkbox),
 	                              cfg->use_bold ? 1 : 0);
 
-#ifdef ZVT_TERM_EMBOLDEN_SUPPORT
-	if (!(zvt_term_get_capabilities(term) & ZVT_TERM_EMBOLDEN_SUPPORT))
-#endif
-		gtk_widget_set_sensitive (prefs->use_bold_checkbox, FALSE);
-
 	gtk_signal_connect (GTK_OBJECT (prefs->use_bold_checkbox), "toggled",
 	                    GTK_SIGNAL_FUNC (prop_changed), prefs);
 
@@ -1223,14 +1334,12 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_signal_connect (GTK_OBJECT (prefs->swapkeys_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 	
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	/* Delete key: Send DEL/^H or kdch1 (Esc[3~) */
 	prefs->del_is_del_checkbox = glade_xml_get_widget (gui, "del-is-del-checkbox");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->del_is_del_checkbox),
 				      cfg->del_is_del ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->del_is_del_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
-#endif
 	
 	/* --login by default */
 	prefs->login_by_default_checkbox = glade_xml_get_widget (gui, "login-by-default-checkbox");
@@ -1281,15 +1390,11 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
 
 	/* Scrollable pixmap */
-#ifdef ZVT_BACKGROUND_SCROLL
 	prefs->pixmap_scrollable_checkbox = glade_xml_get_widget (gui, "pixmap-scrollable-checkbox");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (prefs->pixmap_scrollable_checkbox),
 				      cfg->scroll_background ? 1 : 0);
 	gtk_signal_connect (GTK_OBJECT (prefs->pixmap_scrollable_checkbox), "toggled",
 			    GTK_SIGNAL_FUNC (prop_changed), prefs);
-#else
-	gtk_widget_hide (glade_xml_get_widget (gui, "pixmap-scrollable-checkbox"));
-#endif
 
 	/* Transparency */
 	prefs->transparent_checkbox = glade_xml_get_widget (gui, "transparent-checkbox");
@@ -1397,6 +1502,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (phelp_cb), NULL);
 
 	gtk_object_unref (GTK_OBJECT (gui));
+#endif
 }
 
 #define NEED_UNUSED_FUNCTIONS
@@ -1407,8 +1513,8 @@ color_ok (GtkWidget *w)
 	gtk_widget_destroy (gtk_widget_get_toplevel (w));
 }
 
-void
-color_cmd (void)
+static void
+color_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
 {
 	GtkWidget *c;
 
@@ -1421,43 +1527,59 @@ color_cmd (void)
 }
 #endif
 
-void
-toggle_menubar_cmd (GtkWidget *widget, ZvtTerm *term)
+static void
+toggle_menubar_cmd (BonoboUIComponent *uic, 
+		    const char *path,
+		    Bonobo_UIComponent_EventType type,
+		    const char *state,
+		    gpointer data)
 {
-	GnomeApp *app;
+	ZvtTerm *term;
+	GtkWindow *app;
 	struct terminal_config *cfg;
+	guint width, height;
+
+	if (type != Bonobo_UIComponent_STATE_CHANGED)
+		return;
+
+	term = data;
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	cfg->menubar_hidden = ! cfg->menubar_hidden;
+	cfg->menubar_hidden = atoi (state);
 
-	app = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	bonobo_ui_component_set_prop (uic, "/menu", "hidden", state, NULL);
 
-	if (cfg->menubar_hidden)
-		gtk_widget_hide (app->menubar->parent);
-	else
-		gtk_widget_show (app->menubar->parent);
+	app = GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	app->need_default_size = TRUE;
+	gtk_widget_queue_resize (GTK_WIDGET (app));
 
-	save_preferences_cmd (widget, term);
+#if 0
+	zvt_term_set_size (term, width, height);
+
+	gtk_window_resize (app, width * term->charwidth, height * term->charheight);
+
+
+	hackity_hack (
+#endif
+	save_preferences_cmd (NULL, term);
 }
 
-#ifdef HAVE_ZVT_TERM_RESET
 static void
-reset_terminal_soft_cmd (GtkWidget *widget, ZvtTerm *term)
+reset_terminal_soft_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
 	zvt_term_reset(term, 0);
 }
 
 /* could also possible clear the buffer? */
 static void
-reset_terminal_hard_cmd (GtkWidget *widget, ZvtTerm *term)
+reset_terminal_hard_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
 	zvt_term_reset(term, 1);
 }
-#endif
 
-void
-paste_cmd (GtkWidget *widget, ZvtTerm *term)
+static void
+paste_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
 	GdkAtom string_atom;
 	GdkEvent *event;
@@ -1483,21 +1605,31 @@ paste_cmd (GtkWidget *widget, ZvtTerm *term)
 	default:
 		time = GDK_CURRENT_TIME;
 	}
-	
+
 	gtk_selection_convert (GTK_WIDGET (term),
                                gdk_atom_intern ("CLIPBOARD", FALSE),
                                string_atom,
 			       time);
 }
 
-void
-toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term)
+static void
+toggle_secure_keyboard_cmd (BonoboUIComponent *uic, 
+			    const char *path,
+			    Bonobo_UIComponent_EventType type,
+			    const char *state,
+			    gpointer data)
 {
+	ZvtTerm *term;
 	struct terminal_config *cfg;
+
+	if (type != Bonobo_UIComponent_STATE_CHANGED)
+		return;
+
+	term = data;
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	cfg->keyboard_secured = ! cfg->keyboard_secured;
+	cfg->keyboard_secured = atoi (state);
 
 	if (cfg->keyboard_secured)
 		gdk_keyboard_grab (term->term_window, TRUE, GDK_CURRENT_TIME);
@@ -1505,9 +1637,8 @@ toggle_secure_keyboard_cmd (GtkWidget *w, ZvtTerm *term)
 		gdk_keyboard_ungrab (GDK_CURRENT_TIME);
 }
 
-#ifdef ZVT_TERM_MATCH_SUPPORT
 static void
-load_url_cmd (GtkWidget *widget, ZvtTerm *term)
+load_url_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
 	char *url;
 
@@ -1515,94 +1646,32 @@ load_url_cmd (GtkWidget *widget, ZvtTerm *term)
 	if (url) {
 		gnome_url_show(url);
 	}
-
 }
+
+static void
+help_cmd (BonoboUIComponent *uic, gpointer data, const char *cname)
+{
+}
+
+static void new_terminal (BonoboUIComponent *uic, ZvtTerm *term, const char *cname);
+
+#if 0
+	BONOBO_UI_UNSAFE_VERB ("ToggleMenuBar", toggle_menubar_cmd),
+	BONOBO_UI_UNSAFE_VERB ("SecureKeyboard", toggle_secure_keyboard_cmd),
 #endif
 
-static GnomeUIInfo gnome_terminal_terminal_menu [] = {
-        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
-	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_ITEM_NONE (N_("_Hide menubar"), NULL, toggle_menubar_cmd),
-	GNOMEUIINFO_SEPARATOR,
-	GNOMEUIINFO_ITEM_STOCK (N_("_Close terminal"), NULL, close_terminal_cmd,
-													GNOME_STOCK_MENU_EXIT),
-	GNOMEUIINFO_END
-};
-
-/*
- * Warning:
- * 
- *   If you change the layout of the popup menus, you must update the
- *   value of the POPUP_MENU_TOGGLE_INDEX_* macros to reflect the new
- *   menu item indices.
- */
-static GnomeUIInfo gnome_terminal_popup_menu [] = {
-        GNOMEUIINFO_MENU_NEW_ITEM (N_("_New terminal"), N_("Creates a new terminal window"), new_terminal, NULL),
-        GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
-	GNOMEUIINFO_TOGGLEITEM (N_("_Show menubar"), N_("Toggles whether or not the menubar is displayed."),
-				toggle_menubar_cmd, NULL),
-	GNOMEUIINFO_TOGGLEITEM (N_("_Secure keyboard"),
-				N_("Toggles whether or not the keyboard is grabbed by the terminal."),
-				toggle_secure_keyboard_cmd, NULL),
-#ifdef HAVE_ZVT_TERM_RESET
-	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
-	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
-#endif
-#ifdef ZVT_TERM_MATCH_SUPPORT
-	GNOMEUIINFO_END,	/* used as a free slot for dymanic menu item */
-#endif
-	GNOMEUIINFO_END
-};
-
-#ifdef ZVT_TERM_MATCH_SUPPORT
-static GnomeUIInfo gnome_terminal_popup_menu_url [] = {
-	GNOMEUIINFO_ITEM_NONE (N_("_Open in browser"), NULL, load_url_cmd),
-};
-#endif
-
-static GnomeUIInfo gnome_terminal_help_menu [] = {
-	GNOMEUIINFO_HELP ("gnome-terminal"),
-	GNOMEUIINFO_MENU_ABOUT_ITEM(about_terminal_cmd, NULL),
-	GNOMEUIINFO_END
-};
-
-static GnomeUIInfo gnome_terminal_edit [] = {
-	GNOMEUIINFO_MENU_PASTE_ITEM(paste_cmd, NULL),
-	GNOMEUIINFO_END
-};
-
-static GnomeUIInfo gnome_terminal_settings_menu [] = {
-        GNOMEUIINFO_MENU_PREFERENCES_ITEM(preferences_cmd, NULL),
-#ifdef HAVE_ZVT_TERM_RESET
-	GNOMEUIINFO_ITEM_NONE (N_("_Reset Terminal"), NULL, reset_terminal_soft_cmd),
-	GNOMEUIINFO_ITEM_NONE (N_("Reset and _Clear"), NULL, reset_terminal_hard_cmd),
-#endif
-	GNOMEUIINFO_ITEM_NONE (N_("C_olor selector..."), NULL, color_cmd),
-	GNOMEUIINFO_END
-};
-
-static GnomeUIInfo gnome_terminal_menu[] = {
-   {
-	GNOME_APP_UI_SUBTREE_STOCK, N_("File"), NULL,
-	gnome_terminal_terminal_menu, NULL, NULL, (GnomeUIPixmapType) 0,
-	NULL, 0, (GdkModifierType) 0, NULL
-   },
-   {
-	GNOME_APP_UI_SUBTREE_STOCK, N_("Edit"), NULL,
-	gnome_terminal_edit, NULL, NULL, (GnomeUIPixmapType) 0, NULL, 0,
-	(GdkModifierType) 0, NULL
-   },
-   {
-	GNOME_APP_UI_SUBTREE_STOCK, N_("Settings"), NULL,
-        gnome_terminal_settings_menu, NULL, NULL,
-	(GnomeUIPixmapType) 0, NULL, 0, (GdkModifierType) 0, NULL
-   },
-   {
-	GNOME_APP_UI_SUBTREE_STOCK, N_("Help"), NULL,
-	gnome_terminal_help_menu, NULL, NULL, (GnomeUIPixmapType) 0,
-	NULL, 0, (GdkModifierType) 0, NULL
-   },
-   GNOMEUIINFO_END
+static BonoboUIVerb terminal_verbs[] = {
+	BONOBO_UI_UNSAFE_VERB ("NewTerminal", new_terminal),
+	BONOBO_UI_UNSAFE_VERB ("CloseTerminal", close_terminal_cmd),
+	BONOBO_UI_UNSAFE_VERB ("Paste", paste_cmd),
+	BONOBO_UI_UNSAFE_VERB ("Preferences", preferences_cmd),
+	BONOBO_UI_UNSAFE_VERB ("Reset", reset_terminal_soft_cmd),
+	BONOBO_UI_UNSAFE_VERB ("Clear", reset_terminal_hard_cmd),
+	BONOBO_UI_UNSAFE_VERB ("ColorSelector", color_cmd),
+	BONOBO_UI_UNSAFE_VERB ("UsersGuide", help_cmd),
+	BONOBO_UI_UNSAFE_VERB ("About", about_terminal_cmd),
+	BONOBO_UI_UNSAFE_VERB ("OpenURL", load_url_cmd),
+	BONOBO_UI_VERB_END
 };
 
 /*
@@ -1649,7 +1718,7 @@ terminal_kill (GtkWidget *widget, void *data)
 static void
 title_changed(ZvtTerm *term, VTTITLE_TYPE type, char *newtitle)
 {
-	GnomeApp *window = GNOME_APP (gtk_widget_get_toplevel (GTK_WIDGET (term)));
+	BonoboWindow *window = BONOBO_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (term)));
 	XTextProperty text_prop;
 	Atom aprop;
 	char *pchEndPropName;
@@ -1762,7 +1831,7 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 
 		strncpy (copy, selection_data->data, selection_data->length);
 		copy [selection_data->length] = 0;
-		
+#ifdef HAVE_GNOME_URI_LIST		
 		uris = gnome_uri_list_extract_uris (copy);
 
 		for (l = uris; l; l = l->next){
@@ -1774,8 +1843,9 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 			vt_writechild (&term->vx->vt, data, strlen (data));
 			vt_writechild (&term->vx->vt, " ", 1);
 		}
-		g_free (copy);
 		gnome_uri_list_free_strings (uris);
+#endif
+		g_free (copy);
 		break;
 	}
 	case TARGET_COLOR:
@@ -1849,12 +1919,9 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 			g_free (cfg->pixmap_file);
 			cfg->pixmap_file = extract_filename (filename);
 
-#ifdef ZVT_BACKGROUND_SCROLL
 			flags = cfg->shaded?ZVT_BACKGROUND_SHADED:0;
 			flags |= cfg->scroll_background?ZVT_BACKGROUND_SCROLL:0;
-#else
-			flags = cfg->shaded;
-#endif
+
 			zvt_term_set_background (term,
 						 cfg->pixmap_file,
 						 cfg->transparent, flags);
@@ -1913,17 +1980,13 @@ configure_term_dnd (ZvtTerm *term)
 static int
 button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 {
+	BonoboUIComponent *uic;
 	GtkWidget *menu;
-	GnomeUIInfo *uiinfo;
 	struct terminal_config *cfg;
-	GtkCheckMenuItem *toggle_item;
-#ifdef ZVT_TERM_MATCH_SUPPORT
 	char *match;
 	int x,y;
 	GdkModifierType mask;
-#endif
 
-#ifdef ZVT_TERM_MATCH_SUPPORT
 	gdk_window_get_pointer(widget->window, &x, &y, &mask);
 	match = zvt_term_match_check(term, x/term->charwidth, y/term->charheight, 0);
 
@@ -1934,7 +1997,6 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 		gnome_url_show (match);
 		return TRUE;
 	}
-#endif /* ZVT_TERM_MATCH_SUPPORT */
 
 	if (event->button != 3
 	    || (!(event->state & GDK_CONTROL_MASK) && term->vx->selected)
@@ -1943,31 +2005,29 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 
 	gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
 
-#ifdef ZVT_TERM_MATCH_SUPPORT
+	uic = gtk_object_get_data (GTK_OBJECT (term), "uic");
+
 	/* construct the popup menu properly */
 	if (match) {
 		char *tmp;
-
-		memcpy(&gnome_terminal_popup_menu[POPUP_MENU_DYNAMIC_INDEX],
-		       &gnome_terminal_popup_menu_url[0],
-		       sizeof(gnome_terminal_popup_menu_url));
-
 		tmp = gtk_object_get_data(GTK_OBJECT (term), "matchstr");
 		if (tmp)
 			g_free(tmp);
 		gtk_object_set_data (GTK_OBJECT (term), "matchstr", g_strdup(match));
-	} else {
-		/* make sure the optional menu isn't there */
-		memcpy(&gnome_terminal_popup_menu[POPUP_MENU_DYNAMIC_INDEX],
-		       &gnome_terminal_popup_menu[POPUP_MENU_LAST_INDEX],
-		       sizeof(gnome_terminal_popup_menu[0]));
 	}
-#endif
-	uiinfo = gnome_terminal_popup_menu;
-	menu = gnome_popup_menu_new (gnome_terminal_popup_menu);
+
+	menu = gtk_menu_new ();
+
+	bonobo_ui_component_set_prop (uic, "/popups/TerminalPopup/OpenURL",
+				      "hidden", match ? "0" : "1", NULL);
+
+	bonobo_window_add_popup (
+		BONOBO_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (term))),
+		GTK_MENU (menu), "/popups/TerminalPopup");
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
+#if 0
 	/*
 	 * Set the toggle state for the "show menubar"
 	 * menu item.
@@ -1981,20 +2041,28 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	 */
 	toggle_item = GTK_CHECK_MENU_ITEM (uiinfo [POPUP_MENU_TOGGLE_INDEX_SECURE].widget);
 	toggle_item->active = cfg->keyboard_secured;
-
+#endif
+	
+#if 0
 	gnome_popup_menu_do_popup_modal (menu, NULL, NULL, event, term);
 	gtk_widget_destroy (menu);
+#else
+	gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL, event->button, event->time);
+#endif
 
+#if 0
 	/*
 	 * The popup menu ungrabs the keyboard if it was grabbed,
 	 * so we grab it again here.
 	 */
 	if (cfg->keyboard_secured)
 		gdk_keyboard_grab (term->term_window, TRUE, GDK_CURRENT_TIME);
+#endif
 
 	return TRUE;
 }
 
+#if USE_SET_HINTS
 static void
 set_hints (GtkWidget *widget)
 {
@@ -2009,8 +2077,8 @@ set_hints (GtkWidget *widget)
 	g_assert (app != NULL);
 
 #define PADDING 2
-	hints.base_width = (GTK_WIDGET (term)->style->klass->xthickness * 2) + PADDING;
-	hints.base_height =  (GTK_WIDGET (term)->style->klass->ythickness * 2);
+	hints.base_width = (GTK_WIDGET (term)->style->xthickness * 2) + PADDING;
+	hints.base_height =  (GTK_WIDGET (term)->style->ythickness * 2);
 
 	hints.width_inc = term->charwidth;
 	hints.height_inc = term->charheight;
@@ -2022,9 +2090,9 @@ set_hints (GtkWidget *widget)
 				      &hints,
 				      GDK_HINT_RESIZE_INC|GDK_HINT_MIN_SIZE|GDK_HINT_BASE_SIZE);
 }
+#endif
 
-
-static void
+static gint
 term_change_pos(GtkWidget *widget)
 {
 	static int x=-999;
@@ -2033,47 +2101,40 @@ term_change_pos(GtkWidget *widget)
 	
 	if(!widget->window ||
 	   !ZVT_TERM(widget)->transparent)
-		return;
+		return FALSE;
 	
 	gdk_window_get_position(widget->window,&nx,&ny);
 	
 	if(nx!=x || ny!=y)
 		gtk_widget_queue_draw(widget);
+	
+	return FALSE;
 }
 
 /* do this because there have been only 5 bug reports about this */
 static void
 show_pty_error_dialog (int errcode)
 {
-	char *tmpmsg, *errmsg;
 	GtkWidget *dialog;
 
 	perror ("Error: unable to fork");
-
-	tmpmsg = errcode ? 
-		g_strdup_printf(_("The error was: %s"), g_strerror(errcode)) : 
-		_("If you are using Linux 2.2.x with glibc 2.1.x, this\n"
-		  "is probably due to incorrectly setup Unix98 ptys.\n\n"
-		  "Please read linux/Documentation/Changes for how to\n"
-		  "set them up correctly.");
 	
-	errmsg =  g_strdup_printf(_("There has been an error while "
-				    "trying to log in.\n\n%s"), tmpmsg);
-	
-	
-	dialog = gnome_message_box_new (errmsg,
-					GNOME_MESSAGE_BOX_ERROR,
-					GNOME_STOCK_BUTTON_OK, NULL);
+	dialog = gtk_message_dialog_new (NULL, 
+					 GTK_DIALOG_NO_SEPARATOR,
+					 GTK_MESSAGE_ERROR,
+					 GTK_BUTTONS_OK,
+					 _("There has been an error while trying to log in:\n\n%s"),
+					 g_strerror (errcode));
 							
-	gnome_dialog_run_and_close (GNOME_DIALOG (dialog));
-
-	if (errcode) g_free(tmpmsg);
-	g_free(errmsg);
+	gtk_dialog_run (GTK_DIALOG (dialog));
 }
 
-GtkWidget *
+static GtkWidget *
 new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geometry, int termid)
 {
+	BonoboUIComponent *uic;
+	Bonobo_UIContainer container;
+
 	GtkWidget *app, *hbox, *scrollbar;
 	ZvtTerm   *term;
 	static char **env_copy;
@@ -2126,23 +2187,25 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 		env_copy [i] = NULL;
 	}
 
-	app = gnome_app_new ("Terminal", _("Terminal"));
+	app = bonobo_window_new ("Terminal", _("Terminal"));
 	/* override the title if it was in the config */
 	if (cfg->window_title) {
 	  gtk_window_set_title(GTK_WINDOW(app), cfg->window_title);
  	}
 	/* override the icon if it was in the config */
 	if (cfg->window_icon) {
-	  gnome_window_icon_set_from_file (GTK_WINDOW(app), cfg->window_icon);
+	  gnome_window_set_icon_from_file (GTK_WINDOW(app), cfg->window_icon, TRUE);
  	}
 	g_snprintf (winclass, sizeof (winclass), "Terminal.%d", termid);
 	gtk_window_set_wmclass (GTK_WINDOW (app), winclass, "Terminal");
-	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
+	//gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
+	//gtk_widget_set_size_request (GTK_WIDGET (app), 0, 0);
+	//gtk_window_set_resizable (GTK_WINDOW (app), TRUE);
+	//gtk_window_resize (GTK_WINDOW (app), 1, 1);
 
 	if (cmd != NULL)
 		initial_term = app;
 
-	gtk_widget_realize (app);
 	terminals = g_list_append (terminals, app);
 
 	/* Setup the Zvt widget */
@@ -2156,6 +2219,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	height=24;
 	xpos=-1;
 	ypos=-1;
+#ifdef HAVE_GNOME_PARSE_GEOMETRY
 	if (geometry) {
 		gnome_parse_geometry (geometry, &xpos, &ypos, &width, &height);
 		if (width < 1 || height < 1) {
@@ -2165,18 +2229,17 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 		/* Only the first window gets --geometry treatment for now */
 		geometry = NULL;
 	}
-
+#endif
 	term = (ZvtTerm *)zvt_term_new_with_size(width, height);
+	gtk_object_set_data (GTK_OBJECT (term), "config", cfg);
 	if (xpos != -1 && ypos != -1)
-		gtk_widget_set_uposition (GTK_WIDGET (app), xpos, ypos);
+		gtk_window_move (GTK_WINDOW (app), xpos, ypos);
 
 	if ((zvt_term_get_capabilities (term) & ZVT_TERM_PIXMAP_SUPPORT) != 0){
 		zvt_pixmap_support = TRUE;
 	}
 	gtk_object_set_data(GTK_OBJECT(app), "term", term);
 	gtk_widget_grab_focus(GTK_WIDGET(term));
-
-	gtk_widget_show (GTK_WIDGET (term));
 
 	gtk_signal_connect_object(GTK_OBJECT(app),"configure_event",
 				  GTK_SIGNAL_FUNC(term_change_pos),
@@ -2190,9 +2253,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
 	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	zvt_term_set_del_key_swap (term, cfg->swap_keys);
-#ifdef HAVE_ZVT_DEL_IS_DEL
 	zvt_term_set_del_is_del (term, cfg->del_is_del);
-#endif
 
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
@@ -2206,29 +2267,51 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	gtk_signal_connect (GTK_OBJECT (term), "button_press_event",
 			    GTK_SIGNAL_FUNC (button_press), term);
 
+#if 0
+#if USE_SET_HINTS
 	gtk_signal_connect_after (GTK_OBJECT (term), "realize",
 				  GTK_SIGNAL_FUNC (set_hints), term);
-
-#ifdef ZVT_TERM_MATCH_SUPPORT
-	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?", VTATTR_UNDERLINE, "host only url");
-	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\) ,\\\"]", VTATTR_UNDERLINE, "full url");
+#else
+	gtk_signal_connect_object_after (GTK_OBJECT (app), "map",
+					 GTK_SIGNAL_FUNC (hackity_hack), 
+					 GTK_OBJECT (app));
+#endif
 #endif
 
-	if (!cfg->menubar_hidden)
-		gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
+	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?", VTATTR_UNDERLINE, "host only url");
+	zvt_term_match_add( ZVT_TERM(term), "(((news|telnet|nttp|file|http|ftp|https)://)|(www|ftp)[-A-Za-z0-9]*\\.)[-A-Za-z0-9\\.]+(:[0-9]*)?/[-A-Za-z0-9_\\$\\.\\+\\!\\*\\(\\),;:@&=\\?/~\\#\\%]*[^]'\\.}>\\) ,\\\"]", VTATTR_UNDERLINE, "full url");
+
+	uic = bonobo_ui_component_new_default ();
 	
+	gtk_object_set_data (GTK_OBJECT (term), "uic", uic);
+	
+	container = bonobo_object_corba_objref (
+		BONOBO_OBJECT (bonobo_window_get_ui_container (BONOBO_WINDOW (app))));
+	bonobo_ui_component_set_container (uic, container, NULL);
+	
+	bonobo_ui_component_add_verb_list_with_data (uic, terminal_verbs, term);
+	bonobo_ui_util_set_ui (uic, GNOME_TERMINAL_PREFIX,
+			       "gnome-terminal.xml", "gnome-terminal");
+	
+	bonobo_ui_component_add_listener (uic, "ToggleMenuBar", 
+					  toggle_menubar_cmd, term);
+	
+	bonobo_ui_component_add_listener (uic, "SecureKeyboard",
+					  toggle_secure_keyboard_cmd, term);
+						   
 	/* Decorations */
 	hbox = gtk_hbox_new (0, 0);
 
 /*	gtk_container_set_border_width (GTK_CONTAINER (hbox), 2); */
-       	gtk_box_set_spacing (GTK_BOX (hbox), 3);
+       	gtk_box_set_spacing (GTK_BOX (hbox), 0);
 
+	gtk_widget_show (GTK_WIDGET (term));
 	gtk_widget_show (hbox);
+
 	get_shell_name (&shell, &name, cfg->invoke_as_login_shell);
 
 	scrollbar = gtk_vscrollbar_new (GTK_ADJUSTMENT (term->adjustment));
 	gtk_object_set_data (GTK_OBJECT (term), "scrollbar", scrollbar);
-	gtk_object_set_data (GTK_OBJECT (term), "config", cfg);
 	GTK_WIDGET_UNSET_FLAGS (scrollbar, GTK_CAN_FOCUS);
 	
 	if (cfg->scrollbar_position == SCROLLBAR_LEFT)
@@ -2240,18 +2323,12 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 
 	gtk_box_pack_start (GTK_BOX (hbox), GTK_WIDGET (term), 1, 1, 0);
 	
-	gnome_app_set_contents (GNOME_APP (app), hbox);
-
 	configure_term_dnd (term);
 
 	if (zvt_pixmap_support && cfg->background_pixmap) {
 		int flags;
-#ifdef ZVT_BACKGROUND_SCROLL
 		flags = cfg->shaded?ZVT_BACKGROUND_SHADED:0;
 		flags |= cfg->scroll_background?ZVT_BACKGROUND_SCROLL:0;
-#else
-		flags = cfg->shaded;
-#endif
 		zvt_term_set_background (term,
 					 cfg->pixmap_file,
 					 cfg->transparent, flags);
@@ -2261,20 +2338,29 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	else
 		zvt_term_set_background (term, NULL, 0, 0);
 
-	gtk_widget_show (app);
+	bonobo_window_set_contents (BONOBO_WINDOW (app), hbox);
 
-	/*
-	 * We need to hide this here, because the gnome_app_show
-	 * method will force a show on the menu
+	bonobo_ui_component_set_prop (uic, "/commands/ToggleMenuBar",
+				      "state",
+				      cfg->menubar_hidden
+				      ? "1" : "0", NULL);
+
+	bonobo_ui_component_set_prop (uic, "/commands/SecureKeyboard",
+				      "state",
+				      cfg->keyboard_secured
+				      ? "1" : "0", NULL);
+
+	/* 
+	 * we need to realize the term before it gets shown so that
+	 * the sizing works right 
 	 */
-	if (cfg->menubar_hidden) {
-		gnome_app_create_menus_with_data (GNOME_APP (app), gnome_terminal_menu, term);
-		gtk_widget_hide (GNOME_APP (app)->menubar->parent);
-	}
 
+	gtk_widget_realize (GTK_WIDGET (term));
 	set_color_scheme (term, cfg);
 
-	XSync(GDK_DISPLAY(), False);
+	gtk_widget_show (app);
+
+	gdk_flush ();
 
 	errno = 0;
 	switch (zvt_term_forkpty (term, cfg->update_records)){
@@ -2318,14 +2404,14 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, const gchar *geome
 	return app;
 }
 
-GtkWidget *
-new_terminal (GtkWidget *widget, ZvtTerm *term)
+static void
+new_terminal (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
 	struct terminal_config *cfg;
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	return new_terminal_cmd (NULL, cfg, NULL, terminal_id++);
+	new_terminal_cmd (NULL, cfg, NULL, terminal_id++);
 }
 
 GtkWidget *
@@ -2350,10 +2436,12 @@ new_terminal_for_client (const char *geom)
 static void
 load_factory_settings ()
 {
+	const char *path;
 	gchar *buf;
 
-	buf = gnome_client_get_config_prefix (gnome_master_client ());
-	gnome_config_push_prefix (buf);
+	path = gnome_client_get_config_prefix (gnome_master_client ());
+#ifdef HAVE_GNOME_CONFIG
+	gnome_config_push_prefix (path);
 
 	buf = g_strdup_printf ("factory/start=%d", start_terminal_factory);
 	start_terminal_factory = gnome_config_get_int (buf);
@@ -2364,14 +2452,16 @@ load_factory_settings ()
 	g_free (buf);
 
 	gnome_config_pop_prefix ();
+#endif
 }
 
 static gboolean
 load_session (void)
 {
+#ifdef HAVE_GNOME_CONFIG
 	int num_terms, i;
 	gboolean def;
-	gchar *file;
+	const gchar *file;
 
 	file = gnome_client_get_config_prefix (gnome_master_client());
 
@@ -2447,6 +2537,9 @@ load_session (void)
 		}
 	}
 	return TRUE;
+#else /* HAVE_GNOME_CONFIG */
+	return FALSE;
+#endif /* HAVE_GNOME_CONFIG */
 }
 
 /* Save terminal in this session.  FIXME: should save all terminal
@@ -2456,7 +2549,8 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 	      gint is_shutdown, GnomeInteractStyle interact_style,
 	      gint is_fast, gpointer client_data)
 {
-	char *file = gnome_client_get_config_prefix (client);
+#ifdef HAVE_GNOME_CONFIG
+	const char *file = gnome_client_get_config_prefix (client);
 	char *args[8];
 	int i;
 	GList *list;
@@ -2493,12 +2587,12 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 
 		width = 
 		  (GTK_WIDGET (term)->allocation.width - 
-		   (GTK_WIDGET (term)->style->klass->xthickness * 2)) /
+		   (GTK_WIDGET (term)->style->xthickness * 2)) /
 		  term->charwidth;
 
 		height = 
 		  (GTK_WIDGET (term)->allocation.height - 
-		   (GTK_WIDGET (term)->style->klass->ythickness * 2)) /
+		   (GTK_WIDGET (term)->style->ythickness * 2)) /
 		  term->charheight;
 
 		geom = g_string_new ("");
@@ -2573,11 +2667,14 @@ save_session (GnomeClient *client, gint phase, GnomeSaveStyle save_style,
 #endif
 	gnome_config_sync ();
 
+#if 0 /* broken in gnome 2 */
 	args[0] = "rm";
 	args[1] = gnome_config_get_real_path (file);
 	args[2] = NULL;
 	gnome_client_set_discard_command (client, 2, args);
+#endif
 
+#endif /* HAVE_GNOME_CONFIG */
 	return TRUE;
 }
 
@@ -2607,14 +2704,9 @@ enum {
         NOSHADED_KEY        = -22,
         TRANSPARENT_KEY     = -23,
 
-#ifdef ZVT_BACKGROUND_SCROLL
         SOLID_KEY           = -24,
         BGSCROLL_PIXMAP_KEY   = -25,
         BGNOSCROLL_PIXMAP_KEY = -26
-#else /* ZVT_BACKGRUOND_SCROLL */
-        SOLID_KEY           = -24   /* No comma for fussy IBM AIX compiler */
-#endif
-
 };
 
 static struct poptOption cb_options [] = {
@@ -2653,13 +2745,11 @@ static struct poptOption cb_options [] = {
 	{ "pixmap", '\0', POPT_ARG_STRING, NULL, PIXMAP_KEY,
 	  N_("Background pixmap"), N_("PIXMAP")},
 
-#ifdef ZVT_BACKGROUND_SCROLL
 	{ "bgscroll", '\0', POPT_ARG_NONE, NULL, BGSCROLL_PIXMAP_KEY,
 	  N_("Background pixmap scrolls"), N_("BGSCROLL")},
 
 	{ "bgnoscroll", '\0', POPT_ARG_NONE, NULL, BGNOSCROLL_PIXMAP_KEY,
 	  N_("Background pixmap does not scroll"), N_("BGNOSCROLL")},
-#endif
 
 	{ "shaded", '\0', POPT_ARG_NONE, NULL, SHADED_KEY,
 	  N_("Shade background"), N_("SHADED") },	
@@ -2745,7 +2835,7 @@ parse_an_arg (poptContext state,
 		break;
 	case COMMAND_KEY:
 		  {
-			  char **foo;
+			  const char **foo;
 			  int x;
 			  
 			  poptParseArgvString((char *)arg,&x,&foo);
@@ -2785,7 +2875,6 @@ parse_an_arg (poptContext state,
 		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
-#ifdef ZVT_BACKGROUND_SCROLL
 	case BGSCROLL_PIXMAP_KEY:
 		cfg->scroll_background = 1;
 		cfg->have_user_scroll_bg = 1;
@@ -2798,7 +2887,6 @@ parse_an_arg (poptContext state,
 		start_terminal_factory = FALSE;
 		use_terminal_factory = FALSE;
 		break;
-#endif
 	case SHADED_KEY:
 		cfg->shaded = 1;
 		cfg->have_user_shaded = 1;
@@ -2879,7 +2967,7 @@ parse_an_arg (poptContext state,
 static gint
 session_die (gpointer client_data)
 {
-        gtk_main_quit ();
+        bonobo_main_quit ();
 	return TRUE;
 }
 
@@ -2928,19 +3016,19 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		}
 	}
 
-	CORBA_exception_init (&ev);
-	orb = gnome_CORBA_init_with_popt_table ("Terminal", VERSION,
-						&argc, argv,
-						cb_options, 0, NULL,
-						0, &ev);
+#if 0
+	gnome_init_with_popt_table ("Terminal", VERSION,
+				    &argc, argv,
+				    cb_options, 0, NULL);
+#else
+	bonobo_ui_init ("Terminal", VERSION, &argc, argv);
+#endif
+
 	env = environ;
-
-	if (ev._major != CORBA_NO_EXCEPTION)
-		exit (5);
-
-	CORBA_exception_free (&ev);
-
+	
+#if 0
 	gnome_window_icon_set_default_from_file (GNOME_ICONDIR"/gnome-terminal.png");
+#endif
 
 	/* since -x gets stripped out of the commands, this
 	   will make it override --use-factory */
@@ -2978,14 +3066,18 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		else
 			class = g_strdup ("Config");
 	}
-			
+		
 	{
+#ifdef HAVE_GNOME_CONFIG	
 		char *prefix = g_strdup_printf ("Terminal/%s/", class);
 		gnome_config_push_prefix (prefix);
+#endif
 		default_config = load_config (class);
+#ifdef HAVE_GNOME_CONFIG
 		gnome_config_pop_prefix();
-		g_free (class);
 		g_free (prefix);
+#endif
+		g_free (class);
 	}
 	
 	/* now to override the defaults */
@@ -3027,11 +3119,9 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		default_config->transparent = cmdline_config->transparent;
 	}
 
-#ifdef ZVT_BACKGROUND_SCROLL
 	if (cmdline_config->have_user_scroll_bg){
 		default_config->scroll_background = cmdline_config->scroll_background;
 	}
-#endif
 
 	if (cmdline_config->have_user_shaded){
 		default_config->shaded = cmdline_config->shaded;
@@ -3050,14 +3140,17 @@ main_terminal_program (int argc, char *argv [], char **environ)
 
 	load_factory_settings ();
 
+#if 0
 	if (start_terminal_factory) {
 		corba_init_server (orb);
 		if (!has_terminal_factory)
 			corba_activate_server ();
 	}
-	
+#endif
+
 	if (!load_session ()) {
 		gboolean has_term = FALSE;
+#if 0
 		if (use_terminal_factory) {
 			CORBA_Environment ev;
 			CORBA_Object term;
@@ -3074,6 +3167,7 @@ main_terminal_program (int argc, char *argv [], char **environ)
 			}
 			CORBA_exception_free (&ev);
 		}
+#endif
 		if (!has_term) {
 			new_terminal_cmd (initial_command, default_config,
 					  initial_global_geometry,
@@ -3087,24 +3181,39 @@ main_terminal_program (int argc, char *argv [], char **environ)
 		return 0;
 
 	client = gnome_master_client ();
-	gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
-			    GTK_SIGNAL_FUNC (save_session), NULL);
-	gtk_signal_connect (GTK_OBJECT (client), "die",
-			    GTK_SIGNAL_FUNC (session_die), NULL);
 
+	if (client) {
+		gtk_signal_connect (GTK_OBJECT (client), "save_yourself",
+				    GTK_SIGNAL_FUNC (save_session), NULL);
+		gtk_signal_connect (GTK_OBJECT (client), "die",
+				    GTK_SIGNAL_FUNC (session_die), NULL);
+	}
+
+#ifdef HAVE_GLADE
 	glade_gnome_init ();
-	
-	gtk_main ();
+#endif
+	bonobo_main ();
 
 	return 0;
 }
 
 extern char **environ;
 
+static gint
+print_nl (gpointer data)
+{
+	g_print ("\t\tsize\n");
+	return TRUE;
+}
+
 int
 main (int argc, char *argv [])
 {
 	signal (SIGHUP, SIG_IGN);
+
+	if (getenv ("GRUNTIME_DEBUG"))
+		gtk_timeout_add (1000, print_nl, NULL);
+
 	return main_terminal_program (argc, argv, environ);
 }
 
