@@ -601,6 +601,7 @@ helpWindowNew(gchar *name,
 	w->Title    = NULL;
 
 	w->app = gnome_app_new (name, "Gnome Help Browser");
+	gtk_window_set_wmclass (GTK_WINDOW (w->app), "GnomeHelpBrowser", "GnomeHelpBrowser");
 	gtk_widget_realize (w->app);
 
 	gtk_signal_connect (GTK_OBJECT (w->app), "delete_event",
