@@ -530,6 +530,7 @@ gdk_image_new_shared_with_pixmap (GdkWindow  *window,
   GdkWindowPrivate *private;
   GdkWindowPrivate *window_private;
   GdkImagePrivate *img_private;
+  GdkVisual *visual;
   XShmSegmentInfo *x_shm_info;
   gint depth = -1;
   gint saved_gdk_use_xshm;
@@ -540,11 +541,12 @@ gdk_image_new_shared_with_pixmap (GdkWindow  *window,
   if (!window)
     window = (GdkWindow*) &gdk_root_parent;
   window_private = (GdkWindowPrivate*) window;
-  if (window_private->destroyed)
+  visual = gdk_window_get_visual (window);
+  if (window_private->destroyed || !visual)
     return NULL;
 
   saved_gdk_use_xshm = gdk_use_xshm;
-  image = gdk_image_new (GDK_IMAGE_SHARED, gdk_window_get_visual (window), width, height);
+  image = gdk_image_new (GDK_IMAGE_SHARED, visual, width, height);
   gdk_use_xshm = saved_gdk_use_xshm;
   if (!image)
     return NULL;
@@ -552,7 +554,7 @@ gdk_image_new_shared_with_pixmap (GdkWindow  *window,
   x_shm_info = img_private->x_shm_info;
 
   if (depth == -1)
-    depth = gdk_window_get_visual (window)->depth;
+    depth = visual->depth;
 
   private = g_new0 (GdkWindowPrivate, 1);
   pixmap = (GdkPixmap*) private;
@@ -606,6 +608,7 @@ gdk_image_get (GdkWindow *window,
   GdkImage *image;
   GdkImagePrivate *private;
   GdkWindowPrivate *win_private;
+  GdkVisual *visual;
 
   g_return_val_if_fail (window != NULL, NULL);
 
@@ -617,7 +620,8 @@ gdk_image_get (GdkWindow *window,
     }
 
   win_private = (GdkWindowPrivate *) window;
-  if (win_private->destroyed || width < 1 || height < 1)
+  visual = gdk_window_get_visual (window);
+  if (win_private->destroyed || width < 1 || height < 1 || !visual)
     return NULL;
 
   private = g_new (GdkImagePrivate, 1);
@@ -636,7 +640,7 @@ gdk_image_get (GdkWindow *window,
       return NULL;
     }
   image->type = GDK_IMAGE_NORMAL;
-  image->visual = gdk_window_get_visual (window);
+  image->visual = visual;
   image->width = width;
   image->height = height;
   image->depth = private->ximage->depth;
@@ -656,7 +660,7 @@ GdkColormap*
 gdk_window_get_colormap (GdkWindow *window)
 {
   GdkWindowPrivate *window_private;
-  XWindowAttributes window_attributes;
+  XWindowAttributes window_attributes = { 0, };
 
   if (!window)
     window = GDK_ROOT_PARENT ();
@@ -687,7 +691,7 @@ GdkVisual*
 gdk_window_get_visual (GdkWindow *window)
 {
   GdkWindowPrivate *window_private;
-  XWindowAttributes window_attributes;
+  XWindowAttributes window_attributes = { 0, };
 
   if (!window)
     window = GDK_ROOT_PARENT ();

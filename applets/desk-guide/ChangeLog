@@ -1,3 +1,8 @@
+Mon Aug 14 17:38:07 2000  Tim Janik  <timj@gtk.org>
+
+	* gwmthumbnail.c (gdk_image_new_shared_with_pixmap): check whether we
+	actually got the window's visual, we'd crash occasionally otherwise.
+
 Wed Aug  9 02:25:08 2000  Tim Janik  <timj@gtk.org>
 
 	* deskguide_applet.c (gp_widget_button_toggle_task_list): grab keyboard
