@@ -30,7 +30,7 @@ resolveMIME( docObj obj )
 	if (docObjGetMimeType(obj))
 		return;
 
-	ref = docObjGetRef(obj);
+	ref = docObjGetAbsoluteRef(obj);
 	
 	/* do simple recognition for now based on ref */
 	if (strstr(ref, "info:")) {
@@ -44,7 +44,8 @@ resolveMIME( docObj obj )
 		docObjSetMimeType(obj, "text/plain");
 	}
 
-	printf("->%s<-  ->%s<-\n", ref, docObjGetMimeType(obj));
+	g_message("resolved mime type: %s is %s",
+		  ref, docObjGetMimeType(obj));
 
 }
 
@@ -161,10 +162,10 @@ gchar
 	argv[0] = cmd;
 	argv[2] = NULL;
 	
-	printf("Executing command ->%s<- ->%s<- ->%s<-\n",
-	       ((argv[0]) ? argv[0] : ""),
-	       ((argv[1]) ? argv[1] : ""),
-	       ((argv[2]) ? argv[2] : ""));
+	g_message("execfilter: %s %s %s",
+		  ((argv[0]) ? argv[0] : ""),
+		  ((argv[1]) ? argv[1] : ""),
+		  ((argv[2]) ? argv[2] : ""));
 
 
 	return getOutputFrom(argv, inbuf, (inbuf) ? strlen(inbuf): 0);

@@ -1,3 +1,12 @@
+1998-02-25  Marc Ewing  <marc@germ.labs.redhat.com>
+
+	* added entry box
+
+	* use g_message() and g_error() instead of printf()
+
+	* fixed a few places that used docObjGetRef()
+	  instead of docObjGetAbsoluteRef() as they should
+
 1998-02-24  Marc Ewing  <marc@germ.labs.redhat.com>
 
 	* Put virtually all the globals in a per-window structure.

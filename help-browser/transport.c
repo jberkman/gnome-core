@@ -71,12 +71,13 @@ transportFile( docObj obj )
 		strcpy(pp, p);
 		strcat(pp, ".");
 
-		printf("Looking for info files matching ->%s<- or ->%s<-\n",
-		       p, pp);
+		g_message("Looking for info files matching ->%s<- or ->%s<-",
+			  p, pp);
 		d = opendir(r);
 		while (d && (dirp = readdir(d))) {
-/*			printf("%s %s %d\n", dirp->d_name, p,
-			       strncmp(dirp->d_name, p, strlen(p)));
+/*			g_message("transportFile(): %s %s %d",
+			          dirp->d_name, p,
+			          strncmp(dirp->d_name, p, strlen(p)));
 */
 			if (!strncmp(dirp->d_name, pp, strlen(pp)) ||
 			    !strcmp(dirp->d_name, p))

@@ -48,8 +48,8 @@ _visitURL( HelpWindow win, gchar *ref, gboolean save )
 
 	/* obj was 'cleaned up' by visitDocuemnt()/resolveURL() */
 	if (save) {
-	        helpWindowQueueAdd(win, docObjGetRef(obj));
-		helpWindowHistoryAdd(win, docObjGetRef(obj));
+	        helpWindowQueueAdd(win, docObjGetAbsoluteRef(obj));
+		helpWindowHistoryAdd(win, docObjGetAbsoluteRef(obj));
 	}
 	
 	docObjFree(obj);
@@ -65,7 +65,7 @@ displayHTML( HelpWindow win, docObj obj )
 	/* Load the page */
 	if (docObjGetConvData(obj)) {
 		helpWindowHTMLSource(win, docObjGetConvData(obj),
-				     docObjGetRef(obj));
+				     docObjGetAbsoluteRef(obj));
 	}
 
 	/* Set position */

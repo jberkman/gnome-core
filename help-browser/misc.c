@@ -11,8 +11,8 @@
 
 #include "misc.h"
 
-gchar
-*getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft)
+gchar *
+getOutputFrom(gchar *argv[], gchar *writePtr, gint writeBytesLeft)
 {
 	gint progPID;
 	gint progDead;
@@ -40,11 +40,11 @@ gchar
 		close(fromProg[1]);
 			
 		execvp(argv[0], argv);
-		fprintf(stderr, "Couldn't exec %s\n", argv[0]);
+		g_error("couldn't exec %s", argv[0]);
 		_exit(1);
 	}
 	if (progPID < 0) {
-		fprintf(stderr, "Couldn't fork %s\n", argv[0]);
+		g_error("couldn't fork %s", argv[0]);
 		return NULL;
 	}
 		
@@ -93,7 +93,7 @@ gchar
 				outbuflen += bytes;
 			}
 			strcat(outbuf, buf);
-			fprintf(stderr,"%8d bytes read\r",outbuflen);
+			g_message("%8d bytes read\r", outbuflen);
 			bytes = read(fromProg[0], buf, sizeof(buf)-1);
 		}
 			
@@ -105,7 +105,7 @@ gchar
 	signal(SIGPIPE, oldhandler);
 
 	if (writeBytesLeft) {
-		fprintf(stderr, "failed to write all data to %s", argv[0]);
+		g_error("failed to write all data to %s", argv[0]);
 		g_free(outbuf);
 		return NULL;
 	}
@@ -115,7 +115,7 @@ gchar
 #if 0
 	waitpid(progPID, &status, 0);
 	if (!WIFEXITED(status) || WEXITSTATUS(status)) {
-		fprintf(stderr, "%s failed\n", argv[0]);
+		g_error("getOutputFrom(): %s failed", argv[0]);
 		g_free(outbuf);
 		return NULL;
 	}
@@ -156,11 +156,11 @@ getOutputFromBin(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 		close(fromProg[1]);
 			
 		execvp(argv[0], argv);
-		fprintf(stderr, "Couldn't exec %s\n", argv[0]);
+		g_error("couldn't exec %s", argv[0]);
 		_exit(1);
 	}
 	if (progPID < 0) {
-		fprintf(stderr, "Couldn't fork %s\n", argv[0]);
+	        g_error("couldn't fork %s", argv[0]);
 		return 0;
 	}
 		
@@ -208,7 +208,7 @@ getOutputFromBin(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 
 			memcpy(tmpoutbuf+outpos, buf, bytes);
 			outpos += bytes;
-			fprintf(stderr,"%8d bytes read\r",outpos);
+			g_message("%8d bytes read\r", outpos);
 			bytes = read(fromProg[0], buf, sizeof(buf)-1);
 		}
 			
@@ -220,7 +220,7 @@ getOutputFromBin(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 	signal(SIGPIPE, oldhandler);
 
 	if (writeBytesLeft) {
-		fprintf(stderr, "failed to write all data to %s", argv[0]);
+		g_error("failed to write all data to %s", argv[0]);
 		g_free(outbuf);
 		return 0;
 	}
@@ -230,7 +230,7 @@ getOutputFromBin(gchar *argv[], gchar *writePtr, gint writeBytesLeft,
 #if 0
 	waitpid(progPID, &status, 0);
 	if (!WIFEXITED(status) || WEXITSTATUS(status)) {
-		fprintf(stderr, "%s failed\n", argv[0]);
+		g_error("getOutputFrom(): %s failed", argv[0]);
 		g_free(outbuf);
 		return 0;
 	}

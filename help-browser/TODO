@@ -1,3 +1,4 @@
+ - for debug messages, use g_message()
  - add configuration stuff:
     filters, paths, etc
     toolbar preferences
@@ -23,7 +24,6 @@
     first visit
     save to file
     better date string
- - add entry box to main window (use gnome entry widget)
  - can back/forward buttons have dropdown history?
  - info
  - code cleanup

@@ -29,6 +29,10 @@
 static void about_cb(void);
 static void historyCallback(gchar *ref);
 static void tocCallback(gchar *ref);
+void messageHandler(gchar *s);
+void warningHandler(gchar *s);
+void errorHandler(gchar *s);
+void setErrorHandlers(void);
 
 static HelpWindow currentHelpWindow;
 static History historyWindow;
@@ -42,6 +46,8 @@ main(int argc, char *argv[])
     /* Global application history should be here as well          */
     
     gnome_init("gnome_help_browser", &argc, &argv);
+
+    setErrorHandlers();
 	
     window = helpWindowNew(about_cb);
     currentHelpWindow = window;
@@ -93,4 +99,27 @@ about_cb (void)
 	gtk_widget_show (about);
 	
 	return;
+}
+
+void messageHandler(gchar *s)
+{
+    printf("M: %s\n", s);
+}
+
+void errorHandler(gchar *s)
+{
+    fprintf(stderr, "E: %s\n", s);
+}
+
+void warningHandler(gchar *s)
+{
+    printf("W: %s\n", s);
+}
+
+void setErrorHandlers(void)
+{
+    g_set_error_handler((GErrorFunc) errorHandler);
+    g_set_warning_handler((GErrorFunc) warningHandler);
+    g_set_message_handler((GErrorFunc) messageHandler);
+    g_set_print_handler((GErrorFunc) printf);
 }

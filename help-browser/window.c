@@ -45,11 +45,16 @@ struct _helpWindow {
     /* The current page reference */
     gchar *currentRef;
 
+    /* The entry box that shows the URL */
+    GtkWidget *entryBox;
+
     /* Passed to us by the main program */
     GtkSignalFunc about_cb;
     History history;
 };
 
+
+static GtkWidget * makeEntryArea(HelpWindow w);
 
 /* Callbacks */
 static void close_cb(void);
@@ -63,6 +68,7 @@ static void xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs,
 			    HelpWindow win);
 static void ghelpShowHistory (GtkWidget *w, HelpWindow win);
 static void ghelpShowHistoryTB (GtkWidget *w, HelpWindow win);
+static void entryChanged(GtkWidget *w, HelpWindow win);
 
 static void init_toolbar(HelpWindow w);
 static void update_toolbar(HelpWindow w);
@@ -172,7 +178,7 @@ quit_cb (void)
 static void
 xmhtml_activate(GtkWidget *w, XmHTMLAnchorCallbackStruct *cbs, HelpWindow win)
 {
-	printf("tag clicked was ->%s<-\n", cbs->href);
+        g_message("tag clicked: %s", cbs->href);
 	visitURL(win, cbs->href);
 	update_toolbar(win);
 }
@@ -213,10 +219,15 @@ static void help_onhelp(GtkWidget *w, HelpWindow win) {
 	q = alloca(strlen(p)+10);
 	strcpy(q,"file:");
 	strcat(q, p);
-	printf("Loading help from ->%s<-\n",q);
 	g_free(p);
 	visitURL(win, q);
 	return;
+}
+
+static void
+entryChanged(GtkWidget *w, HelpWindow win)
+{
+    helpWindowShowURL(win, gtk_entry_get_text(GTK_ENTRY(w)));
 }
 
 /**********************************************************************/
@@ -255,6 +266,34 @@ update_toolbar(HelpWindow w)
 		gtk_widget_set_sensitive(w->tb_forw, queue_isnext(w->queue));
 }
 
+static GtkWidget *
+makeEntryArea(HelpWindow w)
+{
+    GtkWidget *handleBox, *hbox, *label, *entry;
+    
+    handleBox = gtk_handle_box_new();
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_widget_show(hbox);
+    
+    label = gtk_label_new("URL: ");
+    gtk_widget_show(label);
+    
+    entry = gnome_entry_new(NULL);
+    gtk_widget_show(entry);
+    gtk_signal_connect(GTK_OBJECT(GTK_COMBO(entry)->entry),
+		       "activate", (GtkSignalFunc)entryChanged, w);
+    
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), entry, TRUE, TRUE, 0);
+    gtk_container_add(GTK_CONTAINER(handleBox), hbox);
+
+    w->entryBox = GTK_COMBO(entry)->entry;
+    
+    return handleBox;
+}
+
+
 /**********************************************************************/
 
 
@@ -284,6 +323,7 @@ void helpWindowHTMLSource(HelpWindow w, gchar *s, gchar *ref)
 	g_free(w->currentRef);
     }
     w->currentRef = g_strdup(ref);
+    gtk_entry_set_text(GTK_ENTRY(w->entryBox), ref);
 
     /* Load it up */
     gtk_xmhtml_source(GTK_XMHTML(w->helpWidget), s);
@@ -303,6 +343,8 @@ HelpWindow
 helpWindowNew(GtkSignalFunc about_cb)
 {
         HelpWindow w;
+	GtkWidget *entryArea;
+	GtkWidget *vbox;
 
 	w = (HelpWindow)g_malloc(sizeof(*w));
 
@@ -324,8 +366,20 @@ helpWindowNew(GtkSignalFunc about_cb)
 
 	gnome_app_create_menus_with_data(GNOME_APP(w->app), mainmenu, w);
 
+	/* do the toolbar */
+	init_toolbar(w);
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_container_border_width (GTK_CONTAINER (vbox), 0);
+	gtk_widget_show(vbox);
+
+	entryArea = makeEntryArea(w);
+	gtk_widget_show(entryArea);
+	gtk_box_pack_start(GTK_BOX(vbox), entryArea, FALSE, FALSE, 0);
+
 	/* make the help window */
 	w->helpWidget = gnome_helpwin_new();
+	gtk_widget_show(w->helpWidget);
 	
 	/* trap clicks on tags so we can stick requested link in browser */
 	gtk_signal_connect(GTK_OBJECT(w->helpWidget), "activate",
@@ -333,17 +387,15 @@ helpWindowNew(GtkSignalFunc about_cb)
 
 	/* size should be auto-determined, or read from gnomeconfig() */
 	gtk_widget_set_usize(GTK_WIDGET(w->helpWidget), 800, 600);
-	gnome_app_set_contents(GNOME_APP(w->app), w->helpWidget);
-	gtk_widget_show(w->helpWidget);
+
+	gtk_box_pack_start(GTK_BOX(vbox), w->helpWidget, TRUE, TRUE, 0);
+	gnome_app_set_contents(GNOME_APP(w->app), vbox);
 
 	/* HACKHACKHACK this will grab images via http */
 	gtk_object_set_data(GTK_OBJECT(w->helpWidget), "HelpWindow", w);
 	gtk_xmhtml_set_image_procs(GTK_XMHTML(w->helpWidget),
 				   (XmImageProc)load_image,
 				   NULL,NULL,NULL);
-
-	/* do the toolbar */
-	init_toolbar(w);
 
 	gtk_widget_show(w->app);
 
@@ -387,7 +439,7 @@ load_image(GtkWidget *html_widget, gchar *ref)
 	du = decomposeUrlRelative(ref, win->currentRef, &p);
 	freeDecomposedUrl(du);
 	strcpy(theref, p);
-	printf("Loading image ->%s<-\n", theref);
+	g_message("loading image: %s", theref);
 
 	if (strstr(theref, "file:")) {
 		return XmHTMLImageDefaultProc(html_widget, theref+5, NULL, 0);

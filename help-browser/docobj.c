@@ -84,6 +84,8 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 	if (!strncmp(obj->ref, "info:", 5)) {
 		gchar *r, *s;
 
+	        g_message("got info reference: %s", obj->ref);
+
 		decomp = g_malloc(sizeof(*(obj->decomposedUrl)));
 
 		r = g_strdup(obj->ref + 5);
@@ -104,16 +106,17 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 		
 		g_free(r);
 	} else if (isRelative(obj->ref)) {
-	    printf("RELATIVE: %s\n", obj->ref);
+	    g_message("got relative reference: %s", obj->ref);
 	    decomp = decomposeUrlRelative(obj->ref, currentRef,
 					  &(obj->absoluteRef));
         } else {
+	    g_message("got absolute reference: %s", obj->ref);
 	    decomp = decomposeUrl(obj->ref);
 	    obj->absoluteRef = g_strdup(obj->ref);
 	}
 
-	printf("%s %s %s %s\n", obj->ref, decomp->access, 
-	       decomp->path, decomp->anchor);
+	g_message("decomposed to: %s %s %s", decomp->access, 
+		  decomp->path, decomp->anchor);
 
 	/* stupid test for transport types we currently understand */
 	if (!strncmp(decomp->access, "file", 4)) {
@@ -133,6 +136,11 @@ docObjResolveURL(docObj obj, gchar *currentRef)
 gchar *docObjGetRef(docObj obj)
 {
     return obj->ref;
+}
+
+gchar *docObjGetAbsoluteRef(docObj obj)
+{
+    return obj->absoluteRef;
 }
 
 gchar *docObjGetMimeType(docObj obj)
