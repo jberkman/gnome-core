@@ -1,3 +1,7 @@
+2000-10-25  Karl Eichwalder  <ke@suse.de>
+
+	* deskguide_applet.c: s/Sawmill/Sawfish/.
+
 Sat Oct 14 15:27:47 2000  George Lebl <jirka@5z.com>
 
 	* gstc.c (gstc_parent_add_watch)
