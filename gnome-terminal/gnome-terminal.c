@@ -1389,71 +1389,31 @@ configure_term_dnd (ZvtTerm *term)
 			   GDK_ACTION_COPY);
 }
 
-/*
- * Performs signal connection as appropriate for interpreters or native bindings
- *
- * ALl of this nonsense is due to the limited features of gnome_app_fill_menus
- *
- */
-static void
-do_ui_signal_connect (GnomeUIInfo *uiinfo, gchar *signal_name, GnomeUIBuilderData *uibdata)
-{
-	gtk_object_set_data (GTK_OBJECT (uiinfo->widget),
-			     GNOMEUIINFO_KEY_UIDATA,
-			     uiinfo->user_data);
-
-	gtk_object_set_data (GTK_OBJECT (uiinfo->widget),
-			     GNOMEUIINFO_KEY_UIBDATA,
-			     uibdata->data);
-
-	gtk_signal_connect (GTK_OBJECT (uiinfo->widget), signal_name,
-			    uiinfo->moreinfo,
-			    uibdata->data ? uibdata->data : uiinfo->user_data);
-}
-
 static int
 button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 {
 	GtkWidget *menu;
 	struct terminal_config *cfg;
-	int popup = 0;
-	
+	GnomeUIInfo *uiinfo;
+
+	if (event->button != 3
+	    || ((term->vx->vt.mode & VTMODE_SEND_MOUSE) && !(event->state & GDK_CONTROL_MASK)))
+		return FALSE;
+
+	gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "button_press_event");
+
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	if (event->button == 3){
-		if (event->state & GDK_CONTROL_MASK)
-			popup = 1;
-		else if (!(term->vx->vt.mode & VTMODE_SEND_MOUSE))
-			popup = 1;
-	}
-	
-	if (popup){
-		GnomeUIInfo *uiinfo;
-		GnomeUIBuilderData uib;
-		menu = gtk_menu_new (); 
+	if (cfg->menubar_hidden)
+		uiinfo = gnome_terminal_popup_menu_show;
+	else
+		uiinfo = gnome_terminal_popup_menu_hide;
 
-		if (cfg->menubar_hidden)
-			uiinfo = gnome_terminal_popup_menu_show;
-		else
-			uiinfo = gnome_terminal_popup_menu_hide;
+	menu = gnome_popup_menu_new (uiinfo);
+	gnome_popup_menu_do_popup_modal (menu, NULL, NULL, event, term);
+	gtk_widget_destroy (menu);
 
-		/* All of this magic is required just to pass a *data to the menu entries */
-		uib.connect_func = do_ui_signal_connect;
-		uib.data = term;
-		uib.is_interp = FALSE;
-		uib.relay_func = NULL;
-		uib.destroy_func = NULL;
-		
-		gtk_object_set_user_data (GTK_OBJECT (menu), term);
-		gnome_app_fill_menu_custom (GTK_MENU_SHELL (menu), uiinfo,
-					    &uib, NULL, FALSE, 0);
-
-		gtk_menu_popup (GTK_MENU (menu), NULL, NULL, 0, NULL, 3, event->time);
-
-		return 1;
-	}
-
-	return 0;
+	return TRUE;
 }
 
 

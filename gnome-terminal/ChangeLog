@@ -1,3 +1,12 @@
+1999-02-21  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* gnome-terminal.c (button_press): Simplified menu handling by
+	using a gnome-popup-menu.  Stop the button_press_emission when we
+	popup the menu so that the terminal will not catch the button.
+	Free the menu (it was leaking a new menu each time you popped one
+	up).
+	(do_ui_signal_connect): Removed this function.
+
 1999-02-19  Raja R Harinath  <harinath@cs.umn.edu>
 
 	* Makefile.am (LDADD): Use $(ZVT_LIBS) instead of -lzvt.
