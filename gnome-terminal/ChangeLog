@@ -1,3 +1,10 @@
+1999-02-04  Owen Taylor  <otaylor@redhat.com>
+
+	* gnome-terminal.c (preferences_cmd): If a preferences
+	window already exists, raise it. (It might also be
+	nice to bring it to the current desktop, but that
+	would take more work)
+
 1999-02-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal.c (new_terminal_cmd): Add patch from Mike Bond

@@ -859,9 +859,15 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	struct terminal_config *cfg;
 
 	/* Is a property window for this terminal already running? */
-	if (gtk_object_get_data (GTK_OBJECT (term), "prefs") ||
-	    gtk_object_get_data (GTK_OBJECT (term), "newcfg"))
+	if (gtk_object_get_data (GTK_OBJECT (term), "newcfg"))
 		return;
+	
+	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+	if (prefs) {
+		/* Raise and possibly uniconify the property box */
+		gdk_window_show (prefs->prop_win->window);
+		return;
+	}
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
