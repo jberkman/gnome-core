@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Xlyap
+Name[no]=Xlyap
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=xlyap

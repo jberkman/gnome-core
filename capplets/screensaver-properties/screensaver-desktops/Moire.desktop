@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Moire
+Name[no]=Moire
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=moire

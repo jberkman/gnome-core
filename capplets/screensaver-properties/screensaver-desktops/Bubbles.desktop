@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Bubbles
+Name[no]=Bobler
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=bubbles

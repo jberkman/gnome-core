@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Hopalong
+Name[no]=Hopalong
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=hopalong

@@ -1,4 +1,6 @@
-[Desktop Entry]
+|[Desktop Entry]
 Name=Window Manager
+Name[no]=Vindusbehandler
 Comment=Modify the settings of your window manager.
+Comment[no]=Endre innstillingene for vindusbehandleren
 Type=Directory

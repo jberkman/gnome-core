@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Bsod
+Name[no]=Bsod
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=bsod

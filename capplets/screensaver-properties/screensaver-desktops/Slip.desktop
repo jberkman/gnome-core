@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Slip
+Name[no]=Slip
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=slip

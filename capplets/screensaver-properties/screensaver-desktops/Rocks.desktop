@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Rocks
+Name[no]=Steiner
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=rocks

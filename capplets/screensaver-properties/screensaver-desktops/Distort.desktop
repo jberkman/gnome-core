@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Distort
+Name[no]=Forvreng
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=distort

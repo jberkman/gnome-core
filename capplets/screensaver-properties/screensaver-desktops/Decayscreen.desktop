@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Decayscreen
+Name[no]=Forvitrende skjerm
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=decayscreen

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Goop
+Name[no]=Goop
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=goop

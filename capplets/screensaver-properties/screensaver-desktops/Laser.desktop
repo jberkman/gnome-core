@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Laser
+Name[no]=Laser
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=laser

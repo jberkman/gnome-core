@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Screensaver Properties
 Name[pt]=Propriedades da protecção de ecrã
+Name[no]=Egenskaper for skjermsparer
 Comment=Configure the settings of the screensaver.
 Comment[pt]=Configura as opções da protecção de ecrã.
+Comment[no]=Endre innstillingene for skjermspareren
 Exec=screensaver-properties-capplet
 Icon=gnome-screensaver.png
 Terminal=0

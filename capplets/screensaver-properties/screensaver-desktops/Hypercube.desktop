@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Hypercube
+Name[no]=Hyperkube
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=hypercube

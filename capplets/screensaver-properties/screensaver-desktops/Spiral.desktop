@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Spiral
+Name[no]=Spiral
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=spiral

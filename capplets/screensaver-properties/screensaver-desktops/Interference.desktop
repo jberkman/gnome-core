@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Interference
+Name[no]=Forstyrrelser
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=interference

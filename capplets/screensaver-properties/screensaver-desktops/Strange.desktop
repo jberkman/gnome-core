@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Strange
+Name[no]=Snålt
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=strange

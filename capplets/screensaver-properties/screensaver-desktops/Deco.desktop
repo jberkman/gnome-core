@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Deco
+Name[no]=Deco
 Comment=Draw tacky 70s basement wall panelling.
+Comment[no]=Tegn 70-talls kjellerveggpanel
 Exec=xscreensaver-command -activate
 TryExec=deco
 Terminal=0

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Starfish
+Name[no]=Stjernefisk
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=starfish

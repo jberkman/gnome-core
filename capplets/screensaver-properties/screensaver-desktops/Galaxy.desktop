@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Galaxy
+Name[no]=Galakse
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=galaxy

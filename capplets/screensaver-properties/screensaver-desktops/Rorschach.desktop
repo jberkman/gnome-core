@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Rorschach
+Name[no]=Rorschach
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=rorschach

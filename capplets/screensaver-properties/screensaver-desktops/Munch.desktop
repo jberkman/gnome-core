@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Munch
+Name[no]=Munch
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=munch

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Pyro
+Name[no]=Pyro
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=pyro

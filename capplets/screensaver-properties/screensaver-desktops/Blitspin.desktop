@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Blitspin
+Name[no]=Blitspin
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=blitspin

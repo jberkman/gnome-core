@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Coral
+Name[no]=Korall
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=coral

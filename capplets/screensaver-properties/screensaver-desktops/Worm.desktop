@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Worm
+Name[no]=Orm
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=worm

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Flag
+Name[no]=Flagg
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=flag

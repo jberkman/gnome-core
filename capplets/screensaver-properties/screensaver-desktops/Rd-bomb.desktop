@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Rd-bomb
+Name[no]=Rd-bombe
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=rd-bomb

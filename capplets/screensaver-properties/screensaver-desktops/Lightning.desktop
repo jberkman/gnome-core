@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Lightning
+Name[no]=Lyn
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=lightning

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Braid
+Name[no]=Flette
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=braid

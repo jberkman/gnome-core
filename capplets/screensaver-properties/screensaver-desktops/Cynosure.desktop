@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Cynosure
+Name[no]=Cynosure
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=cynosure

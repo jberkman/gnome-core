@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Halo
+Name[no]=Halo
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=halo

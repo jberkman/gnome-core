@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Discrete
+Name[no]=Diskret
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=discrete

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Sphere
+Name[no]=Sfære
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=sphere

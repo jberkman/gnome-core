@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Forest
+Name[no]=Skog
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=forest

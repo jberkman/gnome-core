@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Flow
+Name[no]=Flyt
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=flow

@@ -1,4 +1,6 @@
 [Desktop Entry]
 Name=Appearances
+Name[no]=Utseende
 Comment=Modify the look and feel of your session.
+Comment[no]=Modifiser utseende og oppførsel på sesjonen
 Type=Directory

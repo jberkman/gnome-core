@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Noseguy
+Name[no]=Nesetype
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=noseguy

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Truchet
+Name[no]=Truchet
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=truchet

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Slidescreen
+Name[no]=Lysbildeskjerm
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=slidescreen

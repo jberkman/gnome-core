@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Crystal
+Name[no]=Krystall
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=crystal

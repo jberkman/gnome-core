@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Grav
+Name[no]=Grav
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=grav

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Drift
+Name[no]=Drift
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=drift

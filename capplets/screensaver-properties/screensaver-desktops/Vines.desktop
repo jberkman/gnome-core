@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Vines
+Name[no]=Viner
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=vines

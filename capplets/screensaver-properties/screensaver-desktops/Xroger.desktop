@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Xroger
+Name[no]=Xroger
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=xroger

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Ifs
+Name[no]=Ifs
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=ifs

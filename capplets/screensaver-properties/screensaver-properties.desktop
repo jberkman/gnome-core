@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Screensaver Properties
+Name[no]=Egenskaper for skjermsparer
 Comment=Configure the settings of the screensaver.
+Comment[no]=Rediger innstillingene for skjermspareren
 Exec=screensaver-properties-capplet
 Icon=gnome-screensaver.png
 Terminal=0

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Lmorph
+Name[no]=Lmorph
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=lmorph

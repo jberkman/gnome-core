@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Qix
+Name[no]=Qix
 Comment=Bounce colored lines around a window.
 Exec=xscreensaver-command -activate
 TryExec=qix

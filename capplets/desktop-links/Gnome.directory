@@ -1,4 +1,6 @@
 [Desktop Entry]
 Name=Gnome
+Name[no]=Gnome
 Comment=Gnome
+Comment[no]=Gnome
 Type=Directory

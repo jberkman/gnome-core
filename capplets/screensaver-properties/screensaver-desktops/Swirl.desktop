@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Swirl
+Name[no]=Hvirvel
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=swirl

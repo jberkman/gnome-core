@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Mountain
+Name[no]=Fjell
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=mountain

@@ -1,4 +1,6 @@
 [Desktop Entry]
 Name=Workspace
+Name[no]=Arbeidsområde
 Comment=Modify the appearance of your workspace
+Comment[no]=Endre utseende til arbeidsområdet
 Type=Directory

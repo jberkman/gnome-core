@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Xjack
+Name[no]=Xjack
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=xjack

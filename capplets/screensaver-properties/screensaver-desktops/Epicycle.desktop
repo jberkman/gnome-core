@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Epicycle
+Name[no]=Epicycle
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=epicycle

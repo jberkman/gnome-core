@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Jigsaw
+Name[no]=Jigsaw
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=jigsaw

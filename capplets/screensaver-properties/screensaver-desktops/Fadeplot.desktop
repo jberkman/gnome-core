@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Fadeplot
+Name[no]=Fadeplot
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=fadeplot

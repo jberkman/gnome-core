@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Rotor
+Name[no]=Rotor
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=rotor

@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Lissie
+Name[no]=Lissie
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=lissie

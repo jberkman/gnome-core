@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Kumppa
+Name[no]=Kumppa
 Comment=
 Exec=xscreensaver-command -activate
 TryExec=kumppa
