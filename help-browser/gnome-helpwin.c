@@ -154,7 +154,11 @@ gnome_helpwin_new(void)
 		help->home = g_strdup(filename);
 	}
 #endif
-
+#if 0
+	gtk_xmhtml_set_anchor_buttons (GTK_XMHTML (help), 0);
+	gtk_xmhtml_set_anchor_underline_type (GTK_XMHTML (help), GTK_ANCHOR_SINGLE_LINE);
+	gtk_xmhtml_set_hilight_on_enter (GTK_XMHTML (help), 0);
+#endif
 	return GTK_WIDGET(help);
 }
 
