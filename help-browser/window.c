@@ -573,7 +573,9 @@ helpWindowClose(HelpWindow win)
     if (win->humanRef)
 	g_free(win->humanRef);
     queue_free(win->queue);
-    //gtk_widget_destroy(win->accelWidget);
+    /*
+      gtk_widget_destroy(win->accelWidget);
+    */
     g_free(win);
 }
 

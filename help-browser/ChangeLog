@@ -1,3 +1,7 @@
+1998-12-08  Matt Wilson  <msw@redhat.com>
+
+	* window.c: no c++ comments.
+
 1998-12-08  Michael Lausch  <mla@gams.at>
 
 	* help-caller.c (main): changed the
