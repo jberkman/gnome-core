@@ -1439,17 +1439,25 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 	switch (info) {
 	case TARGET_STRING:
 	{
-		char *p = selection_data->data;
-		int count = selection_data->length;
+		char *copy = g_malloc (selection_data->length+1);
+		GList *uris, *l;
+
+		strncpy (copy, selection_data->data, selection_data->length);
+		copy [selection_data->length] = 0;
 		
-		do {
-			len = 1 + strlen (p);
-			count -= len;
+		uris = gnome_uri_list_extract_uris (copy);
+
+		for (l = uris; l; l = l->next){
+			char *data = l->data;
+
+			if (strncmp (data, "file:", 5) == 0)
+				data += 5;
 			
-			vt_writechild (&term->vx->vt, p, len - 1);
+			vt_writechild (&term->vx->vt, data, strlen (data));
 			vt_writechild (&term->vx->vt, " ", 1);
-			p += len;
-		} while (count > 0);
+		}
+		g_free (copy);
+		gnome_uri_list_free_strings (uris);
 		break;
 	}
 	case TARGET_COLOR:

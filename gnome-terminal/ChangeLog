@@ -1,3 +1,9 @@
+1999-03-30  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (drag_data_received): Use
+	gnome_uri_list_extract_uris to extract the information passed (we
+	do not want to pass file:// here, we want the verbatim stuff).
+
 1999-03-27  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* gnome-terminal/gnome-terminal.c (switch_terminal_class): Use
