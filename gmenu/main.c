@@ -227,7 +227,12 @@ static void about_dialog(void)
 	const gchar *authors[3];
 	gchar version[32];
 
-	if (about) return; /* avoid duplicates */
+	if (about)
+	{
+		gdk_window_show(about->window);
+		gdk_window_raise(about->window);
+		return; /* avoid duplicates */
+	}
 
 	sprintf(version,"%d.%d.%d",GMENU_VERSION_MAJOR, GMENU_VERSION_MINOR, GMENU_VERSION_MICRO);
 
