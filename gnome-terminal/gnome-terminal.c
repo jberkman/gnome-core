@@ -41,6 +41,9 @@ enum color_set_enum {
 enum scrollbar_position_enum { SCROLLBAR_LEFT = 0, SCROLLBAR_RIGHT = 1, SCROLLBAR_HIDDEN = 2 };
 
 struct terminal_config {
+	int blink:1; 				/* Do we want blinking cursor? */
+	int scroll_key:1;			/* Scroll on input? */
+	int scroll_out:1;			/* scroll on output? */
 	int color_type; 			/* The color mode */
 	enum color_set_enum color_set;
 	char *font; 				/* Font used by the terminals */
@@ -48,7 +51,6 @@ struct terminal_config {
 	char * class;
 	enum scrollbar_position_enum scrollbar_position;
 	int invoke_as_login_shell; 		/* How to invoke the shell */
-	int blink; 				/* Do we want blinking cursor? */
 	GdkColor user_fore, user_back; 		/* The custom colors */
 	int menubar_hidden; 			/* Whether to show the menubar */
 	int have_user_colors;			/* Only used for command line parsing */
@@ -67,6 +69,8 @@ GList *terminals = 0;
 typedef struct {
 	GtkWidget *prop_win;
 	GtkWidget *blink_checkbox;
+	GtkWidget *scroll_kbd_checkbox;
+	GtkWidget *scroll_out_checkbox;
 	GtkWidget *menubar_checkbox;
 	GtkWidget *font_entry;
 	GtkWidget *color_scheme;
@@ -294,7 +298,6 @@ load_config (char * class)
 	/* It's very odd that these are here */
 	cfg->font = NULL;
 	cfg->invoke_as_login_shell = 0;
-	cfg->menubar_hidden = 0;
 	cfg->class = g_strdup(class);
 
 	sprintf(prefix, "/Terminal/%s/", class);
@@ -324,7 +327,9 @@ load_config (char * class)
 	cfg->color_set = gnome_config_get_int ("color_set=0");
 
 	cfg->menubar_hidden = !gnome_config_get_bool ("menubar=true");
-	
+	cfg->scroll_key = gnome_config_get_bool ("scrollonkey=true");
+	cfg->scroll_out = gnome_config_get_bool ("scrollonoutput=false");
+
 	if (strcasecmp (fore_color, back_color) == 0)
 		/* don't let them set identical foreground and background colors */
 		cfg->color_set = 0;
@@ -349,7 +354,10 @@ static struct terminal_config * gather_changes (ZvtTerm *term) {
 
 	newcfg->blink = GTK_TOGGLE_BUTTON (prefs->blink_checkbox)->active;
 	newcfg->menubar_hidden = GTK_TOGGLE_BUTTON (prefs->menubar_checkbox)->active;
-	newcfg->scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin)); 
+	newcfg->scrollback = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (prefs->scrollback_spin));
+	newcfg->scroll_out = GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox)->active;
+	newcfg->scroll_key = GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox)->active;
+
 	(int) newcfg->scrollbar_position = gtk_object_get_user_data (GTK_OBJECT (prefs->scrollbar));
 
 	g_free (newcfg->font);
@@ -380,7 +388,7 @@ struct terminal_config * terminal_config_dup(struct terminal_config * cfg) {
 	struct terminal_config * n;
 
 	n = g_malloc(sizeof(*n));
-	memcpy(n, cfg, sizeof(*n));
+	*n = *cfg;
 	n->class = g_strdup(cfg->class);
 	n->font = g_strdup(cfg->font);
 
@@ -410,6 +418,8 @@ apply_changes (ZvtTerm *term, struct terminal_config * newcfg)
 
 	zvt_term_set_font_name (term, cfg->font);
 	zvt_term_set_blink (term, cfg->blink);
+	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
+	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	if (cfg->scrollbar_position == SCROLLBAR_HIDDEN)
 		gtk_widget_hide (scrollbar);
@@ -663,11 +673,13 @@ enum {
 	FORECOLOR_ROW = 3,
 	BACKCOLOR_ROW = 4,
 	CLASS_ROW    = 1,
-	SCROLL_ROW    = 2,
-	SCROLLBACK_ROW = 3,
-	FONT_ROW      = 4,
-	BLINK_ROW     = 5,
-	MENUBAR_ROW    = 6
+	FONT_ROW      = 2,
+	BLINK_ROW     = 3,
+	MENUBAR_ROW    = 4,
+	SCROLL_ROW    = 1,
+	SCROLLBACK_ROW = 2,
+	KBDSCROLL_ROW = 3,
+	OUTSCROLL_ROW = 4
 };
 
 /* called back to free the ColorSelector */
@@ -702,7 +714,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", prefs);
 
 	/* general page */
-	table = gtk_table_new (3, 5, FALSE);
+	table = gtk_table_new (3, 3, FALSE);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win),
 					table, gtk_label_new (_("General")));
 
@@ -751,16 +763,6 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->class_box,
 			  2, 3, CLASS_ROW, CLASS_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	
-	/* Scrollbar position */
-	l = aligned_label (_("Scrollbar position"));
-	gtk_table_attach (GTK_TABLE (table), l,
-			  1, 2, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
-					       scrollbar_position_list,
-					       cfg->scrollbar_position, GTK_SIGNAL_FUNC (set_active));
-	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
-			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-
 	/* Blinking status */
 	prefs->blink_checkbox = gtk_check_button_new_with_label (_("Blinking cursor"));
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->blink_checkbox),
@@ -779,15 +781,6 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gtk_table_attach (GTK_TABLE (table), prefs->menubar_checkbox,
 			  2, 3, MENUBAR_ROW, MENUBAR_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
-	/* Scroll back */
-	l = aligned_label (_("Scrollback lines"));
-        gtk_table_attach (GTK_TABLE (table), l, 1, 2, SCROLLBACK_ROW, SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
-	adj = (GtkAdjustment *) gtk_adjustment_new ((gfloat)cfg->scrollback, 1.0, 1000.0, 1.0, 5.0, 0.0);
-	prefs->scrollback_spin = gtk_spin_button_new (adj, 0, 0);
-	gtk_signal_connect (GTK_OBJECT (prefs->scrollback_spin), "changed",
-			    GTK_SIGNAL_FUNC (prop_changed), prefs);
-	gtk_table_attach (GTK_TABLE (table), prefs->scrollback_spin,
-			  2, 3, SCROLLBACK_ROW, SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 	/* Color page */
 	table = gtk_table_new (4, 4, FALSE);
 	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, gtk_label_new (_("Colors")));
@@ -832,6 +825,51 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	set_active_data(prefs->def_fore_back, cfg->color_set, b2, b2);
 	gtk_table_attach (GTK_TABLE (table), prefs->def_fore_back,
 			  2, 6, FOREBACK_ROW, FOREBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Scrolling page */
+	table = gtk_table_new (4, 4, FALSE);
+	gnome_property_box_append_page (GNOME_PROPERTY_BOX (prefs->prop_win), table, 
+					gtk_label_new (_("Scrolling")));
+
+	/* Scrollbar position */
+	l = aligned_label (_("Scrollbar position"));
+	gtk_table_attach (GTK_TABLE (table), l,
+			  1, 2, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	prefs->scrollbar = create_option_menu (GNOME_PROPERTY_BOX (prefs->prop_win), prefs,
+					       scrollbar_position_list,
+					       cfg->scrollbar_position, GTK_SIGNAL_FUNC (set_active));
+	gtk_table_attach (GTK_TABLE (table), prefs->scrollbar,
+			  2, 3, SCROLL_ROW, SCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Scroll back */
+	l = aligned_label (_("Scrollback lines"));
+        gtk_table_attach (GTK_TABLE (table), l, 1, 2, SCROLLBACK_ROW, SCROLLBACK_ROW+1, 
+			  GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+	adj = (GtkAdjustment *) gtk_adjustment_new ((gfloat)cfg->scrollback, 1.0, 
+						    1000.0, 1.0, 5.0, 0.0);
+	prefs->scrollback_spin = gtk_spin_button_new (adj, 0, 0);
+	gtk_signal_connect (GTK_OBJECT (prefs->scrollback_spin), "changed",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->scrollback_spin, 2, 3, SCROLLBACK_ROW, 
+			  SCROLLBACK_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Scroll on keystroke checkbox */
+	prefs->scroll_kbd_checkbox = gtk_check_button_new_with_label (_("Scroll on keystroke"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->scroll_kbd_checkbox),
+				     cfg->scroll_key);
+	gtk_signal_connect (GTK_OBJECT (prefs->scroll_kbd_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->scroll_kbd_checkbox, 2, 3, 
+			  KBDSCROLL_ROW, KBDSCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
+
+	/* Scroll on output checkbox */
+	prefs->scroll_out_checkbox = gtk_check_button_new_with_label (_("Scroll on output"));
+	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (prefs->scroll_out_checkbox),
+				     cfg->scroll_out);
+	gtk_signal_connect (GTK_OBJECT (prefs->scroll_out_checkbox), "toggled",
+			    GTK_SIGNAL_FUNC (prop_changed), prefs);
+	gtk_table_attach (GTK_TABLE (table), prefs->scroll_out_checkbox, 2, 3, 
+			  OUTSCROLL_ROW, OUTSCROLL_ROW+1, GTK_FILL, 0, GNOME_PAD, GNOME_PAD);
 
 	/* connect the property box signals */
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "apply",
@@ -892,6 +930,8 @@ save_preferences (GtkWidget *widget, ZvtTerm *term, struct terminal_config * cfg
 	gnome_config_set_string ("foreground", get_color_string (cfg->user_fore));
 	gnome_config_set_string ("background", get_color_string (cfg->user_back));
 	gnome_config_set_bool   ("menubar", !cfg->menubar_hidden);
+	gnome_config_set_bool   ("scrollonkey", cfg->scroll_key);
+	gnome_config_set_bool   ("scrollonoutput", cfg->scroll_out);
 	gnome_config_sync ();
 
 	gnome_config_pop_prefix();
@@ -1078,7 +1118,7 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	cfg = gtk_object_get_data(GTK_OBJECT(term), "config");
 
 	/* FIXME: this should popup a menu instead */
-	if (event->state & GDK_CONTROL_MASK){
+	if (event->state & GDK_CONTROL_MASK && event->button == 3){
 		menu = gtk_menu_new (); 
 
 		for (item = gnome_terminal_terminal_menu; item->type != GNOME_APP_UI_ENDOFINFO;
@@ -1118,6 +1158,8 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfgIn)
 	char *shell, *name;
 	int i = 0;
 	struct terminal_config * cfg;
+
+	/* FIXME: is seems like a lot of this stuff should be done by apply_changes instead */
 
 	cfg = terminal_config_dup(cfgIn);
 
@@ -1176,6 +1218,8 @@ new_terminal_cmd (char **cmd, struct terminal_config * cfgIn)
 	zvt_term_set_scrollback (term, cfg->scrollback);
 	gnome_term_set_font (term, cfg->font);
 	zvt_term_set_blink (term, cfg->blink);
+	zvt_term_set_scroll_on_keystroke (term, cfg->scroll_key);
+	zvt_term_set_scroll_on_output (term, cfg->scroll_out);
 	gtk_signal_connect (GTK_OBJECT (term), "child_died",
 			    GTK_SIGNAL_FUNC (terminal_kill), term);
 

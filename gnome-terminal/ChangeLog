@@ -1,3 +1,8 @@
+1998-17-14  Erik Troan  <ewt@redhat.com>
+
+	* gnome_terminal.c: added optional automatic scrolling
+	behaviors
+
 1998-44-14  Erik Troan  <ewt@redhat.com>
 
 	* gnome_terminal.c: switched to gnome-color-picker from
