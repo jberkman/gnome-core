@@ -1,5 +1,7 @@
 2000-11-02  Jacob "Ulysses" Berkman  <jacob@helixcode.com>
 
+	* main.c (main): support debian and suse menu things too
+
 	* edit.c, save.c, treedel.c, treednd.c: fix the merge menus
 	crashing stuff.
 
