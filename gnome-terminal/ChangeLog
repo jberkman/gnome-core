@@ -1,7 +1,10 @@
 1999-02-04  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
-	* gnome-terminal.c (set_color_scheme): Remove one line of dead
-	code. 
+	* gnome-terminal.c (new_terminal_cmd): Add patch from Mike Bond
+	(mike.bond@template.com) for properly setting up the swap-del-keys
+	setting on the zvt widget.
+
+	(set_color_scheme): Remove one line of dead code.
 
 1999-02-03  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
