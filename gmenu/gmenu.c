@@ -25,7 +25,12 @@ GtkCTreeNode *current_node = NULL;
 gchar *current_path;
 
 Desktop_Data *edit_area_orig_data = NULL;
+static gchar *drop_data = NULL;
 
+static void drag_data_get_cb (GtkWidget *widget, GdkDragContext *context,
+			GtkSelectionData *selection_data, guint info,
+			guint time, gpointer data);
+static void possible_drag_item_pressed (GtkCTree *ctree, GdkEventButton *event, gpointer data);
 static void sort_node( GtkCTreeNode *node);
 static void sort_single_pressed(GtkWidget *w, gpointer data);
 static void sort_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
@@ -94,6 +99,46 @@ GnomeUIInfo toolbar[] = {
 	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_PIXMAP_SPELLCHECK, 0, 0, NULL },
 	GNOMEUIINFO_END
 };
+
+static void drag_data_get_cb (GtkWidget *widget, GdkDragContext *context,
+			GtkSelectionData *selection_data, guint info,
+			guint time, gpointer data)
+{
+	if (drop_data)
+		{
+		gchar *uri_list = g_copy_strings ("file:", drop_data, NULL);
+		gtk_selection_data_set (selection_data,
+				selection_data->target, 8, uri_list,
+				strlen(uri_list));
+		g_free(uri_list);
+		}
+}
+
+static void possible_drag_item_pressed (GtkCTree *ctree, GdkEventButton *event, gpointer data)
+{
+	gint row, col;
+	Desktop_Data *d;
+	GtkCTreeNode *node;
+
+	if (event->window != GTK_CLIST(ctree)->clist_window) return;
+	if (event->button != 1) return;
+
+	gtk_clist_get_selection_info (GTK_CLIST (ctree), event->x, event->y, &row, &col);
+
+	node = GTK_CTREE_NODE(g_list_nth (GTK_CLIST (ctree)->row_list, row));
+
+	g_free(drop_data);
+
+	if (!node || node == topnode)
+		{
+		drop_data = NULL;
+		return;
+		}
+
+	d = gtk_ctree_node_get_row_data(GTK_CTREE(ctree),node);
+
+	drop_data = d->path;
+}
 
 static void sort_node( GtkCTreeNode *node)
 {
@@ -252,6 +297,11 @@ int main (int argc, char *argv[])
 	GtkWidget *scrolled;
 	GtkTooltips *tooltips;
 
+	static GtkTargetEntry targets[] =
+		{
+		{ "text/uri-list", 0, 0 }
+		};
+
 	bindtextdomain(PACKAGE, GNOMELOCALEDIR);
 	textdomain(PACKAGE);
 
@@ -309,6 +359,13 @@ int main (int argc, char *argv[])
 	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),"button_release_event", GTK_SIGNAL_FUNC(tree_item_selected),NULL);
 	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"tree_move", GTK_SIGNAL_FUNC(tree_moved),"before");
 	gtk_signal_connect_after(GTK_OBJECT(menu_tree_ctree),"tree_move", GTK_SIGNAL_FUNC(tree_moved),NULL);
+
+	/* drag and drop */
+	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree),"button_press_event",
+			   GTK_SIGNAL_FUNC(possible_drag_item_pressed),NULL);
+	gtk_drag_source_set(menu_tree_ctree, GDK_BUTTON1_MASK, targets, 1, GDK_ACTION_COPY);
+	gtk_signal_connect(GTK_OBJECT(menu_tree_ctree), "drag_data_get", drag_data_get_cb, NULL);
+
 	gtk_container_add (GTK_CONTAINER (scrolled), menu_tree_ctree);
 	gtk_widget_show(menu_tree_ctree);
 

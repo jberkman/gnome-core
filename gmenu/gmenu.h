@@ -15,7 +15,7 @@
 	/* definitions */
 #define GMENU_VERSION_MAJOR 0
 #define GMENU_VERSION_MINOR 3
-#define GMENU_VERSION_REV 1
+#define GMENU_VERSION_REV 2
 
 typedef struct _Desktop_Data Desktop_Data;
 struct _Desktop_Data
