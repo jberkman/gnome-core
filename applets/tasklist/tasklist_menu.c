@@ -196,15 +196,9 @@ GtkWidget
 		       GWMH_TASK_STICKY (task->gwmh_task)
 		       ? tasklist_unstick_xpm : tasklist_stick_xpm);
 
-	add_menu_item (_("Close window"), menu, MENU_ACTION_CLOSE,
-		       tasklist_close_xpm);
-
-	menuitem = gtk_menu_item_new ();
-	gtk_widget_show (menuitem);
-	gtk_menu_append (GTK_MENU (menu), menuitem);
-
 	menuitem = gtk_pixmap_menu_item_new ();
 	label = gtk_label_new (_("To desktop"));
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 	gtk_container_add (GTK_CONTAINER (menuitem), label);
 	pixmap = gdk_pixmap_create_from_xpm_d (area->window, &mask, NULL,
 					       tasklist_send_to_desktop_xpm);
@@ -237,6 +231,13 @@ GtkWidget
 		}
 	} else 
 		gtk_widget_set_sensitive (menuitem, FALSE);
+
+	menuitem = gtk_menu_item_new ();
+	gtk_widget_show (menuitem);
+	gtk_menu_append (GTK_MENU (menu), menuitem);
+	add_menu_item (_("Close window"), menu, MENU_ACTION_CLOSE,
+		       tasklist_close_xpm);
+
 	menuitem = gtk_menu_item_new ();
 	gtk_widget_show (menuitem);
 	gtk_menu_append (GTK_MENU (menu), menuitem);
