@@ -1568,8 +1568,7 @@ button_press (GtkWidget *widget, GdkEventButton *event, ZvtTerm *term)
 	GnomeUIInfo *uiinfo;
 
 	if (event->button != 3
-	    || !(event->state & GDK_CONTROL_MASK)
-	    || term->vx->selected
+	    || (!(event->state & GDK_CONTROL_MASK) && term->vx->selected)
 	    || (term->vx->vt.mode & VTMODE_SEND_MOUSE))
 		return FALSE;
 
