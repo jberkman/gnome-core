@@ -59,7 +59,11 @@ gboolean send_command_to_running(char *string, void (*callback)(char *))
   
   runcmd_callback = callback;
   act.sa_handler = do_cb;
+#ifndef SA_NODEFER
+#   define SA_NODEFER 0
+#endif
   act.sa_flags = SA_NODEFER;
+
   sigaction(SIGUSR2, &act, NULL);
 
   return FALSE;
