@@ -28,6 +28,10 @@ gchar *current_path;
 
 Desktop_Data *edit_area_orig_data = NULL;
 
+static void sort_node( GtkCTreeNode *node);
+static void sort_single_pressed();
+static void sort_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data);
+static void sort_recursive_pressed();
 int isfile(char *s);
 int isdir(char *s);
 char *filename_from_path(char *t);
@@ -50,6 +54,15 @@ GnomeUIInfo file_menu[] = {
 	  GDK_CONTROL_MASK, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
+GnomeUIInfo sort_menu[] = {
+	{ GNOME_APP_UI_ITEM, N_("Folder"), NULL, sort_single_pressed, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SPELLCHECK, 'S',
+	  GDK_CONTROL_MASK, NULL },
+	{ GNOME_APP_UI_ITEM, N_("Folder Recursive"), NULL, sort_recursive_pressed, NULL, NULL,
+	  GNOME_APP_PIXMAP_STOCK, GNOME_STOCK_MENU_SPELLCHECK, 'R',
+	  GDK_CONTROL_MASK, NULL },
+	{ GNOME_APP_UI_ENDOFINFO }
+};
 GnomeUIInfo help_menu[] = {
 	{ GNOME_APP_UI_HELP, NULL, NULL, NULL, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
@@ -61,11 +74,54 @@ GnomeUIInfo help_menu[] = {
 GnomeUIInfo main_menu[] = {
 	{ GNOME_APP_UI_SUBTREE, N_("File"), NULL, file_menu, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
+	{ GNOME_APP_UI_SUBTREE, N_("Sort"), NULL, sort_menu, NULL, NULL,
+	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	{ GNOME_APP_UI_SUBTREE, N_("Help"), NULL, help_menu, NULL, NULL,
 	  GNOME_APP_PIXMAP_NONE, NULL, 0, 0, NULL },
 	{ GNOME_APP_UI_ENDOFINFO }
 };
 
+static void sort_node( GtkCTreeNode *node)
+{
+	Desktop_Data *d;
+
+	if (!node || node == topnode) return;
+
+	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	if (!d->isfolder) node = GTK_CTREE_ROW(node)->parent;
+
+	gtk_ctree_sort(GTK_CTREE(menu_tree_ctree), node);
+	save_order_of_dir(node);
+}
+
+static void sort_single_pressed()
+{
+	sort_node(current_node);
+}
+
+
+static void sort_recurse_cb(GtkCTree *ctree, GtkCTreeNode *node, gpointer data)
+{
+	Desktop_Data *d;
+
+	if (!node) return;
+
+	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	if (d->isfolder) sort_node (node);
+}
+
+static void sort_recursive_pressed()
+{
+	Desktop_Data *d;
+	GtkCTreeNode *node = current_node;
+
+	if (!node || node == topnode) return;
+
+	d = gtk_ctree_get_row_data(GTK_CTREE(menu_tree_ctree),node);
+	if (!d->isfolder) node = GTK_CTREE_ROW(node)->parent;
+
+	gtk_ctree_post_recursive(GTK_CTREE(menu_tree_ctree), node, sort_recurse_cb, NULL);
+}
 
 static void dnd_data_request(GtkWidget *widget, GdkEvent *event)
 {
@@ -275,7 +331,6 @@ int main (int argc, char *argv[])
 		return 1;
 		}
 
-	/* FIXME: is the user's menu ~/.gnome/apps or ~/.gnome/share/apps ? */
 	USER_APPS = check_for_dir(gnome_util_home_file("apps"));
 	USER_PIXMAPS = check_for_dir(gnome_util_home_file("pixmaps"));
 
@@ -284,7 +339,7 @@ int main (int argc, char *argv[])
 	gtk_signal_connect(GTK_OBJECT(app), "delete_event", GTK_SIGNAL_FUNC(destroy_cb), NULL);
 
 	gnome_app_create_menus_with_data (GNOME_APP(app), main_menu, app);
-	gtk_menu_item_right_justify(GTK_MENU_ITEM(main_menu[1].widget));
+	gtk_menu_item_right_justify(GTK_MENU_ITEM(main_menu[2].widget));
 
 	tooltips = gtk_tooltips_new();
 
@@ -336,6 +391,17 @@ int main (int argc, char *argv[])
 	gtk_widget_show(pixmap);
 
 	gtk_tooltips_set_tip (tooltips, button, _("Delete"), NULL);
+
+	button = gtk_button_new();
+	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(sort_single_pressed), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,FALSE,0);
+	gtk_widget_show(button);
+
+	pixmap = gnome_stock_pixmap_widget_new(app, GNOME_STOCK_PIXMAP_SPELLCHECK );
+	gtk_container_add(GTK_CONTAINER(button),pixmap);
+	gtk_widget_show(pixmap);
+
+	gtk_tooltips_set_tip (tooltips, button, _("Sort Folder"), NULL);
 
 	button = gtk_button_new();
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",GTK_SIGNAL_FUNC(move_up_cb), NULL);

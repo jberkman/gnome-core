@@ -1,3 +1,9 @@
+Sun Aug  9 11:55:11 1998  John Ellis  <johne@bellatlantic.net>
+
+	* gmenu.c (sort node), (sort_single_pressed), (sort_recurse_cb),
+	(sort_recursive_pressed): new functions, added sorting of folders
+	(non) recursively.
+
 1998-08-04  Nuno Ferreira  <nmrf@rnl.ist.utl.pt>
 
 	* gmenu.c (main): Marked string for translation.
