@@ -5,7 +5,7 @@
 
    <para> 
     El aplique <application>Lista de Tareas</application>, tal y
-    como se observa en <xref linkend="lista de tareas-applet-fig">, 
+    como se observa en <xref linkend="tasklist-applet-fig">, 
     muestra una tabla en la cual observamos la aplicaciones con ventanas que se están
     ejecutando en su ordenador. En función de las opciones escogidas, Vd. podrá hacer que
     aparezcan o bien aquellas del escritorio en uso, o todos los escritorios virtuales.
@@ -31,7 +31,7 @@
 
    <sect2 id="tasklist-applet-usage">
     <title>Utilización</title>
-    La <para><application>Lista de Tareas</application> le permite navegar rápidamente
+    <para>La <application>Lista de Tareas</application> le permite navegar rápidamente
     por las aplicaciones que se están ejecutando en su ordenador, mostrar iconos y
     nombres de aplicaciones para cada aplicación que se ajuste a los criterios que  haya
     fijado en  la <link
@@ -350,6 +350,7 @@
     </para>
    </sect2>
 
+</sect1>
 <sect1>
 <title></title>
 
