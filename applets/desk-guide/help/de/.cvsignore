@@ -1,0 +1,6 @@
+Makefile
+Makefile.in
+index.html
+desk-guide-applet
+*.junk
+*.ced
