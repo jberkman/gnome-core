@@ -1,3 +1,9 @@
+Sun May 17 12:06:09 1998  Havoc Pennington  <hp@pobox.com>
+
+	* property-ui.c: Copyright notice, and use the new access
+	functions for gnome-preferences.
+	* app-ui.c: Copyright.
+
 Sun May 17 02:42:22 1998  Havoc Pennington  <hp@pobox.com>
 
 	* property-ui.c, app-ui.c: New files.

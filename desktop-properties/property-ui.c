@@ -1,5 +1,24 @@
-/* property-ui.c - Property page for configuring look and feel
-   (libgnomeui).  */
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+ *   property-ui.c: Property page for configuring look and feel
+ *      
+ *   Copyright (C) 1998 Free Software Foundation 
+ *   Author: Havoc Pennington <hp@pobox.com>
+ *
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ */
 
 #include <config.h>
 
@@ -18,6 +37,7 @@ ui_read (void)
 static void
 ui_write (void)
 {
+  /* FIXME obviously this shouldn't be in both write and apply. */
   gnome_preferences_save();
 }
 
@@ -41,7 +61,7 @@ static const gchar * const buttonbox_style_names[] = {
 
 static void buttonbox_style_cb(GtkWidget * menuitem, gint style)
 {
-  gnome_preferences_global.dialog_buttons_style = style;
+  gnome_preferences_set_button_layout (style);
   property_changed();
 }
 
@@ -68,7 +88,7 @@ ui_setup (void)
     gtk_signal_connect ( GTK_OBJECT(menuitem), "activate", 
 			 GTK_SIGNAL_FUNC(buttonbox_style_cb), 
 			 (gpointer) i );
-    if ( i == gnome_preferences_global.dialog_buttons_style ) {
+    if ( i == gnome_preferences_get_button_layout() ) {
       gtk_option_menu_set_history ( GTK_OPTION_MENU(option_menu), i );
     }
     ++i;
