@@ -1,17 +1,26 @@
+1999-08-30  Anders Carlsson   <anders.carlsson@tordata.se>
+
+	* tasklist_applet.c
+	  tasklist_config.c
+	  tasklist_menu.c: Started implementing basic config stuff
+
 Fri Aug 20 19:10:42 1999  George Lebl  <jirka@5z.com>
 
 	* tasklist_applet.c: comment out registering Properties... with
 	  a NULL callback as that's not really nice
 
+	
 1999-08-18  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_applet.c: Removed black rectangle around text.
 	  unknown.xpm: Changed unknown icon to a better(?) one.
 
+	
 1999-08-14  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* tasklist_applet.c: Added about box.
 
+	
 1999-08-05  Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* menu.c

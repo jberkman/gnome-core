@@ -8,6 +8,7 @@ void add_menu_item (gchar *name, GtkWidget *menu, MenuAction action);
 gboolean cb_menu (GtkWidget *widget, gpointer data);
 void cb_menu_position (GtkMenu *menu, gint *x, gint *y, gpointer user_data);
 
+extern TasklistConfig Config;
 extern GtkWidget *area;
 TasklistTask *current_task;
 
@@ -50,7 +51,25 @@ cb_menu (GtkWidget *widget, gpointer data)
 						    WIN_STATE_STICKY);
 		break;
 	case MENU_ACTION_KILL:
-		gwmh_task_kill (current_task->gwmh_task);
+		if (Config.confirm_before_kill) {
+			GtkWidget *dialog;
+			gint retval;
+
+			dialog = gnome_message_box_new("Warning! Unsaved changes will be lost!\nProceed?",
+						       GNOME_MESSAGE_BOX_WARNING,
+						       GNOME_STOCK_BUTTON_YES,
+						       GNOME_STOCK_BUTTON_NO,
+						       NULL);
+			gtk_widget_show(dialog);
+			retval = gnome_dialog_run(GNOME_DIALOG(dialog));
+
+			if (retval)
+				return TRUE;
+
+			gwmh_task_kill(current_task->gwmh_task);
+		}
+		else
+			gwmh_task_kill (current_task->gwmh_task);
 		break;
 	case MENU_ACTION_SHOW_HIDE:
 		if (GWMH_TASK_MINIMIZED (current_task->gwmh_task)) {

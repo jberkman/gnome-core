@@ -2,13 +2,10 @@
 #include <applet-widget.h>
 #include "gwmh.h"
 
-#define CONFIG_HEIGHT 48
-#define CONFIG_ROWHEIGHT 24
-#define CONFIG_ROWS 2
-#define CONFIG_PIXMAP 0
-
+/* The row height of a task */
+#define ROW_HEIGHT 24
 typedef struct _TasklistTask TasklistTask;
-typedef struct _Config Config;
+typedef struct _TasklistConfig TasklistConfig;
 
 typedef enum
 {
@@ -28,17 +25,17 @@ struct _TasklistTask {
 	GwmhTask *gwmh_task;
 };
 
-struct _Config {
-	gboolean show_winops;
-	gboolean confirm_kill;
-	gboolean all_tasks;
-	gboolean minimized_tasks;
-	gboolean show_all;
-	gboolean show_normal;
-	gboolean show_minimized;
-	gboolean numrows_follows_panel;
-	gint tasklist_width;
+struct _TasklistConfig {
+
+	gboolean show_pixmaps; /* Show pixmaps next to tasks */
+	gboolean confirm_before_kill; /* Confirm before killing windows */
+	/* Stuff for horizontal mode */
+	gint width; /* The Width of the tasklist */
+	gint rows; /* Number of rows */
 };
 
 void menu_popup (TasklistTask *task, guint button, guint32 activate_time);
+void read_config (void);
+
+
 

@@ -23,6 +23,7 @@ GList *tasks; /* The list of tasks used */
 GdkPixmap *unknown_icon; /* Unknown icon */
 GdkBitmap *unknown_mask; /* Unknown mask */
 
+extern TasklistConfig Config;
 
 /* Shorten a label that is too long */
 gchar *
@@ -34,7 +35,7 @@ fixup_task_label (TasklistTask *task)
 	label_len = gdk_string_width (area->style->font,
 				      task->gwmh_task->name);
 
-	if (label_len > task->width - 24) {
+	if (label_len > task->width - ROW_HEIGHT) {
 		len = strlen (task->gwmh_task->name);
 		len--;
 		str = g_malloc (len + 4);
@@ -46,7 +47,7 @@ fixup_task_label (TasklistTask *task)
 			
 			label_len = gdk_string_width (area->style->font, str);
 			
-			if (label_len <= task->width - 24)
+			if (label_len <= task->width - (Config.show_pixmaps ? 24:6))
 				break;
 		}
 	}
@@ -139,51 +140,61 @@ draw_task (TasklistTask *task)
 		text_width = gdk_string_width (area->style->font, tempstr);
 		gdk_draw_string (area->window,
 				 area->style->font, area->style->black_gc,
-				 task->x + 8 + ((task->width - text_width) / 2),
+				 task->x +
+				 (Config.show_pixmaps ? 8 : 0) +
+				 ((task->width - text_width) / 2),
 				 task->y + ((task->height - text_height) / 2) + text_height,
 				 tempstr);
+
 #if 0
 		gdk_draw_rectangle (area->window,
 				    area->style->black_gc,
 				    FALSE,
-				    task->x + 8 + ((task->width - text_width) / 2),
+				    task->x + 
+				    (Config.show_pixmaps ? 8 : 0) +
+				    ((task->width - text_width) / 2),
 				    task->y + ((task->height - text_height) / 2),
 				    text_width,
 				    text_height);
-#endif
+#endif 
 		g_free (tempstr);
 	}
 
-	if (task->pixmap) {
-		if (task->mask) {
-			gdk_gc_set_clip_mask (area->style->black_gc, task->mask);
+	if (Config.show_pixmaps) {
+		if (task->pixmap) {
+			if (task->mask) {
+				gdk_gc_set_clip_mask (area->style->black_gc, 
+						      task->mask);
+
+				gdk_gc_set_clip_origin (area->style->black_gc,
+							task->x + 3,
+							task->y + (task->height - 16) / 2);
+			}
+			
+			gdk_draw_pixmap (area->window,
+					 area->style->black_gc,
+					 task->pixmap,
+					 0, 0,
+					 task->x + 3, 
+					 task->y + (task->height - 16) / 2,
+					 16, 16);
+			if (task->mask)
+				gdk_gc_set_clip_mask (area->style->black_gc, NULL);
+		}
+		else {
+			gdk_gc_set_clip_mask (area->style->black_gc, unknown_mask);
 			gdk_gc_set_clip_origin (area->style->black_gc,
 						task->x + 3,
 						task->y + (task->height - 16) / 2);
-		}
-
-		gdk_draw_pixmap (area->window,
-				 area->style->black_gc,
-				 task->pixmap,
-				 0, 0,
-				 task->x + 3, task->y + (task->height - 16) / 2,
-				 16, 16);
-		if (task->mask)
+			
+			gdk_draw_pixmap (area->window,
+					 area->style->black_gc,
+					 unknown_icon,
+					 0, 0,
+					 task->x + 3, task->y + (task->height - 16) / 2,
+					 16, 16);
 			gdk_gc_set_clip_mask (area->style->black_gc, NULL);
-	}
-	else {
-		gdk_gc_set_clip_mask (area->style->black_gc, unknown_mask);
-		gdk_gc_set_clip_origin (area->style->black_gc,
-					task->x + 3,
-					task->y + (task->height - 16) / 2);
-		
-		gdk_draw_pixmap (area->window,
-				 area->style->black_gc,
-				 unknown_icon,
-				 0, 0,
-				 task->x + 3, task->y + (task->height - 16) / 2,
-				 16, 16);
-		gdk_gc_set_clip_mask (area->style->black_gc, NULL);
+		}
 	}
 }
 
@@ -195,11 +206,8 @@ layout_tasklist (void)
 	GList *temp_tasks;
 	TasklistTask *task;
 	gint extra_space;
-	gint config_rows;
 	gint num_rows = 0, num_cols = 0;
 	gint curx, cury, curwidth, curheight;
-	
-	config_rows = 2;
 	
 	temp_tasks = get_visible_tasks ();
 	num = g_list_length (temp_tasks);
@@ -209,7 +217,7 @@ layout_tasklist (void)
 		return;
 	}
 	while (p < num) {
-		if (num < config_rows)
+		if (num < Config.rows)
 			num_rows = num;
 
 		j++;
@@ -218,20 +226,20 @@ layout_tasklist (void)
 		if (num_rows < k + 1)
 			num_rows = k + 1;
 		
-		if (j >= ((num + config_rows - 1) / config_rows)) {
+		if (j >= ((num + Config.rows - 1) / Config.rows)) {
 			j = 0;
 			k++;
 		}
 		p++;
 	}
 
-	curheight = (24 * config_rows - 4) / num_rows;
-	curwidth = (450 - 4) / num_cols;
+	curheight = (ROW_HEIGHT * Config.rows - 4) / num_rows;
+	curwidth = (Config.width - 4) / num_cols;
 
 	curx = 2;
 	cury = 2;
 
-	extra_space = 450 - 4 - (curwidth * num_cols);
+	extra_space = Config.width - 4 - (curwidth * num_cols);
 	/* FIXME: Do something with extra_space */
 
 	while (temp_tasks) {
@@ -243,8 +251,8 @@ layout_tasklist (void)
 		task->height = curheight;
 
 		curx += curwidth;
-		if (curx >= 450 ||
-		    curx + curwidth > 450) {
+		if (curx >= Config.width ||
+		    curx + curwidth > Config.width) {
 			cury += curheight;
 			curx = 2;
 		}
@@ -303,10 +311,8 @@ task_notifier (gpointer func_data, GwmhTask *gwmh_task,
 	case GWMH_NOTIFY_INFO_CHANGED:
 		if (imask & GWMH_TASK_INFO_FOCUSED)
 			draw_task (find_gwmh_task (gwmh_task));
-		else if (imask & GWMH_TASK_INFO_MISC)
+		if (imask & GWMH_TASK_INFO_MISC)
 			draw_task (find_gwmh_task (gwmh_task));
-		else
-			g_print ("Unknown imask: %d\n", imask);
 		break;
 	case GWMH_NOTIFY_NEW:
 		task = g_malloc0 (sizeof (TasklistTask));
@@ -404,22 +410,44 @@ cb_about (void)
 	gdk_window_raise (dialog->window);
 }
 
+/* Ignore mouse button 1 clicks */
+static gboolean
+ignore_1st_click (GtkWidget *widget, GdkEvent *event)
+{
+	GdkEventButton *buttonevent = (GdkEventButton *)event;
+
+	if (event->type == GDK_BUTTON_PRESS &&
+	    buttonevent->button == 1) {
+		gtk_signal_emit_stop_by_name (GTK_OBJECT (widget), "event");
+		return TRUE;
+	}
+	return FALSE;
+}
+
 /* Create the applet */
 void
 create_applet (void)
 {
 	GtkWidget *hbox;
+	GtkWidget *handle;
 
 	applet = applet_widget_new ("tasklist_applet");
 	
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox);
 	applet_widget_add (APPLET_WIDGET (applet), hbox);
-
+	
+	handle = gtk_handle_box_new ();
+	gtk_signal_connect (GTK_OBJECT (handle), "event",
+			    GTK_SIGNAL_FUNC (ignore_1st_click), NULL);
 	area = gtk_drawing_area_new ();
+	gtk_drawing_area_size (GTK_DRAWING_AREA (area), 
+			       Config.width,
+			       Config.rows * ROW_HEIGHT);
 	gtk_widget_show (area);
-	gtk_box_pack_start_defaults (GTK_BOX (hbox), area);
-	gtk_drawing_area_size (GTK_DRAWING_AREA (area), 450, 48);
+	gtk_widget_show (handle);
+	gtk_container_add (GTK_CONTAINER (handle), area);
+	gtk_container_add (GTK_CONTAINER (hbox), handle);
 
 	gtk_widget_set_events (area, GDK_EXPOSURE_MASK | 
 			       GDK_BUTTON_PRESS_MASK |
@@ -457,7 +485,7 @@ main (gint argc, gchar *argv[])
 			    VERSION,
 			    argc, argv,
 			    NULL, 0, NULL);
-	
+	read_config ();
 	gwmh_init ();
 	gwmh_task_notifier_add (task_notifier, NULL);
 	gwmh_desk_notifier_add (desk_notifier, NULL);
