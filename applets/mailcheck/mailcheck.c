@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <string.h>
-#include "gnome.h"
+#include <gnome.h>
 #include "../panel_cmds.h"
 #include "../applet_cmds.h"
 #include "../panel.h"
