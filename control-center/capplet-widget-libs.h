@@ -10,7 +10,7 @@ void capplet_corba_state_changed (gint id, gboolean undoable);
 guint32 get_xid (gint cid);
 gint get_ccid (gint cid);
 gint get_capid ();
-gint capplet_widget_corba_init(const char *app_id,
+void *capplet_widget_corba_init(const char *app_id,
                                const char *app_version,
                                int *argc, char **argv,
                                struct poptOption *options,

@@ -93,6 +93,7 @@ exec_capplet (node_data *data)
                 
         /*argv[3] = "--gtk-module=gle";*/
         capplet_list = g_list_prepend (capplet_list, data);
+        /*g_print ("\ngdb %s\nb main\nr %s %s %s\n", data->gde->exec[0], argv[0], argv[1], argv[2]);*/
         gnome_desktop_entry_launch_with_args (data->gde, 3, argv);
         g_free (argv[0]);
         g_free (argv[1]);

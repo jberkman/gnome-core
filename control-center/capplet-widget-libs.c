@@ -184,14 +184,13 @@ gint get_capid ()
         return capid;
 }
 
-gint capplet_widget_corba_init(const char *app_id,
+void *capplet_widget_corba_init(const char *app_id,
                                const char *app_version,
                                int *argc, char **argv,
                                struct poptOption *options,
                                unsigned int flags,
                                poptContext *return_ctx)
 {
-        int retval = 0;
         PortableServer_ObjectId objid = {0, sizeof("capplet_interface"), "capplet_interface"};
         PortableServer_POA poa;
 
@@ -236,5 +235,5 @@ gint capplet_widget_corba_init(const char *app_id,
         }
         GNOME_control_center_register_capplet(control_center, id, capplet, &ev);
         /* we need to get the error value from gnome_CORBA_init */
-        return retval;
+        return (gpointer) orb;
 }
