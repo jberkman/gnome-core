@@ -241,7 +241,7 @@ main(int argc, char *argv[])
     name_service = gnome_name_service_get();
     if (!CORBA_Object_is_nil(name_service, &ev))
       {
-	gnome_register_corba_server(name_service, browser_object, "help-browser", "object", &ev);
+	goad_server_register(name_service, browser_object, "help-browser", "object", &ev);
         fprintf(stderr,"\n%s\n", objref);
       }
 
@@ -262,7 +262,7 @@ main(int argc, char *argv[])
     saveCache(cache);
 
     if (!CORBA_Object_is_nil(name_service, &ev))
-      gnome_unregister_corba_server(name_service, "help-browser", "object", &ev);
+      goad_server_unregister(name_service, "help-browser", "object", &ev);
 
     Exception(&ev);
     
