@@ -1093,6 +1093,7 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	char *some_class;
 	struct terminal_config *cfg;
 	int i;
+	GtkWidget *transient_parent;
 	GladeXML *gui;
 	gchar *glade_file;
 	
@@ -1100,8 +1101,14 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	if (gtk_object_get_data (GTK_OBJECT (term), "newcfg"))
 		return;
 	
+        transient_parent = gtk_widget_get_toplevel (GTK_WIDGET (term));
+
 	prefs = gtk_object_get_data (GTK_OBJECT (term), "prefs");
+        
 	if (prefs) {
+		if (transient_parent)
+			gtk_window_set_transient_for (GTK_WINDOW (prefs->prop_win),
+						      GTK_WINDOW (transient_parent));
 		/* Raise and possibly uniconify the property box */
 		gdk_window_show (prefs->prop_win->window);
 		return;
@@ -1124,6 +1131,9 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 
 	prefs->prop_win = glade_xml_get_widget (gui, "prefs");
 	gtk_object_set_data (GTK_OBJECT (term), "prefs", prefs);
+	if (transient_parent)
+		gtk_window_set_transient_for (GTK_WINDOW (prefs->prop_win),
+					      GTK_WINDOW (transient_parent));
 
 	prefs->font_entry = glade_xml_get_widget (gui, "font-entry");
 	gtk_entry_set_text (GTK_ENTRY (prefs->font_entry),
