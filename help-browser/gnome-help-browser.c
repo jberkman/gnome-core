@@ -210,11 +210,10 @@ main(int argc, char *argv[])
     g_snprintf(buf, sizeof(buf), "%s/%s", HELP_BROWSER_RC_DIR, bookmarkFile);
     bookmarkWindow = newBookmarks(bookmarkCallback, NULL, buf);
 
-    if (helpURL)
-      {
-	window = makeHelpWindow(defposx, defposy, defwidth, defheight );
-	helpWindowShowURL(window, helpURL, TRUE, TRUE);
-      }
+    window = makeHelpWindow(defposx, defposy, defwidth, defheight);
+    if (!helpURL)
+      helpURL = "toc:";
+    helpWindowShowURL(window, helpURL, TRUE, TRUE);
 
     browser_object =  impl_help_browser_simple_browser__create(root_poa, window, &ev);
     Exception(&ev);
@@ -243,8 +242,6 @@ main(int argc, char *argv[])
       dup2(fd, fileno(stderr));
       close(fd);
     }
-    fprintf(stdout,"Testing stdout\n");
-    fprintf(stderr,"Testing stderr\n");
 
     gtk_main();
 

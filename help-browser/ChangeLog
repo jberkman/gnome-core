@@ -1,3 +1,8 @@
+1998-10-15  Michael Lausch  <mla@gams.at>
+
+	* gnome-help-browser.c (main): Revert to the old behaviour to
+	display the toc: URL if called without cmd line argument.
+
 1998-10-11  Michael Lausch  <mla@gams.at>
 
 	* idl/help-browser.idl: Changed interface. fetch_url displays the
