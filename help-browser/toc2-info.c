@@ -25,10 +25,10 @@ struct _pair {
     gchar *name;
     gint  val;
 };
-    
+
 typedef struct _pair *Pair;
 
-static gint compareItems(struct _info_node *a, struct _info_node *b);
+static gint compareItems(const void *a, const void *b);
 static gchar *makeBaseName(gchar *name);
 static gchar *findInfoFile(gchar *rootFile, gchar *name);
 
@@ -43,6 +43,9 @@ GList *newInfoTable(struct _toc_config *conf)
     struct _big_table_entry *entry;
     struct _info_node *p;
     char last[BUFSIZ];
+    int tmp_array_size = 256, tmp_array_elems = 0;
+    struct _info_node **tmp_array = g_new(struct _info_node *,
+                                          tmp_array_size);
 
     while (conf->path) {
 	if (conf->type != TOC_INFO_TYPE) {
@@ -57,25 +60,44 @@ GList *newInfoTable(struct _toc_config *conf)
 		       strcmp(".", dirp->d_name))) {
 		    continue;
 		}
-		
+
 		p = g_malloc(sizeof(*p));
 		p->basename = makeBaseName(dirp->d_name);
 		snprintf(fullname, sizeof(fullname),
 			 "%s/%s", conf->path, dirp->d_name);
 		p->filename = g_strdup(fullname);
 		p->len = strlen(fullname);
-		
-		infoList = g_list_insert_sorted(infoList, p,
-						(GCompareFunc)compareItems);
+
+                if (tmp_array_elems >= tmp_array_size) {
+                    tmp_array_size *= 2;
+                    tmp_array = g_realloc(tmp_array,
+                                          (sizeof(*tmp_array)
+                                           * tmp_array_size));
+                }
+                tmp_array[tmp_array_elems++] = p;
 	    }
 	    closedir(d);
 	}
-	
+
 	conf++;
     }
 
+    /* FIXME: If would be much cooler if glib had a function to sort
+       lists.  */
+    qsort(tmp_array, (size_t) tmp_array_elems, sizeof(*tmp_array),
+          compareItems);
+
+    {
+        int i;
+
+        for (i = tmp_array_elems - 1; i > 0; i--)
+            infoList = g_list_prepend(infoList, tmp_array[i]);
+
+        g_free(tmp_array);
+    }
+
     /* XXX should also read /usr/info/dir */
-    
+
     strcpy(last, "");
     while (infoList) {
 	listItem = infoList;
@@ -97,7 +119,7 @@ GList *newInfoTable(struct _toc_config *conf)
 
 	    strcpy(last, p->basename);
 	}
-	
+
 	g_free(p->filename);
 	g_free(p->basename);
 	g_free(listItem->data);
@@ -145,17 +167,19 @@ static gchar *makeBaseName(gchar *name)
     return g_strdup(buf);
 }
 
-static gint compareItems(struct _info_node *a, struct _info_node *b)
+static gint compareItems(const void *a, const void *b)
 {
     gint res;
-    
-    res = strcmp(a->basename, b->basename);
+    struct _info_node *e1 = *(struct _info_node **)a;
+    struct _info_node *e2 = *(struct _info_node **)b;
+
+    res = strcmp(e1->basename, e2->basename);
 
     /* If they are the same, sort based on length of filename */
     if (!res) {
-	res = a->len - b->len;
+	res = e1->len - e2->len;
     }
-    
+
     return res;
 }
 
@@ -302,7 +326,7 @@ static gchar *findInfoFile(gchar *rootFile, gchar *name)
     if (!access(buf, R_OK)) {
 	return g_strdup(buf);
     }
-    
+
     /* try a .gz on the end */
     strcat(buf, ".gz");
     if (!access(buf, R_OK)) {

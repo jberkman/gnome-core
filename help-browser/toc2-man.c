@@ -11,8 +11,7 @@
 #include "toc2.h"
 #include "toc2-man.h"
 
-static gint compareItems(struct _big_table_entry *a,
-			 struct _big_table_entry *b);
+static gint compareItems(const void *a, const void *b);
 
 static struct _man_sections {
     gchar ch;
@@ -57,7 +56,10 @@ GList *newManTable(struct _toc_config *conf)
     GList *list = NULL;
     struct _big_table_entry *entry;
     gchar *s;
-    
+    int tmp_array_size = 256, tmp_array_elems = 0;
+    struct _big_table_entry **tmp_array = g_new(struct _big_table_entry *,
+                                                tmp_array_size);
+
     while (conf->path) {
 	if (conf->type != TOC_MAN_TYPE) {
 	    conf++;
@@ -78,47 +80,66 @@ GList *newManTable(struct _toc_config *conf)
 		    snprintf(filename, sizeof(filename),
 			     "%s/%s", dirname, dirp->d_name);
 		    entry->filename = g_strdup(filename);
-		    
+
 		    entry->name = g_strdup(dirp->d_name);
 		    if ((s = strrchr(entry->name, '.'))) {
 			*s = '\0';
 		    }
-		    
+
 		    entry->type = TOC_MAN_TYPE;
 		    entry->ext = p->ch;
 		    entry->expanded = 1;
 		    entry->section = NULL;
 
-		    list = g_list_insert_sorted(list, entry,
-						(GCompareFunc)compareItems);
+                    if (tmp_array_elems >= tmp_array_size) {
+                        tmp_array_size *= 2;
+                        tmp_array = g_realloc(tmp_array,
+                                              (sizeof(*tmp_array)
+                                               * tmp_array_size));
+                    }
+                    tmp_array[tmp_array_elems++] = entry;
 		}
 		if (d && dirp) {
 		    p->flag = 1;
 		}
 		closedir(d);
 	    }
-	    
+
 	    p++;
 	}
 	conf++;
     }
 
+    /* FIXME: If would be much cooler if glib had a function to sort
+       lists.  */
+    qsort(tmp_array, (size_t) tmp_array_elems, sizeof(*tmp_array),
+          compareItems);
+
+    {
+        int i;
+
+        for (i = tmp_array_elems - 1; i > 0; i--)
+            list = g_list_prepend(list, tmp_array[i]);
+
+        g_free(tmp_array);
+    }
 
     return list;
 }
 
 /* Sort according to section/name */
-static gint compareItems(struct _big_table_entry *a,
-			 struct _big_table_entry *b)
+static gint compareItems(const void *a, const void *b)
 {
     gint res;
+    struct _big_table_entry *e1 = *(struct _big_table_entry **)a;
+    struct _big_table_entry *e2 = *(struct _big_table_entry **)b;
 
-    res = a->ext - b->ext;
-    
+    res = e1->ext - e2->ext;
+
     /* If they are the same, sort based on length of filename */
     if (!res) {
-	res = strcmp(a->name, b->name);
+ 	res = strcmp(e1->name, e2->name);
     }
-    
+
     return res;
 }

@@ -1,3 +1,23 @@
+Sun Sep 20 15:20:10 1998  Ettore Perazzoli  <ettore@comm2000.it>
+
+	* toc2-ghelp.c (compareItems): Made `qsort()'-compatible (type of
+ 	`a' and `b' changed to `const void *').
+	(newGhelpTable): Quick fix to make it faster: put elements in a
+ 	temporary array, sort it via `qsort()' and build a list out of it
+ 	afterwards.
+
+	* toc2-info.c (compareItems): Made `qsort()'-compatible (type of
+ 	`a' and `b' changed to `const void *').
+	(newInfoTable): Quick fix to make it faster: put elements in a
+ 	temporary array, sort it via `qsort()' and build a list out of it
+ 	afterwards.
+
+	* toc2-man.c (compareItems): Made `qsort()'-compatible (type of
+ 	`a' and `b' changed to `const void *').
+	(newManTable): Quick fix to make it faster: put elements in a
+ 	temporary array, sort it via `qsort()' and build a list out of it
+ 	afterwards.
+
 Thu Sep 17 12:42:06 1998  John Ellis  <johne@bellatlantic.net>
 
 	* window.c(windowmenu): Now the window menu displays it's contents.
