@@ -7,13 +7,9 @@
 #include <gdk_imlib.h>
 #include "gnome-desktop.h"
 
-
 
 GtkWidget *main_window;
 GnomePropertyConfigurator *display_config;
-
-/* The Apply button.  */
-static GtkWidget *apply_button;
 
 /* This is true if we've ever changed the state with this program.  */
 static int state_changed = 0;
@@ -82,7 +78,7 @@ deleteFn (GtkWidget *widget, gpointer *data)
 }
 
 /* This is called when the Help button is clicked.  */
-static gint
+static void
 help (GtkWidget *w, gint page, gpointer *data)
 {
   /* FIXME.  */
@@ -126,8 +122,6 @@ property_main (char *app_id, int argc, char *argv [])
 {
         GnomeClient *client = NULL;
 	int token = 0;
-	int i, new_argc;
-	char *previous_id = NULL;
 	char *new_argv[4];
 
 	argp_program_version = VERSION;

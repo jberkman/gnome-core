@@ -1,8 +1,9 @@
 /* app-keyboard.c - Keyboard configuration application.  */
 
 #include <config.h>
-#include "gnome.h"
 #include "gnome-desktop.h"
+
+extern void keyboard_register(GnomePropertyConfigurator *c);
 
 char *
 application_title (void)
@@ -22,9 +23,9 @@ application_help (void)
 }
 
 void
-application_register (GnomePropertyConfigurator *config)
+application_register (GnomePropertyConfigurator *pconf)
 {
-  keyboard_register (config);
+  keyboard_register (pconf);
 }
 
 int

@@ -1,8 +1,9 @@
 /* app-mouse.c - Mouse configuration application.  */
 
 #include <config.h>
-#include "gnome.h"
 #include "gnome-desktop.h"
+
+extern void mouse_register (GnomePropertyConfigurator *c);
 
 char *
 application_title (void)
@@ -22,9 +23,9 @@ application_help (void)
 }
 
 void
-application_register (GnomePropertyConfigurator *config)
+application_register (GnomePropertyConfigurator *pconf)
 {
-  mouse_register (config);
+  mouse_register (pconf);
 }
 
 int

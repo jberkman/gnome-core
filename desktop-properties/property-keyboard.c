@@ -138,120 +138,154 @@ cvol_changed(GtkAdjustment *adj, gpointer *data)
 }
 
 
-static void keyboard_setup(void)
+static void
+keyboard_setup(void)
 {
-	GtkWidget *vbox, *vbox2;
+	GtkWidget *vbox;
 	GtkWidget *frame;
 	GtkWidget *hbox;
+	GtkWidget *table;
 	GtkWidget *rbutton, *cbutton;
 	GtkWidget *label;
 	GtkObject *radj, *dadj, *cadj;
 
-	vbox = gtk_vbox_new(FALSE, 0);
+	vbox = gtk_vbox_new(FALSE, GNOME_PAD_SMALL);
 	gtk_container_border_width(GTK_CONTAINER(vbox), GNOME_PAD);
 
-	frame = gtk_frame_new(_("Speed"));
+	/* Auto repeat */
 
-	vbox2 = gtk_vbox_new(TRUE, 0);
-	gtk_container_border_width(GTK_CONTAINER(vbox2), GNOME_PAD);
+	frame = gtk_frame_new(_("Auto-repeat"));
+	gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+	gtk_widget_show (frame);
+
+	table = gtk_table_new (3, 2, FALSE);
+	gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD);
+	gtk_table_set_row_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
+	gtk_table_set_col_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
+	gtk_container_add (GTK_CONTAINER (frame), table);
+	gtk_widget_show (table);
 	
-	hbox = gtk_hbox_new(TRUE, GNOME_PAD);
-	rbutton = gtk_check_button_new_with_label(_("Auto repeat"));
+	hbox = gtk_hbox_new (FALSE, 0);
+	gtk_table_attach (GTK_TABLE (table), hbox,
+			  0, 2, 0, 1,
+			  GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
+	gtk_widget_show (hbox);
 
+	rbutton = gtk_check_button_new_with_label(_("Enable auto-repeat"));
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(rbutton), keyboard_repeat);
-
 	gtk_signal_connect(GTK_OBJECT(rbutton), "toggled",
 			   GTK_SIGNAL_FUNC(rbutton_toggled), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), rbutton, FALSE, FALSE, 0);
 	gtk_widget_show(rbutton);
-	gtk_box_pack_start(GTK_BOX(hbox), rbutton, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
-	gtk_widget_show(hbox);
 
-	hbox = gtk_hbox_new(FALSE, GNOME_PAD);
 	label = gtk_label_new(_("Repeat rate"));
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 1.0);
+	gtk_table_attach (GTK_TABLE (table), label,
+			  0, 1, 1, 2,
+			  GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
 	gtk_widget_show(label);
+
 	radj = gtk_adjustment_new(keyboard_rate, 0, 255, 1, 1, 0);
 	rscale = gtk_hscale_new(GTK_ADJUSTMENT(radj));
+	gtk_scale_set_digits (GTK_SCALE (rscale), 0);
 	gtk_signal_connect(GTK_OBJECT(radj), "value_changed",
 			   GTK_SIGNAL_FUNC(rate_changed), NULL);
-	gtk_widget_set_usize(rscale, 200, -1);
-	gtk_box_pack_start(GTK_BOX(hbox), rscale, FALSE, FALSE, 0);
+	gtk_table_attach (GTK_TABLE (table), rscale,
+			  1, 2, 1, 2,
+			  GTK_EXPAND | GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
 	gtk_widget_show(rscale);
-	gtk_widget_show(hbox);
-	gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
 
-	hbox = gtk_hbox_new(FALSE, GNOME_PAD);
 	label = gtk_label_new(_("Repeat delay"));
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 1.0);
+	gtk_table_attach (GTK_TABLE (table), label,
+			  0, 1, 2, 3,
+			  GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
 	gtk_widget_show(label);
+
 	dadj = gtk_adjustment_new(keyboard_delay, 0, 10000, 1, 1, 0);
 	dscale = gtk_hscale_new(GTK_ADJUSTMENT(dadj));
+	gtk_scale_set_digits (GTK_SCALE (dscale), 0);
 	gtk_signal_connect(GTK_OBJECT(dadj), "value_changed",
 			   GTK_SIGNAL_FUNC(delay_changed), NULL);
-	gtk_widget_set_usize(dscale, 200, -1);
-	gtk_box_pack_start(GTK_BOX(hbox), dscale, FALSE, FALSE, 0);
+	gtk_table_attach (GTK_TABLE (table), dscale,
+			  1, 2, 2, 3,
+			  GTK_EXPAND | GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
 	gtk_widget_show(dscale);
+
+	/* Set the sensitivity of the scales */
 
 	gtk_widget_set_sensitive(dscale, keyboard_repeat);
 	gtk_widget_set_sensitive(rscale, keyboard_repeat);
 
-	gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
-	gtk_widget_show(hbox);
+	/* Keyboard click */
 
-	gtk_container_add(GTK_CONTAINER(frame), vbox2);
-	gtk_widget_show(vbox2);
-	
-	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, FALSE, GNOME_PAD);
-	gtk_widget_show(frame);
+	frame = gtk_frame_new(_("Keyboard click"));
+	gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, 0);
+	gtk_widget_show (frame);
 
+	table = gtk_table_new (2, 2, FALSE);
+	gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD);
+	gtk_table_set_row_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
+	gtk_table_set_col_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
+	gtk_container_add (GTK_CONTAINER (frame), table);
+	gtk_widget_show (table);
 
-	
-	frame = gtk_frame_new(_("Click"));
+	hbox = gtk_hbox_new (FALSE, 0);
+	gtk_table_attach (GTK_TABLE (table), hbox,
+			  0, 2, 0, 1,
+			  GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
+	gtk_widget_show (hbox);
 
-	vbox2 = gtk_vbox_new(TRUE, 0);
-	gtk_container_border_width(GTK_CONTAINER(vbox2), GNOME_PAD);
-
-	hbox = gtk_hbox_new(TRUE, GNOME_PAD);
 	cbutton = gtk_check_button_new_with_label(_("Click on keypress"));
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(cbutton), click_on_keypress);
 	gtk_signal_connect(GTK_OBJECT(cbutton), "toggled",
 			   GTK_SIGNAL_FUNC(cbutton_toggled), NULL);
+	gtk_box_pack_start (GTK_BOX (hbox), cbutton, FALSE, FALSE, 0);
 	gtk_widget_show(cbutton);
-	gtk_box_pack_start(GTK_BOX(hbox), cbutton, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
-	gtk_widget_show(hbox);
 
-	hbox = gtk_hbox_new(FALSE, GNOME_PAD);
 	label = gtk_label_new(_("Click volume"));
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_misc_set_alignment (GTK_MISC (label), 0.0, 1.0);
+	gtk_table_attach (GTK_TABLE (table), label,
+			  0, 1, 1, 2,
+			  GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
 	gtk_widget_show(label);
+
 	cadj = gtk_adjustment_new(click_volume, 0, 100, 1, 1, 0);
 	cscale = gtk_hscale_new(GTK_ADJUSTMENT(cadj));
+	gtk_scale_set_digits (GTK_SCALE (cscale), 0);
 	gtk_signal_connect(GTK_OBJECT(cadj), "value_changed",
 			   GTK_SIGNAL_FUNC(cvol_changed), NULL);
-	gtk_widget_set_usize(cscale, 200, -1);
+	gtk_table_attach (GTK_TABLE (table), cscale,
+			  1, 2, 1, 2,
+			  GTK_EXPAND | GTK_FILL | GTK_SHRINK,
+			  GTK_FILL | GTK_SHRINK,
+			  0, 0);
+	gtk_widget_show (cscale);
 
-	gtk_box_pack_start(GTK_BOX(hbox), cscale, FALSE, FALSE, 0);
+	/* Set sensitivity of scale */
 
 	gtk_widget_set_sensitive(cscale, click_on_keypress);
 
-	gtk_widget_show(cscale);
-	gtk_widget_show(hbox);
-	gtk_box_pack_start(GTK_BOX(vbox2), hbox, FALSE, FALSE, 0);
-
-	gtk_container_add(GTK_CONTAINER(frame), vbox2);
-	gtk_widget_show(vbox2);
-
-	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, FALSE, GNOME_PAD);
-	gtk_widget_show(frame);
-
-
+	/* Finished */
 
 	gtk_widget_show(vbox);
 	gnome_property_box_append_page(GNOME_PROPERTY_BOX(config->property_box),
-				 vbox,
-				 gtk_label_new(_(" Keyboard ")));
+				       vbox,
+				       gtk_label_new(_("Keyboard")));
 }
 
 static gint keyboard_action(GnomePropertyRequest req)

@@ -16,14 +16,16 @@ keyboard_properties_SOURCES =	\
 	gnome-desktop.h		\
 	app-keyboard.c
 
-background_properties_SOURCES =	\
-	main.c			\
-	property-background.c	\
+CPP_FILES = \
 	property-screensaver.cc	\
 	property-screensaver.h	\
 	xlockmore.cc		\
 	xlockmore.h		\
-	xlockparse.ll		\
+	xlockparse.ll
+
+background_properties_SOURCES =	\
+	main.c			\
+	property-background.c	\
 	gnome-desktop.h		\
 	screensaver.h		\
 	app-background.c

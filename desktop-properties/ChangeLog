@@ -1,3 +1,9 @@
+1998-04-28  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* property-mouse.c (mouse_setup): Beautified the dialog.
+
+	* property-keyboard.c (keyboard_setup): Beautified the dialog.
+
 1998-04-28  Radek Doulik  <rodo@msdec.ms.mff.cuni.cz>
 
 	* property-background.c: disable debug msgs, added scaled bg

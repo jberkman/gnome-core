@@ -2,16 +2,8 @@
 #define GNOME_DESKTOP_H
 
 #include <gnome.h>
-#include <libgnomeui/gnome-properties.h>
 
 BEGIN_GNOME_DECLS
-
-void register_extension (GtkWidget *title_widget, GtkWidget *content_widget,
-			 int (*callback)(GnomePropertyRequest));
-
-#ifndef GNOME_PAD
-#define GNOME_PAD 10
-#endif/* Keep these in sync with the monitor image */
 
 #define MONITOR_CONTENTS_X 20
 #define MONITOR_CONTENTS_Y 10

@@ -135,54 +135,75 @@ scale_moved (GtkAdjustment *adj, gpointer data)
   property_changed ();
 }
 
-static GtkWidget *
+static void
 make_scale (char *title, char *max_title, char *min_title,
-	    GtkObject *adjust, int *update_var)
+	    GtkObject *adjust, int *update_var, GtkWidget *table, int row)
 {
-  GtkWidget *vbox, *hbox, *scale, *low, *high, *ttl;
+  GtkWidget *scale, *low, *high, *ttl;
 
-  vbox = gtk_vbox_new (FALSE, GNOME_PAD);
-  hbox = gtk_hbox_new (FALSE, GNOME_PAD);
+  ttl = gtk_label_new (title);
+  gtk_misc_set_alignment (GTK_MISC (ttl), 0.0, 0.5);
+  gtk_table_attach (GTK_TABLE (table), ttl,
+		    0, 3, row, row + 1,
+		    GTK_FILL | GTK_SHRINK,
+		    GTK_FILL | GTK_SHRINK,
+		    0, 0);
+  gtk_widget_show (ttl);
+
+  low = gtk_label_new (min_title);
+  gtk_misc_set_alignment (GTK_MISC (low), 0.0, 0.5);
+  gtk_table_attach (GTK_TABLE (table), low,
+		    0, 1, row + 1, row + 2,
+		    GTK_FILL | GTK_SHRINK,
+		    GTK_FILL | GTK_SHRINK,
+		    0, 0);
+  gtk_widget_show (low);
+
   scale = gtk_hscale_new (GTK_ADJUSTMENT (adjust));
   gtk_range_set_update_policy (GTK_RANGE (scale), GTK_UPDATE_CONTINUOUS);
-  gtk_scale_set_digits (GTK_SCALE (scale), FALSE);
-  gtk_scale_set_draw_value (GTK_SCALE (scale), FALSE);
+  gtk_scale_set_digits (GTK_SCALE (scale), 0);
+  gtk_scale_set_draw_value (GTK_SCALE (scale), 0);
   gtk_signal_connect (GTK_OBJECT (adjust), "value_changed",
 		      GTK_SIGNAL_FUNC (scale_moved),
 		      (gpointer) update_var);
-  gtk_widget_set_usize (scale, 200, -1);
-  ttl = gtk_label_new (title);
-  low = gtk_label_new (min_title);
-  high = gtk_label_new (max_title);
-
-  gtk_box_pack_start (GTK_BOX (vbox), ttl, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (hbox), high, FALSE, FALSE, GNOME_PAD);
-  gtk_box_pack_start (GTK_BOX (hbox), scale, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (hbox), low, FALSE, FALSE, GNOME_PAD);
-
-  gtk_widget_show (ttl);
-  gtk_widget_show (low);
-  gtk_widget_show (high);
+/*   gtk_widget_set_usize (scale, 200, -1); */
+  gtk_table_attach (GTK_TABLE (table), scale,
+		    1, 2, row + 1, row + 2,
+		    GTK_EXPAND | GTK_FILL | GTK_SHRINK,
+		    GTK_FILL | GTK_SHRINK,
+		    0, 0);
   gtk_widget_show (scale);
-  gtk_widget_show (hbox);
-  gtk_widget_show (vbox);
 
-  return vbox;
+  high = gtk_label_new (max_title);
+  gtk_misc_set_alignment (GTK_MISC (high), 0.0, 0.5);
+  gtk_table_attach (GTK_TABLE (table), high,
+		    2, 3, row + 1, row + 2,
+		    GTK_FILL | GTK_SHRINK,
+		    GTK_FILL | GTK_SHRINK,
+		    0, 0);
+  gtk_widget_show (high);
 }
 
 static void
 mouse_setup (void)
 {
-  GtkWidget *vbox, *frame, *hbox, *lbutton, *rbutton, *vbox2, *scale;
+  GtkWidget *vbox, *frame, *hbox, *lbutton, *rbutton, *table, *sep;
   GtkObject *adjust;
 
-  vbox = gtk_vbox_new (FALSE, 0);
-  gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD);
+  hbox = gtk_hbox_new (FALSE, GNOME_PAD_SMALL);
+  gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
 
-  /* Frame for choosing button mapping.  */
-  frame = gtk_frame_new (_("Buttons"));
-  hbox = gtk_hbox_new (TRUE, GNOME_PAD);
+  /* Mouse buttons */
+
+  frame = gtk_frame_new (_("Mouse buttons"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, FALSE, FALSE, 0);
+  gtk_widget_show (frame);
+
+  vbox = gtk_vbox_new (FALSE, GNOME_PAD_SMALL);
+  gtk_container_border_width (GTK_CONTAINER (vbox), GNOME_PAD_SMALL);
+  gtk_container_add (GTK_CONTAINER (frame), vbox);
+  gtk_widget_show (vbox);
+
   lbutton = gtk_radio_button_new_with_label (NULL, _("Left handed"));
   rbutton = gtk_radio_button_new_with_label (gtk_radio_button_group (GTK_RADIO_BUTTON (lbutton)),
 					     _("Right handed"));
@@ -195,40 +216,45 @@ mouse_setup (void)
   gtk_signal_connect (GTK_OBJECT (rbutton), "clicked",
 		      GTK_SIGNAL_FUNC (button_toggled),
 		      (gpointer) 0);
+  gtk_box_pack_start (GTK_BOX (vbox), lbutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox), rbutton, FALSE, FALSE, 0);
   gtk_widget_show (lbutton);
   gtk_widget_show (rbutton);
-  gtk_box_pack_start (GTK_BOX (hbox), lbutton, FALSE, FALSE, 0);
-  gtk_box_pack_start (GTK_BOX (hbox), rbutton, FALSE, FALSE, 0);
-  gtk_widget_show (hbox);
-  gtk_container_add (GTK_CONTAINER (frame), hbox);
+
+  /* Mouse motion */
+
+  frame = gtk_frame_new (_("Mouse motion"));
+  gtk_box_pack_start (GTK_BOX (hbox), frame, TRUE, TRUE, 0);
   gtk_widget_show (frame);
-  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, GNOME_PAD);
 
-  /* Frame for setting pointer acceleration.  */
-  frame = gtk_frame_new (_("Motion"));
-  vbox2 = gtk_vbox_new (FALSE, GNOME_PAD);
+  table = gtk_table_new (5, 3, FALSE);
+  gtk_container_border_width (GTK_CONTAINER (table), GNOME_PAD_SMALL);
+  gtk_table_set_row_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
+  gtk_table_set_col_spacings (GTK_TABLE (table), GNOME_PAD_SMALL);
+  gtk_container_add (GTK_CONTAINER (frame), table);
+  gtk_widget_show (table);
 
-  adjust = gtk_adjustment_new (mouse_acceleration, 0, 2 * MAX_ACCEL + 1,
-			       1, 1, 1);
-  scale = make_scale (_("Acceleration"), _("Slow"), _("Fast"),
-		      adjust, &mouse_acceleration);
-  gtk_box_pack_start (GTK_BOX (vbox2), scale, TRUE, TRUE, GNOME_PAD);
-  gtk_widget_show (scale);
+  adjust = gtk_adjustment_new (mouse_acceleration, 0, 2 * MAX_ACCEL + 1, 1, 1, 1);
+  make_scale (_("Acceleration"), _("Slow"), _("Fast"),
+	      adjust, &mouse_acceleration, table, 0);
+
+  sep = gtk_hseparator_new ();
+  gtk_table_attach (GTK_TABLE (table), sep,
+		    0, 3, 2, 3,
+		    GTK_FILL | GTK_SHRINK,
+		    GTK_FILL | GTK_SHRINK,
+		    0, 0);
+  gtk_widget_show (sep);
 
   adjust = gtk_adjustment_new (mouse_thresh, 0, MAX_THRESH, 1, 1, 1);
-  scale = make_scale (_("Threshold"), _("Small"), _("Large"),
-		      adjust, &mouse_thresh);
-  gtk_box_pack_start (GTK_BOX (vbox2), scale, TRUE, TRUE, GNOME_PAD);
-  gtk_widget_show (scale);
+  make_scale (_("Threshold"), _("Small"), _("Large"),
+	      adjust, &mouse_thresh, table, 3);
 
-  gtk_container_add (GTK_CONTAINER (frame), vbox2);
-  gtk_widget_show (vbox2);
-  gtk_widget_show (frame);
-  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, GNOME_PAD);
-
-  gtk_widget_show (vbox);
+  /* Done */
+  
+  gtk_widget_show (hbox);
   gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
-				  vbox, gtk_label_new (_("Mouse")));
+				  hbox, gtk_label_new (_("Mouse")));
 }
 
 static gint
