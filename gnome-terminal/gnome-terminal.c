@@ -1560,7 +1560,7 @@ toggle_menubar_cmd (BonoboUIComponent *uic,
 	gtk_window_resize (app, width * term->charwidth, height * term->charheight);
 
 
-	hackity_hack (
+	hackity_hack
 #endif
 	save_preferences_cmd (NULL, term);
 }
@@ -1579,37 +1579,15 @@ reset_terminal_hard_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cnam
 }
 
 static void
+copy_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
+{
+	zvt_term_copy_clipboard (term);
+}
+
+static void
 paste_cmd (BonoboUIComponent *uic, ZvtTerm *term, const char *cname)
 {
-	GdkAtom string_atom;
-	GdkEvent *event;
-	gint32 time;
-	
-	string_atom = gdk_atom_intern ("STRING", FALSE);
-	if (string_atom == GDK_NONE)
-		return;
-
-	event = gtk_get_current_event ();
-	switch (event->type){
-	case GDK_BUTTON_PRESS:
-	case GDK_2BUTTON_PRESS:
-	case GDK_BUTTON_RELEASE:
-		time = event->button.time;
-		break;
-
-	case GDK_KEY_PRESS:
-	case GDK_KEY_RELEASE:
-		time = event->key.time;
-		break;
-
-	default:
-		time = GDK_CURRENT_TIME;
-	}
-
-	gtk_selection_convert (GTK_WIDGET (term),
-                               gdk_atom_intern ("CLIPBOARD", FALSE),
-                               string_atom,
-			       time);
+	zvt_term_paste_clipboard (term);
 }
 
 static void
@@ -1663,6 +1641,7 @@ static void new_terminal (BonoboUIComponent *uic, ZvtTerm *term, const char *cna
 static BonoboUIVerb terminal_verbs[] = {
 	BONOBO_UI_UNSAFE_VERB ("NewTerminal", new_terminal),
 	BONOBO_UI_UNSAFE_VERB ("CloseTerminal", close_terminal_cmd),
+	BONOBO_UI_UNSAFE_VERB ("Copy", copy_cmd),
 	BONOBO_UI_UNSAFE_VERB ("Paste", paste_cmd),
 	BONOBO_UI_UNSAFE_VERB ("Preferences", preferences_cmd),
 	BONOBO_UI_UNSAFE_VERB ("Reset", reset_terminal_soft_cmd),
