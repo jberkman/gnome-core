@@ -139,7 +139,7 @@ display_properties_setup (void)
 }
 
 int
-property_main (int argc, char *argv [])
+property_main (char *app_id, int argc, char *argv [])
 {
         GnomeClient *client = NULL;
 	int init = 0, token = 0;
@@ -147,7 +147,7 @@ property_main (int argc, char *argv [])
 	char *previous_id = NULL;
 	char *new_argv[4];
 
-	gnome_init (&argc, &argv);
+	gnome_init (app_id, &argc, &argv);
 	bindtextdomain (PACKAGE, GNOMELOCALEDIR);
 	textdomain (PACKAGE);
 

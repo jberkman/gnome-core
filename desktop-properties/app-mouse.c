@@ -30,5 +30,5 @@ application_register (GnomePropertyConfigurator *config)
 int
 main (int argc, char *argv[])
 {
-  return (property_main (argc, argv));
+  return (property_main ("mouse_properties", argc, argv));
 }

@@ -17,7 +17,7 @@ main(int argc, char *argv[]) {
     GtkWidget *window;
     GtkWidget *button;
     
-    gnome_init(&argc, &argv);
+    gnome_init("gnome_help_browser", &argc, &argv);
 
     /* make the top level, container window */
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);

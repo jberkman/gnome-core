@@ -1,3 +1,9 @@
+1998-02-19  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* sample.c (main): Added ap_id "gnome_help_sample".
+
+	* gnome-help-browser.c: Added app_id "gnome_help_browser".
+
 Sat Feb 14 01:54:28 1998  Tom Tromey  <tromey@cygnus.com>
 
 	* Makefile.am (LDADD): Don't include LEXLIB, XF86MISC_LIBS.  Do

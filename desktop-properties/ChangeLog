@@ -1,3 +1,14 @@
+1998-02-19  Federico Mena Quintero  <federico@nuclecu.unam.mx>
+
+	* app-mouse.c (main): Added app_id "mouse_properties".
+
+	* app-keyboard.c (main): Added app_id "keyboard_properties".
+
+	* app-background.c (main): Added app_id "background_properties".
+
+	* main.c (property_main): Added app_id parameter to gnome_init().
+	Added this parameter to the prototype of property_main() as well.
+
 1998-02-17  Federico Mena Quintero  <federico@nuclecu.unam.mx>
 
 	* main.c (property_main): Removed un-needed gtk_init().
