@@ -640,7 +640,8 @@ gdk_image_get (GdkWindow *window,
 
   win_private = (GdkWindowPrivate *) window;
   visual = gdk_window_get_visual (window);
-  if (win_private->destroyed || width < 1 || height < 1 || !visual)
+  if (win_private->destroyed || width < 1 || height < 1 ||
+      (win_private->window_type != GDK_WINDOW_PIXMAP && !visual))
     return NULL;
 
   private = g_new (GdkImagePrivate, 1);

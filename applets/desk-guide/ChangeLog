@@ -1,3 +1,9 @@
+2000-11-15  Jacob "Ulysses" Berkman  <jacob@helixcode.com>
+
+	* gwmthumbnail.c (gdk_image_get): gdk_window_get_visual() always
+	returns NULL for pixmaps, so only require a visual when the window
+	is not a pixmap
+
 Tue Nov 14 21:01:39 2000  George Lebl <jirka@5z.com>
 
 	* gwmthumbnail.c: #endif should have no arguments, fixes warning
