@@ -18,9 +18,10 @@ gnome_hint_SOURCES = 		\
 
 gnome_hint_properties_capplet_SOURCES = gnome-hint-properties.c
 
-gnome_hint_properties_capplet_LDADD = -lcapplet \
-		     $(GNOME_LIBDIR) $(ORB_LIBS) \
-		     $(GNOMEUI_LIBS) $(INTLLIBS) -lgnorba
+gnome_hint_properties_capplet_LDADD = \
+	$(GNOME_LIBDIR)		\
+	$(GNOME_CAPPLET_LIBS)	\
+	$(INTLLIBS)
 
 # EXTRA_DIST = gnome-hint.desktop
 # utildir = $(datadir)/gnome/apps/Utilities

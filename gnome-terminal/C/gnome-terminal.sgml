@@ -405,7 +405,7 @@
 	  </varlistentry>
 	</variablelist>
       </sect2>
-    <sect2 id="confog-image">
+    <sect2 id="config-image">
       <title>Background image configuration</title>
       <para>
 	In the <guilabel>Image</guilabel> tab, you can set the

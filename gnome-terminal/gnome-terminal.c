@@ -1062,10 +1062,23 @@ save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gnome_config_pop_prefix ();
 }
 
+static void
+phelp_cb (GtkWidget *w, gint tab, gpointer data)
+{
+	GnomeHelpMenuEntry help_entry = { "gnome-terminal",
+					  "config.html" };
+	char *pages[] = { "config.html#CONFIG-GENERAL",
+			  "config.html#CONFIG-IMAGE",
+			  "config.html#CONFIG-COLOUR",
+			  "config.html#CONFIG-SCROLLING" };
+	g_assert (tab < 4);
+	help_entry.path = pages[tab];
+	gnome_help_display(NULL, &help_entry);
+}
+
 void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
-	static GnomeHelpMenuEntry help_entry = { NULL, "config" };
 	GtkWidget *l, *table, *picker, *label, *b1, *b2;
 	GtkWidget *r, *frame, *hbox, *subtable, *paltable;
 	preferences_t *prefs;
@@ -1442,11 +1455,8 @@ preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 			    GTK_SIGNAL_FUNC (apply_changes_cmd), term);
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "destroy",
 			    GTK_SIGNAL_FUNC (window_destroy), term);
-
-	help_entry.name = "gnome-terminal";
 	gtk_signal_connect (GTK_OBJECT (prefs->prop_win), "help",
-			    GTK_SIGNAL_FUNC (gnome_help_pbox_goto),
-			    &help_entry);
+			    GTK_SIGNAL_FUNC (phelp_cb), NULL);
 
 	gtk_widget_show_all (prefs->prop_win);
 }

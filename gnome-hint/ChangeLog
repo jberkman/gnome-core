@@ -1,3 +1,8 @@
+2000-03-27  Jacob Berkman  <jacob@helixcode.com>
+
+	* Makefile.am (gnome_hint_properties_capplet_LDADD): use capplet
+	stuff from gnome-config
+
 2000-03-27  Kjartan Maraas  <kmaraas@online.no>
 
 	* gnome-hint-properties.desktop: Added Norwegian translation.

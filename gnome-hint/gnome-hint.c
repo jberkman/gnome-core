@@ -367,7 +367,8 @@ static void
 exit_clicked(void)
 {
 	GtkWidget *message_box;
-	
+#warning put me back in later
+#if 0	
 	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb))) {
 		message_box = gnome_message_box_new (_("You've chosen to disable the startup hint.\n"
 						       "To re-enable it, choose \"Startup Hint\"\n"
@@ -377,7 +378,7 @@ exit_clicked(void)
 						     NULL);
 		gnome_dialog_run (GNOME_DIALOG (message_box));
 	}
-	
+#endif	
 	gnome_config_set_bool ("/Gnome/Login/RunHints", gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (cb)));
 	gnome_config_sync ();
 	

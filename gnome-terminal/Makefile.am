@@ -21,7 +21,7 @@ LDADD = \
 
 bin_PROGRAMS = gnome-terminal
 
-EXTRA_DIST = gnome-terminal.desktop gnome-terminal.gnorba Terminal.idl
+EXTRA_DIST = gnome-terminal.desktop gnome-terminal.gnorba
 
 CORBA_GENERATED =		\
 	Terminal.h		\

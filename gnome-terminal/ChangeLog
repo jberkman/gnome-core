@@ -1,3 +1,9 @@
+2000-03-27  Jacob Berkman  <jacob@helixcode.com>
+
+	* C/gnome-terminal.sgml: fix typo
+
+	* gnome-terminal.c (preferences_cmd): fix the help stuff yet again
+
 2000-03-19  Miguel de Icaza  <miguel@helixcode.com>
 
 	* gnome-terminal.c (preferences_cmd): Change the help for the
