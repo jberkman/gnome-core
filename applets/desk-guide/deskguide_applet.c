@@ -40,6 +40,11 @@ static gboolean	gp_task_notifier	(gpointer	    func_data,
 					 GwmhTask	   *task,
 					 GwmhTaskNotifyType ntype,
 					 GwmhTaskInfoMask   imask);
+static void     gp_help                 (GtkWidget         *w,
+					 gpointer           data);
+static void     gp_phelp                (GtkWidget         *w,
+					 gint               tab,
+					 gpointer           data);
 static void	gp_about		(void);
 static void	gp_config_popup		(void);
 static gpointer	gp_config_find_value	(const gchar       *path,
@@ -219,16 +224,23 @@ main (gint   argc,
 		  "signal::destroy", gtk_main_quit, NULL,
 		  NULL);
   applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
-					 "about",
-					 GNOME_STOCK_MENU_ABOUT,
-					 _ ("About..."),
-					 (AppletCallbackFunc) gp_about,
-					 NULL);
-  applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
 					 "properties",
 					 GNOME_STOCK_MENU_PROP,
 					 _ ("Properties..."),
 					 (AppletCallbackFunc) gp_config_popup,
+					 NULL);
+  applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
+					 "help",
+					 GNOME_STOCK_PIXMAP_HELP,
+					 _ ("Help"),
+					 (AppletCallbackFunc) gp_help,
+					 NULL);
+
+  applet_widget_register_stock_callback (APPLET_WIDGET (gp_applet),
+					 "about",
+					 GNOME_STOCK_MENU_ABOUT,
+					 _ ("About..."),
+					 (AppletCallbackFunc) gp_about,
 					 NULL);
   
   /* load configuration
@@ -827,6 +839,21 @@ gp_init_gui (void)
   gtk_widget_show (gp_applet);
 }
 
+static void
+gp_help (GtkWidget *w, gpointer data)
+{
+  GnomeHelpMenuEntry help_entry = { "desk-guide_applet", "index.html" };
+  gnome_help_display(NULL, &help_entry);
+}
+
+static void
+gp_phelp (GtkWidget *w, gint tab, gpointer data)
+{
+  GnomeHelpMenuEntry help_entry = { "desk-guide_applet", 
+				    "index.html#deskguide-properties" };
+  gnome_help_display(NULL, &help_entry);
+}
+
 static void 
 gp_about (void)
 {
@@ -1064,6 +1091,7 @@ gp_config_popup (void)
 		      "signal::apply", gp_init_gui, NULL,
 		      "signal::destroy", gp_config_reset_tmp_values, NULL,
 		      "signal::destroy", gtk_widget_destroyed, &dialog,
+		      "signal::help", gp_phelp, NULL,
 		      NULL);
       
       while (slist)

@@ -285,6 +285,14 @@ create_display_page (void)
 					gtk_label_new (_("Display")));
 }
 
+static void
+phelp_cb (GtkWidget *w, gint tab, gpointer data)
+{
+	GnomeHelpMenuEntry help_entry = { "tasklist_applet",
+					  "index.html#tasklist-applet-properties" };
+	gnome_help_display(NULL, &help_entry);
+}
+
 /* Display property dialog */
 void
 display_properties (void)
@@ -307,7 +315,8 @@ display_properties (void)
 	gtk_signal_connect (GTK_OBJECT (prop), "destroy",
 			    GTK_SIGNAL_FUNC (gtk_widget_destroyed),
 			    &prop);
-
+	gtk_signal_connect (GTK_OBJECT (prop), "help",
+			    GTK_SIGNAL_FUNC (phelp_cb), NULL);
 	create_display_page ();
 	create_size_page ();
 

@@ -716,7 +716,7 @@ gwm_desktop_draw (GtkWidget    *widget,
   gtk_draw_box (style,
                 window,
                 GTK_STATE_ACTIVE,
-                current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+                current ? GTK_SHADOW_OUT : GTK_SHADOW_ETCHED_IN,
                 0, 0,
                 -1, -1);
   
@@ -834,7 +834,7 @@ gwm_desktop_draw (GtkWidget    *widget,
   gtk_draw_shadow (style,
                    window,
                    GTK_STATE_ACTIVE,
-                   current ? GTK_SHADOW_IN : GTK_SHADOW_OUT,
+                   current ? GTK_SHADOW_OUT : GTK_SHADOW_ETCHED_IN,
                    0, 0,
                    -1, -1);
 

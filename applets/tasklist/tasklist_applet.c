@@ -813,7 +813,15 @@ cb_change_pixel_size (GtkWidget *widget, int size)
 	if(Config.follow_panel_size)
 		change_size (TRUE);
 }
- 
+
+static void
+cb_help (GtkWidget *w, gpointer data)
+{
+	GnomeHelpMenuEntry help_entry = { "tasklist_applet",
+					  "index.html" };
+	gnome_help_display(NULL, &help_entry);
+}
+
 /* Create the applet */
 void
 create_applet (void)
@@ -853,16 +861,23 @@ create_applet (void)
 			    GTK_SIGNAL_FUNC (cb_change_pixel_size), NULL);
 
 	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
-					       "about",
-					       GNOME_STOCK_MENU_ABOUT,
-					       _("About..."),
-					       (AppletCallbackFunc) cb_about,
-					       NULL);
-	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
 					       "properties",
 					       GNOME_STOCK_MENU_PROP,
 					       _("Properties..."),
 					       (AppletCallbackFunc) cb_properties,
+					       NULL);
+	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
+					       "help",
+					       GNOME_STOCK_PIXMAP_HELP,
+					       _("Help"),
+					       (AppletCallbackFunc) cb_help,
+					       NULL);
+
+	applet_widget_register_stock_callback (APPLET_WIDGET (applet),
+					       "about",
+					       GNOME_STOCK_MENU_ABOUT,
+					       _("About..."),
+					       (AppletCallbackFunc) cb_about,
 					       NULL);
 }
 
