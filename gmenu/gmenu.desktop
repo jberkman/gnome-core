@@ -33,6 +33,7 @@ Comment[nl]=GNOME menu editor
 Comment[no]=Menyredigering for GNOME
 Comment[pt]=O editor de menus GNOME
 Comment[ru]=Программа для редакторования GNOME меню
+Comment[pl]=Edytor menu GNOME
 Exec=gmenu
 Icon=gnome-gmenu.png
 Terminal=0

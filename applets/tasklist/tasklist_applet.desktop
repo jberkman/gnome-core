@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=Tasklist
 Name[no]=Oppgaveliste
+Name[pl]=Lista zadañ
 Comment=GNOME Tasklist
 Comment[no]=GNOME oppgaveliste
+Comment[pl]=Lista zadañ dla GNOME
 Exec=tasklist_applet --activate-goad-server=tasklist_applet
 Icon=
 Terminal=0
