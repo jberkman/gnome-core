@@ -93,7 +93,8 @@ static gboolean		send_client_message_32	  (Window     recipient,
 						   ...);
 static void 		get_task_root_and_frame   (GwmhTask    *task);
 static GdkWindow*	gdk_window_ref_from_xid	  (Window       xwin);
-static guint      gwmh_property_atom_to_info_flag (Atom atom);
+static guint            gwmh_property_atom2info   (Atom         atom,
+						   gboolean     per_task);
 static void		gwmh_task_queue_full	  (GwmhTask          *task,
 						   GwmhTaskInfoMask   imask,
 						   GwmhTaskInfoMask   notify_mask);
@@ -582,7 +583,7 @@ root_event_monitor (GdkXEvent *gdk_xevent,
       GwmhDeskInfoMask imask;
 
     case PropertyNotify:
-      imask = gwmh_property_atom_to_info_flag (xevent->xproperty.atom);
+      imask = gwmh_property_atom2info (xevent->xproperty.atom, FALSE);
       if (imask)
 	gwmh_desk_queue_update (imask);
       break;
@@ -643,7 +644,7 @@ task_event_monitor (GdkXEvent *gdk_xevent,
       /* gwmh_task_queue_update (task, GWMH_TASK_INFO_FOCUSED); */
       break;
     case PropertyNotify:
-      imask = gwmh_property_atom_to_info_flag (xevent->xproperty.atom);
+      imask = gwmh_property_atom2info (xevent->xproperty.atom, TRUE);
       if (imask)
 	gwmh_task_queue_update (task, imask);
       break;
@@ -662,14 +663,14 @@ task_event_monitor (GdkXEvent *gdk_xevent,
 }
 
 static guint
-gwmh_property_atom_to_info_flag (Atom atom)
+gwmh_property_atom2info (Atom     atom,
+			 gboolean per_task)
 {
   static const Atom gwmh_XA_WM_NAME = XA_WM_NAME;
   static const struct {
     const Atom *atom_p;
     guint       iflag;
-  } atom_masks[] = {
-
+  } desk_atom_masks[] = {
     /* GwmhDeskInfoMask */
     { &GWMHA_WIN_CLIENT_LIST,		GWMH_DESK_INFO_CLIENT_LIST, },
     { &GWMHA_WIN_AREA,			GWMH_DESK_INFO_CURRENT_AREA, },
@@ -677,22 +678,31 @@ gwmh_property_atom_to_info_flag (Atom atom)
     { &GWMHA_WIN_WORKSPACE,		GWMH_DESK_INFO_CURRENT_DESKTOP, },
     { &GWMHA_WIN_WORKSPACE_NAMES,	GWMH_DESK_INFO_DESKTOP_NAMES, },
     { &GWMHA_WIN_WORKSPACE_COUNT,	GWMH_DESK_INFO_N_DESKTOPS, },
-
+  }, task_atom_masks[] = {
     /* GwmhTaskInfoMask */
     { &GWMHA_WIN_APP_STATE,		GWMH_TASK_INFO_APP_STATE, },
-    { &XA_WM_STATE,			GWMH_TASK_INFO_ICONIFIED, },
     { &GWMHA_WIN_STATE,			GWMH_TASK_INFO_GSTATE, },
     { &GWMHA_WIN_HINTS,			GWMH_TASK_INFO_GHINTS, },
     { &GWMHA_WIN_LAYER,			GWMH_TASK_INFO_LAYER, },
     { &GWMHA_WIN_AREA,			GWMH_TASK_INFO_AREA, },
     { &GWMHA_WIN_WORKSPACE,		GWMH_TASK_INFO_DESKTOP, },
+    { &XA_WM_STATE,			GWMH_TASK_INFO_ICONIFIED, },
     { &gwmh_XA_WM_NAME,			GWMH_TASK_INFO_MISC, },
   };
   guint i;
 
-  for (i = 0; i < sizeof (atom_masks) / sizeof (atom_masks[0]); i++)
-    if (*atom_masks[i].atom_p == atom)
-      return atom_masks[i].iflag;
+  if (per_task)
+    {
+      for (i = 0; i < sizeof (task_atom_masks) / sizeof (task_atom_masks[0]); i++)
+	if (*task_atom_masks[i].atom_p == atom)
+	  return task_atom_masks[i].iflag;
+    }
+  else
+    {
+      for (i = 0; i < sizeof (desk_atom_masks) / sizeof (desk_atom_masks[0]); i++)
+	if (*desk_atom_masks[i].atom_p == atom)
+	  return desk_atom_masks[i].iflag;
+    }
 
   return 0;
 }

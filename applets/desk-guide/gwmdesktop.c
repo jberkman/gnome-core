@@ -494,6 +494,8 @@ gwm_desktop_button_press (GtkWidget      *widget,
 		  desktop->grab_task = task;
 		  desktop->x_comp = desktop->x_spixels * (event->x - grab_area->x);
 		  desktop->y_comp = desktop->y_spixels * (event->y - grab_area->y);
+		  desktop->x_comp += task->frame_x - task->win_x;
+		  desktop->y_comp += task->frame_y - task->win_y;
 		}
 	      break;
 	    }
@@ -530,11 +532,9 @@ gwmh_desktop_motion (GtkWidget      *widget,
     {
       gdk_window_move (task->gdkwindow,
 		       (event->x - desktop->x_origin) *
-		       desktop->x_spixels - desktop->x_comp +
-		       task->win_x - task->frame_x,
+		       desktop->x_spixels - desktop->x_comp,
 		       (event->y - desktop->y_origin) *
-		       desktop->y_spixels - desktop->y_comp +
-		       task->win_y - task->frame_y);
+		       desktop->y_spixels - desktop->y_comp);
       gdk_flush ();
     }
 

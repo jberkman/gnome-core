@@ -1,3 +1,16 @@
+Sat Sep 11 17:59:16 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmdesktop.c (gwm_desktop_button_press): supplement the x_comp and
+	y_comp values by the frame - win position distance.
+
+	* gwmdesktop.c (gwmh_desktop_motion): don't recalculate win.{x,y} -
+	frame.{x,y} upon every single move, simply rely on x_comp and y_comp.
+
+Sat Sep 11 17:27:35 1999  Tim Janik  <timj@gtk.org>
+
+	* gwmh.c (gwmh_property_atom2info): translate property atoms to
+	info flags, according to desk-relative or task-relative properties.
+
 1999-08-21 Anders Carlsson  <anders.carlsson@tordata.se>
 
 	* gwmh.c: Fixed error with the KWM_WIN_ICON hint.
@@ -23,7 +36,7 @@ Fri Aug 20 10:28:55 1999  Tim Janik  <timj@gtk.org>
 
 	* gwmh.[hc]: split up gwmh_task_show() into gwmh_task_deiconify(),
 	gwmh_task_focus(), gwmh_task_raise() since some code needs only
-	part of the sho() functionality.
+	part of the show() functionality.
 	gwmh_task_show() still incorporates the functionality of the above
 	fucntions and is more efficient since it coalescs the task updates
 	and will only sync once. though, it will not try to assign focus to
