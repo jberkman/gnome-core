@@ -66,9 +66,9 @@ main.c: $(CORBA_SRCLIST)
 # Create the cappletConf.sh file from the sh.in file
 #
 cappletConf.sh: cappletConf.sh.in Makefile
-	sed -e 's,\@GNOME_LIBDIR\@,$(GNOME_LIBDIR),g' \
-	    -e 's,\@GNOMEUI_LIBS\@,$(GNOMEUI_LIBS),g' \
-	    -e 's,\@GNOME_INCLUDEDIR\@,$(GNOME_INCLUDEDIR),g' \
-	    -e 's,\@ORB_LIBS\@,$(ORB_LIBS),g' \
+	sed -e 's?\@GNOME_LIBDIR\@?$(GNOME_LIBDIR)?g' \
+	    -e 's?\@GNOMEUI_LIBS\@?$(GNOMEUI_LIBS)?g' \
+	    -e 's?\@GNOME_INCLUDEDIR\@?$(GNOME_INCLUDEDIR)?g' \
+	    -e 's?\@ORB_LIBS\@?$(ORB_LIBS)?g' \
 	    < $(srcdir)/cappletConf.sh.in > cappletConf.tmp \
 	  && mv cappletConf.tmp cappletConf.sh
