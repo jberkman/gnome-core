@@ -1,4 +1,9 @@
-Sun Oct 18 19:15:05 1998  Owen Taylor  <otaylor@gtk.org>
+Sun Oct 18 21:37:34 1998  Owen Taylor  <otaylor@gtk.org>
+
+	* gnome-terminal.c (drag_data_received): Removed broken
+	debugging printf so it compiles.
+
+Sun Oct 18 19:55:45 1998  Owen Taylor  <otaylor@gtk.org>
 
 	* gnome-terminal.c: Use the new DND API.
 

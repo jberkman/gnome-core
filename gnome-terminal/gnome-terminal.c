@@ -1095,8 +1095,6 @@ drag_data_received  (GtkWidget *widget, GdkDragContext *context,
 		if (selection_data->length != 8)
 			return;
 
-		g_print ("%d %d\n", position->x, position->y);
-		
 		col = x / term->charwidth;
 		row = y / term->charheight;
 
