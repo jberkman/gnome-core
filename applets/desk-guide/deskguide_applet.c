@@ -893,7 +893,7 @@ gp_about (void)
       };
       
       dialog = gnome_about_new ("Desk Guide",
-				"0.3",
+				"0.4",
 				"Copyright (C) 1999 Tim Janik",
 				authors,
 				DESK_GUIDE_NAME,

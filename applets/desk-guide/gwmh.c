@@ -1918,6 +1918,21 @@ gwmh_task_get_qdata (GwmhTask *task,
   return g_datalist_id_get_data (&task->datalist, quark);
 }
 
+gpointer
+gwmh_task_steal_qdata (GwmhTask *task,
+		       GQuark    quark)
+{
+  gpointer data;
+
+  g_return_val_if_fail (task != NULL, NULL);
+  
+  data = g_datalist_id_get_data (&task->datalist, quark);
+  if (data)
+    g_datalist_id_remove_no_notify (&task->datalist, quark);
+
+  return data;
+}
+
 void
 gwmh_task_kill (GwmhTask *task)
 {

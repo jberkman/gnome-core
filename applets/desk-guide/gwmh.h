@@ -308,6 +308,8 @@ void            gwmh_task_set_qdata_full	(GwmhTask	*task,
 						 GDestroyNotify  destroy);
 gpointer	gwmh_task_get_qdata		(GwmhTask	*task,
 						 GQuark          quark);
+gpointer	gwmh_task_steal_qdata		(GwmhTask	*task,
+						 GQuark		 quark);
 void		gwmh_task_get_frame_area_pos	(GwmhTask        *task,
 						 gint            *x_p,
 						 gint            *y_p);

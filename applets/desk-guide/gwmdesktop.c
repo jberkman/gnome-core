@@ -688,7 +688,7 @@ thumb_queue_step (gpointer data)
     {
       GwmDesktopClass *class;
       GwmhDesk *desk;
-      GSList *rest_queue = NULL;
+      GSList *new_queue = NULL;
       
       class = gtk_type_class (GWM_TYPE_DESKTOP);
       desk = gwmh_desk_get_config ();
@@ -699,8 +699,8 @@ thumb_queue_step (gpointer data)
 	  GwmhTask *task = nail->user_data;
 	  
 	  thumb_queue = node->next;
-	  node->next = rest_queue;
-	  rest_queue = node;
+	  node->next = new_queue;
+	  new_queue = node;
 	  
 	  if (task->desktop == desk->current_desktop &&
 	      gwm_thumb_nail_update_drawable (nail, task->gdkwindow, task->win_x, task->win_y))
@@ -717,7 +717,7 @@ thumb_queue_step (gpointer data)
 	      break;
 	    }
 	}
-      thumb_queue = g_slist_concat (thumb_queue, g_slist_reverse (rest_queue));
+      thumb_queue = g_slist_concat (thumb_queue, g_slist_reverse (new_queue));
     }
 
   GDK_THREADS_LEAVE ();
@@ -735,15 +735,14 @@ gwm_desktop_class_reload_thumbs (void)
 }
 
 static void
-thumb_queue_remove (gpointer data)
+thumb_nail_destroy (gpointer data)
 {
   GwmThumbNail *nail = data;
   
   if (!g_slist_find (thumb_queue, nail)) /* FIXME */
     g_error ("removing thumbnail from queue failed");
   thumb_queue = g_slist_remove (thumb_queue, nail);
-  if (nail->pixbuf)
-    gwm_thumb_nail_destroy (nail);
+  gwm_thumb_nail_destroy (nail);
 }
 
 static void
@@ -751,7 +750,7 @@ task_remove_thumb (gpointer data)
 {
   GwmhTask *task = data;
 
-  gwmh_task_set_qdata_full (task, quark_thumb_nail, NULL, NULL);
+  gwmh_task_steal_qdata (task, quark_thumb_nail);
 }
 
 static GwmThumbNail*
@@ -779,11 +778,11 @@ gwm_desktop_get_thumb_nail (GwmDesktop *desktop,
       color |= (style->bg[GTK_STATE_NORMAL].green >> 8) << 8;
       color |= style->bg[GTK_STATE_NORMAL].blue >> 8;
       
-      nail = gwm_thumb_nail_new (color, task, task_remove_thumb, width, height, (glong) desktop);
+      nail = gwm_thumb_nail_new (color, width, height, (glong) desktop, task, task_remove_thumb);
       if (nail)
 	{
 	  thumb_queue = g_slist_append (thumb_queue, nail);
-	  gwmh_task_set_qdata_full (task, quark_thumb_nail, nail, thumb_queue_remove);
+	  gwmh_task_set_qdata_full (task, quark_thumb_nail, nail, thumb_nail_destroy);
 	}
     }
   else

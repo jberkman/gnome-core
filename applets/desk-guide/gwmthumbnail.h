@@ -46,11 +46,11 @@ struct _GwmThumbNail
 /* --- fucntions --- */
 void		gwm_thumb_nails_set_active	(gboolean	 thumb_nails_enabled);
 GwmThumbNail*	gwm_thumb_nail_new		(guint		 default_color,
-						 gpointer	 user_data,
-						 GDestroyNotify	 dtor,
 						 guint		 width,
 						 guint		 height,
-						 glong		 grow_request_id);
+						 glong		 grow_request_id,
+						 gpointer	 user_data,
+						 GDestroyNotify	 dtor);
 void		gwm_thumb_nail_destroy		(GwmThumbNail	*nail);
 void		gwm_thumb_nail_grow		(GwmThumbNail	*nail,
 						 guint		 width,
