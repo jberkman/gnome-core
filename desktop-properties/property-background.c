@@ -155,8 +155,8 @@ static gint
 fill_monitor (void)
 {
 	GdkWindow *rootWindow;
-	GdkImlibImage *pi;
-	GdkImlibImage *bi;
+	GdkImlibImage *pi = NULL;
+	GdkImlibImage *bi = NULL;
 	GdkPixmap *screen;
 	GdkPixmap *pix;
 	GdkBitmap *mask;
@@ -180,7 +180,7 @@ fill_monitor (void)
 
 		GC = gdk_gc_new (rootWindow);
 
-		if ((!grad || !(bi->shape_mask)) && wpType == WALLPAPER_TILED) {
+		if ((!grad || (bi && !bi->shape_mask)) && wpType == WALLPAPER_TILED) {
 
 			gdk_color_alloc (gdk_window_get_colormap (rootWindow),
 					 &bgColor1);
@@ -212,7 +212,11 @@ fill_monitor (void)
 				gdk_window_clear (rootWindow);
 				gdk_pixmap_unref (bg);
 			} else
-				gdk_window_set_background (rootWindow, &bgColor1);
+			  {
+			    g_print("Setting background in fill_monitor\n");
+			    gdk_window_set_background (rootWindow, &bgColor1);
+			    gdk_window_clear (rootWindow);
+			  }
 			
 			gdk_gc_unref (GC);
 
@@ -350,24 +354,43 @@ fill_monitor (void)
 	return FALSE;
 }
 
-static void
-set_background_mode (GtkWidget *widget, gpointer data)
-{
-	grad = GTK_TOGGLE_BUTTON (widget)->active;
+static GtkWidget *radioh, *radiov, *radiof, *radiog, *button2;
 
-	fill_monitor ();
-	printf ("%s\n", __FUNCTION__);
-	property_changed ();
+static void
+set_background_mode (GtkWidget *widget)
+{
+  if(widget == radiof && GTK_TOGGLE_BUTTON(widget)->active)
+    /* Flat color */
+    {
+      gtk_widget_set_sensitive(button2, FALSE);
+      gtk_widget_set_sensitive(radioh, FALSE);
+      gtk_widget_set_sensitive(radiov, FALSE);
+      grad = FALSE;
+    }
+  else if(widget == radiog && GTK_TOGGLE_BUTTON(widget)->active)
+    /* Gradient fill */
+    {
+      gtk_widget_set_sensitive(button2, TRUE);
+      gtk_widget_set_sensitive(radioh, TRUE);
+      gtk_widget_set_sensitive(radiov, TRUE);
+      grad = TRUE;
+    }
+  fill_monitor();
+  property_changed();
 }
 
 static void
-set_orientation (GtkWidget *widget, gpointer data)
+set_orientation (GtkWidget *widget)
 {
-	vertical = GTK_TOGGLE_BUTTON (widget)->active;
+  if(widget == radioh && GTK_TOGGLE_BUTTON(widget)->active)
+    /* Horizontal gradient */
+    vertical = FALSE;
+  else if(widget == radiov && GTK_TOGGLE_BUTTON(widget)->active)
+    /* Vertical gradient */
+    vertical = TRUE;
 
-	fill_monitor ();
-	/* printf ("%s\n", __FUNCTION__); */
-	property_changed ();
+  fill_monitor ();
+  property_changed ();
 }
 
 static void
@@ -387,9 +410,6 @@ color_setup ()
 	GtkWidget *frame;
 	GtkWidget *table;
 	GtkWidget *button1;
-	GtkWidget *button2;
-	GtkWidget *radiof, *radiog;
-	GtkWidget *radiov, *radioh;
 	GtkWidget *vb1, *vb2;
 	
 	frame = gtk_frame_new (_("Color"));
@@ -448,30 +468,29 @@ color_setup ()
 	gtk_table_attach_defaults (GTK_TABLE(table), vb2, 1, 2, 1, 2);
 	gtk_widget_set_sensitive (radioh, FALSE);
 	gtk_widget_show(radioh);
-	
+
+	/* BEFORE our signals are connected, set initial states */
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radiog), grad);
 	gtk_toggle_button_set_state (GTK_TOGGLE_BUTTON (radioh), !vertical);
 
-	/* We connect to the signals after setting up the initial
-	   state; that way the callbacks can always run
-	   property_changed() without worrying about the initial
-	   setting.  This is moderately gross, but better than keeping
-	   a bunch of state variables around.  */
+	gtk_widget_set_sensitive(button2, grad);
+	gtk_widget_set_sensitive(radioh, grad);
+	gtk_widget_set_sensitive(radiov, grad);
+	
+	/* When people change the background mode controls, update */
 	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
+			    GTK_SIGNAL_FUNC(set_background_mode),
+			    NULL);
+	gtk_signal_connect (GTK_OBJECT(radiof), "toggled",
 			    (GtkSignalFunc) set_background_mode,
-			    (gpointer) ((long) TRUE));
-	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
-			    (GtkSignalFunc) radio_toggle_widget_active,
-			    button2);
+			    NULL);
+
 	gtk_signal_connect (GTK_OBJECT(radiov), "toggled",
 			    (GtkSignalFunc) set_orientation,
 			    (gpointer) ((long) TRUE));
-	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
-			    (GtkSignalFunc) radio_toggle_widget_active,
-			    radioh);
-	gtk_signal_connect (GTK_OBJECT(radiog), "toggled",
-			    (GtkSignalFunc) radio_toggle_widget_active,
-			    radiov);
+	gtk_signal_connect (GTK_OBJECT(radioh), "toggled",
+			    (GtkSignalFunc) set_orientation,
+			    (gpointer) ((long) FALSE));
 
 	gtk_idle_add ((GtkFunction) fill_monitor, NULL);
 
@@ -706,7 +725,7 @@ background_apply ()
 	fill_monitor ();
 	fillPreview = TRUE;
 
-	/*
+#if 0 /* Unused - fill_monitor does it all now */	
 	GdkWindow *rootWindow;
 	GdkGC *rootGC;
 	GdkPixmap *rootBack = NULL;
@@ -718,6 +737,7 @@ background_apply ()
 	gdk_window_get_size (rootWindow, &rootWidth, &rootHeight);
 
 	if (bgType == BACKGROUND_WALLPAPER && wpType == WALLPAPER_TILED) {
+	g_print("Doing tiled pixmap\n");
 		if (wpFileName) {
 			rootBack = gdk_pixmap_create_from_xpm (rootWindow, NULL,
 							       &bgColor1, wpFileName);
@@ -729,6 +749,7 @@ background_apply ()
 		}
 	} else if (grad ||
 		   (bgType == BACKGROUND_WALLPAPER && wpType == WALLPAPER_CENTERED)) {
+		   g_print("Doing gradient or centered-pixmap approach\n");
 		GdkPixmap *pix, *mask;
 		gint xoff, yoff;
 		gint w, h;
@@ -802,7 +823,7 @@ background_apply ()
 	}
 	gdk_window_clear (rootWindow);
 	gdk_gc_destroy (rootGC);
-	*/
+#endif
 }
 
 static void
@@ -925,6 +946,7 @@ background_setup ()
 static gint
 background_action (GnomePropertyRequest req)
 {
+  g_print("Doing background_action %d\n", req);
 	switch (req) {
 	case GNOME_PROPERTY_READ:
 		background_read ();
