@@ -227,8 +227,8 @@ mouse_setup (void)
   gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, FALSE, GNOME_PAD);
 
   gtk_widget_show (vbox);
-  gtk_notebook_append_page (GTK_NOTEBOOK (config->notebook), vbox,
-			    gtk_label_new (_("Mouse")));
+  gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
+				  vbox, gtk_label_new (_("Mouse")));
 }
 
 static gint

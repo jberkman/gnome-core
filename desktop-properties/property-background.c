@@ -917,7 +917,7 @@ background_setup ()
 	gtk_widget_show (hbox);
 	gtk_widget_show (vbox);
 
-        gtk_notebook_append_page (GTK_NOTEBOOK (config->notebook),
+        gnome_property_box_append_page (GNOME_PROPERTY_BOX (config->property_box),
 				  vbox,
 				  gtk_label_new (_(" Background ")));
 }

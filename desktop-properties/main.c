@@ -65,7 +65,7 @@ get_monitor_preview_widget (void)
 void
 property_changed (void)
 {
-	gtk_widget_set_sensitive (apply_button, TRUE);
+	gnome_property_box_changed (GNOME_PROPERTY_BOX (display_config->property_box));
 }
 
 static gint
@@ -83,88 +83,26 @@ deleteFn (GtkWidget *widget, gpointer *data)
 
 /* This is called when the Help button is clicked.  */
 static gint
-help (GtkWidget *w, gpointer *data)
+help (GtkWidget *w, gint page, gpointer *data)
 {
   /* FIXME.  */
-}
-
-static void
-display_properties_action (GtkWidget *w, gint close)
-{
-	gnome_property_configurator_request_foreach (display_config,
-						     GNOME_PROPERTY_APPLY);
-
-	state_changed = 1;
-	gtk_widget_set_sensitive (apply_button, FALSE);
-
-	if (close) {
-		gnome_property_configurator_request_foreach (display_config,
-							     GNOME_PROPERTY_WRITE);
-		gnome_config_sync ();
-
-		deleteFn (NULL, NULL);
-	}
 }
 
 void
 display_properties_setup (void)
 {
-	GtkWidget *vbox = gtk_vbox_new (FALSE, 0),
-		*hbox = gtk_hbox_new (FALSE, GNOME_PAD),
-		*bf = gtk_frame_new (NULL),
-		*bok = gnome_stock_button (GNOME_STOCK_BUTTON_OK),
-		*bapl = gnome_stock_button (GNOME_STOCK_BUTTON_APPLY),
-		*bcl = gnome_stock_button (GNOME_STOCK_BUTTON_CANCEL),
-	        *bhelp = gnome_stock_button (GNOME_STOCK_BUTTON_HELP);
-
-	apply_button = bapl;
-	gtk_widget_set_sensitive (apply_button, FALSE);
-
-	main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title (GTK_WINDOW (main_window), application_title ());
-	gtk_window_set_policy (GTK_WINDOW (main_window), FALSE, FALSE, TRUE);
-	gtk_signal_connect (GTK_OBJECT (main_window), "delete_event",
-			    GTK_SIGNAL_FUNC (deleteFn), NULL);	
-
-	gtk_signal_connect (GTK_OBJECT (bhelp), "clicked",
-			    GTK_SIGNAL_FUNC (help), NULL);
-
-	gtk_signal_connect (GTK_OBJECT (bcl), "clicked",
-			    GTK_SIGNAL_FUNC (deleteFn), NULL);	
-
-	gtk_signal_connect (GTK_OBJECT (bok), "clicked",
-			    GTK_SIGNAL_FUNC (display_properties_action), (gpointer) 1);
-
-	gtk_signal_connect (GTK_OBJECT (bapl), "clicked",
-			    GTK_SIGNAL_FUNC (display_properties_action), (gpointer) 0);
-
-	gtk_container_border_width (GTK_CONTAINER (hbox), GNOME_PAD);
-	gtk_frame_set_shadow_type (GTK_FRAME (bf), GTK_SHADOW_OUT);
-
-	/* configurators_setup (); */
 	gnome_property_configurator_setup (display_config);
 	gnome_property_configurator_request_foreach (display_config,
 						     GNOME_PROPERTY_SETUP);
-	
-	gtk_container_add (GTK_CONTAINER(main_window), vbox);
-	gtk_box_pack_start (GTK_BOX (vbox), display_config->notebook, FALSE, FALSE, 0);
-	
-	gtk_box_pack_end (GTK_BOX (hbox), bhelp, FALSE, FALSE, 0);
-	gtk_box_pack_end (GTK_BOX (hbox), bcl, FALSE, FALSE, 0);
-	gtk_box_pack_end (GTK_BOX (hbox), bapl, FALSE, FALSE, 0);
-	gtk_box_pack_end (GTK_BOX (hbox), bok, FALSE, FALSE, 0);
-	gtk_container_add (GTK_CONTAINER(bf), hbox);
-	gtk_box_pack_start (GTK_BOX (vbox), bf, FALSE, FALSE, 0);
 
-	gtk_widget_show (bok);
-	gtk_widget_show (bapl);
-	gtk_widget_show (bcl);
-	gtk_widget_show (bhelp);
-	gtk_widget_show (hbox);
-	gtk_widget_show (bf);
-	gtk_widget_show (display_config->notebook);
-	gtk_widget_show (vbox);
-	gtk_widget_show (main_window);
+	gtk_signal_connect (GTK_OBJECT (display_config->property_box),
+			    "help", (GtkSignalFunc) help, NULL);
+	gtk_signal_connect (GTK_OBJECT (display_config->property_box),
+			    "delete_event", (GtkSignalFunc) deleteFn, NULL);
+	gtk_signal_connect (GTK_OBJECT (display_config->property_box),
+			    "destroy", (GtkSignalFunc) deleteFn, NULL);
+
+	gtk_widget_show (display_config->property_box);
 }
 
 static error_t
