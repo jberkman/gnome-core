@@ -169,7 +169,7 @@ close_app (GtkWidget *app)
 }
 
 
-static void
+void
 close_terminal_cmd (void *unused, void *data)
 {
 	GtkWidget *top = gtk_widget_get_toplevel (GTK_WIDGET (data));
@@ -543,7 +543,7 @@ apply_changes (ZvtTerm *term, struct terminal_config *newcfg)
 	return 0;
 }
 
-static void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
+void save_preferences_cmd (GtkWidget *widget, ZvtTerm *term);
 
 static void
 apply_changes_cmd (GtkWidget *widget, int page, ZvtTerm *term)
@@ -869,7 +869,7 @@ save_preferences (GtkWidget *widget, ZvtTerm *term,
 	gnome_config_sync ();
 }
 
-static void
+void
 save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	struct terminal_config *cfg = 
@@ -881,7 +881,7 @@ save_preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 	gnome_config_pop_prefix ();
 }
 
-static void
+void
 preferences_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	static GnomeHelpMenuEntry help_entry = { NULL, "properties" };
@@ -1226,7 +1226,7 @@ color_ok (GtkWidget *w)
 	gtk_widget_destroy (gtk_widget_get_toplevel (w));
 }
 
-static void
+void
 color_cmd (void)
 {
 	GtkWidget *c;
@@ -1240,7 +1240,7 @@ color_cmd (void)
 }
 #endif
 
-static void
+void
 show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GnomeApp *app;
@@ -1253,7 +1253,7 @@ show_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	save_preferences_cmd (widget, term);
 }
 
-static void
+void
 hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GnomeApp *app;
@@ -1266,7 +1266,7 @@ hide_menu_cmd (GtkWidget *widget, ZvtTerm *term)
 	save_preferences_cmd (widget, term);
 }
 
-static void
+void
 paste_cmd (GtkWidget *widget, ZvtTerm *term)
 {
 	GdkAtom string_atom;
@@ -1570,7 +1570,7 @@ term_change_pos(GtkWidget *widget)
 		gtk_widget_queue_draw(widget);
 }
 
-static void
+GtkWidget *
 new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 {
 	GtkWidget *app, *hbox, *scrollbar;
@@ -1737,7 +1737,7 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	switch (zvt_term_forkpty (term, update_records)){
 	case -1:
 		perror ("Error: unable to fork");
-		return;
+		return NULL;
 		
 	case 0: {
 		int open_max = sysconf (_SC_OPEN_MAX);
@@ -1758,16 +1758,18 @@ new_terminal_cmd (char **cmd, struct terminal_config *cfg_in, gchar *geometry)
 	}
 
         /* IS THIS BEING DOUBLE-FREED??? --JMP g_free (shell); */
+
+	return app;
 }
 
-static void
+GtkWidget *
 new_terminal (GtkWidget *widget, ZvtTerm *term)
 {
 	struct terminal_config *cfg;
 
 	cfg = gtk_object_get_data (GTK_OBJECT (term), "config");
 
-	new_terminal_cmd (NULL, cfg, NULL);
+	return new_terminal_cmd (NULL, cfg, NULL);
 }
 
 static gboolean

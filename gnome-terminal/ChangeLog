@@ -1,3 +1,11 @@
+1999-03-15  Miguel de Icaza  <miguel@nuclecu.unam.mx>
+
+	* gnome-terminal.c (new_terminal_cmd): Make this return the
+	toplevel GnomeApp.
+
+	Remove static from various utility functions to simplify the life
+	of people hooking into the terminal.
+
 1999-03-11  Miguel de Icaza  <miguel@nuclecu.unam.mx>
 
 	* gnome-terminal: Close all file descriptors that the subprocess
