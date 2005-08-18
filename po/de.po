@@ -5,6 +5,7 @@
 # Christian Meyer <chrisime@gnome.org>, 2000, 2001.
 # Karl Eichwalder <ke@suse.de>, 2000, 2001.
 # Matthias Warkus <mawa@iname.com>, 1999-2001.
+# Jens Seidel <jseidel@cvs.gnome.org>, 2005. 
 #
 # 2000-09-25  Christian Meyer  <linux@chrisime.de>
 # Ich habe (hoffentlich) alles infitivisch umgeformt!!
@@ -13,17 +14,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnome-core 1.4.x\n"
 "POT-Creation-Date: 2002-02-11 17:31+0000\n"
-"PO-Revision-Date: 2001-07-29 08:05+0200\n"
-"Last-Translator: unknown :-(\n"
-"Language-Team: German\n"
+"PO-Revision-Date: 2005-08-19 08:05+0200\n"
+"Last-Translator: Jens Seidel <jseidel@cvs.gnome.org>\n"
+"Language-Team: German <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: gnome-desktop/gnome-desktop-item.c:273
-#, fuzzy
 msgid "No name"
-msgstr "Keiner"
+msgstr "Kein Name"
 
 #: gnome-desktop/gnome-desktop-item.c:276
 msgid "UTF-8"
@@ -111,7 +111,6 @@ msgid "Browse icons"
 msgstr "Schubladenicon"
 
 #: gnome-desktop/gnome-ditem-edit.c:319
-#, fuzzy
 msgid "Run in Terminal"
 msgstr "In Terminal ausführen"
 
@@ -120,9 +119,8 @@ msgid "Try this before using:"
 msgstr ""
 
 #: gnome-desktop/gnome-ditem-edit.c:423
-#, fuzzy
 msgid "Documentation:"
-msgstr "Dokumentationsindex zeigen"
+msgstr "Dokumentation:"
 
 #: gnome-desktop/gnome-ditem-edit.c:433
 msgid "Name/Comment translations:"
@@ -2616,7 +2614,7 @@ msgid ""
 "This program is responsible for launching other applications, embedding "
 "small applets within itself, world peace, and random X crashes."
 msgstr ""
-"Dieses Program ist verantwortlich für das Starten anderer Anwendungen,\n"
+"Dieses Programm ist verantwortlich für das Starten anderer Anwendungen,\n"
 "das Einbetten von kleinen Applets in sich selber, den Weltfrieden, und\n"
 "grundlose X-Abstürze."
 
@@ -3479,7 +3477,7 @@ msgstr "Normales XTerm"
 #~ "Cannot execute the gmc-client program,\n"
 #~ "perhaps gmc is not installed"
 #~ msgstr ""
-#~ "Das gmc-Client-Progamm kann nicht ausgeführt werden;\n"
+#~ "Das gmc-Client-Programm kann nicht ausgeführt werden;\n"
 #~ "gmc ist vielleicht nicht installiert."
 
 #~ msgid "News (www)"
