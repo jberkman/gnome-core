@@ -4,6 +4,12 @@ you should check out gnome-panel, gnome-desktop and gnome-session.
 
         Mark McLoughlin, 11/02/2002
 
+2005-08-18  Jens Seidel  <jseidel@cvs.gnome.org>
+
+        * de.po: Various typo fixes, changed encoding to UTF-8.
+	It should not harm that this branch is dead but it reduces
+	trouble with my spellchecking tests.
+
 2002-02-12  jacob berkman  <jacob@ximian.com>
 
 	* POTFILES.skip: 
